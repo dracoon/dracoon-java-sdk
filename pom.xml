@@ -50,6 +50,8 @@
         <java.version>1.8</java.version>
 
         <dracoon-crypto-sdk.version>1.0.0</dracoon-crypto-sdk.version>
+        <retrofit.version>2.3.0</retrofit.version>
+        <gson.version>2.7</gson.version>
     </properties>
 
     <dependencies>
@@ -57,6 +59,22 @@
             <groupId>com.dracoon</groupId>
             <artifactId>dracoon-crypto-sdk</artifactId>
             <version>${dracoon-crypto-sdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>${retrofit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-gson</artifactId>
+            <version>${retrofit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 
