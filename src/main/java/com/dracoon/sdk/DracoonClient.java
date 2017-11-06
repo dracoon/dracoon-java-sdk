@@ -1,9 +1,14 @@
 package com.dracoon.sdk;
 
+import com.dracoon.sdk.error.DracoonException;
+
+import java.util.Date;
+
 public abstract class DracoonClient {
 
     public interface Server {
-
+        String getVersion() throws DracoonException;
+        Date getTime() throws DracoonException;
     }
 
     public interface Account {

@@ -21,6 +21,7 @@ public class DracoonClientImpl extends DracoonClient {
     private OkHttpClient mOkHttpClient;
     private Gson mGson;
     private Retrofit mRetrofit;
+    private DracoonService mDracoonService;
 
     private String mAccessToken;
 
@@ -56,6 +57,9 @@ public class DracoonClientImpl extends DracoonClient {
         initOkHttp();
         initGson();
         initRetrofit();
+        initDracoonService();
+
+        mServer = new DracoonServerImpl(this);
     }
 
     private void initOkHttp() {
@@ -87,8 +91,12 @@ public class DracoonClientImpl extends DracoonClient {
                 .build();
     }
 
+    private void initDracoonService() {
+        mDracoonService = mRetrofit.create(DracoonService.class);
+    }
+
     public DracoonService getDracoonService() {
-        return mRetrofit.create(DracoonService.class);
+        return mDracoonService;
     }
 
     @Override
