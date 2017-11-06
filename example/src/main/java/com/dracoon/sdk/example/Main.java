@@ -2,6 +2,9 @@ package com.dracoon.sdk.example;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonClientBuilder;
+import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeList;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,13 +19,31 @@ public class Main {
                 .accessToken(accessToken)
                 .build();
 
-        String serverVersion = client.server().getVersion();
-        Date serverDate = client.server().getTime();
+        getServerData(client);
 
+        listRootNodes(client);
+        getNode(client);
+    }
+
+    private static void getServerData(DracoonClient client) throws DracoonException {
+        String serverVersion = client.server().getVersion();
         System.out.println("Server version: " + serverVersion);
 
+        Date serverDate = client.server().getTime();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         System.out.println("Server date: " + df.format(serverDate));
+    }
+
+    private static void listRootNodes(DracoonClient client) throws DracoonException {
+        NodeList nodeList = client.nodes().getRootNodes();
+        for (Node node : nodeList.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+    }
+
+    private static void getNode(DracoonClient client) throws DracoonException {
+        Node node = client.nodes().getNode(1);
+        System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
 }

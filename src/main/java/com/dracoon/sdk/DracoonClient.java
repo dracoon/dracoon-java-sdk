@@ -1,6 +1,8 @@
 package com.dracoon.sdk;
 
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeList;
 
 import java.util.Date;
 
@@ -32,7 +34,9 @@ public abstract class DracoonClient {
     }
 
     public interface Nodes {
-
+        NodeList getRootNodes() throws DracoonException;
+        NodeList getChildNodes(long parentNodeId) throws DracoonException;
+        Node getNode(long nodeId) throws DracoonException;
     }
 
     public interface Shares {

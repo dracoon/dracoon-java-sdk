@@ -47,7 +47,9 @@ public class DracoonClientImpl extends DracoonClient {
         mServerUrl = serverUrl;
     }
 
-    public void getAccessToken() {}
+    public String getAccessToken() {
+        return mAccessToken;
+    }
 
     public void setAccessToken(String accessToken) {
         mAccessToken = accessToken;
@@ -60,6 +62,7 @@ public class DracoonClientImpl extends DracoonClient {
         initDracoonService();
 
         mServer = new DracoonServerImpl(this);
+        mNodes = new DracoonNodesImpl(this);
     }
 
     private void initOkHttp() {
