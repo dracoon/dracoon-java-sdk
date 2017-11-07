@@ -7,7 +7,7 @@ public class DracoonApiException extends DracoonException {
     private DracoonApiCode mCode;
 
     public DracoonApiException() {
-        mCode = DracoonApiCode.UNKNOWN;
+        mCode = DracoonApiCode.SERVER_UNKNOWN_ERROR;
     }
 
     public DracoonApiException(DracoonApiCode code) {
