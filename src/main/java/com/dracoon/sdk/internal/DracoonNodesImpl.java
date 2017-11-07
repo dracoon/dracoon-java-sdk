@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.mapper.NodeListMapper;
@@ -35,7 +36,8 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
         Response<ApiNodeList> response = DracoonServiceHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            throw new DracoonApiException();
+            DracoonApiCode code = DracoonErrorParser.parseNodesQueryError(response);
+            throw new DracoonApiException(code);
         }
 
         ApiNodeList data = response.body();
@@ -50,7 +52,8 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
         Response<ApiNode> response = DracoonServiceHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            throw new DracoonApiException();
+            DracoonApiCode code = DracoonErrorParser.parseNodesQueryError(response);
+            throw new DracoonApiException(code);
         }
 
         ApiNode data = response.body();

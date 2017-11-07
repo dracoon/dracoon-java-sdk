@@ -19,10 +19,11 @@ public class Main {
                 .accessToken(accessToken)
                 .build();
 
-        getServerData(client);
+        //getServerData(client);
 
-        listRootNodes(client);
-        getNode(client);
+        //listRootNodes(client);
+        //getNode(client);
+        getInvalidNode(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -44,6 +45,14 @@ public class Main {
     private static void getNode(DracoonClient client) throws DracoonException {
         Node node = client.nodes().getNode(1);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void getInvalidNode(DracoonClient client) throws DracoonException {
+        try {
+            client.nodes().getNode(123456789);
+        } catch (DracoonException e) {
+            System.err.println("Error at retrieval of node: " + e.getMessage());
+        }
     }
 
 }
