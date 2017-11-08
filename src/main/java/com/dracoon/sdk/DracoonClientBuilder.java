@@ -10,6 +10,11 @@ public class DracoonClientBuilder {
         mClient = new DracoonClientImpl(serverUrl);
     }
 
+    public DracoonClientBuilder log(Log log) {
+        mClient.setLog(log);
+        return this;
+    }
+
     public DracoonClientBuilder accessToken(String accessToken) {
         mClient.setAccessToken(accessToken);
         return this;

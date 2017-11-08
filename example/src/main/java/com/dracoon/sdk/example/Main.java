@@ -2,6 +2,7 @@ package com.dracoon.sdk.example;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonClientBuilder;
+import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
@@ -16,6 +17,7 @@ public class Main {
         String accessToken = "";
 
         DracoonClient client = new DracoonClientBuilder(serverUrl)
+                .log(new Logger(Log.DEBUG))
                 .accessToken(accessToken)
                 .build();
 

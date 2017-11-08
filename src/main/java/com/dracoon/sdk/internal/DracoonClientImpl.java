@@ -56,6 +56,8 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public void init() {
+        Log.setLog(mLog);
+
         initOkHttp();
         initGson();
         initRetrofit();

@@ -10,6 +10,8 @@ import java.io.IOException;
 
 public class DracoonErrorParser {
 
+    private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
+
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
 
     public static DracoonApiCode parseStandardError(Response response) {
@@ -91,10 +93,9 @@ public class DracoonErrorParser {
                 default:
             }
 
-            // TODO: Create logger
-            //if (er != null) {
-            //    Log.e(LOG_TAG, er.toString());
-            //}
+            if (er != null) {
+                Log.d(LOG_TAG, er.toString());
+            }
 
             return er;
         } catch (IOException e) {

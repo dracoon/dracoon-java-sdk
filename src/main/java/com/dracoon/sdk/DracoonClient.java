@@ -56,6 +56,16 @@ public abstract class DracoonClient {
 
     }
 
+    protected Log mLog;
+
+    public Log getLog() {
+        return mLog;
+    }
+
+    public void setLog(Log log) {
+        mLog = log;
+    }
+
     public abstract Server server();
     public abstract Account account();
     public abstract Users users();
