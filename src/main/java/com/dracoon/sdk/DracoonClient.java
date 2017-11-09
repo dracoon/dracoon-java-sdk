@@ -1,6 +1,7 @@
 package com.dracoon.sdk;
 
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.model.UploadCallback;
 import com.dracoon.sdk.model.UploadRequest;
 import com.dracoon.sdk.model.Node;
@@ -75,5 +76,30 @@ public abstract class DracoonClient {
     public abstract Nodes nodes();
     public abstract Shares shares();
     public abstract Events events();
+
+    public static class Builder {
+
+        private DracoonClientImpl mClient;
+
+        public Builder(String serverUrl) {
+            mClient = new DracoonClientImpl(serverUrl);
+        }
+
+        public Builder log(Log log) {
+            mClient.setLog(log);
+            return this;
+        }
+
+        public Builder accessToken(String accessToken) {
+            mClient.setAccessToken(accessToken);
+            return this;
+        }
+
+        public DracoonClient build() {
+            mClient.init();
+            return mClient;
+        }
+
+    }
 
 }
