@@ -6,13 +6,13 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
-import com.dracoon.sdk.error.DracoonInvalidArgException;
 import com.dracoon.sdk.internal.mapper.NodeListMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
-import com.dracoon.sdk.model.UploadCallback;
-import com.dracoon.sdk.model.UploadRequest;
+import com.dracoon.sdk.internal.validator.UploadValidator;
+import com.dracoon.sdk.model.FileUploadCallback;
+import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import retrofit2.Call;
@@ -30,7 +30,7 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
     private DracoonClientImpl mClient;
     private DracoonService mService;
 
-    private Map<String, Upload> mUploads = new HashMap<>();
+    private Map<String, FileUpload> mUploads = new HashMap<>();
 
     DracoonNodesImpl(DracoonClientImpl client) {
         mClient = client;
@@ -76,26 +76,28 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
     }
 
     @Override
-    public Node upload(String id, UploadRequest request, File file, UploadCallback callback)
-            throws DracoonException {
-        validateUpload(id, request, file);
+    public Node uploadFile(String id, FileUploadRequest request, File file,
+            FileUploadCallback callback) throws DracoonException {
+        UploadValidator.validate(id, request, file);
 
         InputStream is = getUploadStream(file);
+        long length = file.length();
 
-        Upload upload = new Upload(mClient, id, request, is);
+        FileUpload upload = new FileUpload(mClient, id, request, is, length);
         upload.addCallback(callback);
 
         return upload.runWithResult();
     }
 
     @Override
-    public void startUploadAsync(String id, UploadRequest request, File file,
-            UploadCallback callback) throws DracoonException {
-        validateUpload(id, request, file);
+    public void startUploadFileAsync(String id, FileUploadRequest request, File file,
+            FileUploadCallback callback) throws DracoonException {
+        UploadValidator.validate(id, request, file);
 
         InputStream is = getUploadStream(file);
+        long length = file.length();
 
-        UploadCallback stoppedCallback = new UploadCallback() {
+        FileUploadCallback stoppedCallback = new FileUploadCallback() {
             @Override
             public void onStarted(String id) {
 
@@ -122,26 +124,13 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
             }
         };
 
-        Upload upload = new Upload(mClient, id, request, is);
+        FileUpload upload = new FileUpload(mClient, id, request, is, length);
         upload.addCallback(callback);
         upload.addCallback(stoppedCallback);
 
         mUploads.put(id, upload);
 
         upload.start();
-    }
-
-    private void validateUpload(String id, UploadRequest request, File file)
-            throws DracoonException {
-        if (id == null || id.isEmpty()) {
-            throw new DracoonInvalidArgException("Upload ID cannot be null.");
-        }
-        if (request == null) {
-            throw new DracoonInvalidArgException("Upload request cannot be null");
-        }
-        if (file == null) {
-            throw new DracoonInvalidArgException("Upload file cannot be null");
-        }
     }
 
     private InputStream getUploadStream(File file) throws DracoonException {
@@ -157,8 +146,8 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
     }
 
     @Override
-    public void cancelUploadAsync(String id) throws DracoonException {
-        Upload upload = mUploads.get(id);
+    public void cancelUploadFileAsync(String id) throws DracoonException {
+        FileUpload upload = mUploads.get(id);
         if (upload == null) {
             return;
         }

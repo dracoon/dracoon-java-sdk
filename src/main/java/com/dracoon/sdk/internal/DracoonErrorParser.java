@@ -48,6 +48,87 @@ public class DracoonErrorParser {
         }
     }
 
+    public static DracoonApiCode parseCreateFileUploadError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -80001)
+                    return DracoonApiCode.VALIDATION_INVALID_TARGET_NODE;
+                else if (errorCode == -40755)
+                    return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
+                else if (errorCode == -40756)
+                    return DracoonApiCode.VALIDATION_INVALID_FILE_CLASSIFICATION;
+                else if (errorCode == -80006)
+                    return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
+                else if (errorCode == -80008)
+                    return DracoonApiCode.VALIDATION_EXPIRATION_DATE_TOO_LATE;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                return DracoonApiCode.PERMISSION_CREATE_ERROR;
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+            case INSUFFICIENT_STORAGE:
+                return DracoonApiCode.SERVER_INSUFFICIENT_STORAGE;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public static DracoonApiCode parseFileUploadError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -80021)
+                    return DracoonApiCode.SERVER_FILE_SEGMENT_INVALID;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case INSUFFICIENT_STORAGE:
+                return DracoonApiCode.SERVER_INSUFFICIENT_STORAGE;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public static DracoonApiCode parseCompleteFileUploadError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -40763)
+                    return DracoonApiCode.VALIDATION_FILE_KEY_MISSING;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case CONFLICT:
+                if (errorCode == -40010)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_CONTAINER_NODE;
+                else
+                    return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     private static DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
             case FORBIDDEN:

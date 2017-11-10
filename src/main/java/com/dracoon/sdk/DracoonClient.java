@@ -2,8 +2,8 @@ package com.dracoon.sdk;
 
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
-import com.dracoon.sdk.model.UploadCallback;
-import com.dracoon.sdk.model.UploadRequest;
+import com.dracoon.sdk.model.FileUploadCallback;
+import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 
@@ -42,11 +42,11 @@ public abstract class DracoonClient {
         NodeList getChildNodes(long parentNodeId) throws DracoonException;
         Node getNode(long nodeId) throws DracoonException;
 
-        Node upload(String id, UploadRequest request, File file, UploadCallback callback)
-                throws DracoonException;
-        void startUploadAsync(String id, UploadRequest request, File file, UploadCallback callback)
-                throws DracoonException;
-        void cancelUploadAsync(String id) throws DracoonException;
+        Node uploadFile(String id, FileUploadRequest request, File file,
+                FileUploadCallback callback) throws DracoonException;
+        void startUploadFileAsync(String id, FileUploadRequest request, File file,
+                FileUploadCallback callback) throws DracoonException;
+        void cancelUploadFileAsync(String id) throws DracoonException;
     }
 
     public interface Shares {

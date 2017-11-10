@@ -2,7 +2,7 @@ package com.dracoon.sdk.model;
 
 import java.util.Date;
 
-public class UploadRequest {
+public class FileUploadRequest {
 
     private Long mParentId;
     private String mName;
@@ -11,7 +11,7 @@ public class UploadRequest {
     private Classification mClassification;
     private String mNotes;
 
-    private UploadRequest() {
+    private FileUploadRequest() {
 
     }
 
@@ -41,10 +41,10 @@ public class UploadRequest {
 
     public static class Builder {
 
-        private UploadRequest mRequest;
+        private FileUploadRequest mRequest;
 
-        public Builder(long parentId, String name) {
-            mRequest = new UploadRequest();
+        public Builder(Long parentId, String name) {
+            mRequest = new FileUploadRequest();
             mRequest.mParentId = parentId;
             mRequest.mName = name;
             mRequest.mResolutionStrategy = ResolutionStrategy.AUTO_RENAME;
@@ -71,7 +71,7 @@ public class UploadRequest {
             return this;
         }
 
-        public UploadRequest build() {
+        public FileUploadRequest build() {
             return mRequest;
         }
 

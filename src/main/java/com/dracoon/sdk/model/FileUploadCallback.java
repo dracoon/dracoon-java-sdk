@@ -2,7 +2,7 @@ package com.dracoon.sdk.model;
 
 import com.dracoon.sdk.error.DracoonException;
 
-public interface UploadCallback {
+public interface FileUploadCallback {
 
     void onStarted(String id);
     void onRunning(String id, long bytesSend, long bytesTotal);

@@ -3,9 +3,12 @@ package com.dracoon.sdk.example;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.FileUploadCallback;
+import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -24,7 +27,8 @@ public class Main {
 
         //listRootNodes(client);
         //getNode(client);
-        getInvalidNode(client);
+        //getInvalidNode(client);
+        uploadFile(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -54,6 +58,46 @@ public class Main {
         } catch (DracoonException e) {
             System.err.println("Error at retrieval of node: " + e.getMessage());
         }
+    }
+
+    private static void uploadFile(DracoonClient client) throws DracoonException {
+        FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt")
+                .build();
+
+        File file = new File("C:\\temp\\test.txt");
+
+        FileUploadCallback callback = new FileUploadCallback() {
+            @Override
+            public void onStarted(String id) {
+                System.out.println(String.format("Upload %s started.", id));
+            }
+
+            @Override
+            public void onRunning(String id, long bytesSend, long bytesTotal) {
+                System.out.println(String.format("Upload %s running. (%d/%d)", id, bytesSend,
+                        bytesTotal));
+            }
+
+            @Override
+            public void onFinished(String id, Node node) {
+                System.out.println(String.format("Upload %s finished.", id));
+            }
+
+            @Override
+            public void onCanceled(String id) {
+                System.out.println(String.format("Upload %s failed.", id));
+            }
+
+            @Override
+            public void onFailed(String id, DracoonException e) {
+                System.out.println(String.format("Upload %s canceled.", id));
+            }
+        };
+
+        Node node = client.nodes().uploadFile("1", request, file, callback);
+
+        System.out.println(String.format("Node uploaded: id=%d, path=%s%s", node.getId(),
+                node.getParentPath(), node.getName()));
     }
 
 }
