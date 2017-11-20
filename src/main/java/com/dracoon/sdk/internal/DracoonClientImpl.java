@@ -149,4 +149,16 @@ public class DracoonClientImpl extends DracoonClient {
         return mEvents;
     }
 
+    // --- Helper methods ---
+
+    public String buildApiUrl(String... pathSegments) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(mServerUrl);
+        sb.append(DracoonService.API_PATH);
+        for (String pathSegment : pathSegments) {
+            sb.append("/").append(pathSegment);
+        }
+        return sb.toString();
+    }
+
 }

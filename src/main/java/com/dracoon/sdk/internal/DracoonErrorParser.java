@@ -14,6 +14,8 @@ public class DracoonErrorParser {
 
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
 
+    // --- Methods to parse Retrofit error responses ---
+
     public static DracoonApiCode parseStandardError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
@@ -94,7 +96,7 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -80021)
-                    return DracoonApiCode.SERVER_FILE_SEGMENT_INVALID;
+                    return DracoonApiCode.SERVER_UPLOAD_SEGMENT_INVALID;
                 else
                     return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
             case INSUFFICIENT_STORAGE:
@@ -124,6 +126,23 @@ public class DracoonErrorParser {
                     return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_CONTAINER_NODE;
                 else
                     return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public static DracoonApiCode parseDownloadTokenError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -181,6 +200,21 @@ public class DracoonErrorParser {
             return er;
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    // --- Methods to parse OkHttp error responses ---
+
+    public static DracoonApiCode parseDownloadError(okhttp3.Response response) {
+        switch (HttpStatus.valueOf(response.code())) {
+            case UNAUTHORIZED:
+                return DracoonApiCode.AUTH_UNAUTHORIZED;
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_FILE_NOT_FOUND;
+            case RANGE_NOT_SATISFIABLE:
+                return DracoonApiCode.SERVER_DOWNLOAD_SEGMENT_INVALID;
+            default:
+                return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
     }
 

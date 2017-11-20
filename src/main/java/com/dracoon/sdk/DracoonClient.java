@@ -2,6 +2,7 @@ package com.dracoon.sdk;
 
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
@@ -47,6 +48,12 @@ public abstract class DracoonClient {
         void startUploadFileAsync(String id, FileUploadRequest request, File file,
                 FileUploadCallback callback) throws DracoonException;
         void cancelUploadFileAsync(String id) throws DracoonException;
+
+        void downloadFile(String id, long nodeId, File file,
+                FileDownloadCallback callback) throws DracoonException;
+        void startDownloadFileAsync(String id, long nodeId, File file,
+                FileDownloadCallback callback) throws DracoonException;
+        void cancelDownloadFileAsync(String id) throws DracoonException;
     }
 
     public interface Shares {

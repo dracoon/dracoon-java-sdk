@@ -21,7 +21,7 @@ class DracoonServerImpl implements DracoonClient.Server {
     @Override
     public String getVersion() throws DracoonException {
         Call<ApiServerVersion> call = mService.getServerVersion();
-        Response<ApiServerVersion> response = DracoonServiceHelper.executeRequest(call);
+        Response<ApiServerVersion> response = DracoonHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             throw new DracoonApiException();
@@ -35,7 +35,7 @@ class DracoonServerImpl implements DracoonClient.Server {
     @Override
     public Date getTime() throws DracoonException {
         Call<ApiServerTime> call = mService.getServerTime();
-        Response<ApiServerTime> response = DracoonServiceHelper.executeRequest(call);
+        Response<ApiServerTime> response = DracoonHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             throw new DracoonApiException();

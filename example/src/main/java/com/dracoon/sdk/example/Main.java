@@ -3,6 +3,7 @@ package com.dracoon.sdk.example;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
@@ -28,7 +29,8 @@ public class Main {
         //listRootNodes(client);
         //getNode(client);
         //getInvalidNode(client);
-        uploadFile(client);
+        //uploadFile(client);
+        downloadFile(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -98,6 +100,44 @@ public class Main {
 
         System.out.println(String.format("Node uploaded: id=%d, path=%s%s", node.getId(),
                 node.getParentPath(), node.getName()));
+    }
+
+    private static void downloadFile(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        File file = new File("C:\\temp\\test.txt");
+
+        FileDownloadCallback callback = new FileDownloadCallback() {
+            @Override
+            public void onStarted(String id) {
+                System.out.println(String.format("Download %s started.", id));
+            }
+
+            @Override
+            public void onRunning(String id, long bytesSend, long bytesTotal) {
+                System.out.println(String.format("Download %s running. (%d/%d)", id, bytesSend,
+                        bytesTotal));
+            }
+
+            @Override
+            public void onFinished(String id) {
+                System.out.println(String.format("Download %s finished.", id));
+            }
+
+            @Override
+            public void onCanceled(String id) {
+                System.out.println(String.format("Download %s failed.", id));
+            }
+
+            @Override
+            public void onFailed(String id, DracoonException e) {
+                System.out.println(String.format("Download %s canceled.", id));
+            }
+        };
+
+        client.nodes().downloadFile("1", nodeId, file, callback);
+
+        System.out.println(String.format("Node downloaded: id=%d", nodeId));
     }
 
 }

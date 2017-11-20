@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
+import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
@@ -58,5 +59,9 @@ public interface DracoonService {
     Call<ApiNode> completeFileUpload(@Header(AUTHORIZATION_HEADER) String token,
                                      @Path("upload_id") String uploadId,
                                      @Body ApiCompleteFileUploadRequest request);
+
+    @POST(API_PATH + "/nodes/files/{file_id}/downloads")
+    Call<ApiDownloadToken> getDownloadToken(@Header(AUTHORIZATION_HEADER) String token,
+                                            @Path("file_id") Long fileId);
 
 }

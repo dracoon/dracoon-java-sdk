@@ -11,6 +11,7 @@ import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.validator.UploadValidator;
+import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
@@ -21,7 +22,9 @@ import retrofit2.Response;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +34,7 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
     private DracoonService mService;
 
     private Map<String, FileUpload> mUploads = new HashMap<>();
+    private Map<String, FileDownload> mDownloads = new HashMap<>();
 
     DracoonNodesImpl(DracoonClientImpl client) {
         mClient = client;
@@ -47,7 +51,7 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
         String accessToken = mClient.getAccessToken();
         Call<ApiNodeList> call = mService.getChildNodes(accessToken, parentNodeId, 1, null, null,
                 null);
-        Response<ApiNodeList> response = DracoonServiceHelper.executeRequest(call);
+        Response<ApiNodeList> response = DracoonHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             DracoonApiCode code = DracoonErrorParser.parseNodesQueryError(response);
@@ -63,7 +67,7 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
     public Node getNode(long nodeId) throws DracoonException {
         String accessToken = mClient.getAccessToken();
         Call<ApiNode> call = mService.getNode(accessToken, nodeId);
-        Response<ApiNode> response = DracoonServiceHelper.executeRequest(call);
+        Response<ApiNode> response = DracoonHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             DracoonApiCode code = DracoonErrorParser.parseNodesQueryError(response);
@@ -75,18 +79,20 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
         return NodeMapper.fromApi(data);
     }
 
+    // --- File upload methods ---
+
     @Override
     public Node uploadFile(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonException {
         UploadValidator.validate(id, request, file);
 
-        InputStream is = getUploadStream(file);
+        InputStream is = getFileInputStream(file);
         long length = file.length();
 
         FileUpload upload = new FileUpload(mClient, id, request, is, length);
         upload.addCallback(callback);
 
-        return upload.runWithResult();
+        return upload.runSync();
     }
 
     @Override
@@ -94,7 +100,7 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
             FileUploadCallback callback) throws DracoonException {
         UploadValidator.validate(id, request, file);
 
-        InputStream is = getUploadStream(file);
+        InputStream is = getFileInputStream(file);
         long length = file.length();
 
         FileUploadCallback stoppedCallback = new FileUploadCallback() {
@@ -133,18 +139,6 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
         upload.start();
     }
 
-    private InputStream getUploadStream(File file) throws DracoonException {
-        if (!file.exists()) {
-            throw new DracoonFileNotFoundException("File not found.");
-        }
-
-        try {
-            return new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new DracoonFileIOException("File cannot be opened.", e);
-        }
-    }
-
     @Override
     public void cancelUploadFileAsync(String id) throws DracoonException {
         FileUpload upload = mUploads.get(id);
@@ -156,6 +150,99 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
             upload.interrupt();
         }
         mUploads.remove(id);
+    }
+
+    // --- File download methods ---
+
+    @Override
+    public void downloadFile(String id, long nodeId, File file, FileDownloadCallback callback)
+            throws DracoonException {
+        OutputStream os = getFileOutputStream(file);
+
+        FileDownload download = new FileDownload(mClient, id, nodeId, os);
+        download.addCallback(callback);
+
+        download.runSync();
+    }
+
+    @Override
+    public void startDownloadFileAsync(String id, long nodeId, File file,
+                FileDownloadCallback callback) throws DracoonException {
+        OutputStream os = getFileOutputStream(file);
+
+        FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
+            @Override
+            public void onStarted(String id) {
+
+            }
+
+            @Override
+            public void onRunning(String id, long bytesSend, long bytesTotal) {
+
+            }
+
+            @Override
+            public void onFinished(String id) {
+                mDownloads.remove(id);
+            }
+
+            @Override
+            public void onCanceled(String id) {
+                mDownloads.remove(id);
+            }
+
+            @Override
+            public void onFailed(String id, DracoonException e) {
+                mDownloads.remove(id);
+            }
+        };
+
+        FileDownload download = new FileDownload(mClient, id, nodeId, os);
+        download.addCallback(callback);
+        download.addCallback(stoppedCallback);
+
+        mDownloads.put(id, download);
+
+        download.start();
+    }
+
+    @Override
+    public void cancelDownloadFileAsync(String id) throws DracoonException {
+        FileDownload download = mDownloads.get(id);
+        if (download == null) {
+            return;
+        }
+
+        if (download.isAlive()) {
+            download.interrupt();
+        }
+        mDownloads.remove(id);
+    }
+
+    // --- Helper methods ---
+
+    private InputStream getFileInputStream(File file) throws DracoonException {
+        if (!file.exists()) {
+            throw new DracoonFileNotFoundException("File not found.");
+        }
+
+        if (!file.canRead()) {
+            throw new DracoonFileNotFoundException("File not readable.");
+        }
+
+        try {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new DracoonFileIOException("File cannot be opened.", e);
+        }
+    }
+
+    private OutputStream getFileOutputStream(File file) throws DracoonException {
+        try {
+            return new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new DracoonFileIOException("File cannot be opened.", e);
+        }
     }
 
 }
