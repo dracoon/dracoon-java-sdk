@@ -17,4 +17,13 @@ public enum Classification {
         return mValue;
     }
 
+    public static Classification getByValue(int value) {
+        for (Classification c : Classification.values()) {
+            if (c.mValue == value) {
+                return c;
+            }
+        }
+        return null;
+    }
+
 }

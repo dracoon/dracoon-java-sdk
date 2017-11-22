@@ -27,10 +27,10 @@ public class Main {
         //getServerData(client);
 
         //listRootNodes(client);
-        //getNode(client);
+        getNode(client);
         //getInvalidNode(client);
         //uploadFile(client);
-        downloadFile(client);
+        //downloadFile(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {

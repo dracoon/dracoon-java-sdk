@@ -10,6 +10,10 @@ import java.util.ArrayList;
 public class NodeListMapper {
 
     public static NodeList fromApi(ApiNodeList apiNodeList) {
+        if (apiNodeList == null) {
+            return null;
+        }
+
         NodeList nodeList = new NodeList();
         nodeList.setOffset(apiNodeList.range.offset);
         nodeList.setLimit(apiNodeList.range.limit);
