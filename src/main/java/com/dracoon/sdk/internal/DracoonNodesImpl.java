@@ -30,6 +30,8 @@ import java.util.Map;
 
 class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
 
+    private static final String LOG_TAG = DracoonNodesImpl.class.getSimpleName();
+
     private Map<String, FileUpload> mUploads = new HashMap<>();
     private Map<String, FileDownload> mDownloads = new HashMap<>();
 
@@ -50,8 +52,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode code = mErrorParser.parseNodesQueryError(response);
-            throw new DracoonApiException(code);
+            DracoonApiCode errorCode = mErrorParser.parseNodesQueryError(response);
+            String errorText = String.format("Query of child nodes of node '%d' failed with '%s'!",
+                    parentNodeId, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
         }
 
         ApiNodeList data = response.body();
@@ -66,8 +71,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode code = mErrorParser.parseNodesQueryError(response);
-            throw new DracoonApiException(code);
+            DracoonApiCode errorCode = mErrorParser.parseNodesQueryError(response);
+            String errorText = String.format("Query of node '%d' failed with '%s'!", nodeId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
         }
 
         ApiNode data = response.body();

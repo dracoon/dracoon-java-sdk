@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.model.ApiServerTime;
@@ -12,7 +13,9 @@ import java.util.Date;
 
 class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.Server {
 
-    DracoonServerImpl(DracoonClientImpl client) {
+    private static final String LOG_TAG = DracoonServerImpl.class.getSimpleName();
+
+            DracoonServerImpl(DracoonClientImpl client) {
         super(client);
     }
 
@@ -22,7 +25,11 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
         Response<ApiServerVersion> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            throw new DracoonApiException();
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            String errorText = String.format("Query of server version failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
         }
 
         ApiServerVersion data = response.body();
@@ -36,7 +43,11 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
         Response<ApiServerTime> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            throw new DracoonApiException();
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            String errorText = String.format("Query of server time failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
         }
 
         ApiServerTime data = response.body();
