@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal;
 
+import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.internal.model.ApiErrorResponse;
 import com.google.gson.Gson;
@@ -14,9 +15,15 @@ public class DracoonErrorParser {
 
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
 
+    private Log mLog;
+
+    public DracoonErrorParser(Log log) {
+        mLog = log;
+    }
+
     // --- Methods to parse Retrofit error responses ---
 
-    public static DracoonApiCode parseStandardError(Response response) {
+    public DracoonApiCode parseStandardError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -28,7 +35,7 @@ public class DracoonErrorParser {
         return parseStandardError(statusCode, errorCode);
     }
 
-    public static DracoonApiCode parseNodesQueryError(Response response) {
+    public DracoonApiCode parseNodesQueryError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -50,7 +57,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public static DracoonApiCode parseCreateFileUploadError(Response response) {
+    public DracoonApiCode parseCreateFileUploadError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -84,7 +91,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public static DracoonApiCode parseFileUploadError(Response response) {
+    public DracoonApiCode parseFileUploadError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -106,7 +113,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public static DracoonApiCode parseCompleteFileUploadError(Response response) {
+    public DracoonApiCode parseCompleteFileUploadError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -131,7 +138,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public static DracoonApiCode parseDownloadTokenError(Response response) {
+    public DracoonApiCode parseDownloadTokenError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -148,7 +155,7 @@ public class DracoonErrorParser {
         }
     }
 
-    private static DracoonApiCode parseStandardError(int statusCode, int errorCode) {
+    private DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
             case FORBIDDEN:
                 if (errorCode == -10003 || errorCode == -10007)
@@ -175,7 +182,7 @@ public class DracoonErrorParser {
         }
     }
 
-    private static ApiErrorResponse getErrorResponse(Response response) {
+    private ApiErrorResponse getErrorResponse(Response response) {
         if (response.errorBody() == null) {
             return null;
         }
@@ -194,7 +201,7 @@ public class DracoonErrorParser {
             }
 
             if (er != null) {
-                Log.d(LOG_TAG, er.toString());
+                mLog.d(LOG_TAG, er.toString());
             }
 
             return er;
@@ -205,7 +212,7 @@ public class DracoonErrorParser {
 
     // --- Methods to parse OkHttp error responses ---
 
-    public static DracoonApiCode parseDownloadError(okhttp3.Response response) {
+    public DracoonApiCode parseDownloadError(okhttp3.Response response) {
         switch (HttpStatus.valueOf(response.code())) {
             case UNAUTHORIZED:
                 return DracoonApiCode.AUTH_UNAUTHORIZED;

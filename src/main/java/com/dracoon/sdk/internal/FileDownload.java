@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal;
 
+import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
@@ -27,8 +28,11 @@ public class FileDownload extends Thread {
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
 
     private final DracoonClientImpl mClient;
+    private final Log mLog;
     private final DracoonService mRestService;
     private final OkHttpClient mHttpClient;
+    private final DracoonHttpHelper mHttpHelper;
+    private final DracoonErrorParser mErrorParser;
 
     private final String mId;
     private final long mNodeId;
@@ -40,8 +44,11 @@ public class FileDownload extends Thread {
 
     public FileDownload(DracoonClientImpl client, String id, long nodeId, OutputStream trgStream) {
         mClient = client;
+        mLog = client.getLog();
         mRestService = client.getDracoonService();
         mHttpClient = new OkHttpClient();
+        mHttpHelper = client.getDracoonHttpHelper();
+        mErrorParser = client.getDracoonErrorParser();
 
         mId = id;
         mNodeId = nodeId;
@@ -96,13 +103,13 @@ public class FileDownload extends Thread {
         String authToken = mClient.getAccessToken();
 
         Call<ApiDownloadToken> call = mRestService.getDownloadToken(authToken, nodeId);
-        Response<ApiDownloadToken> response = DracoonHttpHelper.executeRequest(call, this);
+        Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = DracoonErrorParser.parseDownloadTokenError(response);
+            DracoonApiCode errorCode = mErrorParser.parseDownloadTokenError(response);
             String errorText = String.format("Creation of file download '%s' for file '%d' " +
                     "failed with '%s'!", mId, nodeId, errorCode.name());
-            Log.d(LOG_TAG, errorText);
+            mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
@@ -131,7 +138,7 @@ public class FileDownload extends Thread {
                     throw new InterruptedException();
                 }
                 String errorText = "File write failed!";
-                Log.d(LOG_TAG, errorText);
+                mLog.d(LOG_TAG, errorText);
                 throw new DracoonFileIOException(errorText, e);
             }
 
@@ -146,13 +153,13 @@ public class FileDownload extends Thread {
                 .build();
 
         okhttp3.Call call = mHttpClient.newCall(request);
-        okhttp3.Response response = DracoonHttpHelper.executeRequest(call, this);
+        okhttp3.Response response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = DracoonErrorParser.parseDownloadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseDownloadError(response);
             String errorText = String.format("File download '%s' for file '%d' failed with '%s'!",
                     mId, mNodeId, errorCode.name());
-            Log.d(LOG_TAG, errorText);
+            mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
@@ -169,13 +176,13 @@ public class FileDownload extends Thread {
                 .build();
 
         okhttp3.Call call = mHttpClient.newCall(request);
-        okhttp3.Response response = DracoonHttpHelper.executeRequest(call, this);
+        okhttp3.Response response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = DracoonErrorParser.parseDownloadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseDownloadError(response);
             String errorText = String.format("File download '%s' for file '%d' failed with '%s'!",
                     mId, mNodeId, errorCode.name());
-            Log.d(LOG_TAG, errorText);
+            mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
@@ -202,7 +209,7 @@ public class FileDownload extends Thread {
                 throw new InterruptedException();
             } else {
                 String errorText = "Server communication failed!";
-                Log.d(LOG_TAG, errorText);
+                mLog.d(LOG_TAG, errorText);
                 throw new DracoonNetIOException(errorText, e);
             }
         }

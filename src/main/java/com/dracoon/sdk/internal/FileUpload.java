@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
@@ -81,7 +82,10 @@ public class FileUpload extends Thread {
     }
 
     private final DracoonClientImpl mClient;
-    private final DracoonService mService;
+    private final Log mLog;
+    private final DracoonService mRestService;
+    private final DracoonHttpHelper mHttpHelper;
+    private final DracoonErrorParser mErrorParser;
 
     private final String mId;
     private final FileUploadRequest mRequest;
@@ -95,7 +99,10 @@ public class FileUpload extends Thread {
     public FileUpload(DracoonClientImpl client, String id, FileUploadRequest request,
             InputStream srcStream, long srcLength) {
         mClient = client;
-        mService = client.getDracoonService();
+        mLog = client.getLog();
+        mRestService = client.getDracoonService();
+        mHttpHelper = client.getDracoonHttpHelper();
+        mErrorParser = client.getDracoonErrorParser();
 
         mId = id;
         mRequest = request;
@@ -164,14 +171,14 @@ public class FileUpload extends Thread {
         createRequest.name = name;
         createRequest.classification = classification;
 
-        Call<ApiFileUpload> call = mService.createFileUpload(authToken, createRequest);
-        Response<ApiFileUpload> response = DracoonHttpHelper.executeRequest(call, this);
+        Call<ApiFileUpload> call = mRestService.createFileUpload(authToken, createRequest);
+        Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = DracoonErrorParser.parseCreateFileUploadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseCreateFileUploadError(response);
             String errorText = String.format("Creation of file upload '%s' failed with '%s'!", mId,
                     errorCode.name());
-            Log.d(LOG_TAG, errorText);
+            mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
@@ -193,7 +200,7 @@ public class FileUpload extends Thread {
                 throw new InterruptedException();
             }
             String errorText = "File read failed!";
-            Log.d(LOG_TAG, errorText);
+            mLog.d(LOG_TAG, errorText);
             throw new DracoonFileIOException(errorText, e);
         }
     }
@@ -214,14 +221,14 @@ public class FileUpload extends Thread {
 
         String contentRange = "bytes " + offset + "-" + (offset + count) + "/*";
 
-        Call<Void> call = mService.uploadFile(authToken, uploadId, contentRange, body);
-        Response<Void> response = DracoonHttpHelper.executeRequest(call, this);
+        Call<Void> call = mRestService.uploadFile(authToken, uploadId, contentRange, body);
+        Response<Void> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = DracoonErrorParser.parseFileUploadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseFileUploadError(response);
             String errorText = String.format("Upload of file upload '%s' failed with '%s'!", mId,
                     errorCode.name());
-            Log.d(LOG_TAG, errorText);
+            mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
     }
@@ -233,14 +240,14 @@ public class FileUpload extends Thread {
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();
         request.fileName = fileName;
 
-        Call<ApiNode> call = mService.completeFileUpload(authToken, uploadId, request);
-        Response<ApiNode> response = DracoonHttpHelper.executeRequest(call, this);
+        Call<ApiNode> call = mRestService.completeFileUpload(authToken, uploadId, request);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = DracoonErrorParser.parseCompleteFileUploadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseCompleteFileUploadError(response);
             String errorText = String.format("Upload of file upload '%s' failed with '%s'!", mId,
                     errorCode.name());
-            Log.d(LOG_TAG, errorText);
+            mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 

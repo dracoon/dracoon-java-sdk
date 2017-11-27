@@ -10,18 +10,16 @@ import retrofit2.Response;
 
 import java.util.Date;
 
-class DracoonServerImpl implements DracoonClient.Server {
-
-    private DracoonService mService;
+class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.Server {
 
     DracoonServerImpl(DracoonClientImpl client) {
-        mService = client.getDracoonService();
+        super(client);
     }
 
     @Override
     public String getVersion() throws DracoonException {
         Call<ApiServerVersion> call = mService.getServerVersion();
-        Response<ApiServerVersion> response = DracoonHttpHelper.executeRequest(call);
+        Response<ApiServerVersion> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             throw new DracoonApiException();
@@ -35,7 +33,7 @@ class DracoonServerImpl implements DracoonClient.Server {
     @Override
     public Date getTime() throws DracoonException {
         Call<ApiServerTime> call = mService.getServerTime();
-        Response<ApiServerTime> response = DracoonHttpHelper.executeRequest(call);
+        Response<ApiServerTime> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             throw new DracoonApiException();

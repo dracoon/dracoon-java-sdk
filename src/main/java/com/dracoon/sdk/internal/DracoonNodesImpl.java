@@ -28,17 +28,13 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-class DracoonNodesImpl implements DracoonClient.Nodes {
-
-    private DracoonClientImpl mClient;
-    private DracoonService mService;
+class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
 
     private Map<String, FileUpload> mUploads = new HashMap<>();
     private Map<String, FileDownload> mDownloads = new HashMap<>();
 
     DracoonNodesImpl(DracoonClientImpl client) {
-        mClient = client;
-        mService = client.getDracoonService();
+        super(client);
     }
 
     @Override
@@ -51,10 +47,10 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
         String accessToken = mClient.getAccessToken();
         Call<ApiNodeList> call = mService.getChildNodes(accessToken, parentNodeId, 1, null, null,
                 null);
-        Response<ApiNodeList> response = DracoonHttpHelper.executeRequest(call);
+        Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode code = DracoonErrorParser.parseNodesQueryError(response);
+            DracoonApiCode code = mErrorParser.parseNodesQueryError(response);
             throw new DracoonApiException(code);
         }
 
@@ -67,10 +63,10 @@ class DracoonNodesImpl implements DracoonClient.Nodes {
     public Node getNode(long nodeId) throws DracoonException {
         String accessToken = mClient.getAccessToken();
         Call<ApiNode> call = mService.getNode(accessToken, nodeId);
-        Response<ApiNode> response = DracoonHttpHelper.executeRequest(call);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode code = DracoonErrorParser.parseNodesQueryError(response);
+            DracoonApiCode code = mErrorParser.parseNodesQueryError(response);
             throw new DracoonApiException(code);
         }
 

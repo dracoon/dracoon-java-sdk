@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
@@ -18,10 +19,14 @@ public class DracoonClientImpl extends DracoonClient {
 
     private String mServerUrl;
 
+    private Log mLog = new NullLog();
+
     private OkHttpClient mOkHttpClient;
     private Gson mGson;
     private Retrofit mRetrofit;
     private DracoonService mDracoonService;
+    private DracoonHttpHelper mDracoonHttpHelper;
+    private DracoonErrorParser mDracoonErrorParser;
 
     private String mAccessToken;
 
@@ -47,6 +52,14 @@ public class DracoonClientImpl extends DracoonClient {
         mServerUrl = serverUrl;
     }
 
+    public void setLog(Log log) {
+        mLog = log != null ? log : new NullLog();
+    }
+
+    public Log getLog() {
+        return mLog;
+    }
+
     public String getAccessToken() {
         return mAccessToken;
     }
@@ -56,12 +69,12 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public void init() {
-        Log.setLog(mLog);
-
         initOkHttp();
         initGson();
         initRetrofit();
         initDracoonService();
+        initDracoonHttpHelper();
+        initDracoonErrorParser();
 
         mServer = new DracoonServerImpl(this);
         mNodes = new DracoonNodesImpl(this);
@@ -100,8 +113,24 @@ public class DracoonClientImpl extends DracoonClient {
         mDracoonService = mRetrofit.create(DracoonService.class);
     }
 
+    private void initDracoonErrorParser() {
+        mDracoonErrorParser = new DracoonErrorParser(mLog);
+    }
+
+    private void initDracoonHttpHelper() {
+        mDracoonHttpHelper = new DracoonHttpHelper(mLog);
+    }
+
     public DracoonService getDracoonService() {
         return mDracoonService;
+    }
+
+    public DracoonHttpHelper getDracoonHttpHelper() {
+        return mDracoonHttpHelper;
+    }
+
+    public DracoonErrorParser getDracoonErrorParser() {
+        return mDracoonErrorParser;
     }
 
     @Override
