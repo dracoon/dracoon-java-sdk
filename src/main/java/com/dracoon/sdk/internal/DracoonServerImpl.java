@@ -52,7 +52,7 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
 
         ApiServerTime data = response.body();
 
-        return data.serverTime;
+        return data.time;
     }
 
 }

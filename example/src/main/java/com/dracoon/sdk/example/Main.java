@@ -24,10 +24,10 @@ public class Main {
                 .accessToken(accessToken)
                 .build();
 
-        //getServerData(client);
+        getServerData(client);
 
         //listRootNodes(client);
-        getNode(client);
+        //getNode(client);
         //getInvalidNode(client);
         //uploadFile(client);
         //downloadFile(client);
