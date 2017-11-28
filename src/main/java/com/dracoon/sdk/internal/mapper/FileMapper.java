@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class FileMapper {
 
-    public static ApiUpdateFileRequest toApi(UpdateFileRequest request) {
+    public static ApiUpdateFileRequest toApiUpdateFileRequest(UpdateFileRequest request) {
         ApiUpdateFileRequest apiRequest = new ApiUpdateFileRequest();
         apiRequest.name = request.getName();
         Classification classification = request.getClassification();

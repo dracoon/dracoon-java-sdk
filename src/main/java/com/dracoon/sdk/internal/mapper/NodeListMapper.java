@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class NodeListMapper {
 
-    public static NodeList fromApi(ApiNodeList apiNodeList) {
+    public static NodeList fromApiNodeList(ApiNodeList apiNodeList) {
         if (apiNodeList == null) {
             return null;
         }
@@ -20,7 +20,7 @@ public class NodeListMapper {
         nodeList.setTotal(apiNodeList.range.total);
         ArrayList<Node> items = new ArrayList<>();
         for (ApiNode apiNode : apiNodeList.items) {
-            items.add(NodeMapper.fromApi(apiNode));
+            items.add(NodeMapper.fromApiNode(apiNode));
         }
         nodeList.setItems(items);
         return nodeList;

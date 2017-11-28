@@ -8,7 +8,7 @@ import com.dracoon.sdk.model.NodeType;
 
 public class NodeMapper {
 
-    public static Node fromApi(ApiNode apiNode) {
+    public static Node fromApiNode(ApiNode apiNode) {
         if (apiNode == null) {
             return null;
         }
@@ -37,14 +37,14 @@ public class NodeMapper {
         if (apiNode.createdAt != null) {
             node.setCreatedAt(DateUtils.parseDate(apiNode.createdAt));
         }
-        node.setCreatedBy(UserInfoMapper.fromApi(apiNode.createdBy));
+        node.setCreatedBy(UserInfoMapper.fromApiUserInfo(apiNode.createdBy));
         if (apiNode.updatedAt != null) {
             node.setUpdatedAt(DateUtils.parseDate(apiNode.updatedAt));
         }
-        node.setUpdatedBy(UserInfoMapper.fromApi(apiNode.updatedBy));
+        node.setUpdatedBy(UserInfoMapper.fromApiUserInfo(apiNode.updatedBy));
 
         node.setHasInheritPermissions(apiNode.inheritPermissions);
-        node.setPermissions(NodePermissionsMapper.fromApi(apiNode.permissions));
+        node.setPermissions(NodePermissionsMapper.fromApiNodePermissions(apiNode.permissions));
 
         node.setIsFavorite(apiNode.isFavorite);
         node.setIsEncrypted(apiNode.isEncrypted);

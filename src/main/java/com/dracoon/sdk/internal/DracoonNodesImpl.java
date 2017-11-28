@@ -21,7 +21,6 @@ import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.RoomValidator;
-import com.dracoon.sdk.internal.validator.UploadValidator;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
@@ -77,7 +76,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNodeList data = response.body();
 
-        return NodeListMapper.fromApi(data);
+        return NodeListMapper.fromApiNodeList(data);
     }
 
     @Override
@@ -96,17 +95,17 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNode data = response.body();
 
-        return NodeMapper.fromApi(data);
+        return NodeMapper.fromApiNode(data);
     }
 
     // --- Room creation and update methods ---
 
     @Override
     public Node createRoom(CreateRoomRequest request) throws DracoonException {
-        RoomValidator.validate(request);
+        RoomValidator.validateCreateRequest(request);
 
         String accessToken = mClient.getAccessToken();
-        ApiCreateRoomRequest apiRequest = RoomMapper.toApi(request);
+        ApiCreateRoomRequest apiRequest = RoomMapper.toApiCreateRoomRequest(request);
         Call<ApiNode> call = mService.createRoom(accessToken, apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
@@ -120,15 +119,15 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNode data = response.body();
 
-        return NodeMapper.fromApi(data);
+        return NodeMapper.fromApiNode(data);
     }
 
     @Override
     public Node updateRoom(UpdateRoomRequest request) throws DracoonException {
-        RoomValidator.validate(request);
+        RoomValidator.validateUpdateRequest(request);
 
         String accessToken = mClient.getAccessToken();
-        ApiUpdateRoomRequest apiRequest = RoomMapper.toApi(request);
+        ApiUpdateRoomRequest apiRequest = RoomMapper.toApiUpdateRoomRequest(request);
         Call<ApiNode> call = mService.updateRoom(accessToken, request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
@@ -142,17 +141,17 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNode data = response.body();
 
-        return NodeMapper.fromApi(data);
+        return NodeMapper.fromApiNode(data);
     }
 
     // --- Room creation and update methods ---
 
     @Override
     public Node createFolder(CreateFolderRequest request) throws DracoonException {
-        FolderValidator.validate(request);
+        FolderValidator.validateCreateRequest(request);
 
         String accessToken = mClient.getAccessToken();
-        ApiCreateFolderRequest apiRequest = FolderMapper.toApi(request);
+        ApiCreateFolderRequest apiRequest = FolderMapper.toApiCreateFolderRequest(request);
         Call<ApiNode> call = mService.createFolder(accessToken, apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
@@ -166,15 +165,15 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNode data = response.body();
 
-        return NodeMapper.fromApi(data);
+        return NodeMapper.fromApiNode(data);
     }
 
     @Override
     public Node updateFolder(UpdateFolderRequest request) throws DracoonException {
-        FolderValidator.validate(request);
+        FolderValidator.validateUpdateRequest(request);
 
         String accessToken = mClient.getAccessToken();
-        ApiUpdateFolderRequest apiRequest = FolderMapper.toApi(request);
+        ApiUpdateFolderRequest apiRequest = FolderMapper.toApiUpdateFolderRequest(request);
         Call<ApiNode> call = mService.updateFolder(accessToken, request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
@@ -188,17 +187,17 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNode data = response.body();
 
-        return NodeMapper.fromApi(data);
+        return NodeMapper.fromApiNode(data);
     }
 
     // --- File update methods ---
 
     @Override
     public Node updateFile(UpdateFileRequest request) throws DracoonException {
-        FileValidator.validate(request);
+        FileValidator.validateUpdateRequest(request);
 
         String accessToken = mClient.getAccessToken();
-        ApiUpdateFileRequest apiRequest = FileMapper.toApi(request);
+        ApiUpdateFileRequest apiRequest = FileMapper.toApiUpdateFileRequest(request);
         Call<ApiNode> call = mService.updateFile(accessToken, request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
@@ -212,7 +211,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNode data = response.body();
 
-        return NodeMapper.fromApi(data);
+        return NodeMapper.fromApiNode(data);
     }
 
     // --- File upload methods ---
@@ -220,7 +219,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node uploadFile(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonException {
-        UploadValidator.validate(id, request, file);
+        FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = getFileInputStream(file);
         long length = file.length();
@@ -234,7 +233,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void startUploadFileAsync(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonException {
-        UploadValidator.validate(id, request, file);
+        FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = getFileInputStream(file);
         long length = file.length();

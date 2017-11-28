@@ -5,7 +5,7 @@ import com.dracoon.sdk.model.UserInfo;
 
 public class UserInfoMapper {
 
-    public static UserInfo fromApi(ApiUserInfo apiUserInfo) {
+    public static UserInfo fromApiUserInfo(ApiUserInfo apiUserInfo) {
         if (apiUserInfo == null) {
             return null;
         }

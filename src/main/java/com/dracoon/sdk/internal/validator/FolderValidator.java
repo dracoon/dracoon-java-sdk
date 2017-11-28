@@ -7,7 +7,7 @@ import com.dracoon.sdk.model.UpdateFolderRequest;
 
 public class FolderValidator {
 
-    public static void validate(CreateFolderRequest request) throws DracoonException {
+    public static void validateCreateRequest(CreateFolderRequest request) throws DracoonException {
         if (request == null) {
             throw new DracoonInvalidArgException("Folder creation request cannot be null.");
         }
@@ -22,7 +22,7 @@ public class FolderValidator {
         }
     }
 
-    public static void validate(UpdateFolderRequest request) throws DracoonException {
+    public static void validateUpdateRequest(UpdateFolderRequest request) throws DracoonException {
         if (request == null) {
             throw new DracoonInvalidArgException("Folder update request cannot be null.");
         }

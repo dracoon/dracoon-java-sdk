@@ -5,7 +5,7 @@ import com.dracoon.sdk.model.NodePermissions;
 
 public class NodePermissionsMapper {
 
-    public static NodePermissions fromApi(ApiNodePermissions apiNodePermissions) {
+    public static NodePermissions fromApiNodePermissions(ApiNodePermissions apiNodePermissions) {
         if (apiNodePermissions == null) {
             return null;
         }

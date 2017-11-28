@@ -7,7 +7,7 @@ import com.dracoon.sdk.model.UpdateFolderRequest;
 
 public class FolderMapper {
 
-    public static ApiCreateFolderRequest toApi(CreateFolderRequest request) {
+    public static ApiCreateFolderRequest toApiCreateFolderRequest(CreateFolderRequest request) {
         ApiCreateFolderRequest apiRequest = new ApiCreateFolderRequest();
         apiRequest.parentId = request.getParentId();
         apiRequest.name = request.getName();
@@ -15,7 +15,7 @@ public class FolderMapper {
         return apiRequest;
     }
 
-    public static ApiUpdateFolderRequest toApi(UpdateFolderRequest request) {
+    public static ApiUpdateFolderRequest toApiUpdateFolderRequest(UpdateFolderRequest request) {
         ApiUpdateFolderRequest apiRequest = new ApiUpdateFolderRequest();
         apiRequest.name = request.getName();
         apiRequest.notes = request.getNotes();

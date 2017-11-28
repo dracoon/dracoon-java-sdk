@@ -160,7 +160,7 @@ public class FileUpload extends Thread {
         ApiNode apiNode = completeUpload(uploadId, mRequest.getName(),
                 mRequest.getResolutionStrategy());
 
-        Node node = NodeMapper.fromApi(apiNode);
+        Node node = NodeMapper.fromApiNode(apiNode);
 
         notifyFinished(mId, node);
 

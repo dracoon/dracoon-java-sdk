@@ -10,7 +10,7 @@ import java.util.List;
 
 public class RoomMapper {
 
-    public static ApiCreateRoomRequest toApi(CreateRoomRequest request) {
+    public static ApiCreateRoomRequest toApiCreateRoomRequest(CreateRoomRequest request) {
         ApiCreateRoomRequest apiRequest = new ApiCreateRoomRequest();
         apiRequest.parentId = request.getParentId();
         apiRequest.name = request.getName();
@@ -29,7 +29,7 @@ public class RoomMapper {
         return apiRequest;
     }
 
-    public static ApiUpdateRoomRequest toApi(UpdateRoomRequest request) {
+    public static ApiUpdateRoomRequest toApiUpdateRoomRequest(UpdateRoomRequest request) {
         ApiUpdateRoomRequest apiRequest = new ApiUpdateRoomRequest();
         apiRequest.name = request.getName();
         apiRequest.quota = request.getQuota();

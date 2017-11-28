@@ -7,7 +7,7 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 
 public class RoomValidator {
 
-    public static void validate(CreateRoomRequest request) throws DracoonException {
+    public static void validateCreateRequest(CreateRoomRequest request) throws DracoonException {
         if (request == null) {
             throw new DracoonInvalidArgException("Room creation request cannot be null.");
         }
@@ -19,7 +19,7 @@ public class RoomValidator {
         }
     }
 
-    public static void validate(UpdateRoomRequest request) throws DracoonException {
+    public static void validateUpdateRequest(UpdateRoomRequest request) throws DracoonException {
         if (request == null) {
             throw new DracoonInvalidArgException("Room update request cannot be null.");
         }
