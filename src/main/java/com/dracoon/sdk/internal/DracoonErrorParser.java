@@ -211,6 +211,30 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseNodesDeleteError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -41054)
+                    return DracoonApiCode.VALIDATION_NODES_NOT_IN_SAME_PARENT;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                return DracoonApiCode.PERMISSION_UPDATE_ERROR;
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     public DracoonApiCode parseCreateFileUploadError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {

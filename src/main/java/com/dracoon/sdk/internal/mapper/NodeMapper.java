@@ -1,12 +1,35 @@
 package com.dracoon.sdk.internal.mapper;
 
+import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.util.DateUtils;
 import com.dracoon.sdk.model.Classification;
+import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
 
+import java.util.ArrayList;
+
 public class NodeMapper {
+
+    public static NodeList fromApiNodeList(ApiNodeList apiNodeList) {
+        if (apiNodeList == null) {
+            return null;
+        }
+
+        NodeList nodeList = new NodeList();
+        nodeList.setOffset(apiNodeList.range.offset);
+        nodeList.setLimit(apiNodeList.range.limit);
+        nodeList.setTotal(apiNodeList.range.total);
+        ArrayList<Node> items = new ArrayList<>();
+        for (ApiNode apiNode : apiNodeList.items) {
+            items.add(NodeMapper.fromApiNode(apiNode));
+        }
+        nodeList.setItems(items);
+        return nodeList;
+    }
 
     public static Node fromApiNode(ApiNode apiNode) {
         if (apiNode == null) {
@@ -57,6 +80,14 @@ public class NodeMapper {
         node.setBranchVersion(apiNode.branchVersion);
 
         return node;
+    }
+
+    public static ApiDeleteNodesRequest toApiDeleteNodesRequest(DeleteNodesRequest request) {
+        ApiDeleteNodesRequest apiRequest = new ApiDeleteNodesRequest();
+        if (request.getIds() != null) {
+            apiRequest.nodeIds = request.getIds().toArray(new Long[0]);
+        }
+        return apiRequest;
     }
 
 }

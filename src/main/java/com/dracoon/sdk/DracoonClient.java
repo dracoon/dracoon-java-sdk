@@ -4,6 +4,7 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
@@ -53,6 +54,7 @@ public abstract class DracoonClient {
         Node createFolder(CreateFolderRequest request) throws DracoonException;
         Node updateFolder(UpdateFolderRequest request) throws DracoonException;
         Node updateFile(UpdateFileRequest request) throws DracoonException;
+        void deleteNodes(DeleteNodesRequest request) throws DracoonException;
 
         Node uploadFile(String id, FileUploadRequest request, File file,
                 FileUploadCallback callback) throws DracoonException;

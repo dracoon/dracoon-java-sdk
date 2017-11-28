@@ -8,11 +8,11 @@ import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
-import com.dracoon.sdk.internal.mapper.NodeListMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.mapper.RoomMapper;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
@@ -20,9 +20,11 @@ import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
+import com.dracoon.sdk.internal.validator.NodeValidator;
 import com.dracoon.sdk.internal.validator.RoomValidator;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
@@ -41,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
@@ -76,7 +79,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiNodeList data = response.body();
 
-        return NodeListMapper.fromApiNodeList(data);
+        return NodeMapper.fromApiNodeList(data);
     }
 
     @Override
@@ -212,6 +215,26 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         ApiNode data = response.body();
 
         return NodeMapper.fromApiNode(data);
+    }
+
+    // --- Node copy, move and deletion methods ---
+
+    @Override
+    public void deleteNodes(DeleteNodesRequest request) throws DracoonException {
+        NodeValidator.validateDeleteRequest(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiDeleteNodesRequest apiRequest = NodeMapper.toApiDeleteNodesRequest(request);
+        Call<Void> call = mService.deleteNodes(accessToken, apiRequest);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodesDeleteError(response);
+            String errorText = String.format("Deletion of nodes %s failed with '%s'!",
+                    request.getIds(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
     }
 
     // --- File upload methods ---

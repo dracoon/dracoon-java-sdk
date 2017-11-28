@@ -6,6 +6,7 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
@@ -42,7 +43,8 @@ public class Main {
         //updateRoom(client);
         //createFolder(client);
         //updateFolder(client);
-        updateFile(client);
+        //updateFile(client);
+        deleteNodes(client);
 
         //uploadFile(client);
         //downloadFile(client);
@@ -123,6 +125,17 @@ public class Main {
                 .build();
         Node node = client.nodes().updateFile(request);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void deleteNodes(DracoonClient client) throws DracoonException {
+        List<Long> ids = new ArrayList<>();
+        ids.add(1L);
+        ids.add(2L);
+        ids.add(3L);
+
+        DeleteNodesRequest request = new DeleteNodesRequest.Builder(ids)
+                .build();
+        client.nodes().deleteNodes(request);
     }
 
     private static void uploadFile(DracoonClient client) throws DracoonException {

@@ -4,6 +4,7 @@ import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
@@ -17,6 +18,7 @@ import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.Part;
@@ -71,6 +73,10 @@ public interface DracoonService {
     Call<ApiNode> updateFile(@Header(AUTHORIZATION_HEADER) String token,
                              @Path("file_id") Long fileId,
                              @Body ApiUpdateFileRequest request);
+
+    @HTTP(method = "DELETE", hasBody = true, path = API_PATH + "/nodes")
+    Call<Void> deleteNodes(@Header(AUTHORIZATION_HEADER) String token,
+                           @Body ApiDeleteNodesRequest request);
 
     @POST(API_PATH + "/nodes/files/uploads")
     Call<ApiFileUpload> createFileUpload(@Header(AUTHORIZATION_HEADER) String token,
