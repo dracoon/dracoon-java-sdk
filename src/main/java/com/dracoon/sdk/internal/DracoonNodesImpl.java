@@ -8,14 +8,20 @@ import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
 import com.dracoon.sdk.internal.mapper.NodeListMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
+import com.dracoon.sdk.internal.mapper.RoomMapper;
+import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
+import com.dracoon.sdk.internal.validator.RoomValidator;
 import com.dracoon.sdk.internal.validator.UploadValidator;
+import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -74,6 +80,52 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonApiCode errorCode = mErrorParser.parseNodesQueryError(response);
             String errorText = String.format("Query of node '%d' failed with '%s'!", nodeId,
                     errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApi(data);
+    }
+
+    // --- Room creation and update methods ---
+
+    @Override
+    public Node createRoom(CreateRoomRequest request) throws DracoonException {
+        RoomValidator.validate(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiCreateRoomRequest apiRequest = RoomMapper.toApi(request);
+        Call<ApiNode> call = mService.createRoom(accessToken, apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseRoomCreationError(response);
+            String errorText = String.format("Creation of room '%s' failed with '%s'!",
+                    request.getName(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApi(data);
+    }
+
+    @Override
+    public Node updateRoom(UpdateRoomRequest request) throws DracoonException {
+        RoomValidator.validate(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiUpdateRoomRequest apiRequest = RoomMapper.toApi(request);
+        Call<ApiNode> call = mService.updateRoom(accessToken, request.getId(), apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseRoomUpdateError(response);
+            String errorText = String.format("Update of room '%d' failed with '%s'!",
+                    request.getId(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }

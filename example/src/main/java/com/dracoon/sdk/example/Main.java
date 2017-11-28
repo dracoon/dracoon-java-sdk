@@ -3,15 +3,19 @@ package com.dracoon.sdk.example;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.UpdateRoomRequest;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Main {
 
@@ -24,11 +28,15 @@ public class Main {
                 .accessToken(accessToken)
                 .build();
 
-        getServerData(client);
+        //getServerData(client);
 
         //listRootNodes(client);
         //getNode(client);
         //getInvalidNode(client);
+
+        createRoom(client);
+        //updateRoom(client);
+
         //uploadFile(client);
         //downloadFile(client);
     }
@@ -60,6 +68,26 @@ public class Main {
         } catch (DracoonException e) {
             System.err.println("Error at retrieval of node: " + e.getMessage());
         }
+    }
+
+    private static void createRoom(DracoonClient client) throws DracoonException {
+        List<Long> adminIds = new ArrayList<>();
+        adminIds.add(1L);
+
+        CreateRoomRequest request = new CreateRoomRequest.Builder("Test-Room")
+                .notes("This is a test room.")
+                .adminIds(adminIds)
+                .build();
+        Node node = client.nodes().createRoom(request);
+        System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void updateRoom(DracoonClient client) throws DracoonException {
+        UpdateRoomRequest request = new UpdateRoomRequest.Builder(1L)
+                .name("Test-Room-123")
+                .build();
+        Node node = client.nodes().updateRoom(request);
+        System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
     private static void uploadFile(DracoonClient client) throws DracoonException {

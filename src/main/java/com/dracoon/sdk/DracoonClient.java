@@ -2,11 +2,13 @@ package com.dracoon.sdk;
 
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.UpdateRoomRequest;
 
 import java.io.File;
 import java.util.Date;
@@ -42,6 +44,9 @@ public abstract class DracoonClient {
         NodeList getRootNodes() throws DracoonException;
         NodeList getChildNodes(long parentNodeId) throws DracoonException;
         Node getNode(long nodeId) throws DracoonException;
+
+        Node createRoom(CreateRoomRequest request) throws DracoonException;
+        Node updateRoom(UpdateRoomRequest request) throws DracoonException;
 
         Node uploadFile(String id, FileUploadRequest request, File file,
                 FileUploadCallback callback) throws DracoonException;

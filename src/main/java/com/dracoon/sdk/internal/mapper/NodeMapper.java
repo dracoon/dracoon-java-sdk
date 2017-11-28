@@ -43,6 +43,7 @@ public class NodeMapper {
         }
         node.setUpdatedBy(UserInfoMapper.fromApi(apiNode.updatedBy));
 
+        node.setHasInheritPermissions(apiNode.inheritPermissions);
         node.setPermissions(NodePermissionsMapper.fromApi(apiNode.permissions));
 
         node.setIsFavorite(apiNode.isFavorite);

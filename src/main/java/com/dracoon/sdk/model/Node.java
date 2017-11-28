@@ -24,6 +24,7 @@ public class Node {
     private Date mUpdatedAt;
     private UserInfo mUpdatedBy;
 
+    private Boolean mHasInheritPermissions;
     private NodePermissions mPermissions;
 
     private Boolean mIsFavorite;
@@ -170,6 +171,14 @@ public class Node {
 
     public void setUpdatedBy(UserInfo updatedBy) {
         mUpdatedBy = updatedBy;
+    }
+
+    public Boolean hasInheritPermissions() {
+        return mHasInheritPermissions;
+    }
+
+    public void setHasInheritPermissions(Boolean hasInheritPermissions) {
+        mHasInheritPermissions = hasInheritPermissions;
     }
 
     public NodePermissions getPermissions() {
