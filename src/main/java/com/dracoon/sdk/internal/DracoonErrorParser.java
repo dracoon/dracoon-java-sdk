@@ -121,6 +121,61 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseFolderCreationError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -40000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (errorCode == -41200)
+                    return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                return DracoonApiCode.PERMISSION_CREATE_ERROR;
+            case CONFLICT:
+                return DracoonApiCode.VALIDATION_FOLDER_ALREADY_EXISTS;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseFolderUpdateError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -41200)
+                    return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                return DracoonApiCode.PERMISSION_UPDATE_ERROR;
+            case NOT_FOUND:
+                if (errorCode == -40000)
+                    return DracoonApiCode.SERVER_FOLDER_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case CONFLICT:
+                return DracoonApiCode.VALIDATION_FOLDER_ALREADY_EXISTS;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     public DracoonApiCode parseCreateFileUploadError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {

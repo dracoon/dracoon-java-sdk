@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
+import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
@@ -9,6 +10,7 @@ import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
+import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -54,6 +56,15 @@ public interface DracoonService {
     Call<ApiNode> updateRoom(@Header(AUTHORIZATION_HEADER) String token,
                              @Path("room_id") Long roomId,
                              @Body ApiUpdateRoomRequest request);
+
+    @POST(API_PATH + "/nodes/folders")
+    Call<ApiNode> createFolder(@Header(AUTHORIZATION_HEADER) String token,
+                               @Body ApiCreateFolderRequest request);
+
+    @PUT(API_PATH + "/nodes/folders/{folder_id}")
+    Call<ApiNode> updateFolder(@Header(AUTHORIZATION_HEADER) String token,
+                               @Path("folder_id") Long folderId,
+                               @Body ApiUpdateFolderRequest request);
 
     @POST(API_PATH + "/nodes/files/uploads")
     Call<ApiFileUpload> createFileUpload(@Header(AUTHORIZATION_HEADER) String token,

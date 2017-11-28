@@ -6,21 +6,27 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
+import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeListMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.mapper.RoomMapper;
+import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
+import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.RoomValidator;
 import com.dracoon.sdk.internal.validator.UploadValidator;
+import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -125,6 +131,52 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseRoomUpdateError(response);
             String errorText = String.format("Update of room '%d' failed with '%s'!",
+                    request.getId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApi(data);
+    }
+
+    // --- Room creation and update methods ---
+
+    @Override
+    public Node createFolder(CreateFolderRequest request) throws DracoonException {
+        FolderValidator.validate(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiCreateFolderRequest apiRequest = FolderMapper.toApi(request);
+        Call<ApiNode> call = mService.createFolder(accessToken, apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseFolderCreationError(response);
+            String errorText = String.format("Creation of folder '%s' failed with '%s'!",
+                    request.getName(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApi(data);
+    }
+
+    @Override
+    public Node updateFolder(UpdateFolderRequest request) throws DracoonException {
+        FolderValidator.validate(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiUpdateFolderRequest apiRequest = FolderMapper.toApi(request);
+        Call<ApiNode> call = mService.updateFolder(accessToken, request.getId(), apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseFolderUpdateError(response);
+            String errorText = String.format("Update of folder '%d' failed with '%s'!",
                     request.getId(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);

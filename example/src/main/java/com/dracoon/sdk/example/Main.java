@@ -3,12 +3,14 @@ package com.dracoon.sdk.example;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 
 import java.io.File;
@@ -34,8 +36,11 @@ public class Main {
         //getNode(client);
         //getInvalidNode(client);
 
-        createRoom(client);
+        //createRoom(client);
         //updateRoom(client);
+
+        createFolder(client);
+        //updateFolder(client);
 
         //uploadFile(client);
         //downloadFile(client);
@@ -87,6 +92,22 @@ public class Main {
                 .name("Test-Room-123")
                 .build();
         Node node = client.nodes().updateRoom(request);
+        System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void createFolder(DracoonClient client) throws DracoonException {
+        CreateFolderRequest request = new CreateFolderRequest.Builder(1L, "Test-Folder")
+                .notes("This is a test folder.")
+                .build();
+        Node node = client.nodes().createFolder(request);
+        System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void updateFolder(DracoonClient client) throws DracoonException {
+        UpdateFolderRequest request = new UpdateFolderRequest.Builder(1L)
+                .name("Test-Folder-123")
+                .build();
+        Node node = client.nodes().updateFolder(request);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
