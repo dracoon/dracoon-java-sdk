@@ -3,6 +3,7 @@ package com.dracoon.sdk.example;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
@@ -10,6 +11,7 @@ import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 
@@ -38,9 +40,9 @@ public class Main {
 
         //createRoom(client);
         //updateRoom(client);
-
-        createFolder(client);
+        //createFolder(client);
         //updateFolder(client);
+        updateFile(client);
 
         //uploadFile(client);
         //downloadFile(client);
@@ -90,6 +92,7 @@ public class Main {
     private static void updateRoom(DracoonClient client) throws DracoonException {
         UpdateRoomRequest request = new UpdateRoomRequest.Builder(1L)
                 .name("Test-Room-123")
+                .notes("This note has been changed.")
                 .build();
         Node node = client.nodes().updateRoom(request);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
@@ -106,8 +109,19 @@ public class Main {
     private static void updateFolder(DracoonClient client) throws DracoonException {
         UpdateFolderRequest request = new UpdateFolderRequest.Builder(1L)
                 .name("Test-Folder-123")
+                .notes("This note has been changed.")
                 .build();
         Node node = client.nodes().updateFolder(request);
+        System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void updateFile(DracoonClient client) throws DracoonException {
+        UpdateFileRequest request = new UpdateFileRequest.Builder(1L)
+                .name("Test-File-123.txt")
+                .classification(Classification.CONFIDENTIAL)
+                .notes("This note has been changed.")
+                .build();
+        Node node = client.nodes().updateFile(request);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 

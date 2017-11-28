@@ -6,6 +6,7 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
+import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeListMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
@@ -14,8 +15,10 @@ import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
+import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.RoomValidator;
 import com.dracoon.sdk.internal.validator.UploadValidator;
@@ -26,6 +29,7 @@ import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
@@ -177,6 +181,30 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseFolderUpdateError(response);
             String errorText = String.format("Update of folder '%d' failed with '%s'!",
+                    request.getId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApi(data);
+    }
+
+    // --- File update methods ---
+
+    @Override
+    public Node updateFile(UpdateFileRequest request) throws DracoonException {
+        FileValidator.validate(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiUpdateFileRequest apiRequest = FileMapper.toApi(request);
+        Call<ApiNode> call = mService.updateFile(accessToken, request.getId(), apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseFileUpdateError(response);
+            String errorText = String.format("Update of file '%d' failed with '%s'!",
                     request.getId(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);

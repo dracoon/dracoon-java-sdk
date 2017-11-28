@@ -2,29 +2,24 @@ package com.dracoon.sdk.model;
 
 import java.util.Date;
 
-public class FileUploadRequest {
+public class UpdateFileRequest {
 
-    private Long mParentId;
+    private Long mId;
     private String mName;
-    private ResolutionStrategy mResolutionStrategy;
     private Classification mClassification;
     private String mNotes;
     private Date mExpiration;
 
-    private FileUploadRequest() {
+    private UpdateFileRequest() {
 
     }
 
-    public Long getParentId() {
-        return mParentId;
+    public Long getId() {
+        return mId;
     }
 
     public String getName() {
         return mName;
-    }
-
-    public ResolutionStrategy getResolutionStrategy() {
-        return mResolutionStrategy;
     }
 
     public Classification getClassification() {
@@ -41,18 +36,15 @@ public class FileUploadRequest {
 
     public static class Builder {
 
-        private FileUploadRequest mRequest;
+        private UpdateFileRequest mRequest;
 
-        public Builder(Long parentId, String name) {
-            mRequest = new FileUploadRequest();
-            mRequest.mParentId = parentId;
-            mRequest.mName = name;
-            mRequest.mResolutionStrategy = ResolutionStrategy.AUTO_RENAME;
-            mRequest.mClassification = Classification.PUBLIC;
+        public Builder(Long id) {
+            mRequest = new UpdateFileRequest();
+            mRequest.mId = id;
         }
 
-        public Builder resolutionStrategy(ResolutionStrategy resolutionStrategy) {
-            mRequest.mResolutionStrategy = resolutionStrategy;
+        public Builder name(String name) {
+            mRequest.mName = name;
             return this;
         }
 
@@ -71,7 +63,7 @@ public class FileUploadRequest {
             return this;
         }
 
-        public FileUploadRequest build() {
+        public UpdateFileRequest build() {
             return mRequest;
         }
 

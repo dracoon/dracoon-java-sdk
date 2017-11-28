@@ -10,6 +10,7 @@ import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
+import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import okhttp3.MultipartBody;
@@ -65,6 +66,11 @@ public interface DracoonService {
     Call<ApiNode> updateFolder(@Header(AUTHORIZATION_HEADER) String token,
                                @Path("folder_id") Long folderId,
                                @Body ApiUpdateFolderRequest request);
+
+    @PUT(API_PATH + "/nodes/files/{file_id}")
+    Call<ApiNode> updateFile(@Header(AUTHORIZATION_HEADER) String token,
+                             @Path("file_id") Long fileId,
+                             @Body ApiUpdateFileRequest request);
 
     @POST(API_PATH + "/nodes/files/uploads")
     Call<ApiFileUpload> createFileUpload(@Header(AUTHORIZATION_HEADER) String token,

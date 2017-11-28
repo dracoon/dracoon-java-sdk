@@ -3,6 +3,7 @@ package com.dracoon.sdk.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.dracoon.sdk.Log;
@@ -13,11 +14,13 @@ import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
+import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.ResolutionStrategy;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -149,11 +152,13 @@ public class FileUpload extends Thread {
         notifyStarted(mId);
 
         String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
-                mRequest.getClassification().getValue());
+                mRequest.getClassification().getValue(), mRequest.getNotes(),
+                mRequest.getExpiration());
 
         uploadFile(uploadId, mRequest.getName(), mSrcStream, mSrcLength);
 
-        ApiNode apiNode = completeUpload(uploadId, mRequest.getName());
+        ApiNode apiNode = completeUpload(uploadId, mRequest.getName(),
+                mRequest.getResolutionStrategy());
 
         Node node = NodeMapper.fromApi(apiNode);
 
@@ -162,16 +167,23 @@ public class FileUpload extends Thread {
         return node;
     }
 
-    private String createUpload(long parentNodeId, String name, int classification)
-            throws DracoonException, InterruptedException {
+    private String createUpload(long parentNodeId, String name, int classification, String notes,
+            Date expiration) throws DracoonException, InterruptedException {
         String authToken = mClient.getAccessToken();
 
-        ApiCreateFileUploadRequest createRequest = new ApiCreateFileUploadRequest();
-        createRequest.parentId = parentNodeId;
-        createRequest.name = name;
-        createRequest.classification = classification;
+        ApiCreateFileUploadRequest request = new ApiCreateFileUploadRequest();
+        request.parentId = parentNodeId;
+        request.name = name;
+        request.classification = classification;
+        request.notes = notes;
+        if (expiration != null) {
+            ApiExpiration apiExpiration = new ApiExpiration();
+            apiExpiration.enableExpiration = expiration.getTime() != 0L;
+            apiExpiration.expireAt = expiration;
+            request.expiration = apiExpiration;
+        }
 
-        Call<ApiFileUpload> call = mRestService.createFileUpload(authToken, createRequest);
+        Call<ApiFileUpload> call = mRestService.createFileUpload(authToken, request);
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
@@ -233,12 +245,13 @@ public class FileUpload extends Thread {
         }
     }
 
-    private ApiNode completeUpload(String uploadId, String fileName) throws DracoonException,
-            InterruptedException {
+    private ApiNode completeUpload(String uploadId, String fileName,
+            ResolutionStrategy resolutionStrategy) throws DracoonException, InterruptedException {
         String authToken = mClient.getAccessToken();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();
         request.fileName = fileName;
+        request.resolutionStrategy = resolutionStrategy.getValue();
 
         Call<ApiNode> call = mRestService.completeFileUpload(authToken, uploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
