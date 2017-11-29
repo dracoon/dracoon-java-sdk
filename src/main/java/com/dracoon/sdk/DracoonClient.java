@@ -4,6 +4,7 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
@@ -27,6 +28,7 @@ public abstract class DracoonClient {
 
     public interface Account {
         UserAccount getUserAccount() throws DracoonException;
+        CustomerAccount getCustomerAccount() throws DracoonException;
     }
 
     public interface Users {

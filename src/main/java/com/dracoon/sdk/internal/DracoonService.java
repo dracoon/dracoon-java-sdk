@@ -4,6 +4,7 @@ import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
@@ -42,6 +43,9 @@ public interface DracoonService {
 
     @GET(API_PATH + "/user/account")
     Call<ApiUserAccount> getUserAccount(@Header(AUTHORIZATION_HEADER) String token);
+
+    @GET(API_PATH + "/user/account/customer")
+    Call<ApiCustomerAccount> getCustomerAccount(@Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/nodes")
     Call<ApiNodeList> getChildNodes(@Header(AUTHORIZATION_HEADER) String token,

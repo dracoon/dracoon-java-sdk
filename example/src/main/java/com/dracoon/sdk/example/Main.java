@@ -6,6 +6,7 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
@@ -36,7 +37,8 @@ public class Main {
 
         //getServerData(client);
 
-        getUserAccount(client);
+        //getUserAccount(client);
+        getCustomerAccount(client);
 
         //listRootNodes(client);
         //getNode(client);
@@ -70,6 +72,16 @@ public class Main {
                 "last name=" + userAccount.getLastName() + ", " +
                 "email=" + userAccount.getEmail());
         System.out.println("User roles: " + userAccount.getUserRoles().toString());
+    }
+
+    private static void getCustomerAccount(DracoonClient client) throws DracoonException {
+        CustomerAccount customerAccount = client.account().getCustomerAccount();
+        System.out.println("Customer: id=" + customerAccount.getId() + ", " +
+                "name=" + customerAccount.getName() + ", " +
+                "accounts=" + customerAccount.getAccountsUsed() + "/" +
+                customerAccount.getAccountsLimit() + ", " +
+                "space=" + customerAccount.getSpaceUsed() + "/" +
+                customerAccount.getSpaceLimit());
     }
 
     private static void listRootNodes(DracoonClient client) throws DracoonException {

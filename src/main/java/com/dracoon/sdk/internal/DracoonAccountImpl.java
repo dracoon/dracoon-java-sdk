@@ -4,8 +4,11 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.internal.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
+import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
+import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.UserAccount;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -35,6 +38,25 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         ApiUserAccount data = response.body();
 
         return UserMapper.fromApiUserAccount(data);
+    }
+
+    @Override
+    public CustomerAccount getCustomerAccount() throws DracoonException {
+        String accessToken = mClient.getAccessToken();
+        Call<ApiCustomerAccount> call = mService.getCustomerAccount(accessToken);
+        Response<ApiCustomerAccount> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            String errorText = String.format("Query of customer account failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiCustomerAccount data = response.body();
+
+        return CustomerMapper.fromApiCustomerAccount(data);
     }
 
 }
