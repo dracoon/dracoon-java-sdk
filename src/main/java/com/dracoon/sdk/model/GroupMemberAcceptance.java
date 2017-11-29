@@ -20,9 +20,9 @@ public enum GroupMemberAcceptance {
             return null;
         }
 
-        for (GroupMemberAcceptance t : GroupMemberAcceptance.values()) {
-            if (value.equals(t.mValue)) {
-                return t;
+        for (GroupMemberAcceptance a : GroupMemberAcceptance.values()) {
+            if (value.equals(a.mValue)) {
+                return a;
             }
         }
         return null;

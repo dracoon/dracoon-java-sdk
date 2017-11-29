@@ -13,6 +13,7 @@ import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
+import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
 import java.util.Date;
@@ -25,7 +26,7 @@ public abstract class DracoonClient {
     }
 
     public interface Account {
-
+        UserAccount getUserAccount() throws DracoonException;
     }
 
     public interface Users {

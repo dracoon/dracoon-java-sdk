@@ -77,6 +77,7 @@ public class DracoonClientImpl extends DracoonClient {
         initDracoonErrorParser();
 
         mServer = new DracoonServerImpl(this);
+        mAccount = new DracoonAccountImpl(this);
         mNodes = new DracoonNodesImpl(this);
     }
 

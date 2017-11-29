@@ -14,6 +14,7 @@ import com.dracoon.sdk.internal.model.ApiServerVersion;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiUserAccount;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -38,6 +39,9 @@ public interface DracoonService {
 
     @GET(API_PATH + "/public/time")
     Call<ApiServerTime> getServerTime();
+
+    @GET(API_PATH + "/user/account")
+    Call<ApiUserAccount> getUserAccount(@Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/nodes")
     Call<ApiNodeList> getChildNodes(@Header(AUTHORIZATION_HEADER) String token,

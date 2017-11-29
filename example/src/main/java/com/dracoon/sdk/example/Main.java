@@ -15,6 +15,7 @@ import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
+import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -35,6 +36,8 @@ public class Main {
 
         //getServerData(client);
 
+        getUserAccount(client);
+
         //listRootNodes(client);
         //getNode(client);
         //getInvalidNode(client);
@@ -44,7 +47,7 @@ public class Main {
         //createFolder(client);
         //updateFolder(client);
         //updateFile(client);
-        deleteNodes(client);
+        //deleteNodes(client);
 
         //uploadFile(client);
         //downloadFile(client);
@@ -57,6 +60,16 @@ public class Main {
         Date serverDate = client.server().getTime();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         System.out.println("Server date: " + df.format(serverDate));
+    }
+
+    private static void getUserAccount(DracoonClient client) throws DracoonException {
+        UserAccount userAccount = client.account().getUserAccount();
+        System.out.println("User: id=" + userAccount.getId() + ", " +
+                "gender=" + userAccount.getGender() + ", " +
+                "first name=" + userAccount.getFirstName() + ", " +
+                "last name=" + userAccount.getLastName() + ", " +
+                "email=" + userAccount.getEmail());
+        System.out.println("User roles: " + userAccount.getUserRoles().toString());
     }
 
     private static void listRootNodes(DracoonClient client) throws DracoonException {
