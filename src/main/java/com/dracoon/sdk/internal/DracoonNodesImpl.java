@@ -43,7 +43,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
@@ -113,7 +112,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseRoomCreationError(response);
+            DracoonApiCode errorCode = mErrorParser.parseRoomCreateError(response);
             String errorText = String.format("Creation of room '%s' failed with '%s'!",
                     request.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -159,7 +158,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFolderCreationError(response);
+            DracoonApiCode errorCode = mErrorParser.parseFolderCreateError(response);
             String errorText = String.format("Creation of folder '%s' failed with '%s'!",
                     request.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);

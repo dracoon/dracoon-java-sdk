@@ -29,6 +29,10 @@ public abstract class DracoonClient {
     public interface Account {
         UserAccount getUserAccount() throws DracoonException;
         CustomerAccount getCustomerAccount() throws DracoonException;
+
+        void setUserKeyPair(String password) throws DracoonException;
+        boolean checkUserKeyPair(String password) throws DracoonException;
+        void deleteUserKeyPair() throws DracoonException;
     }
 
     public interface Users {

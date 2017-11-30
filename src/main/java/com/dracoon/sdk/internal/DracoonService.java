@@ -16,9 +16,11 @@ import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
+import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.HTTP;
 import retrofit2.http.Header;
@@ -46,6 +48,16 @@ public interface DracoonService {
 
     @GET(API_PATH + "/user/account/customer")
     Call<ApiCustomerAccount> getCustomerAccount(@Header(AUTHORIZATION_HEADER) String token);
+
+    @POST(API_PATH + "/user/account/keypair")
+    Call<Void> setUserKeyPair(@Header(AUTHORIZATION_HEADER) String token,
+                              @Body ApiUserKeyPair request);
+
+    @GET(API_PATH + "/user/account/keypair")
+    Call<ApiUserKeyPair> getUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
+
+    @DELETE(API_PATH + "/user/account/keypair")
+    Call<Void> deleteUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/nodes")
     Call<ApiNodeList> getChildNodes(@Header(AUTHORIZATION_HEADER) String token,

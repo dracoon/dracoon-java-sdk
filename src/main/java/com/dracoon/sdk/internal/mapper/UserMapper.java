@@ -1,5 +1,11 @@
 package com.dracoon.sdk.internal.mapper;
 
+import com.dracoon.sdk.crypto.model.UserKeyPair;
+import com.dracoon.sdk.crypto.model.UserPrivateKey;
+import com.dracoon.sdk.crypto.model.UserPublicKey;
+import com.dracoon.sdk.internal.model.ApiUserKeyPair;
+import com.dracoon.sdk.internal.model.ApiUserPrivateKey;
+import com.dracoon.sdk.internal.model.ApiUserPublicKey;
 import com.dracoon.sdk.internal.model.ApiUserRole;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
 import com.dracoon.sdk.internal.model.ApiUserInfo;
@@ -63,12 +69,66 @@ public class UserMapper {
         return userAccount;
     }
 
-    public static UserRole fromApiUserRole(ApiUserRole apiUserRole) {
+    private static UserRole fromApiUserRole(ApiUserRole apiUserRole) {
         if (apiUserRole == null) {
             return null;
         }
 
         return UserRole.getByValue(apiUserRole.id);
+    }
+
+    public static ApiUserKeyPair toApiUserKeyPair(UserKeyPair userKeyPair) {
+        ApiUserKeyPair apiUserKeyPair = new ApiUserKeyPair();
+        apiUserKeyPair.privateKeyContainer = toApiUserPrivateKey(userKeyPair.getUserPrivateKey());
+        apiUserKeyPair.publicKeyContainer = toApiUserPublicKey(userKeyPair.getUserPublicKey());
+        return apiUserKeyPair;
+    }
+
+    private static ApiUserPrivateKey toApiUserPrivateKey(UserPrivateKey userPrivateKey) {
+        ApiUserPrivateKey apiUserPrivateKey = new ApiUserPrivateKey();
+        apiUserPrivateKey.version = userPrivateKey.getVersion();
+        apiUserPrivateKey.privateKey = userPrivateKey.getPrivateKey();
+        return apiUserPrivateKey;
+    }
+
+    private static ApiUserPublicKey toApiUserPublicKey(UserPublicKey userPublicKey) {
+        ApiUserPublicKey apiUserPublicKey = new ApiUserPublicKey();
+        apiUserPublicKey.version = userPublicKey.getVersion();
+        apiUserPublicKey.publicKey = userPublicKey.getPublicKey();
+        return apiUserPublicKey;
+    }
+
+    public static UserKeyPair fromApiUserKeyPair(ApiUserKeyPair apiUserKeyPair) {
+        if (apiUserKeyPair == null) {
+            return null;
+        }
+
+        UserKeyPair userKeyPair = new UserKeyPair();
+        userKeyPair.setUserPrivateKey(fromApiUserPrivateKey(apiUserKeyPair.privateKeyContainer));
+        userKeyPair.setUserPublicKey(fromApiUserPublicKey(apiUserKeyPair.publicKeyContainer));
+        return userKeyPair;
+    }
+
+    private static UserPrivateKey fromApiUserPrivateKey(ApiUserPrivateKey apiUserPrivateKey) {
+        if (apiUserPrivateKey == null) {
+            return null;
+        }
+
+        UserPrivateKey userPrivateKey = new UserPrivateKey();
+        userPrivateKey.setVersion(apiUserPrivateKey.version);
+        userPrivateKey.setPrivateKey(apiUserPrivateKey.privateKey);
+        return userPrivateKey;
+    }
+
+    private static UserPublicKey fromApiUserPublicKey(ApiUserPublicKey apiUserPublicKey) {
+        if (apiUserPublicKey == null) {
+            return null;
+        }
+
+        UserPublicKey userPublicKey = new UserPublicKey();
+        userPublicKey.setVersion(apiUserPublicKey.version);
+        userPublicKey.setPublicKey(apiUserPublicKey.publicKey);
+        return userPublicKey;
     }
 
 }

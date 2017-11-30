@@ -1,13 +1,18 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.crypto.Crypto;
+import com.dracoon.sdk.crypto.CryptoException;
+import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
+import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.UserAccount;
 import retrofit2.Call;
@@ -57,6 +62,76 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         ApiCustomerAccount data = response.body();
 
         return CustomerMapper.fromApiCustomerAccount(data);
+    }
+
+    @Override
+    public void setUserKeyPair(String password) throws DracoonException {
+        UserKeyPair userKeyPair;
+        try {
+            userKeyPair = Crypto.generateUserKeyPair(password);
+        } catch (CryptoException e) {
+            String errorText = String.format("Generation of user key pair failed! '%s'",
+                    e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonCryptoException(e);
+        }
+
+        ApiUserKeyPair apiUserKeyPair = UserMapper.toApiUserKeyPair(userKeyPair);
+
+        String accessToken = mClient.getAccessToken();
+        Call<Void> call = mService.setUserKeyPair(accessToken, apiUserKeyPair);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairSetError(response);
+            String errorText = String.format("Setting user key pair failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
+    public boolean checkUserKeyPair(String password) throws DracoonException {
+        String accessToken = mClient.getAccessToken();
+        Call<ApiUserKeyPair> call = mService.getUserKeyPair(accessToken);
+        Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairQueryError(response);
+            String errorText = String.format("Query of user key pair failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiUserKeyPair data = response.body();
+
+        UserKeyPair userKeyPair = UserMapper.fromApiUserKeyPair(data);
+
+        try {
+            return Crypto.checkUserKeyPair(userKeyPair, password);
+        } catch (CryptoException e) {
+            String errorText = String.format("Check of user key pair failed! '%s'",
+                    e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonCryptoException(e);
+        }
+    }
+
+    @Override
+    public void deleteUserKeyPair() throws DracoonException {
+        String accessToken = mClient.getAccessToken();
+        Call<Void> call = mService.deleteUserKeyPair(accessToken);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairDeleteError(response);
+            String errorText = String.format("Deleting user key pair failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
     }
 
 }

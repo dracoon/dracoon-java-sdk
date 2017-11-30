@@ -35,6 +35,52 @@ public class DracoonErrorParser {
         return parseStandardError(statusCode, errorCode);
     }
 
+    public DracoonApiCode parseUserKeyPairSetError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -70022 || errorCode == -70023)
+                    return DracoonApiCode.VALIDATION_INVALID_USER_KEY_PAIR;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case CONFLICT:
+                if (errorCode == -70021)
+                    return DracoonApiCode.SERVER_USER_KEY_PAIR_ALREADY_SET;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseUserKeyPairQueryError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_USER_KEY_PAIR_NOT_FOUND;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseUserKeyPairDeleteError(Response response) {
+        return parseUserKeyPairQueryError(response);
+    }
+
     public DracoonApiCode parseNodesQueryError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
@@ -57,7 +103,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseRoomCreationError(Response response) {
+    public DracoonApiCode parseRoomCreateError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -121,7 +167,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseFolderCreationError(Response response) {
+    public DracoonApiCode parseFolderCreateError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;

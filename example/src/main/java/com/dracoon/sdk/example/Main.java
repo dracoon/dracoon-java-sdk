@@ -38,7 +38,11 @@ public class Main {
         //getServerData(client);
 
         //getUserAccount(client);
-        getCustomerAccount(client);
+        //getCustomerAccount(client);
+
+        setUserKeyPair(client);
+        //checkUserKeyPair(client);
+        //deleteUserKeyPair(client);
 
         //listRootNodes(client);
         //getNode(client);
@@ -82,6 +86,19 @@ public class Main {
                 customerAccount.getAccountsLimit() + ", " +
                 "space=" + customerAccount.getSpaceUsed() + "/" +
                 customerAccount.getSpaceLimit());
+    }
+
+    private static void setUserKeyPair(DracoonClient client) throws DracoonException {
+        client.account().setUserKeyPair("secret");
+    }
+
+    private static void checkUserKeyPair(DracoonClient client) throws DracoonException {
+        boolean validPassword = client.account().checkUserKeyPair("secret");
+        System.out.println("Valid encryption password: " + validPassword);
+    }
+
+    private static void deleteUserKeyPair(DracoonClient client) throws DracoonException {
+        client.account().deleteUserKeyPair();
     }
 
     private static void listRootNodes(DracoonClient client) throws DracoonException {
