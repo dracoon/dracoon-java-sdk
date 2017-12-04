@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 
 public class DracoonClientImpl extends DracoonClient {
 
-    private String mServerUrl;
-
     private Log mLog = new NullLog();
 
     private OkHttpClient mOkHttpClient;
@@ -28,28 +26,18 @@ public class DracoonClientImpl extends DracoonClient {
     private DracoonHttpHelper mDracoonHttpHelper;
     private DracoonErrorParser mDracoonErrorParser;
 
-    private String mAccessToken;
-
-    private Server mServer;
-    private Account mAccount;
+    private DracoonServerImpl mServer;
+    private DracoonAccountImpl mAccount;
     private Users mUsers;
     private Groups mGroups;
     private Roles mRoles;
     private Permissions mPermissions;
-    private Nodes mNodes;
+    private DracoonNodesImpl mNodes;
     private Shares mShares;
     private Events mEvents;
 
     public DracoonClientImpl(String serverUrl) {
-        mServerUrl = serverUrl;
-    }
-
-    public String getServerUrl() {
-        return mServerUrl;
-    }
-
-    public void setServerUrl(String serverUrl) {
-        mServerUrl = serverUrl;
+        super(serverUrl);
     }
 
     public void setLog(Log log) {
@@ -60,13 +48,19 @@ public class DracoonClientImpl extends DracoonClient {
         return mLog;
     }
 
-    public String getAccessToken() {
-        return mAccessToken;
+    public DracoonService getDracoonService() {
+        return mDracoonService;
     }
 
-    public void setAccessToken(String accessToken) {
-        mAccessToken = accessToken;
+    public DracoonHttpHelper getDracoonHttpHelper() {
+        return mDracoonHttpHelper;
     }
+
+    public DracoonErrorParser getDracoonErrorParser() {
+        return mDracoonErrorParser;
+    }
+
+    // --- Initialization methods ---
 
     public void init() {
         initOkHttp();
@@ -114,25 +108,15 @@ public class DracoonClientImpl extends DracoonClient {
         mDracoonService = mRetrofit.create(DracoonService.class);
     }
 
-    private void initDracoonErrorParser() {
-        mDracoonErrorParser = new DracoonErrorParser(mLog);
-    }
-
     private void initDracoonHttpHelper() {
         mDracoonHttpHelper = new DracoonHttpHelper(mLog);
     }
 
-    public DracoonService getDracoonService() {
-        return mDracoonService;
+    private void initDracoonErrorParser() {
+        mDracoonErrorParser = new DracoonErrorParser(mLog);
     }
 
-    public DracoonHttpHelper getDracoonHttpHelper() {
-        return mDracoonHttpHelper;
-    }
-
-    public DracoonErrorParser getDracoonErrorParser() {
-        return mDracoonErrorParser;
-    }
+    // --- Methods to get public handlers ---
 
     @Override
     public Server server() {
@@ -177,6 +161,20 @@ public class DracoonClientImpl extends DracoonClient {
     @Override
     public Events events() {
         return mEvents;
+    }
+
+    /// --- Methods to get internal handlers ---
+
+    public DracoonServerImpl getServerImpl() {
+        return mServer;
+    }
+
+    public DracoonAccountImpl getAccountImpl() {
+        return mAccount;
+    }
+
+    public DracoonNodesImpl getNodesImpl() {
+        return mNodes;
     }
 
     // --- Helper methods ---

@@ -65,10 +65,12 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     @Override
-    public void setUserKeyPair(String password) throws DracoonException {
+    public void setUserKeyPair() throws DracoonException {
+        String encryptionPassword = mClient.getEncryptionPassword();
+
         UserKeyPair userKeyPair;
         try {
-            userKeyPair = Crypto.generateUserKeyPair(password);
+            userKeyPair = Crypto.generateUserKeyPair(encryptionPassword);
         } catch (CryptoException e) {
             String errorText = String.format("Generation of user key pair failed! '%s'",
                     e.getMessage());
@@ -91,8 +93,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    @Override
-    public boolean checkUserKeyPair(String password) throws DracoonException {
+    public UserKeyPair getUserKeyPair() throws DracoonException {
         String accessToken = mClient.getAccessToken();
         Call<ApiUserKeyPair> call = mService.getUserKeyPair(accessToken);
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
@@ -107,16 +108,26 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
         ApiUserKeyPair data = response.body();
 
-        UserKeyPair userKeyPair = UserMapper.fromApiUserKeyPair(data);
+        return UserMapper.fromApiUserKeyPair(data);
+    }
+
+    public boolean checkUserKeyPairPassword(UserKeyPair userKeyPair) throws DracoonException {
+        String encryptionPassword = mClient.getEncryptionPassword();
 
         try {
-            return Crypto.checkUserKeyPair(userKeyPair, password);
+            return Crypto.checkUserKeyPair(userKeyPair, encryptionPassword);
         } catch (CryptoException e) {
             String errorText = String.format("Check of user key pair failed! '%s'",
                     e.getMessage());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonCryptoException(e);
         }
+    }
+
+    @Override
+    public boolean checkUserKeyPairPassword() throws DracoonException {
+        UserKeyPair userKeyPair = getUserKeyPair();
+        return checkUserKeyPairPassword(userKeyPair);
     }
 
     @Override

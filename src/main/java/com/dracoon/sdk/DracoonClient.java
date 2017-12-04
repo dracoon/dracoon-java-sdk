@@ -30,8 +30,8 @@ public abstract class DracoonClient {
         UserAccount getUserAccount() throws DracoonException;
         CustomerAccount getCustomerAccount() throws DracoonException;
 
-        void setUserKeyPair(String password) throws DracoonException;
-        boolean checkUserKeyPair(String password) throws DracoonException;
+        void setUserKeyPair() throws DracoonException;
+        boolean checkUserKeyPairPassword() throws DracoonException;
         void deleteUserKeyPair() throws DracoonException;
     }
 
@@ -84,6 +84,35 @@ public abstract class DracoonClient {
 
     }
 
+    protected String mServerUrl;
+
+    protected String mAccessToken;
+    protected String mEncryptionPassword;
+
+    public DracoonClient(String serverUrl) {
+        mServerUrl = serverUrl;
+    }
+
+    public String getServerUrl() {
+        return mServerUrl;
+    }
+
+    public String getAccessToken() {
+        return mAccessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        mAccessToken = accessToken;
+    }
+
+    public String getEncryptionPassword() {
+        return mEncryptionPassword;
+    }
+
+    public void setEncryptionPassword(String encryptionPassword) {
+        mEncryptionPassword = encryptionPassword;
+    }
+
     public abstract Server server();
     public abstract Account account();
     public abstract Users users();
@@ -108,7 +137,12 @@ public abstract class DracoonClient {
         }
 
         public Builder accessToken(String accessToken) {
-            mClient.setAccessToken(accessToken);
+            mClient.mAccessToken = accessToken;
+            return this;
+        }
+
+        public Builder encryptionPassword(String encryptionPassword) {
+            mClient.mEncryptionPassword = encryptionPassword;
             return this;
         }
 

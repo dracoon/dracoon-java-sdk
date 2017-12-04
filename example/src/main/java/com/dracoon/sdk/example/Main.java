@@ -33,6 +33,7 @@ public class Main {
         DracoonClient client = new DracoonClient.Builder(serverUrl)
                 .log(new Logger(Log.DEBUG))
                 .accessToken(accessToken)
+                .encryptionPassword("secret")
                 .build();
 
         //getServerData(client);
@@ -89,11 +90,11 @@ public class Main {
     }
 
     private static void setUserKeyPair(DracoonClient client) throws DracoonException {
-        client.account().setUserKeyPair("secret");
+        client.account().setUserKeyPair();
     }
 
     private static void checkUserKeyPair(DracoonClient client) throws DracoonException {
-        boolean validPassword = client.account().checkUserKeyPair("secret");
+        boolean validPassword = client.account().checkUserKeyPairPassword();
         System.out.println("Valid encryption password: " + validPassword);
     }
 
