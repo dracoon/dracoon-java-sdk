@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
@@ -98,6 +99,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         ApiNode data = response.body();
 
         return NodeMapper.fromApiNode(data);
+    }
+
+    private boolean isNodeEncrypted(long nodeId) throws DracoonException {
+        Node node = getNode(nodeId);
+        return node.isEncrypted();
     }
 
     // --- Room creation and update methods ---
@@ -243,10 +249,23 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             FileUploadCallback callback) throws DracoonException {
         FileValidator.validateUploadRequest(id, request, file);
 
+        boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
+        UserKeyPair userKeyPair = null;
+        if (isEncryptedUpload) {
+            userKeyPair = getUserKeyPair();
+        }
+
         InputStream is = getFileInputStream(file);
         long length = file.length();
 
-        FileUpload upload = new FileUpload(mClient, id, request, is, length);
+        FileUpload upload;
+        if (isEncryptedUpload) {
+            upload = new EncFileUpload(mClient, id, request, is, length,
+                    userKeyPair.getUserPublicKey());
+        } else {
+            upload = new FileUpload(mClient, id, request, is, length);
+        }
+
         upload.addCallback(callback);
 
         return upload.runSync();
@@ -256,6 +275,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startUploadFileAsync(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonException {
         FileValidator.validateUploadRequest(id, request, file);
+
+        boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
+        UserKeyPair userKeyPair = null;
+        if (isEncryptedUpload) {
+            userKeyPair = getUserKeyPair();
+        }
 
         InputStream is = getFileInputStream(file);
         long length = file.length();
@@ -287,7 +312,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             }
         };
 
-        FileUpload upload = new FileUpload(mClient, id, request, is, length);
+        FileUpload upload;
+        if (isEncryptedUpload) {
+            upload = new EncFileUpload(mClient, id, request, is, length,
+                    userKeyPair.getUserPublicKey());
+        } else {
+            upload = new FileUpload(mClient, id, request, is, length);
+        }
+
         upload.addCallback(callback);
         upload.addCallback(stoppedCallback);
 
@@ -377,6 +409,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     // --- Helper methods ---
+
+    private UserKeyPair getUserKeyPair() throws DracoonException {
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getUserKeyPair();
+        mClient.getAccountImpl().checkUserKeyPairPassword(userKeyPair);
+        return userKeyPair;
+    }
 
     private InputStream getFileInputStream(File file) throws DracoonException {
         if (!file.exists()) {

@@ -41,7 +41,7 @@ public class Main {
         //getUserAccount(client);
         //getCustomerAccount(client);
 
-        setUserKeyPair(client);
+        //setUserKeyPair(client);
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
@@ -56,7 +56,7 @@ public class Main {
         //updateFile(client);
         //deleteNodes(client);
 
-        //uploadFile(client);
+        uploadFile(client);
         //downloadFile(client);
     }
 

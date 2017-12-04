@@ -32,7 +32,8 @@ public class FileUpload extends Thread {
 
     private static final String LOG_TAG = FileUpload.class.getSimpleName();
 
-    private static final int JUNK_SIZE = 2 * 1024 * 1024;
+    protected static final int JUNK_SIZE = 2 * 1024 * 1024;
+
     private static final int BLOCK_SIZE = 2 * 1024;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
 
@@ -84,16 +85,16 @@ public class FileUpload extends Thread {
 
     }
 
-    private final DracoonClientImpl mClient;
-    private final Log mLog;
-    private final DracoonService mRestService;
-    private final DracoonHttpHelper mHttpHelper;
-    private final DracoonErrorParser mErrorParser;
+    protected final DracoonClientImpl mClient;
+    protected final Log mLog;
+    protected final DracoonService mRestService;
+    protected final DracoonHttpHelper mHttpHelper;
+    protected final DracoonErrorParser mErrorParser;
 
-    private final String mId;
-    private final FileUploadRequest mRequest;
-    private final InputStream mSrcStream;
-    private final long mSrcLength;
+    protected final String mId;
+    protected final FileUploadRequest mRequest;
+    protected final InputStream mSrcStream;
+    protected final long mSrcLength;
 
     private long mProgressUpdateTime = System.currentTimeMillis();
 
@@ -148,7 +149,7 @@ public class FileUpload extends Thread {
         }
     }
 
-    private Node upload() throws DracoonException, InterruptedException {
+    protected Node upload() throws DracoonException, InterruptedException {
         notifyStarted(mId);
 
         String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
@@ -167,7 +168,7 @@ public class FileUpload extends Thread {
         return node;
     }
 
-    private String createUpload(long parentNodeId, String name, int classification, String notes,
+    protected String createUpload(long parentNodeId, String name, int classification, String notes,
             Date expiration) throws DracoonException, InterruptedException {
         String authToken = mClient.getAccessToken();
 
@@ -188,7 +189,7 @@ public class FileUpload extends Thread {
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseCreateFileUploadError(response);
-            String errorText = String.format("Creation of file upload '%s' failed with '%s'!", mId,
+            String errorText = String.format("Creation of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
@@ -211,14 +212,18 @@ public class FileUpload extends Thread {
             if (isInterrupted()) {
                 throw new InterruptedException();
             }
-            String errorText = "File read failed!";
+            String errorText = String.format("File read failed at upload '%s'!", mId);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonFileIOException(errorText, e);
         }
     }
 
-    private void uploadFileChunk(String uploadId, String fileName, byte[] data, long offset,
+    protected void uploadFileChunk(String uploadId, String fileName, byte[] data, long offset,
             int count, long length) throws DracoonException, InterruptedException {
+        if (count <= 0) {
+            return;
+        }
+
         String authToken = mClient.getAccessToken();
 
         FileRequestBody requestBody = new FileRequestBody(data, count);
@@ -238,7 +243,7 @@ public class FileUpload extends Thread {
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseFileUploadError(response);
-            String errorText = String.format("Upload of file upload '%s' failed with '%s'!", mId,
+            String errorText = String.format("Upload of '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
@@ -246,7 +251,8 @@ public class FileUpload extends Thread {
     }
 
     private ApiNode completeUpload(String uploadId, String fileName,
-            ResolutionStrategy resolutionStrategy) throws DracoonException, InterruptedException {
+            ResolutionStrategy resolutionStrategy)
+            throws DracoonException, InterruptedException {
         String authToken = mClient.getAccessToken();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();
@@ -258,7 +264,7 @@ public class FileUpload extends Thread {
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseCompleteFileUploadError(response);
-            String errorText = String.format("Upload of file upload '%s' failed with '%s'!", mId,
+            String errorText = String.format("Completion of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
@@ -269,23 +275,23 @@ public class FileUpload extends Thread {
 
     // --- Callback helper methods ---
 
-    private void notifyStarted(String id) {
+    protected void notifyStarted(String id) {
         mCallbacks.forEach(callback -> callback.onStarted(id));
     }
 
-    private void notifyRunning(String id, long bytesSend, long bytesTotal) {
+    protected void notifyRunning(String id, long bytesSend, long bytesTotal) {
         mCallbacks.forEach(callback -> callback.onRunning(id, bytesSend, bytesTotal));
     }
 
-    private void notifyFinished(String id, Node node) {
+    protected void notifyFinished(String id, Node node) {
         mCallbacks.forEach(callback -> callback.onFinished(id, node));
     }
 
-    private void notifyCanceled(String id) {
+    protected void notifyCanceled(String id) {
         mCallbacks.forEach(callback -> callback.onCanceled(id));
     }
 
-    private void notifyFailed(String id, DracoonException e) {
+    protected void notifyFailed(String id, DracoonException e) {
         mCallbacks.forEach(callback -> callback.onFailed(id, e));
     }
 

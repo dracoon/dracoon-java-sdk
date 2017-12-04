@@ -1,6 +1,8 @@
 package com.dracoon.sdk.internal.mapper;
 
+import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.internal.model.ApiExpiration;
+import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.UpdateFileRequest;
@@ -25,6 +27,15 @@ public class FileMapper {
             apiRequest.expiration = apiExpiration;
         }
         return apiRequest;
+    }
+
+    public static ApiFileKey toApiFileKey(EncryptedFileKey encryptedFileKey) {
+        ApiFileKey apiFileKey = new ApiFileKey();
+        apiFileKey.key = encryptedFileKey.getKey();
+        apiFileKey.iv = encryptedFileKey.getIv();
+        apiFileKey.tag = encryptedFileKey.getTag();
+        apiFileKey.version = encryptedFileKey.getVersion();
+        return apiFileKey;
     }
 
 }
