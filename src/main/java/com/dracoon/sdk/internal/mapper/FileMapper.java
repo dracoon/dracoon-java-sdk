@@ -38,4 +38,13 @@ public class FileMapper {
         return apiFileKey;
     }
 
+    public static EncryptedFileKey fromApiFileKey(ApiFileKey apiEncryptedFileKey) {
+        EncryptedFileKey encryptedFileKey = new EncryptedFileKey();
+        encryptedFileKey.setKey(apiEncryptedFileKey.key);
+        encryptedFileKey.setIv(apiEncryptedFileKey.iv);
+        encryptedFileKey.setTag(apiEncryptedFileKey.tag);
+        encryptedFileKey.setVersion(apiEncryptedFileKey.version);
+        return encryptedFileKey;
+    }
+
 }

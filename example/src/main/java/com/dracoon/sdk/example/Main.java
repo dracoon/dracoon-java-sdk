@@ -29,11 +29,12 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String serverUrl = "https://dracoon.team";
         String accessToken = "";
+        String encryptionPassword = "secret";
 
         DracoonClient client = new DracoonClient.Builder(serverUrl)
                 .log(new Logger(Log.DEBUG))
                 .accessToken(accessToken)
-                .encryptionPassword("secret")
+                .encryptionPassword(encryptionPassword)
                 .build();
 
         //getServerData(client);
@@ -56,8 +57,8 @@ public class Main {
         //updateFile(client);
         //deleteNodes(client);
 
-        uploadFile(client);
-        //downloadFile(client);
+        //uploadFile(client);
+        downloadFile(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {

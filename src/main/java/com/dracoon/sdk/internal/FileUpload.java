@@ -200,10 +200,11 @@ public class FileUpload extends Thread {
 
     private void uploadFile(String uploadId, String fileName, InputStream is, long length)
             throws DracoonException, InterruptedException {
+        byte[] buffer = new byte[JUNK_SIZE];
+        long offset = 0;
+        int count;
+
         try {
-            byte[] buffer = new byte[JUNK_SIZE];
-            long offset = 0;
-            int count;
             while ((count = is.read(buffer)) != -1) {
                 uploadFileChunk(uploadId, fileName, buffer, offset, count, length);
                 offset = offset + count;

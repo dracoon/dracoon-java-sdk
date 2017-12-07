@@ -7,6 +7,7 @@ import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
+import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
@@ -117,5 +118,9 @@ public interface DracoonService {
     @POST(API_PATH + "/nodes/files/{file_id}/downloads")
     Call<ApiDownloadToken> getDownloadToken(@Header(AUTHORIZATION_HEADER) String token,
                                             @Path("file_id") Long fileId);
+
+    @GET(API_PATH + "/nodes/files/{file_id}/user_file_key")
+    Call<ApiFileKey> getFileKey(@Header(AUTHORIZATION_HEADER) String token,
+                                @Path("file_id") Long fileId);
 
 }

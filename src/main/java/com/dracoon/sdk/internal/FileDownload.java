@@ -23,20 +23,21 @@ public class FileDownload extends Thread {
 
     private static final String LOG_TAG = FileDownload.class.getSimpleName();
 
-    private static final int JUNK_SIZE = 2 * 1024 * 1024;
+    protected static final int JUNK_SIZE = 2 * 1024 * 1024;
+
     private static final int BLOCK_SIZE = 2 * 1024;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
 
-    private final DracoonClientImpl mClient;
-    private final Log mLog;
-    private final DracoonService mRestService;
-    private final OkHttpClient mHttpClient;
-    private final DracoonHttpHelper mHttpHelper;
-    private final DracoonErrorParser mErrorParser;
+    protected final DracoonClientImpl mClient;
+    protected final Log mLog;
+    protected final DracoonService mRestService;
+    protected final OkHttpClient mHttpClient;
+    protected final DracoonHttpHelper mHttpHelper;
+    protected final DracoonErrorParser mErrorParser;
 
-    private final String mId;
-    private final long mNodeId;
-    private final OutputStream mTrgStream;
+    protected final String mId;
+    protected final long mNodeId;
+    protected final OutputStream mTrgStream;
 
     private long mProgressUpdateTime = System.currentTimeMillis();
 
@@ -89,7 +90,7 @@ public class FileDownload extends Thread {
         }
     }
 
-    private void download() throws DracoonException, InterruptedException {
+    protected void download() throws DracoonException, InterruptedException {
         notifyStarted(mId);
 
         String downloadUrl = getDownloadUrl(mNodeId);
@@ -99,7 +100,7 @@ public class FileDownload extends Thread {
         notifyFinished(mId);
     }
 
-    private String getDownloadUrl(long nodeId) throws DracoonException, InterruptedException {
+    protected String getDownloadUrl(long nodeId) throws DracoonException, InterruptedException {
         String authToken = mClient.getAccessToken();
 
         Call<ApiDownloadToken> call = mRestService.getDownloadToken(authToken, nodeId);
@@ -126,27 +127,28 @@ public class FileDownload extends Thread {
             throws DracoonException, InterruptedException {
         long offset = 0L;
         long length = getFileSize(downloadUrl);
-        while (offset < length) {
-            long remaining = length - offset;
-            int count = remaining > JUNK_SIZE ? JUNK_SIZE : (int) remaining;
-            byte[] data = downloadFileChunk(downloadUrl, offset, count, length);
 
-            try {
+        try {
+            while (offset < length) {
+                long remaining = length - offset;
+                int count = remaining > JUNK_SIZE ? JUNK_SIZE : (int) remaining;
+                byte[] data = downloadFileChunk(downloadUrl, offset, count, length);
+
                 outStream.write(data);
-            } catch (IOException e) {
-                if (isInterrupted()) {
-                    throw new InterruptedException();
-                }
-                String errorText = "File write failed!";
-                mLog.d(LOG_TAG, errorText);
-                throw new DracoonFileIOException(errorText, e);
-            }
 
-            offset = offset + count;
+                offset = offset + count;
+            }
+        } catch (IOException e) {
+            if (isInterrupted()) {
+                throw new InterruptedException();
+            }
+            String errorText = "File write failed!";
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonFileIOException(errorText, e);
         }
     }
 
-    private long getFileSize(String downloadUrl) throws DracoonException, InterruptedException {
+    protected long getFileSize(String downloadUrl) throws DracoonException, InterruptedException {
         okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(downloadUrl)
                 .head()
@@ -166,7 +168,7 @@ public class FileDownload extends Thread {
         return response.body().contentLength();
     }
 
-    private byte[] downloadFileChunk(String downloadUrl, long offset, int count, long length)
+    protected byte[] downloadFileChunk(String downloadUrl, long offset, int count, long length)
             throws DracoonException, InterruptedException {
         String range = "bytes=" + offset + "-" + (offset + count);
 
@@ -219,23 +221,23 @@ public class FileDownload extends Thread {
 
     // --- Callback helper methods ---
 
-    private void notifyStarted(String id) {
+    protected void notifyStarted(String id) {
         mCallbacks.forEach(callback -> callback.onStarted(id));
     }
 
-    private void notifyRunning(String id, long bytesRead, long bytesTotal) {
+    protected void notifyRunning(String id, long bytesRead, long bytesTotal) {
         mCallbacks.forEach(callback -> callback.onRunning(id, bytesRead, bytesTotal));
     }
 
-    private void notifyFinished(String id) {
+    protected void notifyFinished(String id) {
         mCallbacks.forEach(callback -> callback.onFinished(id));
     }
 
-    private void notifyCanceled(String id) {
+    protected void notifyCanceled(String id) {
         mCallbacks.forEach(callback -> callback.onCanceled(id));
     }
 
-    private void notifyFailed(String id, DracoonException e) {
+    protected void notifyFailed(String id, DracoonException e) {
         mCallbacks.forEach(callback -> callback.onFailed(id, e));
     }
 

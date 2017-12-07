@@ -1,0 +1,137 @@
+package com.dracoon.sdk.internal;
+
+import com.dracoon.sdk.crypto.BadFileException;
+import com.dracoon.sdk.crypto.Crypto;
+import com.dracoon.sdk.crypto.CryptoException;
+import com.dracoon.sdk.crypto.CryptoSystemException;
+import com.dracoon.sdk.crypto.CryptoUtils;
+import com.dracoon.sdk.crypto.FileDecryptionCipher;
+import com.dracoon.sdk.crypto.model.EncryptedDataContainer;
+import com.dracoon.sdk.crypto.model.EncryptedFileKey;
+import com.dracoon.sdk.crypto.model.PlainDataContainer;
+import com.dracoon.sdk.crypto.model.PlainFileKey;
+import com.dracoon.sdk.crypto.model.UserPrivateKey;
+import com.dracoon.sdk.error.DracoonApiCode;
+import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoException;
+import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.error.DracoonFileIOException;
+import com.dracoon.sdk.internal.mapper.FileMapper;
+import com.dracoon.sdk.internal.model.ApiFileKey;
+import retrofit2.Call;
+import retrofit2.Response;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+public class EncFileDownload extends FileDownload {
+
+    private static final String LOG_TAG = EncFileDownload.class.getSimpleName();
+
+    private final UserPrivateKey mUserPrivateKey;
+
+    public EncFileDownload(DracoonClientImpl client, String id, long nodeId, OutputStream trgStream,
+            UserPrivateKey userPrivateKey) {
+        super(client, id, nodeId, trgStream);
+
+        mUserPrivateKey = userPrivateKey;
+    }
+
+    protected void download() throws DracoonException, InterruptedException {
+        notifyStarted(mId);
+
+        EncryptedFileKey encryptedFileKey = getFileKey(mNodeId);
+
+        String userPrivateKeyPassword = mClient.getEncryptionPassword();
+        PlainFileKey plainFileKey = decryptFileKey(encryptedFileKey, mUserPrivateKey,
+                userPrivateKeyPassword);
+
+        String downloadUrl = getDownloadUrl(mNodeId);
+
+        downloadFile(downloadUrl, mTrgStream, plainFileKey);
+
+        notifyFinished(mId);
+    }
+
+    private EncryptedFileKey getFileKey(long nodeId) throws DracoonException, InterruptedException {
+        String authToken = mClient.getAccessToken();
+
+        Call<ApiFileKey> call = mRestService.getFileKey(authToken, nodeId);
+        Response<ApiFileKey> response = mHttpHelper.executeRequest(call, this);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseFileKeyQueryError(response);
+            String errorText = String.format("Query of file key for download '%s' failed with " +
+                    "'%s'!", mId, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiFileKey data = response.body();
+
+        return FileMapper.fromApiFileKey(data);
+    }
+
+    private PlainFileKey decryptFileKey(EncryptedFileKey encryptedFileKeyFileKey,
+            UserPrivateKey userPrivateKey, String userPrivateKeyPassword) throws DracoonException {
+        try {
+            return Crypto.decryptFileKey(encryptedFileKeyFileKey, userPrivateKey,
+                    userPrivateKeyPassword);
+        } catch (CryptoException e) {
+            String errorText = String.format("Decryption of file key for download '%s' failed! %s",
+                    mId, e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonCryptoException(e);
+        }
+    }
+
+    private void downloadFile(String downloadUrl, OutputStream outStream, PlainFileKey plainFileKey)
+            throws DracoonException, InterruptedException {
+        FileDecryptionCipher cipher;
+        try {
+            cipher = Crypto.createFileDecryptionCipher(plainFileKey);
+        } catch (CryptoException e) {
+            String errorText = String.format("Decryption failed at upload '%s'! %s", mId,
+                    e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonCryptoException(e);
+        }
+
+        long offset = 0L;
+        long length = getFileSize(downloadUrl);
+
+        try {
+            while (offset < length) {
+                long remaining = length - offset;
+                int count = remaining > JUNK_SIZE ? JUNK_SIZE : (int) remaining;
+                byte[] eBytes = downloadFileChunk(downloadUrl, offset, count, length);
+
+                PlainDataContainer pData = cipher.processBytes(new EncryptedDataContainer(eBytes,
+                        null));
+
+                outStream.write(pData.getContent());
+
+                offset = offset + count;
+            }
+
+            byte[] eTag = CryptoUtils.stringToByteArray(plainFileKey.getTag());
+            PlainDataContainer pData = cipher.doFinal(new EncryptedDataContainer(null, eTag));
+
+            outStream.write(pData.getContent());
+        } catch (BadFileException | IllegalArgumentException | IllegalStateException |
+                CryptoSystemException e) {
+            String errorText = String.format("Decryption failed at download '%s'! %s", mId,
+                    e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonCryptoException(e);
+        } catch (IOException e) {
+            if (isInterrupted()) {
+                throw new InterruptedException();
+            }
+            String errorText = "File write failed!";
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonFileIOException(errorText, e);
+        }
+    }
+
+}

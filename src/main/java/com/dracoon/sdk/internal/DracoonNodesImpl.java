@@ -2,6 +2,8 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
+import com.dracoon.sdk.crypto.model.UserPrivateKey;
+import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
@@ -250,9 +252,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         FileValidator.validateUploadRequest(id, request, file);
 
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
-        UserKeyPair userKeyPair = null;
+        UserPublicKey userPublicKey = null;
         if (isEncryptedUpload) {
-            userKeyPair = getUserKeyPair();
+            userPublicKey = getUserKeyPair().getUserPublicKey();
         }
 
         InputStream is = getFileInputStream(file);
@@ -260,8 +262,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileUpload upload;
         if (isEncryptedUpload) {
-            upload = new EncFileUpload(mClient, id, request, is, length,
-                    userKeyPair.getUserPublicKey());
+            upload = new EncFileUpload(mClient, id, request, is, length, userPublicKey);
         } else {
             upload = new FileUpload(mClient, id, request, is, length);
         }
@@ -277,9 +278,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         FileValidator.validateUploadRequest(id, request, file);
 
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
-        UserKeyPair userKeyPair = null;
+        UserPublicKey userPublicKey = null;
         if (isEncryptedUpload) {
-            userKeyPair = getUserKeyPair();
+            userPublicKey = getUserKeyPair().getUserPublicKey();
         }
 
         InputStream is = getFileInputStream(file);
@@ -314,8 +315,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileUpload upload;
         if (isEncryptedUpload) {
-            upload = new EncFileUpload(mClient, id, request, is, length,
-                    userKeyPair.getUserPublicKey());
+            upload = new EncFileUpload(mClient, id, request, is, length, userPublicKey);
         } else {
             upload = new FileUpload(mClient, id, request, is, length);
         }
@@ -346,9 +346,21 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void downloadFile(String id, long nodeId, File file, FileDownloadCallback callback)
             throws DracoonException {
+        boolean isEncryptedDownload = isNodeEncrypted(nodeId);
+        UserPrivateKey userPrivateKey = null;
+        if (isEncryptedDownload) {
+            userPrivateKey = getUserKeyPair().getUserPrivateKey();
+        }
+
         OutputStream os = getFileOutputStream(file);
 
-        FileDownload download = new FileDownload(mClient, id, nodeId, os);
+        FileDownload download;
+        if (isEncryptedDownload) {
+            download = new EncFileDownload(mClient, id, nodeId, os, userPrivateKey);
+        } else {
+            download = new FileDownload(mClient, id, nodeId, os);
+        }
+
         download.addCallback(callback);
 
         download.runSync();
@@ -357,6 +369,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void startDownloadFileAsync(String id, long nodeId, File file,
                 FileDownloadCallback callback) throws DracoonException {
+        boolean isEncryptedDownload = isNodeEncrypted(nodeId);
+        UserPrivateKey userPrivateKey = null;
+        if (isEncryptedDownload) {
+            userPrivateKey = getUserKeyPair().getUserPrivateKey();
+        }
+
         OutputStream os = getFileOutputStream(file);
 
         FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
@@ -386,7 +404,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             }
         };
 
-        FileDownload download = new FileDownload(mClient, id, nodeId, os);
+        FileDownload download;
+        if (isEncryptedDownload) {
+            download = new EncFileDownload(mClient, id, nodeId, os, userPrivateKey);
+        } else {
+            download = new FileDownload(mClient, id, nodeId, os);
+        }
+
         download.addCallback(callback);
         download.addCallback(stoppedCallback);
 
