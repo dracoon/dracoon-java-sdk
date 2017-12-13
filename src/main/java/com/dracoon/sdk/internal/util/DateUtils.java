@@ -15,6 +15,10 @@ public class DateUtils {
         sDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    private DateUtils() {
+
+    }
+
     public static Date parseDate(String value) {
         if (value == null) {
             return null;

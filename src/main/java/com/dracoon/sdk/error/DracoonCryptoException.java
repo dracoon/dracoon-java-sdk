@@ -4,10 +4,24 @@ public class DracoonCryptoException extends DracoonException {
 
     private static final long serialVersionUID = 2941100473405716679L;
 
-    // TODO: Added error codes to allow easy determination of error cause
+    private DracoonCryptoCode mCode;
 
-    public DracoonCryptoException(Exception e) {
-        super(e.getMessage(), e.getCause());
+    public DracoonCryptoException() {
+        mCode = DracoonCryptoCode.UNKNOWN_ERROR;
+    }
+
+    public DracoonCryptoException(DracoonCryptoCode code) {
+        super(code.getText());
+        mCode = code;
+    }
+
+    public DracoonCryptoException(DracoonCryptoCode code, Throwable cause) {
+        super(code.getText(), cause);
+        mCode = code;
+    }
+
+    public DracoonCryptoCode getCode() {
+        return mCode;
     }
 
 }

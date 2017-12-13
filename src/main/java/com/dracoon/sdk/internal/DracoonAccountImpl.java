@@ -6,6 +6,7 @@ import com.dracoon.sdk.crypto.CryptoException;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.mapper.CustomerMapper;
@@ -75,7 +76,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             String errorText = String.format("Generation of user key pair failed! '%s'",
                     e.getMessage());
             mLog.d(LOG_TAG, errorText);
-            throw new DracoonCryptoException(e);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
         }
 
         ApiUserKeyPair apiUserKeyPair = UserMapper.toApiUserKeyPair(userKeyPair);
@@ -120,7 +122,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             String errorText = String.format("Check of user key pair failed! '%s'",
                     e.getMessage());
             mLog.d(LOG_TAG, errorText);
-            throw new DracoonCryptoException(e);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
         }
     }
 

@@ -12,6 +12,7 @@ import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
@@ -71,7 +72,8 @@ public class EncFileUpload extends FileUpload {
             String errorText = String.format("Creation of file key for upload '%s' failed! %s",
                     mId, e.getMessage());
             mLog.d(LOG_TAG, errorText);
-            throw new DracoonCryptoException(e);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
         }
     }
 
@@ -84,7 +86,8 @@ public class EncFileUpload extends FileUpload {
             String errorText = String.format("Encryption failed at upload '%s'! %s", mId,
                     e.getMessage());
             mLog.d(LOG_TAG, errorText);
-            throw new DracoonCryptoException(e);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
         }
 
         byte[] buffer = new byte[JUNK_SIZE];
@@ -93,27 +96,30 @@ public class EncFileUpload extends FileUpload {
 
         try {
             while ((count = is.read(buffer)) != -1) {
-                byte[] pBytes = createByteArray(buffer, count);
-                EncryptedDataContainer eData = cipher.processBytes(new PlainDataContainer(pBytes));
+                byte[] plainBytes = createByteArray(buffer, count);
 
-                byte[] eBytes = eData.getContent();
-                uploadFileChunk(uploadId, fileName, eBytes, offset, eBytes.length, length);
+                PlainDataContainer plainData = new PlainDataContainer(plainBytes);
+                EncryptedDataContainer encData = cipher.processBytes(plainData);
 
-                offset = offset + eBytes.length;
+                byte[] encBytes = encData.getContent();
+                uploadFileChunk(uploadId, fileName, encBytes, offset, encBytes.length, length);
+
+                offset = offset + encBytes.length;
             }
 
-            EncryptedDataContainer eData = cipher.doFinal();
+            EncryptedDataContainer encData = cipher.doFinal();
 
-            byte[] eBytes = eData.getContent();
-            uploadFileChunk(uploadId, fileName, eBytes, offset, eBytes.length, length);
+            byte[] encBytes = encData.getContent();
+            uploadFileChunk(uploadId, fileName, encBytes, offset, encBytes.length, length);
 
-            String eTag = CryptoUtils.byteArrayToString(eData.getTag());
-            plainFileKey.setTag(eTag);
+            String encTag = CryptoUtils.byteArrayToString(encData.getTag());
+            plainFileKey.setTag(encTag);
         } catch (IllegalArgumentException | IllegalStateException | CryptoSystemException e) {
             String errorText = String.format("Encryption failed at upload '%s'! %s", mId,
                     e.getMessage());
             mLog.d(LOG_TAG, errorText);
-            throw new DracoonCryptoException(e);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
         } catch (IOException e) {
             if (isInterrupted()) {
                 throw new InterruptedException();
@@ -138,7 +144,8 @@ public class EncFileUpload extends FileUpload {
             String errorText = String.format("Encryption of file key for upload '%s' failed! %s",
                     mId, e.getMessage());
             mLog.d(LOG_TAG, errorText);
-            throw new DracoonCryptoException(e);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
         }
     }
 

@@ -6,6 +6,8 @@ import com.dracoon.sdk.crypto.model.UserPrivateKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoCode;
+import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
@@ -436,7 +438,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private UserKeyPair getUserKeyPair() throws DracoonException {
         UserKeyPair userKeyPair = mClient.getAccountImpl().getUserKeyPair();
-        mClient.getAccountImpl().checkUserKeyPairPassword(userKeyPair);
+
+        boolean isValid = mClient.getAccountImpl().checkUserKeyPairPassword(userKeyPair);
+        if (!isValid) {
+            throw new DracoonCryptoException(DracoonCryptoCode.INVALID_PASSWORD_ERROR);
+        }
+
         return userKeyPair;
     }
 
