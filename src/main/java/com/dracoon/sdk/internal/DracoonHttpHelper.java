@@ -1,7 +1,6 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.error.DracoonNetInsecureException;
 import retrofit2.Call;
@@ -23,7 +22,7 @@ public class DracoonHttpHelper {
     // --- Methods for REST calls ---
 
     @SuppressWarnings("unchecked")
-    public <T> Response<T> executeRequest(Call<T> call) throws DracoonException {
+    public <T> Response<T> executeRequest(Call<T> call) throws DracoonNetIOException {
         Response response;
         try {
             response = call.execute();
@@ -42,7 +41,7 @@ public class DracoonHttpHelper {
 
     @SuppressWarnings("unchecked")
     public <T> Response<T> executeRequest(Call<T> call, Thread thread)
-            throws DracoonException, InterruptedException {
+            throws DracoonNetIOException, InterruptedException {
         Response response;
         try {
             response = executeRequest(call);
@@ -58,7 +57,7 @@ public class DracoonHttpHelper {
 
     // --- Methods for HTTP calls ---
 
-    public okhttp3.Response executeRequest(okhttp3.Call call) throws DracoonException {
+    public okhttp3.Response executeRequest(okhttp3.Call call) throws DracoonNetIOException {
         try {
             return call.execute();
         } catch (SSLHandshakeException e) {
@@ -73,7 +72,7 @@ public class DracoonHttpHelper {
     }
 
     public okhttp3.Response executeRequest(okhttp3.Call call, Thread thread)
-            throws DracoonException, InterruptedException {
+            throws DracoonNetIOException, InterruptedException {
         try {
             return executeRequest(call);
         } catch (DracoonNetIOException e) {

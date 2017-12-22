@@ -30,8 +30,6 @@ public class DracoonClientImpl extends DracoonClient {
     private DracoonAccountImpl mAccount;
     private Users mUsers;
     private Groups mGroups;
-    private Roles mRoles;
-    private Permissions mPermissions;
     private DracoonNodesImpl mNodes;
     private Shares mShares;
     private Events mEvents;
@@ -136,16 +134,6 @@ public class DracoonClientImpl extends DracoonClient {
     @Override
     public Groups groups() {
         return mGroups;
-    }
-
-    @Override
-    public Roles roles() {
-        return mRoles;
-    }
-
-    @Override
-    public Permissions permissions() {
-        return mPermissions;
     }
 
     @Override

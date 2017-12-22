@@ -15,8 +15,8 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
-import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
+import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import retrofit2.Call;
@@ -38,7 +38,8 @@ public class EncFileDownload extends FileDownload {
         mUserPrivateKey = userPrivateKey;
     }
 
-    protected void download() throws DracoonException, InterruptedException {
+    protected void download() throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException, DracoonFileIOException, InterruptedException {
         notifyStarted(mId);
 
         EncryptedFileKey encryptedFileKey = getFileKey(mNodeId);
@@ -54,7 +55,8 @@ public class EncFileDownload extends FileDownload {
         notifyFinished(mId);
     }
 
-    private EncryptedFileKey getFileKey(long nodeId) throws DracoonException, InterruptedException {
+    private EncryptedFileKey getFileKey(long nodeId) throws DracoonNetIOException,
+            DracoonApiException, InterruptedException {
         String authToken = mClient.getAccessToken();
 
         Call<ApiFileKey> call = mRestService.getFileKey(authToken, nodeId);
@@ -74,7 +76,8 @@ public class EncFileDownload extends FileDownload {
     }
 
     private PlainFileKey decryptFileKey(EncryptedFileKey encryptedFileKeyFileKey,
-            UserPrivateKey userPrivateKey, String userPrivateKeyPassword) throws DracoonException {
+            UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
+            throws DracoonCryptoException {
         try {
             return Crypto.decryptFileKey(encryptedFileKeyFileKey, userPrivateKey,
                     userPrivateKeyPassword);
@@ -88,7 +91,8 @@ public class EncFileDownload extends FileDownload {
     }
 
     private void downloadFile(String downloadUrl, OutputStream outStream, PlainFileKey plainFileKey)
-            throws DracoonException, InterruptedException {
+            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
+            DracoonFileIOException, InterruptedException {
         FileDecryptionCipher cipher;
         try {
             cipher = Crypto.createFileDecryptionCipher(plainFileKey);

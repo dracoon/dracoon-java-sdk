@@ -3,6 +3,7 @@ package com.dracoon.sdk.internal;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
@@ -74,23 +75,27 @@ public class FileDownload extends Thread {
             download();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
-        } catch (DracoonException e) {
+        } catch (DracoonNetIOException | DracoonApiException | DracoonCryptoException |
+                DracoonFileIOException e) {
             notifyFailed(mId, e);
         }
     }
 
-    public void runSync() throws DracoonException {
+    public void runSync() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
+            DracoonFileIOException {
         try {
             download();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
-        } catch (DracoonException e) {
+        } catch (DracoonNetIOException | DracoonApiException | DracoonCryptoException |
+                DracoonFileIOException e) {
             notifyFailed(mId, e);
             throw e;
         }
     }
 
-    protected void download() throws DracoonException, InterruptedException {
+    protected void download() throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException, DracoonFileIOException, InterruptedException {
         notifyStarted(mId);
 
         String downloadUrl = getDownloadUrl(mNodeId);
@@ -100,7 +105,8 @@ public class FileDownload extends Thread {
         notifyFinished(mId);
     }
 
-    protected String getDownloadUrl(long nodeId) throws DracoonException, InterruptedException {
+    protected String getDownloadUrl(long nodeId) throws DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         String authToken = mClient.getAccessToken();
 
         Call<ApiDownloadToken> call = mRestService.getDownloadToken(authToken, nodeId);
@@ -124,7 +130,8 @@ public class FileDownload extends Thread {
     }
 
     private void downloadFile(String downloadUrl, OutputStream outStream)
-            throws DracoonException, InterruptedException {
+            throws DracoonNetIOException, DracoonApiException, DracoonFileIOException,
+            InterruptedException {
         long offset = 0L;
         long length = getFileSize(downloadUrl);
 
@@ -148,7 +155,8 @@ public class FileDownload extends Thread {
         }
     }
 
-    protected long getFileSize(String downloadUrl) throws DracoonException, InterruptedException {
+    protected long getFileSize(String downloadUrl) throws DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(downloadUrl)
                 .head()
@@ -169,7 +177,7 @@ public class FileDownload extends Thread {
     }
 
     protected byte[] downloadFileChunk(String downloadUrl, long offset, int count, long length)
-            throws DracoonException, InterruptedException {
+            throws DracoonNetIOException, DracoonApiException, InterruptedException {
         String range = "bytes=" + offset + "-" + (offset + count);
 
         okhttp3.Request request = new okhttp3.Request.Builder()

@@ -14,8 +14,8 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
-import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
+import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
@@ -42,7 +42,8 @@ public class EncFileUpload extends FileUpload {
         mUserPublicKey = userPublicKey;
     }
 
-    protected Node upload() throws DracoonException, InterruptedException {
+    protected Node upload() throws DracoonFileIOException, DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException, InterruptedException {
         notifyStarted(mId);
 
         String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
@@ -65,7 +66,7 @@ public class EncFileUpload extends FileUpload {
         return node;
     }
 
-    private PlainFileKey createFileKey(UserPublicKey userPublicKey) throws DracoonException {
+    private PlainFileKey createFileKey(UserPublicKey userPublicKey) throws DracoonCryptoException {
         try {
             return Crypto.generateFileKey(userPublicKey.getVersion());
         } catch (CryptoException e) {
@@ -78,7 +79,8 @@ public class EncFileUpload extends FileUpload {
     }
 
     private void uploadFile(String uploadId, String fileName, InputStream is, long length,
-            PlainFileKey plainFileKey) throws DracoonException, InterruptedException {
+            PlainFileKey plainFileKey) throws DracoonFileIOException, DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException, InterruptedException {
         FileEncryptionCipher cipher;
         try {
             cipher = Crypto.createFileEncryptionCipher(plainFileKey);
@@ -137,7 +139,7 @@ public class EncFileUpload extends FileUpload {
     }
 
     private EncryptedFileKey encryptFileKey(PlainFileKey plainFileKey, UserPublicKey userPublicKey)
-            throws DracoonException {
+            throws DracoonCryptoException {
         try {
             return Crypto.encryptFileKey(plainFileKey, userPublicKey);
         } catch (CryptoException e) {
@@ -151,7 +153,7 @@ public class EncFileUpload extends FileUpload {
 
     private ApiNode completeUpload(String uploadId, String fileName,
             ResolutionStrategy resolutionStrategy, EncryptedFileKey encryptedFileKey)
-            throws DracoonException, InterruptedException {
+            throws DracoonNetIOException, DracoonApiException, InterruptedException {
         String authToken = mClient.getAccessToken();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();

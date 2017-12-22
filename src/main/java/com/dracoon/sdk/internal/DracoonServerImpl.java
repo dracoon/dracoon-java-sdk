@@ -3,7 +3,7 @@ package com.dracoon.sdk.internal;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
-import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
 import retrofit2.Call;
@@ -20,7 +20,7 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
     }
 
     @Override
-    public String getVersion() throws DracoonException {
+    public String getVersion() throws DracoonNetIOException, DracoonApiException {
         Call<ApiServerVersion> call = mService.getServerVersion();
         Response<ApiServerVersion> response = mHttpHelper.executeRequest(call);
 
@@ -38,7 +38,7 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
     }
 
     @Override
-    public Date getTime() throws DracoonException {
+    public Date getTime() throws DracoonNetIOException, DracoonApiException {
         Call<ApiServerTime> call = mService.getServerTime();
         Response<ApiServerTime> response = mHttpHelper.executeRequest(call);
 

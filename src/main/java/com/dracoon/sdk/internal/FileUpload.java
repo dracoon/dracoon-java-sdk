@@ -9,8 +9,10 @@ import java.util.List;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
+import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
@@ -132,24 +134,28 @@ public class FileUpload extends Thread {
             upload();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
-        } catch (DracoonException e) {
+        } catch (DracoonFileIOException | DracoonCryptoException | DracoonNetIOException |
+                DracoonApiException e) {
             notifyFailed(mId, e);
         }
     }
 
-    public Node runSync() throws DracoonException {
+    public Node runSync() throws DracoonFileIOException, DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
         try {
             return upload();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
             return null;
-        } catch (DracoonException e) {
+        } catch (DracoonFileIOException | DracoonCryptoException | DracoonNetIOException |
+                DracoonApiException e) {
             notifyFailed(mId, e);
             throw e;
         }
     }
 
-    protected Node upload() throws DracoonException, InterruptedException {
+    protected Node upload() throws DracoonFileIOException, DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException, InterruptedException {
         notifyStarted(mId);
 
         String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
@@ -169,7 +175,8 @@ public class FileUpload extends Thread {
     }
 
     protected String createUpload(long parentNodeId, String name, int classification, String notes,
-            Date expiration) throws DracoonException, InterruptedException {
+            Date expiration) throws DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         String authToken = mClient.getAccessToken();
 
         ApiCreateFileUploadRequest request = new ApiCreateFileUploadRequest();
@@ -199,7 +206,8 @@ public class FileUpload extends Thread {
     }
 
     private void uploadFile(String uploadId, String fileName, InputStream is, long length)
-            throws DracoonException, InterruptedException {
+            throws DracoonFileIOException, DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         byte[] buffer = new byte[JUNK_SIZE];
         long offset = 0;
         int count;
@@ -220,7 +228,8 @@ public class FileUpload extends Thread {
     }
 
     protected void uploadFileChunk(String uploadId, String fileName, byte[] data, long offset,
-            int count, long length) throws DracoonException, InterruptedException {
+            int count, long length) throws DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         if (count <= 0) {
             return;
         }
@@ -252,8 +261,8 @@ public class FileUpload extends Thread {
     }
 
     private ApiNode completeUpload(String uploadId, String fileName,
-            ResolutionStrategy resolutionStrategy)
-            throws DracoonException, InterruptedException {
+            ResolutionStrategy resolutionStrategy) throws DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         String authToken = mClient.getAccessToken();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();

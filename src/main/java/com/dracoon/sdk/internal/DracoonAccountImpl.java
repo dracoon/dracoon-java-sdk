@@ -8,7 +8,7 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
-import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
@@ -28,7 +28,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     @Override
-    public UserAccount getUserAccount() throws DracoonException {
+    public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
         String accessToken = mClient.getAccessToken();
         Call<ApiUserAccount> call = mService.getUserAccount(accessToken);
         Response<ApiUserAccount> response = mHttpHelper.executeRequest(call);
@@ -47,7 +47,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     @Override
-    public CustomerAccount getCustomerAccount() throws DracoonException {
+    public CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException {
         String accessToken = mClient.getAccessToken();
         Call<ApiCustomerAccount> call = mService.getCustomerAccount(accessToken);
         Response<ApiCustomerAccount> response = mHttpHelper.executeRequest(call);
@@ -66,7 +66,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     @Override
-    public void setUserKeyPair() throws DracoonException {
+    public void setUserKeyPair() throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         String encryptionPassword = mClient.getEncryptionPassword();
 
         UserKeyPair userKeyPair;
@@ -95,7 +95,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    public UserKeyPair getUserKeyPair() throws DracoonException {
+    public UserKeyPair getUserKeyPair() throws DracoonNetIOException, DracoonApiException {
         String accessToken = mClient.getAccessToken();
         Call<ApiUserKeyPair> call = mService.getUserKeyPair(accessToken);
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
@@ -113,7 +113,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return UserMapper.fromApiUserKeyPair(data);
     }
 
-    public boolean checkUserKeyPairPassword(UserKeyPair userKeyPair) throws DracoonException {
+    public boolean checkUserKeyPairPassword(UserKeyPair userKeyPair) throws DracoonCryptoException {
         String encryptionPassword = mClient.getEncryptionPassword();
 
         try {
@@ -128,13 +128,13 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     @Override
-    public boolean checkUserKeyPairPassword() throws DracoonException {
+    public boolean checkUserKeyPairPassword() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         UserKeyPair userKeyPair = getUserKeyPair();
         return checkUserKeyPairPassword(userKeyPair);
     }
 
     @Override
-    public void deleteUserKeyPair() throws DracoonException {
+    public void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException {
         String accessToken = mClient.getAccessToken();
         Call<Void> call = mService.deleteUserKeyPair(accessToken);
         Response<Void> response = mHttpHelper.executeRequest(call);
