@@ -1,5 +1,9 @@
 package com.dracoon.sdk.model;
 
+/**
+ * Enumeration of gender types.
+ */
+@SuppressWarnings("unused")
 public enum Gender {
 
     MALE("m"),
@@ -8,14 +12,32 @@ public enum Gender {
 
     private String mValue;
 
+    /**
+     * Constructs a new enumeration constant with the provided gender type value.
+     *
+     * @param value The gender type value.
+     */
     Gender(String value) {
         mValue = value;
     }
 
+    /**
+     * Returns the value of the gender type.
+     *
+     * @return the gender type value
+     */
     public String getValue() {
         return mValue;
     }
 
+    /**
+     * Finds a enumeration constant by a provided gender type value.
+     *
+     * @param value The gender type value of the constant to return.
+     *
+     * @return the appropriate enumeration constant, or <code>null</code> if no matching enumeration
+     *         constant could be found
+     */
     public static Gender getByValue(String value) {
         if (value == null) {
             return null;

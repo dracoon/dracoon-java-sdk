@@ -470,14 +470,14 @@ public abstract class DracoonClient {
      * - Server URL (mandatory): {@link Builder#Builder(String serverUrl)}<br>
      * - Access token:           {@link Builder#accessToken(String accessToken)}<br>
      * - Encryption password:    {@link Builder#encryptionPassword(String encryptionPassword)}<br>
-     * - Logger:                 {@link Builder#log(Log log)}<br>
+     * - Logger:                 {@link Builder#log(Log log)}
      */
     public static class Builder {
 
         private DracoonClientImpl mClient;
 
         /**
-         * Constructs a new Dracoon client builder for a specific Dracoon server.
+         * Constructs a new builder for a specific Dracoon server.
          *
          * @param serverUrl The URL of the Dracoon server.
          */
@@ -522,10 +522,9 @@ public abstract class DracoonClient {
         }
 
         /**
-         * Creates a new {@link DracoonClient DracoonClient} instance with the supplied
-         * configuration.
+         * Creates a new {@link DracoonClient} instance with the supplied configuration.
          *
-         * @return a new Dracoon client instance
+         * @return a new {@link DracoonClient} instance
          */
         public DracoonClient build() {
             mClient.init();

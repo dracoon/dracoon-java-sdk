@@ -1,5 +1,9 @@
 package com.dracoon.sdk.model;
 
+/**
+ * Enumeration of user role types.
+ */
+@SuppressWarnings("unused")
 public enum UserRole {
 
     CONFIG_MANAGER(1),
@@ -10,14 +14,32 @@ public enum UserRole {
 
     private int mValue;
 
+    /**
+     * Constructs a new enumeration constant with the provided user role type value.
+     *
+     * @param value The user role value.
+     */
     UserRole(int value) {
         mValue = value;
     }
 
+    /**
+     * Returns the value of the user role type.
+     *
+     * @return the user role type value
+     */
     public int getValue() {
         return mValue;
     }
 
+    /**
+     * Finds a enumeration constant by a provided user role type value.
+     *
+     * @param value The user role type value of the constant to return.
+     *
+     * @return the appropriate enumeration constant, or <code>null</code> if no matching enumeration
+     *         constant could be found
+     */
     public static UserRole getByValue(int value) {
         for (UserRole r : UserRole.values()) {
             if (r.mValue == value) {
