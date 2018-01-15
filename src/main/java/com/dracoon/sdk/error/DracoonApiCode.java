@@ -1,5 +1,8 @@
 package com.dracoon.sdk.error;
 
+/**
+ * Enumeration of Dracoon API error codes.
+ */
 @SuppressWarnings("unused")
 public enum DracoonApiCode {
 
@@ -10,8 +13,8 @@ public enum DracoonApiCode {
     AUTH_USER_EXPIRED(-104, "User is expired."),
 
     PRECONDITION_UNKNOWN_ERROR(-120, "A precondition is not fulfilled."),
-    PRECONDITION_MUST_ACCEPT_EULA(-121, "User must accept EULA"),
-    PRECONDITION_MUST_CHANGE_USER_NAME(-122, "User must change his username."),
+    PRECONDITION_MUST_ACCEPT_EULA(-121, "User must accept EULA."),
+    PRECONDITION_MUST_CHANGE_USER_NAME(-122, "User must change his user name."),
     PRECONDITION_MUST_CHANGE_PASSWORD(-123, "User must change his password."),
 
     VALIDATION_UNKNOWN_ERROR(-130, "The server request was invalid."),
@@ -68,15 +71,33 @@ public enum DracoonApiCode {
     private final int mNumber;
     private final String mText;
 
+    /**
+     * Constructs a new enumeration constant with the provided error number and message.
+     *
+     * @param number The error number.
+     * @param text   The error message.
+     */
     DracoonApiCode(int number, String text) {
         mNumber = number;
         mText = text;
     }
 
+    /**
+     * Returns the error number of the enumeration constant.<br>
+     * <br>
+     * This number can be used to map localized error messages.
+     *
+     * @return the error number of this enum constant
+     */
     public int getNumber() {
         return mNumber;
     }
 
+    /**
+     * Returns the error message of the enumeration constant.
+     *
+     * @return the error message of this enum constant
+     */
     public String getText() {
         return mText;
     }
@@ -86,6 +107,15 @@ public enum DracoonApiCode {
         return mNumber + " " + mText;
     }
 
+    /**
+     * Finds a enumeration constant by a provided error number.
+     *
+     * @param dracoonApiCode The error number of the constant to return.
+     *
+     * @return the appropriate enumeration constant
+     *
+     * @throws IllegalArgumentException if no enumeration constant could be found
+     */
     public static DracoonApiCode valueOf(int dracoonApiCode) {
         for (DracoonApiCode code : values()) {
             if (code.mNumber == dracoonApiCode) {
