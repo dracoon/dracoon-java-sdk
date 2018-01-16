@@ -35,10 +35,10 @@ import java.util.Date;
  * - {@link Nodes Nodes}:     Query node(s), create room/folder, update room/folder/file,
  *                            upload/download files, ...<br>
  * - {@link Shares Shares}:   Not implemented yet<br>
- * - {@link Events Events}:   Not implemented yet<br>
  * <br>
  * New client instances can be created via {@link Builder Builder}.
  */
+@SuppressWarnings("unused")
 public abstract class DracoonClient {
 
     /**
@@ -348,13 +348,6 @@ public abstract class DracoonClient {
 
     }
 
-    /**
-     * Handler to access the event log.
-     */
-    public interface Events {
-
-    }
-
     protected String mServerUrl;
 
     protected String mAccessToken;
@@ -455,13 +448,6 @@ public abstract class DracoonClient {
      * @return Shares handler
      */
     public abstract Shares shares();
-
-    /**
-     * Get Events handler.
-     *
-     * @return Event handler
-     */
-    public abstract Events events();
 
     /**
      * This builder creates new instances of {@link DracoonClient}.<br>

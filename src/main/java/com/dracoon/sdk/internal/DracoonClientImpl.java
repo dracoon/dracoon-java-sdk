@@ -32,7 +32,6 @@ public class DracoonClientImpl extends DracoonClient {
     private Groups mGroups;
     private DracoonNodesImpl mNodes;
     private Shares mShares;
-    private Events mEvents;
 
     public DracoonClientImpl(String serverUrl) {
         super(serverUrl);
@@ -144,11 +143,6 @@ public class DracoonClientImpl extends DracoonClient {
     @Override
     public Shares shares() {
         return mShares;
-    }
-
-    @Override
-    public Events events() {
-        return mEvents;
     }
 
     /// --- Methods to get internal handlers ---
