@@ -19,8 +19,8 @@ public class RoomMapper {
         apiRequest.hasRecycleBin = request.hasRecycleBin();
         apiRequest.recycleBinRetentionPeriod = request.getRecycleBinRetentionPeriod();
         apiRequest.inheritPermissions = request.hasInheritPermissions();
-        List<Long> adminIds = request.getAdminIds();
-        apiRequest.adminIds = adminIds != null ? adminIds.toArray(new Long[0]) : null;
+        List<Long> adminUserIds = request.getAdminUserIds();
+        apiRequest.adminIds = adminUserIds != null ? adminUserIds.toArray(new Long[0]) : null;
         List<Long> adminGroupIds = request.getAdminGroupIds();
         apiRequest.adminGroupIds = adminGroupIds != null ? adminGroupIds.toArray(new Long[0]) : null;
         GroupMemberAcceptance groupMemberAcceptance = request.getNewGroupMemberAcceptance();

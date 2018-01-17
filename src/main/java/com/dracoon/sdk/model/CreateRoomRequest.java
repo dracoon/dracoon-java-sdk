@@ -19,7 +19,7 @@ public class CreateRoomRequest {
     private Integer mRecycleBinRetentionPeriod;
 
     private Boolean mHasInheritPermissions;
-    private List<Long> mAdminIds;
+    private List<Long> mAdminUserIds;
     private List<Long> mAdminGroupIds;
     private GroupMemberAcceptance mNewGroupMemberAcceptance;
 
@@ -90,8 +90,8 @@ public class CreateRoomRequest {
      *
      * @return IDs of administrator users
      */
-    public List<Long> getAdminIds() {
-        return mAdminIds;
+    public List<Long> getAdminUserIds() {
+        return mAdminUserIds;
     }
 
     /**
@@ -123,7 +123,7 @@ public class CreateRoomRequest {
      * - Recycle bin:                  {@link Builder#hasRecycleBin(Boolean)}<br>
      * - Recycle bin retention period: {@link Builder#recycleBinRetentionPeriod(Integer)}<br>
      * - Permission inheritance:       {@link Builder#hasInheritPermissions(Boolean)}<br>
-     * - Admin user IDs:               {@link Builder#adminIds(List)}<br>
+     * - Admin user IDs:               {@link Builder#adminUserIds(List)}<br>
      * - Admin group IDs:              {@link Builder#adminGroupIds(List)}<br>
      * - Group member acceptance       {@link Builder#newGroupMemberAcceptance(GroupMemberAcceptance)}
      */
@@ -217,12 +217,12 @@ public class CreateRoomRequest {
         /**
          * Sets IDs of administrator users on the new room.
          *
-         * @param adminIds The administrator user IDs.
+         * @param adminUserIds The administrator user IDs.
          *
          * @return a reference to this object
          */
-        public Builder adminIds(List<Long> adminIds) {
-            mRequest.mAdminIds = adminIds;
+        public Builder adminUserIds(List<Long> adminUserIds) {
+            mRequest.mAdminUserIds = adminUserIds;
             return this;
         }
 

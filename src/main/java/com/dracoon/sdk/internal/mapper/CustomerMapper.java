@@ -13,8 +13,8 @@ public class CustomerMapper {
         CustomerAccount customerAccount = new CustomerAccount();
         customerAccount.setId(apiCustomerAccount.id);
         customerAccount.setName(apiCustomerAccount.name);
-        customerAccount.setAccountsUsed(apiCustomerAccount.accountsUsed);
-        customerAccount.setAccountsLimit(apiCustomerAccount.accountsLimit);
+        customerAccount.setUserAccountsUsed(apiCustomerAccount.accountsUsed);
+        customerAccount.setUserAccountsLimit(apiCustomerAccount.accountsLimit);
         customerAccount.setSpaceUsed(apiCustomerAccount.spaceUsed);
         customerAccount.setSpaceLimit(apiCustomerAccount.spaceLimit);
         customerAccount.setCntRooms(apiCustomerAccount.cntRooms);

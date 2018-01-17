@@ -11,8 +11,8 @@ public class CustomerAccount {
     private Long mId;
     private String mName;
 
-    private Integer mAccountsUsed;
-    private Integer mAccountsLimit;
+    private Integer mUserAccountsUsed;
+    private Integer mUserAccountsLimit;
     private Long mSpaceUsed;
     private Long mSpaceLimit;
     private Long mCntRooms;
@@ -62,17 +62,17 @@ public class CustomerAccount {
      *
      * @return the number of user accounts
      */
-    public Integer getAccountsUsed() {
-        return mAccountsUsed;
+    public Integer getUserAccountsUsed() {
+        return mUserAccountsUsed;
     }
 
     /**
      * Sets the number of user accounts used by the customer.
      *
-     * @param accountsUsed The number of user accounts.
+     * @param userAccountsUsed The number of user accounts.
      */
-    public void setAccountsUsed(Integer accountsUsed) {
-        mAccountsUsed = accountsUsed;
+    public void setUserAccountsUsed(Integer userAccountsUsed) {
+        mUserAccountsUsed = userAccountsUsed;
     }
 
     /**
@@ -80,17 +80,17 @@ public class CustomerAccount {
      *
      * @return the number of user accounts
      */
-    public Integer getAccountsLimit() {
-        return mAccountsLimit;
+    public Integer getUserAccountsLimit() {
+        return mUserAccountsLimit;
     }
 
     /**
      * Sets the number of user accounts available to the customer.
      *
-     * @param accountsLimit The number of user accounts.
+     * @param userAccountsLimit The number of user accounts.
      */
-    public void setAccountsLimit(Integer accountsLimit) {
-        mAccountsLimit = accountsLimit;
+    public void setUserAccountsLimit(Integer userAccountsLimit) {
+        mUserAccountsLimit = userAccountsLimit;
     }
 
     /**

@@ -84,8 +84,8 @@ public class Main {
         CustomerAccount customerAccount = client.account().getCustomerAccount();
         System.out.println("Customer: id=" + customerAccount.getId() + ", " +
                 "name=" + customerAccount.getName() + ", " +
-                "accounts=" + customerAccount.getAccountsUsed() + "/" +
-                customerAccount.getAccountsLimit() + ", " +
+                "user accounts=" + customerAccount.getUserAccountsUsed() + "/" +
+                customerAccount.getUserAccountsLimit() + ", " +
                 "space=" + customerAccount.getSpaceUsed() + "/" +
                 customerAccount.getSpaceLimit());
     }
@@ -129,7 +129,7 @@ public class Main {
 
         CreateRoomRequest request = new CreateRoomRequest.Builder("Test-Room")
                 .notes("This is a test room.")
-                .adminIds(adminIds)
+                .adminUserIds(adminIds)
                 .build();
         Node node = client.nodes().createRoom(request);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
