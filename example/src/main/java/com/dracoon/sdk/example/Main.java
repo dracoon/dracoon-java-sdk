@@ -47,7 +47,7 @@ public class Main {
         //deleteUserKeyPair(client);
 
         //listRootNodes(client);
-        //getNode(client);
+        getNode(client);
         //getInvalidNode(client);
 
         //createRoom(client);
@@ -58,7 +58,7 @@ public class Main {
         //deleteNodes(client);
 
         //uploadFile(client);
-        downloadFile(client);
+        //downloadFile(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {

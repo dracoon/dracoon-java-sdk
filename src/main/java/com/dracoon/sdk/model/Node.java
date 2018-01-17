@@ -18,8 +18,8 @@ public class Node {
     private Long mParentId;
     private String mParentPath;
     private String mName;
+    private String mExtension;
 
-    private String mFileType;
     private String mMediaType;
     private Long mSize;
     private Long mQuota;
@@ -137,21 +137,21 @@ public class Node {
     }
 
     /**
-     * Returns the file type of the node, if the node is a file.
+     * Returns the extension of the node, if the node is a file.
      *
-     * @return the file type, or null
+     * @return the extension, or null
      */
-    public String getFileType() {
-        return mFileType;
+    public String getExtension() {
+        return mExtension;
     }
 
     /**
-     * Sets the file type of the node.
+     * Sets the extension of the node.
      *
-     * @param fileType The file type.
+     * @param extension The extension.
      */
-    public void setFileType(String fileType) {
-        mFileType = fileType;
+    public void setExtension(String extension) {
+        mExtension = extension;
     }
 
     /**

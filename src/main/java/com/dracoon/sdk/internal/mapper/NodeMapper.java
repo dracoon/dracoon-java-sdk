@@ -45,8 +45,8 @@ public class NodeMapper {
         node.setParentId(apiNode.parentId);
         node.setParentPath(apiNode.parentPath);
         node.setName(apiNode.name);
+        node.setExtension(apiNode.fileType);
 
-        node.setFileType(apiNode.fileType);
         node.setMediaType(apiNode.mediaType);
         node.setSize(apiNode.size);
         node.setQuota(apiNode.quota);
