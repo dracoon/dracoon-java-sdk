@@ -238,9 +238,9 @@ public class UserAccount {
     }
 
     /**
-     * Returns the expire date of the user account.
+     * Returns the expire date of the user account, if user account and has a expire date.
      *
-     * @return the expire date
+     * @return the expire date, or null
      */
     public Date getExpireAt() {
         return mExpireAt;
@@ -256,9 +256,9 @@ public class UserAccount {
     }
 
     /**
-     * Returns the date of the last login of the user account.
+     * Returns the date of the last login of the user account, if user ever logged in successfully.
      *
-     * @return the date of the last login
+     * @return the date of the last login, or null
      */
     public Date getLastLoginSuccessAt() {
         return mLastLoginSuccessAt;
@@ -274,9 +274,10 @@ public class UserAccount {
     }
 
     /**
-     * Returns the IP address of the last login of the user account.
+     * Returns the IP address of the last login of the user account, if user ever logged in
+     * successfully and IP address logging is enabled.
      *
-     * @return the IP address of the last login
+     * @return the IP address of the last login, or null
      */
     public String getLastLoginSuccessIp() {
         return mLastLoginSuccessIp;
@@ -292,9 +293,10 @@ public class UserAccount {
     }
 
     /**
-     * Returns the date of the last failed login of the user account.
+     * Returns the date of the last failed login of the user account, if user ever logged in with an
+     * error.
      *
-     * @return the date of the last failed login
+     * @return the date of the last failed login, or null
      */
     public Date getLastLoginFailAt() {
         return mLastLoginFailAt;
@@ -310,9 +312,10 @@ public class UserAccount {
     }
 
     /**
-     * Returns the IP address of the last failed login of the user account.
+     * Returns the IP address of the last failed login of the user account, if user ever logged in
+     * with an error and IP address logging is enabled.
      *
-     * @return the IP address of the last failed login
+     * @return the IP address of the last failed login, or null
      */
     public String getLastLoginFailIp() {
         return mLastLoginFailIp;
