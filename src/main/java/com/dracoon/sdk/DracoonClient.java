@@ -354,6 +354,9 @@ public abstract class DracoonClient {
     protected String mEncryptionPassword;
 
     protected boolean mIsHttpRetryEnabled;
+    protected int mHttpConnectTimeout;
+    protected int mHttpReadTimeout;
+    protected int mHttpWriteTimeout;
 
     /**
      * Constructs a new Dracoon client.
@@ -473,6 +476,9 @@ public abstract class DracoonClient {
             mClient = new DracoonClientImpl(serverUrl);
 
             mClient.mIsHttpRetryEnabled = false;
+            mClient.mHttpConnectTimeout = 15;
+            mClient.mHttpReadTimeout = 15;
+            mClient.mHttpWriteTimeout = 15;
         }
 
         /**
@@ -524,6 +530,25 @@ public abstract class DracoonClient {
          */
         public Builder httpRetryEnabled(boolean isHttpRetryEnabled) {
             mClient.mIsHttpRetryEnabled = isHttpRetryEnabled;
+            return this;
+        }
+
+        /**
+         * Sets HTTP timeouts. A value of 0 means no timeout.<br>
+         * <br>
+         * The HTTP timeouts are set to 15 seconds by default.
+         *
+         * @param httpConnectTimeout The connect timeout for new connections in seconds.
+         * @param httpReadTimeout    The read timeout for new connections in seconds.
+         * @param httpWriteTimeout   The write timeout for new connections in seconds.
+         *
+         * @return a reference to this object
+         */
+        public Builder httpTimeout(int httpConnectTimeout, int httpReadTimeout,
+                int httpWriteTimeout) {
+            mClient.mHttpConnectTimeout = httpConnectTimeout;
+            mClient.mHttpReadTimeout = httpReadTimeout;
+            mClient.mHttpWriteTimeout = httpWriteTimeout;
             return this;
         }
 

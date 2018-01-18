@@ -74,9 +74,9 @@ public class DracoonClientImpl extends DracoonClient {
 
     private void initOkHttp() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(15, TimeUnit.SECONDS);
-        builder.readTimeout(15, TimeUnit.SECONDS);
-        builder.writeTimeout(15, TimeUnit.SECONDS);
+        builder.connectTimeout(mHttpConnectTimeout, TimeUnit.SECONDS);
+        builder.readTimeout(mHttpReadTimeout, TimeUnit.SECONDS);
+        builder.writeTimeout(mHttpWriteTimeout, TimeUnit.SECONDS);
         builder.retryOnConnectionFailure(false);
         mOkHttpClient = builder.build();
     }
