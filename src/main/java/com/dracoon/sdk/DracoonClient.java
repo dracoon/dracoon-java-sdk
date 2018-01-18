@@ -353,6 +353,8 @@ public abstract class DracoonClient {
     protected String mAccessToken;
     protected String mEncryptionPassword;
 
+    protected boolean mIsHttpRetryEnabled;
+
     /**
      * Constructs a new Dracoon client.
      *
@@ -469,6 +471,8 @@ public abstract class DracoonClient {
          */
         public Builder(String serverUrl) {
             mClient = new DracoonClientImpl(serverUrl);
+
+            mClient.mIsHttpRetryEnabled = false;
         }
 
         /**
@@ -504,6 +508,22 @@ public abstract class DracoonClient {
          */
         public Builder encryptionPassword(String encryptionPassword) {
             mClient.mEncryptionPassword = encryptionPassword;
+            return this;
+        }
+
+        /**
+         * Enables/disables HTTP retry. If enabled, requests which failed due to a network error
+         * will be retried 2 times.<br>
+         * <br>
+         * The HTTP retry is disabled by default.
+         *
+         * @param isHttpRetryEnabled <code>true</code> to enable HTTP retry; otherwise
+         *                           <code>false</code>
+         *
+         * @return a reference to this object
+         */
+        public Builder httpRetryEnabled(boolean isHttpRetryEnabled) {
+            mClient.mIsHttpRetryEnabled = isHttpRetryEnabled;
             return this;
         }
 

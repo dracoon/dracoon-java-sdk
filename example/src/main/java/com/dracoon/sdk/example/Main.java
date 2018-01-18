@@ -35,6 +35,7 @@ public class Main {
                 .log(new Logger(Log.DEBUG))
                 .accessToken(accessToken)
                 .encryptionPassword(encryptionPassword)
+                .httpRetryEnabled(true)
                 .build();
 
         //getServerData(client);
@@ -46,8 +47,8 @@ public class Main {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        //listRootNodes(client);
-        getNode(client);
+        listRootNodes(client);
+        //getNode(client);
         //getInvalidNode(client);
 
         //createRoom(client);

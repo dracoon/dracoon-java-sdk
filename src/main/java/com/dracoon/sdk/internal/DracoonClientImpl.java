@@ -77,7 +77,7 @@ public class DracoonClientImpl extends DracoonClient {
         builder.connectTimeout(15, TimeUnit.SECONDS);
         builder.readTimeout(15, TimeUnit.SECONDS);
         builder.writeTimeout(15, TimeUnit.SECONDS);
-        builder.retryOnConnectionFailure(true);
+        builder.retryOnConnectionFailure(false);
         mOkHttpClient = builder.build();
     }
 
@@ -107,6 +107,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     private void initDracoonHttpHelper() {
         mDracoonHttpHelper = new DracoonHttpHelper(mLog);
+        mDracoonHttpHelper.setRetryEnabled(mIsHttpRetryEnabled);
     }
 
     private void initDracoonErrorParser() {
