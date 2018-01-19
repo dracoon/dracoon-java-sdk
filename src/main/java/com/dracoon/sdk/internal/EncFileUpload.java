@@ -48,7 +48,7 @@ public class EncFileUpload extends FileUpload {
 
         String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
                 mRequest.getClassification().getValue(), mRequest.getNotes(),
-                mRequest.getExpiration());
+                mRequest.getExpirationDate());
 
         PlainFileKey plainFileKey = createFileKey(mUserPublicKey);
 

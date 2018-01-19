@@ -72,6 +72,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonApiException {
         assertServerApiVersion();
 
+        NodeValidator.validateGetChildRequest(parentNodeId);
+
         String accessToken = mClient.getAccessToken();
         Call<ApiNodeList> call = mService.getChildNodes(accessToken, parentNodeId, 1, null, null,
                 null);
@@ -93,6 +95,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node getNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
+
+        NodeValidator.validateGetRequest(nodeId);
 
         String accessToken = mClient.getAccessToken();
         Call<ApiNode> call = mService.getNode(accessToken, nodeId);

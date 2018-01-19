@@ -19,11 +19,11 @@ public class FileMapper {
             apiRequest.classification = classification.getValue();
         }
         apiRequest.notes = request.getNotes();
-        Date expiration = request.getExpiration();
-        if (expiration != null) {
+        Date expirationDate = request.getExpirationDate();
+        if (expirationDate != null) {
             ApiExpiration apiExpiration = new ApiExpiration();
-            apiExpiration.enableExpiration = expiration.getTime() != 0L;
-            apiExpiration.expireAt = expiration;
+            apiExpiration.enableExpiration = expirationDate.getTime() != 0L;
+            apiExpiration.expireAt = expirationDate;
             apiRequest.expiration = apiExpiration;
         }
         return apiRequest;

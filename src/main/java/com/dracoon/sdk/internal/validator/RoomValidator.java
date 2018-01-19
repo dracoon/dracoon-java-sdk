@@ -3,17 +3,27 @@ package com.dracoon.sdk.internal.validator;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 
-public class RoomValidator {
+public class RoomValidator extends BaseValidator {
 
     public static void validateCreateRequest(CreateRoomRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Room creation request cannot be null.");
         }
-        if (request.getParentId() != null && request.getParentId() < 0L) {
-            throw new IllegalArgumentException("Room parent ID cannot be negative.");
+        if (request.getParentId() != null) {
+            validateParentNodeId(request.getParentId());
         }
-        if (request.getName() == null || request.getName().isEmpty()) {
-            throw new IllegalArgumentException("Room name cannot be null or empty.");
+        validateName(request.getName());
+        validateQuota(request.getQuota());
+        validatePeriod(request.getRecycleBinRetentionPeriod());
+        if ((request.getAdminUserIds() == null || request.getAdminUserIds().isEmpty()) &&
+                (request.getAdminGroupIds() == null || request.getAdminGroupIds().isEmpty())) {
+            throw new IllegalArgumentException("Room must have an admin user or admin group.");
+        }
+        if (request.getAdminUserIds() != null) {
+            validateUserIds(request.getAdminUserIds());
+        }
+        if (request.getAdminGroupIds() != null) {
+            validateGroupIds(request.getAdminGroupIds());
         }
     }
 
@@ -21,12 +31,11 @@ public class RoomValidator {
         if (request == null) {
             throw new IllegalArgumentException("Room update request cannot be null.");
         }
-        if (request.getId() == null) {
-            throw new IllegalArgumentException("Room ID cannot be null.");
+        if (request.getName() != null) {
+            validateName(request.getName());
         }
-        if (request.getId() <= 0L) {
-            throw new IllegalArgumentException("Room ID cannot be negative or 0.");
-        }
+        validateRoomId(request.getId());
+        validateQuota(request.getQuota());
     }
 
 }

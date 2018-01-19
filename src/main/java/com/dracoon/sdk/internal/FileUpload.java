@@ -160,7 +160,7 @@ public class FileUpload extends Thread {
 
         String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
                 mRequest.getClassification().getValue(), mRequest.getNotes(),
-                mRequest.getExpiration());
+                mRequest.getExpirationDate());
 
         uploadFile(uploadId, mRequest.getName(), mSrcStream, mSrcLength);
 
@@ -175,7 +175,7 @@ public class FileUpload extends Thread {
     }
 
     protected String createUpload(long parentNodeId, String name, int classification, String notes,
-            Date expiration) throws DracoonNetIOException, DracoonApiException,
+            Date expirationDate) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
         String authToken = mClient.getAccessToken();
 
@@ -184,10 +184,10 @@ public class FileUpload extends Thread {
         request.name = name;
         request.classification = classification;
         request.notes = notes;
-        if (expiration != null) {
+        if (expirationDate != null) {
             ApiExpiration apiExpiration = new ApiExpiration();
-            apiExpiration.enableExpiration = expiration.getTime() != 0L;
-            apiExpiration.expireAt = expiration;
+            apiExpiration.enableExpiration = expirationDate.getTime() != 0L;
+            apiExpiration.expireAt = expirationDate;
             request.expiration = apiExpiration;
         }
 

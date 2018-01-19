@@ -15,7 +15,7 @@ public class FileUploadRequest {
     private ResolutionStrategy mResolutionStrategy;
     private Classification mClassification;
     private String mNotes;
-    private Date mExpiration;
+    private Date mExpirationDate;
 
     private FileUploadRequest() {
 
@@ -71,8 +71,8 @@ public class FileUploadRequest {
      *
      * @return the expiration date
      */
-    public Date getExpiration() {
-        return mExpiration;
+    public Date getExpirationDate() {
+        return mExpirationDate;
     }
 
     /**
@@ -86,7 +86,7 @@ public class FileUploadRequest {
      * - Classification:               {@link Builder#classification(Classification)}<br>
      * (Default: PUBLIC)<br>
      * - Notes:                        {@link Builder#notes(String)}<br>
-     * - Expiration date:              {@link Builder#expiration(Date)}
+     * - Expiration date:              {@link Builder#expirationDate(Date)}
      */
     public static class Builder {
 
@@ -145,12 +145,12 @@ public class FileUploadRequest {
         /**
          * Sets the expiration date of the new file.
          *
-         * @param expiration The expiration date.
+         * @param expirationDate The expiration date.
          *
          * @return a reference to this object
          */
-        public Builder expiration(Date expiration) {
-            mRequest.mExpiration = expiration;
+        public Builder expirationDate(Date expirationDate) {
+            mRequest.mExpirationDate = expirationDate;
             return this;
         }
 

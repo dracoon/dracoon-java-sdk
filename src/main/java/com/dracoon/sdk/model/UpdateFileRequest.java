@@ -14,7 +14,7 @@ public class UpdateFileRequest {
     private String mName;
     private Classification mClassification;
     private String mNotes;
-    private Date mExpiration;
+    private Date mExpirationDate;
 
     private UpdateFileRequest() {
 
@@ -61,8 +61,8 @@ public class UpdateFileRequest {
      *
      * @return the new expiration date
      */
-    public Date getExpiration() {
-        return mExpiration;
+    public Date getExpirationDate() {
+        return mExpirationDate;
     }
 
     /**
@@ -73,7 +73,7 @@ public class UpdateFileRequest {
      * - Name:                {@link Builder#name(String)}<br>
      * - Classification:      {@link Builder#classification(Classification)}<br>
      * - Notes:               {@link Builder#notes(String)}<br>
-     * - Expiration date:     {@link Builder#expiration(Date)}
+     * - Expiration date:     {@link Builder#expirationDate(Date)}
      */
     public static class Builder {
 
@@ -128,12 +128,12 @@ public class UpdateFileRequest {
         /**
          * Sets the new expiration date of the file.
          *
-         * @param expiration The new expiration date.
+         * @param expirationDate The new expiration date.
          *
          * @return a reference to this object
          */
-        public Builder expiration(Date expiration) {
-            mRequest.mExpiration = expiration;
+        public Builder expirationDate(Date expirationDate) {
+            mRequest.mExpirationDate = expirationDate;
             return this;
         }
 
