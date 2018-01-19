@@ -235,8 +235,6 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 if (errorCode == -40755)
                     return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
-                else if (errorCode == -40756)
-                    return DracoonApiCode.VALIDATION_INVALID_FILE_CLASSIFICATION;
                 else if (errorCode == -80006)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
                 else if (errorCode == -80008)
@@ -296,8 +294,6 @@ public class DracoonErrorParser {
                     return DracoonApiCode.VALIDATION_INVALID_TARGET_NODE;
                 else if (errorCode == -40755)
                     return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
-                else if (errorCode == -40756)
-                    return DracoonApiCode.VALIDATION_INVALID_FILE_CLASSIFICATION;
                 else if (errorCode == -80006)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
                 else if (errorCode == -80008)
