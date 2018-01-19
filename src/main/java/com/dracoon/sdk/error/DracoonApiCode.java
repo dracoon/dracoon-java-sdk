@@ -1,10 +1,14 @@
 package com.dracoon.sdk.error;
 
+import com.dracoon.sdk.internal.DracoonConstants;
+
 /**
  * Enumeration of Dracoon API error codes.
  */
 @SuppressWarnings("unused")
 public enum DracoonApiCode {
+
+    API_VERSION_NOT_SUPPORTED(-1, "Server API versions < " + DracoonConstants.MIN_API_VERSION + " are not supported."),
 
     AUTH_UNKNOWN_ERROR(-100, "An authentication error occurred."),
     AUTH_UNAUTHORIZED(-101, "Unauthorized."),

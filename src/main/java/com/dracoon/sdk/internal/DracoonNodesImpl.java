@@ -70,6 +70,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public NodeList getChildNodes(long parentNodeId) throws DracoonNetIOException,
             DracoonApiException {
+        assertServerApiVersion();
+
         String accessToken = mClient.getAccessToken();
         Call<ApiNodeList> call = mService.getChildNodes(accessToken, parentNodeId, 1, null, null,
                 null);
@@ -90,6 +92,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public Node getNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         String accessToken = mClient.getAccessToken();
         Call<ApiNode> call = mService.getNode(accessToken, nodeId);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
@@ -117,6 +121,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node createRoom(CreateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
+        assertServerApiVersion();
+
         RoomValidator.validateCreateRequest(request);
 
         String accessToken = mClient.getAccessToken();
@@ -140,6 +146,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
+        assertServerApiVersion();
+
         RoomValidator.validateUpdateRequest(request);
 
         String accessToken = mClient.getAccessToken();
@@ -160,11 +168,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNode(data);
     }
 
-    // --- Room creation and update methods ---
+    // --- Folder creation and update methods ---
 
     @Override
     public Node createFolder(CreateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
+        assertServerApiVersion();
+
         FolderValidator.validateCreateRequest(request);
 
         String accessToken = mClient.getAccessToken();
@@ -188,6 +198,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateFolder(UpdateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
+        assertServerApiVersion();
+
         FolderValidator.validateUpdateRequest(request);
 
         String accessToken = mClient.getAccessToken();
@@ -213,6 +225,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateFile(UpdateFileRequest request) throws DracoonNetIOException,
             DracoonApiException {
+        assertServerApiVersion();
+
         FileValidator.validateUpdateRequest(request);
 
         String accessToken = mClient.getAccessToken();
@@ -238,6 +252,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void deleteNodes(DeleteNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
+        assertServerApiVersion();
+
         NodeValidator.validateDeleteRequest(request);
 
         String accessToken = mClient.getAccessToken();
@@ -260,6 +276,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public Node uploadFile(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = getFileInputStream(file);
@@ -287,6 +305,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startUploadFileAsync(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = getFileInputStream(file);
@@ -359,6 +379,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void downloadFile(String id, long nodeId, File file, FileDownloadCallback callback)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
+        assertServerApiVersion();
+
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         UserPrivateKey userPrivateKey = null;
         if (isEncryptedDownload) {
@@ -383,6 +405,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startDownloadFileAsync(String id, long nodeId, File file,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonFileIOException, DracoonCryptoException {
+        assertServerApiVersion();
+
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         UserPrivateKey userPrivateKey = null;
         if (isEncryptedDownload) {

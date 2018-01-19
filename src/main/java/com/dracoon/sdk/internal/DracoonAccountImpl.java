@@ -29,6 +29,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         String accessToken = mClient.getAccessToken();
         Call<ApiUserAccount> call = mService.getUserAccount(accessToken);
         Response<ApiUserAccount> response = mHttpHelper.executeRequest(call);
@@ -48,6 +50,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         String accessToken = mClient.getAccessToken();
         Call<ApiCustomerAccount> call = mService.getCustomerAccount(accessToken);
         Response<ApiCustomerAccount> response = mHttpHelper.executeRequest(call);
@@ -67,6 +71,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public void setUserKeyPair() throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         String encryptionPassword = mClient.getEncryptionPassword();
 
         UserKeyPair userKeyPair;
@@ -96,6 +102,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     public UserKeyPair getUserKeyPair() throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         String accessToken = mClient.getAccessToken();
         Call<ApiUserKeyPair> call = mService.getUserKeyPair(accessToken);
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
@@ -135,6 +143,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
         String accessToken = mClient.getAccessToken();
         Call<Void> call = mService.deleteUserKeyPair(accessToken);
         Response<Void> response = mHttpHelper.executeRequest(call);
