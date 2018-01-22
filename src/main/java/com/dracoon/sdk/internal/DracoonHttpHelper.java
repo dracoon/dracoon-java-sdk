@@ -10,7 +10,6 @@ import javax.net.ssl.SSLHandshakeException;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 
-@SuppressWarnings("Duplicates")
 public class DracoonHttpHelper {
 
     private static final String LOG_TAG = DracoonHttpHelper.class.getSimpleName();
@@ -29,88 +28,46 @@ public class DracoonHttpHelper {
 
     // --- Methods for REST calls ---
 
+    @SuppressWarnings("unchecked")
     public <T> Response<T> executeRequest(Call<T> call) throws DracoonNetIOException {
-        Response<T> response = null;
-
         try {
-            response = executeRequestInternally(call);
+            return (Response<T>) executeRequestInternally(call);
         } catch (InterruptedException e) {
             // Nothing to do here
+            return null;
         }
-
-        return response;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> Response<T> executeRequest(Call<T> call, Thread thread)
             throws DracoonNetIOException, InterruptedException {
         try {
-            return executeRequestInternally(call);
+            return (Response<T>) executeRequestInternally(call);
         } catch (DracoonNetIOException e) {
             if (thread.isInterrupted()) {
                 throw new InterruptedException();
             }
             throw e;
-        }
-    }
-
-    private <T> Response<T> executeRequestInternally(Call<T> call) throws DracoonNetIOException,
-            InterruptedException {
-        int retryCnt = 0;
-
-        while (true) {
-            Response<T> response = null;
-            Exception exception = null;
-
-            try {
-                response = call.execute();
-            } catch (SSLHandshakeException e) {
-                String errorText = "Server SSL handshake failed!";
-                mLog.e(LOG_TAG, errorText, e);
-                throw new DracoonNetInsecureException(errorText, e);
-            } catch (IOException e) {
-                if (e.getClass().equals(InterruptedIOException.class)) {
-                    throw new InterruptedException();
-                }
-                exception = e;
-            }
-
-            if (exception != null) {
-                String errorText = "Server communication failed!";
-                mLog.d(LOG_TAG, errorText);
-
-                if (mIsRetryEnabled && retryCnt < 3) {
-                    mLog.d(LOG_TAG, String.format("Next retry in %d seconds.", retryCnt));
-                    Thread.sleep(retryCnt * 1000);
-                    call = call.clone();
-                    retryCnt++;
-                    continue;
-                } else {
-                    throw new DracoonNetIOException(errorText, exception);
-                }
-            }
-
-            return response;
         }
     }
 
     // --- Methods for HTTP calls ---
 
+    @SuppressWarnings("unchecked")
     public okhttp3.Response executeRequest(okhttp3.Call call) throws DracoonNetIOException {
-        okhttp3.Response response = null;
-
         try {
-            response = executeRequestInternally(call);
+            return (okhttp3.Response) executeRequestInternally(call);
         } catch (InterruptedException e) {
             // Nothing to do here
+            return null;
         }
-
-        return response;
     }
 
+    @SuppressWarnings("unchecked")
     public okhttp3.Response executeRequest(okhttp3.Call call, Thread thread)
             throws DracoonNetIOException, InterruptedException {
         try {
-            return executeRequestInternally(call);
+            return (okhttp3.Response) executeRequestInternally(call);
         } catch (DracoonNetIOException e) {
             if (thread.isInterrupted()) {
                 throw new InterruptedException();
@@ -119,16 +76,18 @@ public class DracoonHttpHelper {
         }
     }
 
-    private okhttp3.Response executeRequestInternally(okhttp3.Call call) throws DracoonNetIOException,
+    // --- Helper methods ---
+
+    private Object executeRequestInternally(Object call) throws DracoonNetIOException,
             InterruptedException {
         int retryCnt = 0;
 
         while (true) {
-            okhttp3.Response response = null;
+            Object response = null;
             Exception exception = null;
 
             try {
-                response = call.execute();
+                response = executeCallInternally(call);
             } catch (SSLHandshakeException e) {
                 String errorText = "Server SSL handshake failed!";
                 mLog.e(LOG_TAG, errorText, e);
@@ -147,7 +106,7 @@ public class DracoonHttpHelper {
                 if (mIsRetryEnabled && retryCnt < 3) {
                     mLog.d(LOG_TAG, String.format("Next retry in %d seconds.", retryCnt));
                     Thread.sleep(retryCnt * 1000);
-                    call = call.clone();
+                    call = cloneCallInternally(call);
                     retryCnt++;
                     continue;
                 } else {
@@ -156,6 +115,26 @@ public class DracoonHttpHelper {
             }
 
             return  response;
+        }
+    }
+
+    private Object executeCallInternally(Object call) throws IOException {
+        if (call instanceof Call) {
+            return ((Call) call).execute();
+        } else if (call instanceof okhttp3.Call) {
+            return ((okhttp3.Call) call).execute();
+        } else {
+            throw new RuntimeException("Can't execute request. Invalid call object.");
+        }
+    }
+
+    private Object cloneCallInternally(Object call) {
+        if (call instanceof Call) {
+            return ((Call) call).clone();
+        } else if (call instanceof okhttp3.Call) {
+            return ((okhttp3.Call) call).clone();
+        } else {
+            throw new RuntimeException("Can't clone request. Invalid call object.");
         }
     }
 

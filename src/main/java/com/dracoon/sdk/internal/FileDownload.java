@@ -196,7 +196,7 @@ public class FileDownload extends Thread {
             throw new DracoonApiException(errorCode);
         }
 
-        BufferedInputStream is = new BufferedInputStream(response.body().byteStream());;
+        BufferedInputStream is = new BufferedInputStream(response.body().byteStream());
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         byte buffer[] = new byte[BLOCK_SIZE];
