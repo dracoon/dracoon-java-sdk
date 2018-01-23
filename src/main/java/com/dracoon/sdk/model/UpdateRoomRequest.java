@@ -69,7 +69,7 @@ public class UpdateRoomRequest {
         /**
          * Constructs a new builder.
          *
-         * @param id The node ID of the room which should be updated.
+         * @param id The node ID of the room which should be updated. (ID must be positive.)
          */
         public Builder(Long id) {
             mRequest = new UpdateRoomRequest();
@@ -79,7 +79,7 @@ public class UpdateRoomRequest {
         /**
          * Sets the new name of the room.
          *
-         * @param name The new name.
+         * @param name The new name. (Name must not be empty.)
          *
          * @return a reference to this object
          */
@@ -89,9 +89,11 @@ public class UpdateRoomRequest {
         }
 
         /**
-         * Sets the new quota of the room.
+         * Sets the new quota of the room.<br>
+         * <br>
+         * A quota of 0 removes the existing quota.
          *
-         * @param quota The new quota.
+         * @param quota The new quota. (Quota must be positive.)
          *
          * @return a reference to this object
          */
@@ -101,7 +103,9 @@ public class UpdateRoomRequest {
         }
 
         /**
-         * Sets the new notes of the room.
+         * Sets the new notes of the room.<br>
+         * <br>
+         * A empty string removes existing notes.
          *
          * @param notes The new notes.
          *

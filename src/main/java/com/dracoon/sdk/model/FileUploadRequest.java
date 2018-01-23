@@ -95,8 +95,8 @@ public class FileUploadRequest {
         /**
          * Constructs a new builder.
          *
-         * @param parentId The ID of the parent node of the new file.
-         * @param name     The name of the new file.
+         * @param parentId The ID of the parent node of the new file. (ID must be positive.)
+         * @param name     The name of the new file. (Name must not be empty.)
          */
         public Builder(Long parentId, String name) {
             mRequest = new FileUploadRequest();
@@ -109,7 +109,8 @@ public class FileUploadRequest {
         /**
          * Sets the conflict resolution strategy for the file upload.
          *
-         * @param resolutionStrategy The conflict resolution strategy.
+         * @param resolutionStrategy The conflict resolution strategy. (Default:
+         *                           {@link ResolutionStrategy#AUTO_RENAME AUTO_RENAME})
          *
          * @return a reference to this object
          */
@@ -121,7 +122,7 @@ public class FileUploadRequest {
         /**
          * Sets the classification of the new file.
          *
-         * @param classification The classification.
+         * @param classification The classification. (Default: {@link Classification#PUBLIC PUBLIC})
          *
          * @return a reference to this object
          */

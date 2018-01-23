@@ -82,7 +82,7 @@ public class UpdateFileRequest {
         /**
          * Constructs a new builder.
          *
-         * @param id The node ID of the file which should be updated.
+         * @param id The node ID of the file which should be updated. (ID must be positive.)
          */
         public Builder(Long id) {
             mRequest = new UpdateFileRequest();
@@ -92,7 +92,7 @@ public class UpdateFileRequest {
         /**
          * Sets the new name of the file.
          *
-         * @param name The new name.
+         * @param name The new name. (Name must not be empty.)
          *
          * @return a reference to this object
          */
@@ -114,7 +114,9 @@ public class UpdateFileRequest {
         }
 
         /**
-         * Sets the new notes of the file.
+         * Sets the new notes of the file.<br>
+         * <br>
+         * A empty string removes existing notes.
          *
          * @param notes The new notes.
          *
@@ -126,7 +128,9 @@ public class UpdateFileRequest {
         }
 
         /**
-         * Sets the new expiration date of the file.
+         * Sets the new expiration date of the file.<br>
+         * <br>
+         * A date with time 0 removes the existing expiration date.
          *
          * @param expirationDate The new expiration date.
          *

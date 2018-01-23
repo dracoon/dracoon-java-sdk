@@ -58,7 +58,7 @@ public class UpdateFolderRequest {
         /**
          * Constructs a new builder.
          *
-         * @param id The node ID of the folder which should be updated.
+         * @param id The node ID of the folder which should be updated. (ID must be positive.)
          */
         public Builder(Long id) {
             mRequest = new UpdateFolderRequest();
@@ -68,7 +68,7 @@ public class UpdateFolderRequest {
         /**
          * Sets the new name of the folder.
          *
-         * @param name The new name.
+         * @param name The new name. (Name must not be empty.)
          *
          * @return a reference to this object
          */
@@ -78,7 +78,9 @@ public class UpdateFolderRequest {
         }
 
         /**
-         * Sets the new notes of the folder.
+         * Sets the new notes of the folder.<br>
+         * <br>
+         * A empty string removes existing notes.
          *
          * @param notes The new notes.
          *

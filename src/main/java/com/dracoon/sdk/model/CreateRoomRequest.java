@@ -134,7 +134,7 @@ public class CreateRoomRequest {
         /**
          * Constructs a new builder.
          *
-         * @param name The name of the new room.
+         * @param name The name of the new room. (Name must not be empty.)
          */
         public Builder(String name) {
             mRequest = new CreateRoomRequest();
@@ -142,9 +142,11 @@ public class CreateRoomRequest {
         }
 
         /**
-         * Sets the parent node ID of the new room.
+         * Sets the parent node ID of the new room.<br>
+         * <br>
+         * For root rooms the ID can be left empty.
          *
-         * @param parentId The parent node ID.
+         * @param parentId The parent node ID. (ID must be positive.)
          *
          * @return a reference to this object
          */
@@ -156,7 +158,7 @@ public class CreateRoomRequest {
         /**
          * Sets the quota of the new room.
          *
-         * @param quota The quota.
+         * @param quota The quota. (Quota must be positive.)
          *
          * @return a reference to this object
          */
@@ -192,7 +194,7 @@ public class CreateRoomRequest {
         /**
          * Sets the recycle bin retention period of the new room.
          *
-         * @param recycleBinRetentionPeriod The recycle bin retention period.
+         * @param recycleBinRetentionPeriod The recycle bin retention period. (Period must be positive.)
          *
          * @return a reference to this object
          */
@@ -217,7 +219,7 @@ public class CreateRoomRequest {
         /**
          * Sets IDs of administrator users on the new room.
          *
-         * @param adminUserIds The administrator user IDs.
+         * @param adminUserIds The administrator user IDs. (IDs must be positive.)
          *
          * @return a reference to this object
          */
@@ -229,7 +231,7 @@ public class CreateRoomRequest {
         /**
          * Sets IDs of administrator groups on the new room.
          *
-         * @param adminGroupIds The administrator group IDs.
+         * @param adminGroupIds The administrator group IDs. (IDs must be positive.)
          *
          * @return a reference to this object
          */
