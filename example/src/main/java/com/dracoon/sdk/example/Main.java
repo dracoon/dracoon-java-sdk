@@ -47,7 +47,8 @@ public class Main {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        listRootNodes(client);
+        //listRootNodes(client);
+        listRootNodesPaged(client);
         //getNode(client);
         //getInvalidNode(client);
 
@@ -111,6 +112,19 @@ public class Main {
         }
     }
 
+    private static void listRootNodesPaged(DracoonClient client) throws DracoonException {
+        NodeList nodeList1 = client.nodes().getRootNodes(0, 4);
+        System.out.println("Nodes page 1:");
+        for (Node node : nodeList1.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+        NodeList nodeList2 = client.nodes().getRootNodes(4, 4);
+        System.out.println("Nodes page 2:");
+        for (Node node : nodeList2.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+    }
+
     private static void getNode(DracoonClient client) throws DracoonException {
         Node node = client.nodes().getNode(1);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
@@ -120,7 +134,7 @@ public class Main {
         try {
             client.nodes().getNode(123456789);
         } catch (DracoonException e) {
-            System.err.println("Error at retrieval of node: " + e.getMessage());
+            System.err.println("Failed to query node: " + e.getMessage());
         }
     }
 

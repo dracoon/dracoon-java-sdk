@@ -65,6 +65,7 @@ public interface DracoonService {
                                     @Query("parent_id") Long id,
                                     @Query("depth_level") Integer depthLevel,
                                     @Query(value = "filter", encoded = true) String filter,
+                                    @Query(value = "sort", encoded = true) String sort,
                                     @Query("offset") Integer offset,
                                     @Query("limit") Integer limit);
 

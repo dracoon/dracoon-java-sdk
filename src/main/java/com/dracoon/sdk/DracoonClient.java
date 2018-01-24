@@ -155,6 +155,20 @@ public abstract class DracoonClient {
         NodeList getRootNodes() throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Retrieves root nodes for a specific range.
+         *
+         * @param offset The range offset.
+         * @param limit  The range limit.
+         *
+         * @return root nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getRootNodes(int offset, int limit) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
          * Retrieves all child nodes of a node.
          *
          * @param parentNodeId The ID of the parent node.
@@ -165,6 +179,21 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         NodeList getChildNodes(long parentNodeId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves child nodes of a node for a specific range.
+         *
+         * @param parentNodeId The ID of the parent node.
+         * @param offset       The range offset.
+         * @param limit        The range limit.
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getChildNodes(long parentNodeId, int offset, int limit)
+                throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Retrieves a node.

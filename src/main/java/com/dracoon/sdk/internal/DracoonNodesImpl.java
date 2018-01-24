@@ -68,15 +68,32 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
+    public NodeList getRootNodes(int offset, int limit) throws DracoonNetIOException,
+            DracoonApiException {
+        return getChildNodes(0L, offset, limit);
+    }
+
+    @Override
     public NodeList getChildNodes(long parentNodeId) throws DracoonNetIOException,
             DracoonApiException {
+        return getChildNodesInternally(parentNodeId, null, null);
+    }
+
+    @Override
+    public NodeList getChildNodes(long parentNodeId, int offset, int limit)
+            throws DracoonNetIOException, DracoonApiException {
+        return getChildNodesInternally(parentNodeId, offset, limit);
+    }
+
+    private NodeList getChildNodesInternally(long parentNodeId, Integer offset, Integer limit)
+            throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
         NodeValidator.validateGetChildRequest(parentNodeId);
 
         String accessToken = mClient.getAccessToken();
-        Call<ApiNodeList> call = mService.getChildNodes(accessToken, parentNodeId, 1, null, null,
-                null);
+        Call<ApiNodeList> call = mService.getChildNodes(accessToken, parentNodeId, 0, null, null,
+                offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
