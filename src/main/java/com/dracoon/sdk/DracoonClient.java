@@ -208,6 +208,18 @@ public abstract class DracoonClient {
         Node getNode(long nodeId) throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Retrieves a node.
+         *
+         * @param path The path of the node.
+         *
+         * @return the node
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        Node getNode(String path) throws DracoonNetIOException, DracoonApiException;
+
+        /**
          * Creates a new room.
          *
          * @param request The request with information about the new room.

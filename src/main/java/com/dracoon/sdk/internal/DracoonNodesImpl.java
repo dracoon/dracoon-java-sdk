@@ -50,6 +50,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
 
@@ -130,6 +131,52 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         ApiNode data = response.body();
 
         return NodeMapper.fromApiNode(data);
+    }
+
+    @Override
+    public Node getNode(String nodePath) throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        String[] nodePathParts = nodePath.split("/", -1);
+        long parentNodeId = 0L;
+
+        Node wantedNode = null;
+
+        for (int i = 1; i < nodePathParts.length; i++) {
+            if (nodePathParts[i].isEmpty()) {
+                break;
+            }
+
+            NodeList nodes = getChildNodes(parentNodeId);
+
+            Node node = null;
+            for (int j = 0; j < nodes.getItems().size(); j++) {
+                if (Objects.equals(nodes.getItems().get(j).getName(), nodePathParts[i])) {
+                    node = nodes.getItems().get(j);
+                    break;
+                }
+            }
+
+            if (node == null) {
+                break;
+            }
+
+            if (i == nodePathParts.length - 1) {
+                wantedNode = node;
+            }
+
+            parentNodeId = node.getId();
+        }
+
+        if (wantedNode == null) {
+            DracoonApiCode errorCode = DracoonApiCode.SERVER_NODE_NOT_FOUND;
+            String errorText = String.format("Query of node '%s' failed with '%s'!", nodePath,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        return wantedNode;
     }
 
     private boolean isNodeEncrypted(long nodeId) throws DracoonNetIOException, DracoonApiException {

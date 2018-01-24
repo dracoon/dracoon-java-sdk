@@ -48,9 +48,12 @@ public class Main {
         //deleteUserKeyPair(client);
 
         //listRootNodes(client);
-        listRootNodesPaged(client);
+        //listRootNodesPaged(client);
         //getNode(client);
-        //getInvalidNode(client);
+        //getNodeNotFound(client);
+
+        //getNodeByPath(client);
+        getNodeByPathNotFound(client);
 
         //createRoom(client);
         //updateRoom(client);
@@ -130,9 +133,22 @@ public class Main {
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
-    private static void getInvalidNode(DracoonClient client) throws DracoonException {
+    private static void getNodeNotFound(DracoonClient client) throws DracoonException {
         try {
             client.nodes().getNode(123456789);
+        } catch (DracoonException e) {
+            System.err.println("Failed to query node: " + e.getMessage());
+        }
+    }
+
+    private static void getNodeByPath(DracoonClient client) throws DracoonException {
+        Node node = client.nodes().getNode("/room/folder/file.txt");
+        System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void getNodeByPathNotFound(DracoonClient client) throws DracoonException {
+        try {
+            client.nodes().getNode("/not-existing");
         } catch (DracoonException e) {
             System.err.println("Failed to query node: " + e.getMessage());
         }
