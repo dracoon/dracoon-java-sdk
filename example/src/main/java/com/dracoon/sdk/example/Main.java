@@ -64,10 +64,10 @@ public class Main {
         //updateFile(client);
         //deleteNodes(client);
         //copyNodes(client);
-        moveNodes(client);
+        //moveNodes(client);
 
         //uploadFile(client);
-        //downloadFile(client);
+        downloadFile(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {

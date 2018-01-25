@@ -105,7 +105,7 @@ public class EncFileDownload extends FileDownload {
         }
 
         long offset = 0L;
-        long length = getFileSize(downloadUrl);
+        long length = getFileSize(mNodeId);
 
         try {
             while (offset < length) {

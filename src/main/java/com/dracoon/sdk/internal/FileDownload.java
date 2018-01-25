@@ -8,6 +8,7 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
+import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -107,9 +108,9 @@ public class FileDownload extends Thread {
 
     protected String getDownloadUrl(long nodeId) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String authToken = mClient.getAccessToken();
+        String accessToken = mClient.getAccessToken();
 
-        Call<ApiDownloadToken> call = mRestService.getDownloadToken(authToken, nodeId);
+        Call<ApiDownloadToken> call = mRestService.getDownloadToken(accessToken, nodeId);
         Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
@@ -133,7 +134,7 @@ public class FileDownload extends Thread {
             throws DracoonNetIOException, DracoonApiException, DracoonFileIOException,
             InterruptedException {
         long offset = 0L;
-        long length = getFileSize(downloadUrl);
+        long length = getFileSize(mNodeId);
 
         try {
             while (offset < length) {
@@ -155,30 +156,29 @@ public class FileDownload extends Thread {
         }
     }
 
-    protected long getFileSize(String downloadUrl) throws DracoonNetIOException, DracoonApiException,
+    protected long getFileSize(long nodeId) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        okhttp3.Request request = new okhttp3.Request.Builder()
-                .url(downloadUrl)
-                .head()
-                .build();
+        String accessToken = mClient.getAccessToken();
 
-        okhttp3.Call call = mHttpClient.newCall(request);
-        okhttp3.Response response = mHttpHelper.executeRequest(call, this);
+        Call<ApiNode> call = mRestService.getNode(accessToken, nodeId);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseDownloadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseNodesQueryError(response);
             String errorText = String.format("File download '%s' for file '%d' failed with '%s'!",
-                    mId, mNodeId, errorCode.name());
+                    mId, nodeId, errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
-        return response.body().contentLength();
+        ApiNode node = response.body();
+
+        return node.size;
     }
 
     protected byte[] downloadFileChunk(String downloadUrl, long offset, int count, long length)
             throws DracoonNetIOException, DracoonApiException, InterruptedException {
-        String range = "bytes=" + offset + "-" + (offset + count);
+        String range = "bytes=" + offset + "-" + (offset + count - 1);
 
         okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(downloadUrl)
