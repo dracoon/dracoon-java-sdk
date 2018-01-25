@@ -6,6 +6,7 @@ public class ApiErrorResponse {
     public String message;
     public String debugInfo;
     public Integer errorCode;
+    public ApiErrorInfos errorInfos;
 
     @Override
     public String toString() {
@@ -13,7 +14,8 @@ public class ApiErrorResponse {
                 "code=" + code + ", " +
                 "message='" + message + "', " +
                 "debugInfo='" + debugInfo + "', " +
-                "errorCode=" + errorCode +
+                "errorCode=" + errorCode + ", " +
+                "errorInfos=" + errorInfos +
                 '}';
     }
 

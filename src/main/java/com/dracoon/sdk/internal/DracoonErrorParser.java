@@ -279,6 +279,92 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseNodesCopyError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -40001)
+                    return DracoonApiCode.VALIDATION_SOURCE_ROOM_NOT_ENCRYPTED;
+                else if (errorCode == -40002)
+                    return DracoonApiCode.VALIDATION_TARGET_ROOM_NOT_ENCRYPTED;
+                else if (errorCode == -41052)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_COPY_ROOM;
+                else if (errorCode == -41053)
+                    return DracoonApiCode.VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                return DracoonApiCode.PERMISSION_CREATE_ERROR;
+            case NOT_FOUND:
+                if (errorCode == -40014)
+                    return DracoonApiCode.SERVER_USER_HAS_NO_FILE_KEY;
+                else if (errorCode == -41050)
+                    return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
+                else if (errorCode == -41051)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case CONFLICT:
+                if (errorCode == -41001)
+                    return DracoonApiCode.VALIDATION_FOLDER_CAN_NOT_BE_OVERWRITTEN;
+                else
+                    return DracoonApiCode.VALIDATION_FOLDER_FILE_ALREADY_EXISTS;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseNodesMoveError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -40001)
+                    return DracoonApiCode.VALIDATION_SOURCE_ROOM_NOT_ENCRYPTED;
+                else if (errorCode == -40002)
+                    return DracoonApiCode.VALIDATION_TARGET_ROOM_NOT_ENCRYPTED;
+                else if (errorCode == -41052)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_MOVE_ROOM;
+                else if (errorCode == -41053)
+                    return DracoonApiCode.VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE;
+                else if (errorCode == -41302)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_MOVE_NODE_TO_OWN_PLACE;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                return DracoonApiCode.PERMISSION_ERROR;
+            case NOT_FOUND:
+                if (errorCode == -40014)
+                    return DracoonApiCode.SERVER_USER_HAS_NO_FILE_KEY;
+                else if (errorCode == -41050)
+                    return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
+                else if (errorCode == -41051)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case CONFLICT:
+                if (errorCode == -41001)
+                    return DracoonApiCode.VALIDATION_FOLDER_CAN_NOT_BE_OVERWRITTEN;
+                else
+                    return DracoonApiCode.VALIDATION_FOLDER_FILE_ALREADY_EXISTS;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     public DracoonApiCode parseCreateFileUploadError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
@@ -290,9 +376,7 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
-                if (errorCode == -80001)
-                    return DracoonApiCode.VALIDATION_INVALID_TARGET_NODE;
-                else if (errorCode == -40755)
+                if (errorCode == -40755)
                     return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
                 else if (errorCode == -80006)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
@@ -350,7 +434,7 @@ public class DracoonErrorParser {
                     return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
             case CONFLICT:
                 if (errorCode == -40010)
-                    return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_CONTAINER_NODE;
+                    return DracoonApiCode.VALIDATION_ROOM_FOLDER_CAN_NOT_BE_OVERWRITTEN;
                 else
                     return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
             default:

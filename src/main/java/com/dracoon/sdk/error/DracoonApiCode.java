@@ -25,7 +25,7 @@ public enum DracoonApiCode {
     VALIDATION_NOT_A_ROOM(-131, "Not a room."),
     VALIDATION_NOT_A_FOLDER(-132, "Not a folder."),
     VALIDATION_NOT_A_FILE(-133, "Not a file."),
-    VALIDATION_INVALID_TARGET_NODE(-134, "Invalid target room or folder."),
+    VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE(-134, "A file can't be a target node."),
     VALIDATION_BAD_FILE_NAME(-135, "Bad file name."),
     VALIDATION_EXPIRATION_DATE_IN_PAST(-136, "Expiration date is in past."),
     VALIDATION_EXPIRATION_DATE_TOO_LATE(-137, "Expiration date is too late."),
@@ -34,13 +34,17 @@ public enum DracoonApiCode {
     VALIDATION_ROOM_ALREADY_EXISTS(-140, "A room with the same name already exits."),
     VALIDATION_FOLDER_ALREADY_EXISTS(-141, "A folder with the same name already exits."),
     VALIDATION_FILE_ALREADY_EXISTS(-142, "A file with the same name already exits."),
-    VALIDATION_CAN_NOT_OVERWRITE_CONTAINER_NODE(-143, "A room or folder can\'t be overwritten."),
-    VALIDATION_NODES_NOT_IN_SAME_PARENT(-144, "Folders/files must be in same parent."),
-    VALIDATION_PATH_TOO_LONG(-145, "Path is too long."),
-    VALIDATION_INVALID_USER_KEY_PAIR(-146, "Invalid encryption key pair."),
-    VALIDATION_ROOM_NOT_ENCRYPTED(-147, "Room not encrypted."),
-    VALIDATION_SOURCE_ROOM_NOT_ENCRYPTED(-148, "Encrypted files can\'t be copied or moved to an not encrypted room."),
-    VALIDATION_TARGET_ROOM_NOT_ENCRYPTED(-149, "Not encrypted files can\'t be copied or moved to an encrypted room."),
+    VALIDATION_NODES_NOT_IN_SAME_PARENT(-143, "Folders/files must be in same parent."),
+    VALIDATION_CAN_NOT_MOVE_NODE_TO_OWN_PLACE(-144, "A node can\'t be moved to its own place."),
+    VALIDATION_ROOM_FOLDER_CAN_NOT_BE_OVERWRITTEN(-145, "A room or folder can\'t be overwritten."),
+    VALIDATION_FOLDER_CAN_NOT_BE_OVERWRITTEN(-146, "A folder can\'t be overwritten."),
+    VALIDATION_CAN_NOT_COPY_ROOM(-147, "A rooms can\'t be copied."),
+    VALIDATION_CAN_NOT_MOVE_ROOM(-148, "A rooms can\'t be moved."),
+    VALIDATION_PATH_TOO_LONG(-149, "Path is too long."),
+    VALIDATION_INVALID_USER_KEY_PAIR(-150, "Invalid encryption key pair."),
+    VALIDATION_ROOM_NOT_ENCRYPTED(-151, "Room not encrypted."),
+    VALIDATION_SOURCE_ROOM_NOT_ENCRYPTED(-152, "Encrypted files can\'t be copied or moved to an not encrypted room."),
+    VALIDATION_TARGET_ROOM_NOT_ENCRYPTED(-153, "Not encrypted files can\'t be copied or moved to an encrypted room."),
 
     PERMISSION_ERROR(-160, "User has no permissions to execute the action in this room."),
     PERMISSION_MANAGE_ERROR(-161, "User has no permission to manage this room."),
@@ -74,7 +78,8 @@ public enum DracoonApiCode {
     SERVER_USER_CAN_NOT_RESET_PASSWORD(-218, "Password can\'t be reset for this user."),
     SERVER_USER_RESET_PASSWORD_EVERY_5_MINUTES(-219, "Password can only be reset every 5 minutes."),
     SERVER_USER_KEY_PAIR_ALREADY_SET(-220, "Encryption key pair was already set."),
-    SERVER_USER_KEY_PAIR_NOT_FOUND(-221, "Encryption key pair was not found.");
+    SERVER_USER_KEY_PAIR_NOT_FOUND(-221, "Encryption key pair was not found."),
+    SERVER_USER_HAS_NO_FILE_KEY(-222, "User has no file key for the file.");
 
     private final int mNumber;
     private final String mText;

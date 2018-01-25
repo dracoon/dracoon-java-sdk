@@ -1,11 +1,15 @@
 package com.dracoon.sdk.internal.mapper;
 
+import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
+import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.util.DateUtils;
 import com.dracoon.sdk.model.Classification;
+import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
+import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
@@ -87,6 +91,20 @@ public class NodeMapper {
         if (request.getIds() != null) {
             apiRequest.nodeIds = request.getIds().toArray(new Long[0]);
         }
+        return apiRequest;
+    }
+
+    public static ApiCopyNodesRequest toApiCopyNodesRequest(CopyNodesRequest request) {
+        ApiCopyNodesRequest apiRequest = new ApiCopyNodesRequest();
+        apiRequest.nodeIds = request.getSourceNodeIds().toArray(new Long[0]);
+        apiRequest.resolutionStrategy = request.getResolutionStrategy().getValue();
+        return apiRequest;
+    }
+
+    public static ApiMoveNodesRequest toApiMoveNodesRequest(MoveNodesRequest request) {
+        ApiMoveNodesRequest apiRequest = new ApiMoveNodesRequest();
+        apiRequest.nodeIds = request.getSourceNodeIds().toArray(new Long[0]);
+        apiRequest.resolutionStrategy = request.getResolutionStrategy().getValue();
         return apiRequest;
     }
 

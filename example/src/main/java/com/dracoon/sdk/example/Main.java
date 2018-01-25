@@ -4,6 +4,7 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Classification;
+import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CustomerAccount;
@@ -11,6 +12,7 @@ import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
@@ -53,7 +55,7 @@ public class Main {
         //getNodeNotFound(client);
 
         //getNodeByPath(client);
-        getNodeByPathNotFound(client);
+        //getNodeByPathNotFound(client);
 
         //createRoom(client);
         //updateRoom(client);
@@ -61,6 +63,8 @@ public class Main {
         //updateFolder(client);
         //updateFile(client);
         //deleteNodes(client);
+        //copyNodes(client);
+        moveNodes(client);
 
         //uploadFile(client);
         //downloadFile(client);
@@ -211,6 +215,26 @@ public class Main {
         DeleteNodesRequest request = new DeleteNodesRequest.Builder(ids)
                 .build();
         client.nodes().deleteNodes(request);
+    }
+
+    private static void copyNodes(DracoonClient client) throws DracoonException {
+        CopyNodesRequest request = new CopyNodesRequest.Builder(1L)
+                .addSourceNodeId(2L)
+                .addSourceNodeId(3L)
+                .addSourceNodeId(4L)
+                .build();
+        Node node = client.nodes().copyNodes(request);
+        System.out.println("id=" + node.getId() + ", size=" + node.getSize());
+    }
+
+    private static void moveNodes(DracoonClient client) throws DracoonException {
+        MoveNodesRequest request = new MoveNodesRequest.Builder(1L)
+                .addSourceNodeId(2L)
+                .addSourceNodeId(3L)
+                .addSourceNodeId(4L)
+                .build();
+        Node node = client.nodes().moveNodes(request);
+        System.out.println("id=" + node.getId() + ", size=" + node.getSize());
     }
 
     private static void uploadFile(DracoonClient client) throws DracoonException {

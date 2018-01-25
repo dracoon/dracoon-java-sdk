@@ -5,6 +5,7 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CustomerAccount;
@@ -12,6 +13,7 @@ import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
@@ -292,6 +294,30 @@ public abstract class DracoonClient {
          */
         void deleteNodes(DeleteNodesRequest request) throws DracoonNetIOException,
                 DracoonApiException;
+
+        /**
+         * Copies nodes.
+         *
+         * @param request The request with target node ID and IDs of nodes which should be copied.
+         *
+         * @return the updated target node
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        Node copyNodes(CopyNodesRequest request) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Moves nodes.
+         *
+         * @param request The request with target node ID and IDs of nodes which should be moved.
+         *
+         * @return the updated target node
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        Node moveNodes(MoveNodesRequest request) throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Uploads a file.

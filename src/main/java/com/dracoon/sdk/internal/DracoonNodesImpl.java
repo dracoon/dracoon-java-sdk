@@ -16,9 +16,11 @@ import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.mapper.RoomMapper;
+import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
+import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
@@ -28,12 +30,14 @@ import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.NodeValidator;
 import com.dracoon.sdk.internal.validator.RoomValidator;
+import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
@@ -336,6 +340,58 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
+    }
+
+    @Override
+    public Node copyNodes(CopyNodesRequest request) throws DracoonNetIOException,
+            DracoonApiException {
+        assertServerApiVersion();
+
+        NodeValidator.validateCopyRequest(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiCopyNodesRequest apiRequest = NodeMapper.toApiCopyNodesRequest(request);
+        Call<ApiNode> call = mService.copyNodes(accessToken, request.getTargetNodeId(), apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodesCopyError(response);
+            String errorText = String.format("Copy to node '%d' failed with '%s'!",
+                    request.getTargetNodeId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            // TODO: Add conflict nodes to exception
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApiNode(data);
+    }
+
+    @Override
+    public Node moveNodes(MoveNodesRequest request) throws DracoonNetIOException,
+            DracoonApiException {
+        assertServerApiVersion();
+
+        NodeValidator.validateMoveRequest(request);
+
+        String accessToken = mClient.getAccessToken();
+        ApiMoveNodesRequest apiRequest = NodeMapper.toApiMoveNodesRequest(request);
+        Call<ApiNode> call = mService.moveNodes(accessToken, request.getTargetNodeId(), apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodesMoveError(response);
+            String errorText = String.format("Move to node '%d' failed with '%s'!",
+                    request.getTargetNodeId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            // TODO: Add conflict nodes to exception
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApiNode(data);
     }
 
     // --- File upload methods ---

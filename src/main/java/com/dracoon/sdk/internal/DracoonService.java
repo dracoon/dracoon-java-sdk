@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
+import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
@@ -9,6 +10,7 @@ import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
+import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiServerTime;
@@ -99,6 +101,16 @@ public interface DracoonService {
     @HTTP(method = "DELETE", hasBody = true, path = API_PATH + "/nodes")
     Call<Void> deleteNodes(@Header(AUTHORIZATION_HEADER) String token,
                            @Body ApiDeleteNodesRequest request);
+
+    @POST(API_PATH + "/nodes/{node_id}/copy_to")
+    Call<ApiNode> copyNodes(@Header(AUTHORIZATION_HEADER) String token,
+                            @Path("node_id") Long nodeId,
+                            @Body ApiCopyNodesRequest request);
+
+    @POST(API_PATH + "/nodes/{node_id}/move_to")
+    Call<ApiNode> moveNodes(@Header(AUTHORIZATION_HEADER) String token,
+                            @Path("node_id") Long nodeId,
+                            @Body ApiMoveNodesRequest request);
 
     @POST(API_PATH + "/nodes/files/uploads")
     Call<ApiFileUpload> createFileUpload(@Header(AUTHORIZATION_HEADER) String token,
