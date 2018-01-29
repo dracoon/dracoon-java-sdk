@@ -75,6 +75,17 @@ public interface DracoonService {
     Call<ApiNode> getNode(@Header(AUTHORIZATION_HEADER) String token,
                           @Path("node_id") Long id);
 
+    @GET(API_PATH + "/nodes/search")
+    Call<ApiNodeList> searchNodes(@Header(AUTHORIZATION_HEADER) String token,
+                                  @Query("search_string") String searchString,
+                                  @Query("parent_id") Long id,
+                                  @Query("depth_level") Integer depthLevel,
+                                  @Query(value = "filter", encoded = true) String filter,
+                                  @Query(value = "sort", encoded = true) String sort,
+                                  @Query("offset") Integer offset,
+                                  @Query("limit") Integer limit);
+
+
     @POST(API_PATH + "/nodes/rooms")
     Call<ApiNode> createRoom(@Header(AUTHORIZATION_HEADER) String token,
                              @Body ApiCreateRoomRequest request);

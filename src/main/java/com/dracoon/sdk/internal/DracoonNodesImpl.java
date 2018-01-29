@@ -67,6 +67,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         super(client);
     }
 
+    // --- Query methods ---
+
     @Override
     public NodeList getRootNodes() throws DracoonNetIOException, DracoonApiException {
         return getChildNodes(0L);
@@ -592,6 +594,44 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             download.interrupt();
         }
         mDownloads.remove(id);
+    }
+
+    // --- Search methods ---
+
+    @Override
+    public NodeList searchNodes(long parentNodeId, String searchString)
+            throws DracoonNetIOException, DracoonApiException {
+        return searchNodesInternally(parentNodeId, searchString, null, null);
+    }
+
+    @Override
+    public NodeList searchNodes(long parentNodeId, String searchString, int offset, int limit)
+            throws DracoonNetIOException, DracoonApiException {
+        return searchNodesInternally(parentNodeId, searchString, offset, limit);
+    }
+
+    private NodeList searchNodesInternally(long parentNodeId, String searchString, Integer offset,
+            Integer limit) throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        NodeValidator.validateSearchRequest(parentNodeId, searchString);
+
+        String accessToken = mClient.getAccessToken();
+        Call<ApiNodeList> call = mService.searchNodes(accessToken, searchString, parentNodeId, -1,
+                null, null, offset, limit);
+        Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodesQueryError(response);
+            String errorText = String.format("Node search '%s' in node '%d' failed with '%s'!",
+                    searchString, parentNodeId, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeList data = response.body();
+
+        return NodeMapper.fromApiNodeList(data);
     }
 
     // --- Helper methods ---

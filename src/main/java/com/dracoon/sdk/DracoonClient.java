@@ -406,6 +406,42 @@ public abstract class DracoonClient {
          * @param id The ID of the download.
          */
         void cancelDownloadFileAsync(String id);
+
+        /**
+         * Searches child nodes of a node by their name.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to search in all root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param searchString The search string. (Search string must not be empty.)
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList searchNodes(long parentNodeId, String searchString)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Searches child nodes of a node by their name. The arguments {@code offset} and
+         * {@code limit} restrict the result to a specific range.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to search in all root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param searchString The search string. (Search string must not be empty.)
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList searchNodes(long parentNodeId, String searchString, int offset, int limit)
+                throws DracoonNetIOException, DracoonApiException;
+
     }
 
     /**

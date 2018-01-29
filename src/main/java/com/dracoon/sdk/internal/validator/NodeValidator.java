@@ -39,4 +39,13 @@ public class NodeValidator extends BaseValidator {
         validateNodeIds(request.getSourceNodeIds());
     }
 
+    public static void validateSearchRequest(long id, String searchString) {
+        if (id != 0L) {
+            BaseValidator.validateParentNodeId(id);
+        }
+        if (searchString == null || searchString.isEmpty()) {
+            throw new IllegalArgumentException("Search string cannot be null or empty.");
+        }
+    }
+
 }

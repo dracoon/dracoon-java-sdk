@@ -67,7 +67,10 @@ public class Main {
         //moveNodes(client);
 
         //uploadFile(client);
-        downloadFile(client);
+        //downloadFile(client);
+
+        //searchNodes(client);
+        searchNodesPaged(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -313,6 +316,33 @@ public class Main {
         client.nodes().downloadFile("1", nodeId, file, callback);
 
         System.out.println(String.format("Node downloaded: id=%d", nodeId));
+    }
+
+    private static void searchNodes(DracoonClient client) throws DracoonException {
+        long parentNodeId = 0L;
+        String searchString = "test*";
+
+        NodeList nodeList = client.nodes().searchNodes(parentNodeId, searchString);
+        for (Node node : nodeList.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+    }
+
+    private static void searchNodesPaged(DracoonClient client) throws DracoonException {
+        long parentNodeId = 0L;
+        String searchString = "test*";
+
+        NodeList nodeList1 = client.nodes().searchNodes(parentNodeId, searchString, 0, 0);
+        System.out.println("Nodes search page 1:");
+        for (Node node : nodeList1.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+
+        NodeList nodeList2 = client.nodes().searchNodes(parentNodeId, searchString, 4, 4);
+        System.out.println("Nodes search page 2:");
+        for (Node node : nodeList2.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
     }
 
 }
