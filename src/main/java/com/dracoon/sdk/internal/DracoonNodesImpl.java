@@ -76,12 +76,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
-    public NodeList getNodes(long parentNodeId, int offset, int limit)
+    public NodeList getNodes(long parentNodeId, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return getNodesInternally(parentNodeId, offset, limit);
     }
 
-    private NodeList getNodesInternally(long parentNodeId, Integer offset, Integer limit)
+    private NodeList getNodesInternally(long parentNodeId, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
@@ -594,13 +594,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
-    public NodeList searchNodes(long parentNodeId, String searchString, int offset, int limit)
+    public NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return searchNodesInternally(parentNodeId, searchString, offset, limit);
     }
 
-    private NodeList searchNodesInternally(long parentNodeId, String searchString, Integer offset,
-            Integer limit) throws DracoonNetIOException, DracoonApiException {
+    private NodeList searchNodesInternally(long parentNodeId, String searchString, Long offset,
+            Long limit) throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
         NodeValidator.validateSearchRequest(parentNodeId, searchString);

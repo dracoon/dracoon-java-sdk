@@ -175,7 +175,7 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        NodeList getNodes(long parentNodeId, int offset, int limit)
+        NodeList getNodes(long parentNodeId, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
 
         /**
@@ -420,7 +420,7 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        NodeList searchNodes(long parentNodeId, String searchString, int offset, int limit)
+        NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
 
     }

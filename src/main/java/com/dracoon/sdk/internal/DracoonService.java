@@ -68,8 +68,8 @@ public interface DracoonService {
                                @Query("depth_level") Integer depthLevel,
                                @Query(value = "filter", encoded = true) String filter,
                                @Query(value = "sort", encoded = true) String sort,
-                               @Query("offset") Integer offset,
-                               @Query("limit") Integer limit);
+                               @Query("offset") Long offset,
+                               @Query("limit") Long limit);
 
     @GET(API_PATH + "/nodes/{node_id}")
     Call<ApiNode> getNode(@Header(AUTHORIZATION_HEADER) String token,
@@ -82,8 +82,8 @@ public interface DracoonService {
                                   @Query("depth_level") Integer depthLevel,
                                   @Query(value = "filter", encoded = true) String filter,
                                   @Query(value = "sort", encoded = true) String sort,
-                                  @Query("offset") Integer offset,
-                                  @Query("limit") Integer limit);
+                                  @Query("offset") Long offset,
+                                  @Query("limit") Long limit);
 
 
     @POST(API_PATH + "/nodes/rooms")
