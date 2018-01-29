@@ -63,13 +63,13 @@ public interface DracoonService {
     Call<Void> deleteUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/nodes")
-    Call<ApiNodeList> getChildNodes(@Header(AUTHORIZATION_HEADER) String token,
-                                    @Query("parent_id") Long id,
-                                    @Query("depth_level") Integer depthLevel,
-                                    @Query(value = "filter", encoded = true) String filter,
-                                    @Query(value = "sort", encoded = true) String sort,
-                                    @Query("offset") Integer offset,
-                                    @Query("limit") Integer limit);
+    Call<ApiNodeList> getNodes(@Header(AUTHORIZATION_HEADER) String token,
+                               @Query("parent_id") Long id,
+                               @Query("depth_level") Integer depthLevel,
+                               @Query(value = "filter", encoded = true) String filter,
+                               @Query(value = "sort", encoded = true) String sort,
+                               @Query("offset") Integer offset,
+                               @Query("limit") Integer limit);
 
     @GET(API_PATH + "/nodes/{node_id}")
     Call<ApiNode> getNode(@Header(AUTHORIZATION_HEADER) String token,

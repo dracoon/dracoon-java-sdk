@@ -147,54 +147,35 @@ public abstract class DracoonClient {
     public interface Nodes {
 
         /**
-         * Retrieves all root nodes.
+         * Retrieves child nodes of a node.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to retrieve root nodes.
          *
-         * @return root nodes
-         *
-         * @throws DracoonNetIOException If a network error occurred.
-         * @throws DracoonApiException   If the API responded with an error.
-         */
-        NodeList getRootNodes() throws DracoonNetIOException, DracoonApiException;
-
-        /**
-         * Retrieves root nodes for a specific range.
-         *
-         * @param offset The range offset.
-         * @param limit  The range limit.
-         *
-         * @return root nodes
-         *
-         * @throws DracoonNetIOException If a network error occurred.
-         * @throws DracoonApiException   If the API responded with an error.
-         */
-        NodeList getRootNodes(int offset, int limit) throws DracoonNetIOException,
-                DracoonApiException;
-
-        /**
-         * Retrieves all child nodes of a node.
-         *
-         * @param parentNodeId The ID of the parent node.
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
          *
          * @return list of nodes
          *
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        NodeList getChildNodes(long parentNodeId) throws DracoonNetIOException, DracoonApiException;
+        NodeList getNodes(long parentNodeId) throws DracoonNetIOException, DracoonApiException;
 
         /**
-         * Retrieves child nodes of a node for a specific range.
+         * Retrieves child nodes of a node. The arguments {@code offset} and {@code limit} restrict
+         * the result to a specific range.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to retrieve root nodes.
          *
-         * @param parentNodeId The ID of the parent node.
-         * @param offset       The range offset.
-         * @param limit        The range limit.
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
          *
          * @return list of nodes
          *
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        NodeList getChildNodes(long parentNodeId, int offset, int limit)
+        NodeList getNodes(long parentNodeId, int offset, int limit)
                 throws DracoonNetIOException, DracoonApiException;
 
         /**

@@ -70,36 +70,25 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     // --- Query methods ---
 
     @Override
-    public NodeList getRootNodes() throws DracoonNetIOException, DracoonApiException {
-        return getChildNodes(0L);
-    }
-
-    @Override
-    public NodeList getRootNodes(int offset, int limit) throws DracoonNetIOException,
+    public NodeList getNodes(long parentNodeId) throws DracoonNetIOException,
             DracoonApiException {
-        return getChildNodes(0L, offset, limit);
+        return getNodesInternally(parentNodeId, null, null);
     }
 
     @Override
-    public NodeList getChildNodes(long parentNodeId) throws DracoonNetIOException,
-            DracoonApiException {
-        return getChildNodesInternally(parentNodeId, null, null);
-    }
-
-    @Override
-    public NodeList getChildNodes(long parentNodeId, int offset, int limit)
+    public NodeList getNodes(long parentNodeId, int offset, int limit)
             throws DracoonNetIOException, DracoonApiException {
-        return getChildNodesInternally(parentNodeId, offset, limit);
+        return getNodesInternally(parentNodeId, offset, limit);
     }
 
-    private NodeList getChildNodesInternally(long parentNodeId, Integer offset, Integer limit)
+    private NodeList getNodesInternally(long parentNodeId, Integer offset, Integer limit)
             throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
         NodeValidator.validateGetChildRequest(parentNodeId);
 
         String accessToken = mClient.getAccessToken();
-        Call<ApiNodeList> call = mService.getChildNodes(accessToken, parentNodeId, 0, null, null,
+        Call<ApiNodeList> call = mService.getNodes(accessToken, parentNodeId, 0, null, null,
                 offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
@@ -153,7 +142,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                 break;
             }
 
-            NodeList nodes = getChildNodes(parentNodeId);
+            NodeList nodes = getNodes(parentNodeId);
 
             Node node = null;
             for (int j = 0; j < nodes.getItems().size(); j++) {

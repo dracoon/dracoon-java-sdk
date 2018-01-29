@@ -49,8 +49,8 @@ public class Main {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        //listRootNodes(client);
-        //listRootNodesPaged(client);
+        //listNodes(client);
+        listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
 
@@ -70,7 +70,7 @@ public class Main {
         //downloadFile(client);
 
         //searchNodes(client);
-        searchNodesPaged(client);
+        //searchNodesPaged(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -115,20 +115,24 @@ public class Main {
         client.account().deleteUserKeyPair();
     }
 
-    private static void listRootNodes(DracoonClient client) throws DracoonException {
-        NodeList nodeList = client.nodes().getRootNodes();
+    private static void listNodes(DracoonClient client) throws DracoonException {
+        long parentNodeId = 0L;
+
+        NodeList nodeList = client.nodes().getNodes(parentNodeId);
         for (Node node : nodeList.getItems()) {
             System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
         }
     }
 
-    private static void listRootNodesPaged(DracoonClient client) throws DracoonException {
-        NodeList nodeList1 = client.nodes().getRootNodes(0, 4);
+    private static void listNodesPaged(DracoonClient client) throws DracoonException {
+        long parentNodeId = 0L;
+
+        NodeList nodeList1 = client.nodes().getNodes(parentNodeId, 0, 4);
         System.out.println("Nodes page 1:");
         for (Node node : nodeList1.getItems()) {
             System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
         }
-        NodeList nodeList2 = client.nodes().getRootNodes(4, 4);
+        NodeList nodeList2 = client.nodes().getNodes(parentNodeId, 4, 4);
         System.out.println("Nodes page 2:");
         for (Node node : nodeList2.getItems()) {
             System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
