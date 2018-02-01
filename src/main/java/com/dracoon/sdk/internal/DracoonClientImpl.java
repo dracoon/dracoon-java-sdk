@@ -91,6 +91,7 @@ public class DracoonClientImpl extends DracoonClient {
                 return null;
             }
         });
+        gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         mGson = gsonBuilder.create();
     }
 
