@@ -2,11 +2,13 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
+import com.dracoon.sdk.internal.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
+import com.dracoon.sdk.internal.model.ApiDownloadShare;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
@@ -146,5 +148,9 @@ public interface DracoonService {
     @GET(API_PATH + "/nodes/files/{file_id}/user_file_key")
     Call<ApiFileKey> getFileKey(@Header(AUTHORIZATION_HEADER) String token,
                                 @Path("file_id") Long fileId);
+
+    @POST(API_PATH + "/shares/downloads")
+    Call<ApiDownloadShare> createDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
+                                               @Body ApiCreateDownloadShareRequest request);
 
 }

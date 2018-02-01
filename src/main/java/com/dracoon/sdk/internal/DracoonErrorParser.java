@@ -481,6 +481,48 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseDownloadShareCreateError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -10002)
+                    return DracoonApiCode.VALIDATION_PASSWORD_NOT_SECURE;
+                else if (errorCode == -50004)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_CREATE_DL_SHARE_ON_ENCRYPTED_ROOM_FOLDER;
+                else if (errorCode == -80006)
+                    return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
+                else if (errorCode == -80008)
+                    return DracoonApiCode.VALIDATION_EXPIRATION_DATE_TOO_LATE;
+                else if (errorCode == -80009)
+                    return DracoonApiCode.VALIDATION_EMAIL_ADDRESS_INVALID;
+                else if (errorCode == -80030)
+                    return DracoonApiCode.SERVER_SMS_IS_DISABLED;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                return DracoonApiCode.PERMISSION_READ_ERROR;
+            case NOT_FOUND:
+                if (errorCode == -40000)
+                    return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case BAD_GATEWAY:
+                if (errorCode == -90090)
+                    return DracoonApiCode.SERVER_SMS_COULD_NOT_BE_SEND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     private DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
             case FORBIDDEN:

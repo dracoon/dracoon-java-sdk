@@ -31,7 +31,7 @@ public class DracoonClientImpl extends DracoonClient {
     private Users mUsers;
     private Groups mGroups;
     private DracoonNodesImpl mNodes;
-    private Shares mShares;
+    private DracoonSharesImpl mShares;
 
     public DracoonClientImpl(String serverUrl) {
         super(serverUrl);
@@ -70,6 +70,7 @@ public class DracoonClientImpl extends DracoonClient {
         mServer = new DracoonServerImpl(this);
         mAccount = new DracoonAccountImpl(this);
         mNodes = new DracoonNodesImpl(this);
+        mShares = new DracoonSharesImpl(this);
     }
 
     private void initOkHttp() {
@@ -158,6 +159,10 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonNodesImpl getNodesImpl() {
         return mNodes;
+    }
+
+    public DracoonSharesImpl getSharesImpl() {
+        return mShares;
     }
 
     // --- Helper methods ---

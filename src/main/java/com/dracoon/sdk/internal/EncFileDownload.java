@@ -45,8 +45,8 @@ public class EncFileDownload extends FileDownload {
         EncryptedFileKey encryptedFileKey = getFileKey(mNodeId);
 
         String userPrivateKeyPassword = mClient.getEncryptionPassword();
-        PlainFileKey plainFileKey = decryptFileKey(encryptedFileKey, mUserPrivateKey,
-                userPrivateKeyPassword);
+        PlainFileKey plainFileKey = mClient.getNodesImpl().decryptFileKey(mNodeId, encryptedFileKey,
+                mUserPrivateKey, userPrivateKeyPassword);
 
         String downloadUrl = getDownloadUrl(mNodeId);
 
@@ -73,21 +73,6 @@ public class EncFileDownload extends FileDownload {
         ApiFileKey data = response.body();
 
         return FileMapper.fromApiFileKey(data);
-    }
-
-    private PlainFileKey decryptFileKey(EncryptedFileKey encryptedFileKeyFileKey,
-            UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
-            throws DracoonCryptoException {
-        try {
-            return Crypto.decryptFileKey(encryptedFileKeyFileKey, userPrivateKey,
-                    userPrivateKeyPassword);
-        } catch (CryptoException e) {
-            String errorText = String.format("Decryption of file key for download '%s' failed! %s",
-                    mId, e.getMessage());
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
     }
 
     private void downloadFile(String downloadUrl, OutputStream outStream, PlainFileKey plainFileKey)

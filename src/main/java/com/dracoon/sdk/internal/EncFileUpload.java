@@ -50,11 +50,12 @@ public class EncFileUpload extends FileUpload {
                 mRequest.getClassification().getValue(), mRequest.getNotes(),
                 mRequest.getExpirationDate());
 
-        PlainFileKey plainFileKey = createFileKey(mUserPublicKey);
+        PlainFileKey plainFileKey = mClient.getNodesImpl().createFileKey(mUserPublicKey.getVersion());
 
         uploadFile(uploadId, mRequest.getName(), mSrcStream, mSrcLength, plainFileKey);
 
-        EncryptedFileKey encryptedFileKey = encryptFileKey(plainFileKey, mUserPublicKey);
+        EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().encryptFileKey(null, plainFileKey,
+                mUserPublicKey);
 
         ApiNode apiNode = completeUpload(uploadId, mRequest.getName(),
                 mRequest.getResolutionStrategy(), encryptedFileKey);
@@ -64,18 +65,6 @@ public class EncFileUpload extends FileUpload {
         notifyFinished(mId, node);
 
         return node;
-    }
-
-    private PlainFileKey createFileKey(UserPublicKey userPublicKey) throws DracoonCryptoException {
-        try {
-            return Crypto.generateFileKey(userPublicKey.getVersion());
-        } catch (CryptoException e) {
-            String errorText = String.format("Creation of file key for upload '%s' failed! %s",
-                    mId, e.getMessage());
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
     }
 
     private void uploadFile(String uploadId, String fileName, InputStream is, long length,
@@ -136,19 +125,6 @@ public class EncFileUpload extends FileUpload {
         byte[] b = new byte[len];
         System.arraycopy(bytes, 0, b, 0, len);
         return b;
-    }
-
-    private EncryptedFileKey encryptFileKey(PlainFileKey plainFileKey, UserPublicKey userPublicKey)
-            throws DracoonCryptoException {
-        try {
-            return Crypto.encryptFileKey(plainFileKey, userPublicKey);
-        } catch (CryptoException e) {
-            String errorText = String.format("Encryption of file key for upload '%s' failed! %s",
-                    mId, e.getMessage());
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
     }
 
     private ApiNode completeUpload(String uploadId, String fileName,

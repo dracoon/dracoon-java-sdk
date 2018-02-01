@@ -6,10 +6,12 @@ import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.model.CopyNodesRequest;
+import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
+import com.dracoon.sdk.model.DownloadShare;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
@@ -303,9 +305,9 @@ public abstract class DracoonClient {
         /**
          * Uploads a file.
          *
-         * @param id A ID for the upload. (This ID can be used to keep a reference.)
-         * @param request The request with information about the file.
-         * @param file The source file.
+         * @param id       A ID for the upload. (This ID can be used to keep a reference.)
+         * @param request  The request with information about the file.
+         * @param file     The source file.
          * @param callback A callback which get called when the upload was started, finished and
          *                 so on. (Null, if not needed.)
          *
@@ -323,9 +325,9 @@ public abstract class DracoonClient {
         /**
          * Starts an asynchronous file upload.
          *
-         * @param id ID for the upload. (This ID can be used to keep a reference.)
-         * @param request The request with information about the file.
-         * @param file The source file.
+         * @param id       ID for the upload. (This ID can be used to keep a reference.)
+         * @param request  The request with information about the file.
+         * @param file     The source file.
          * @param callback A callback which get called when the upload was started, finished and
          *                 so on. (Null, if not needed.)
          *
@@ -348,9 +350,9 @@ public abstract class DracoonClient {
         /**
          * Downloads a file.
          *
-         * @param id ID for the download. (This ID can be used to keep a reference.)
-         * @param nodeId The ID of the node.
-         * @param file The target file.
+         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param nodeId   The ID of the node.
+         * @param file     The target file.
          * @param callback A callback which get called when the download was started, finished and
          *                 so on. (Null, if not needed.)
          *
@@ -366,9 +368,9 @@ public abstract class DracoonClient {
         /**
          * Starts an asynchronous file download.
          *
-         * @param id ID for the download. (This ID can be used to keep a reference.)
-         * @param nodeId The ID of the node.
-         * @param file The target file.
+         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param nodeId   The ID of the node.
+         * @param file     The target file.
          * @param callback A callback which get called when the download was started, finished and
          *                 so on. (Null, if not needed.)
          *
@@ -429,6 +431,21 @@ public abstract class DracoonClient {
      * Handler to maintain the shares.
      */
     public interface Shares {
+
+        /**
+         * Creates a download share for a node.
+         *
+         * @param request The request with the target node ID and the download share settings.
+         *
+         * @return the download share
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If a crypto error occurred at creation of the key pair or
+         *                                the file key.
+         */
+        DownloadShare createDownloadShare(CreateDownloadShareRequest request)
+                throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
 
     }
 

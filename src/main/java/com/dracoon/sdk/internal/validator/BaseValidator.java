@@ -44,9 +44,59 @@ public class BaseValidator {
         validateIds(ids, "Group");
     }
 
+    protected static void validateAccessPassword(String password) {
+        validateString(password, "Access password");
+    }
+
+    protected static void validateEncryptionPassword(String password) {
+        validateString(password, "Encryption password");
+    }
+
+    protected static void validateMaxDownloads(Integer maxDownloads) {
+        validatePositiveNumber(maxDownloads, "Maximum downloads");
+    }
+
     protected static void validateName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty.");
+        validateString(name, "Name");
+    }
+
+    protected static void validateEmailAddress(String address) {
+        validateString(address, "Email address");
+    }
+
+    protected static void validateEmailAddresses(List<String> addresses) {
+        if (addresses == null) {
+            throw new IllegalArgumentException("Email addresses cannot be null.");
+        }
+        if (addresses.isEmpty()) {
+            throw new IllegalArgumentException("Email addresses cannot be empty.");
+        }
+        for (String address : addresses) {
+            validateEmailAddress(address);
+        }
+    }
+
+    protected static void validateEmailSubject(String subject) {
+        validateString(subject, "Email subject");
+    }
+
+    protected static void validateEmailBody(String body) {
+        validateString(body, "Email body");
+    }
+
+    protected static void validatePhoneNumber(String number) {
+        validateString(number, "Phone number");
+    }
+
+    protected static void validatePhoneNumbers(List<String> numbers) {
+        if (numbers == null) {
+            throw new IllegalArgumentException("Phone numbers cannot be null.");
+        }
+        if (numbers.isEmpty()) {
+            throw new IllegalArgumentException("Phone numbers cannot be empty.");
+        }
+        for (String number : numbers) {
+            validatePhoneNumber(number);
         }
     }
 
@@ -85,6 +135,24 @@ public class BaseValidator {
             throw new IllegalArgumentException(type + " IDs cannot be empty.");
         }
         ids.forEach(id -> validateId(id, type));
+    }
+
+    private static void validateString(String string, String type) {
+        if (string == null) {
+            throw new IllegalArgumentException(type + " cannot be null.");
+        }
+        if (string.isEmpty()) {
+            throw new IllegalArgumentException(type + " cannot be empty.");
+        }
+    }
+
+    private static void validatePositiveNumber(Integer number, String type) {
+        if (number == null) {
+            throw new IllegalArgumentException(type + " cannot be null.");
+        }
+        if (number <= 0) {
+            throw new IllegalArgumentException(type + " cannot be negative or 0.");
+        }
     }
 
 }

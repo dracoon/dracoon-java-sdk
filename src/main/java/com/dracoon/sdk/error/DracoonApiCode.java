@@ -45,14 +45,17 @@ public enum DracoonApiCode {
     VALIDATION_ROOM_NOT_ENCRYPTED(-151, "Room not encrypted."),
     VALIDATION_SOURCE_ROOM_NOT_ENCRYPTED(-152, "Encrypted files can\'t be copied or moved to an not encrypted room."),
     VALIDATION_TARGET_ROOM_NOT_ENCRYPTED(-153, "Not encrypted files can\'t be copied or moved to an encrypted room."),
+    VALIDATION_CAN_NOT_CREATE_DL_SHARE_ON_ENCRYPTED_ROOM_FOLDER(-154, "A download share can\'t be created on a encrypted room or folder."),
+    VALIDATION_PASSWORD_NOT_SECURE(-155, "Password is not secure."),
+    VALIDATION_EMAIL_ADDRESS_INVALID(-156, "Invalid email address."),
 
     PERMISSION_ERROR(-160, "User has no permissions to execute the action in this room."),
     PERMISSION_MANAGE_ERROR(-161, "User has no permission to manage this room."),
     PERMISSION_READ_ERROR(-162, "User has no permission to read files and folders in this room."),
     PERMISSION_CREATE_ERROR(-163, "User has no permission to create files and folders in this room."),
     PERMISSION_UPDATE_ERROR(-164, "User has no permission to change files and folders in this room."),
-    PERMISSION_MANAGE_DOWNLOAD_SHARES_ERROR(-165, "User has no permission to manage download shares in this room."),
-    PERMISSION_MANAGE_UPLOAD_SHARES_ERROR(-166, "User has no permission to manage upload shares in this room."),
+    PERMISSION_MANAGE_DL_SHARES_ERROR(-165, "User has no permission to manage download shares in this room."),
+    PERMISSION_MANAGE_UL_SHARES_ERROR(-166, "User has no permission to manage upload shares in this room."),
     PERMISSION_READ_RECYCLE_BIN_ERROR(-167, "User has no permission to read recycle bin in this room."),
     PERMISSION_RESTORE_RECYCLE_BIN_ERROR(-168, "User has no permission to restore recycle bin items in this room."),
     PERMISSION_DELETE_RECYCLE_BIN_ERROR(-169, "User has no permission to delete recycle bin items in this room."),
@@ -79,7 +82,9 @@ public enum DracoonApiCode {
     SERVER_USER_RESET_PASSWORD_EVERY_5_MINUTES(-219, "Password can only be reset every 5 minutes."),
     SERVER_USER_KEY_PAIR_ALREADY_SET(-220, "Encryption key pair was already set."),
     SERVER_USER_KEY_PAIR_NOT_FOUND(-221, "Encryption key pair was not found."),
-    SERVER_USER_HAS_NO_FILE_KEY(-222, "User has no file key for the file.");
+    SERVER_USER_HAS_NO_FILE_KEY(-222, "User has no file key for the file."),
+    SERVER_SMS_IS_DISABLED(-223, "SMS sending is disabled."),
+    SERVER_SMS_COULD_NOT_BE_SEND(-224, "SMS could not be send.");
 
     private final int mNumber;
     private final String mText;

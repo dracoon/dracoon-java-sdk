@@ -61,13 +61,9 @@ public class NodeMapper {
         node.setHash(apiNode.hash);
         node.setExpireAt(DateUtils.parseDate(apiNode.expireAt));
 
-        if (apiNode.createdAt != null) {
-            node.setCreatedAt(DateUtils.parseDate(apiNode.createdAt));
-        }
+        node.setCreatedAt(DateUtils.parseDate(apiNode.createdAt));
         node.setCreatedBy(UserMapper.fromApiUserInfo(apiNode.createdBy));
-        if (apiNode.updatedAt != null) {
-            node.setUpdatedAt(DateUtils.parseDate(apiNode.updatedAt));
-        }
+        node.setUpdatedAt(DateUtils.parseDate(apiNode.updatedAt));
         node.setUpdatedBy(UserMapper.fromApiUserInfo(apiNode.updatedBy));
 
         node.setHasInheritPermissions(apiNode.inheritPermissions);

@@ -403,11 +403,11 @@ public class Node {
     /**
      * Sets if node is a favorite of the current user.
      *
-     * @param favorite <code>true</code> if node is a favorite of the current user;
-     *                 <code>false</code> otherwise.
+     * @param isFavorite <code>true</code> if node is a favorite of the current user;
+     *                   <code>false</code> otherwise.
      */
-    public void setIsFavorite(Boolean favorite) {
-        mIsFavorite = favorite;
+    public void setIsFavorite(Boolean isFavorite) {
+        mIsFavorite = isFavorite;
     }
 
     /**
@@ -422,10 +422,10 @@ public class Node {
     /**
      * Sets if node is encrypted.
      *
-     * @param encrypted <code>true</code> if node is encrypted; <code>false</code> otherwise.
+     * @param isEncrypted <code>true</code> if node is encrypted; <code>false</code> otherwise.
      */
-    public void setIsEncrypted(Boolean encrypted) {
-        mIsEncrypted = encrypted;
+    public void setIsEncrypted(Boolean isEncrypted) {
+        mIsEncrypted = isEncrypted;
     }
 
     /**

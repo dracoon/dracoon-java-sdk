@@ -5,10 +5,12 @@ import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
+import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
+import com.dracoon.sdk.model.DownloadShare;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
@@ -50,7 +52,7 @@ public class Main {
         //deleteUserKeyPair(client);
 
         //listNodes(client);
-        listNodesPaged(client);
+        //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
 
@@ -71,6 +73,9 @@ public class Main {
 
         //searchNodes(client);
         //searchNodesPaged(client);
+
+        //createDownloadShare(client);
+        createDownloadShareEncrypted(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -347,6 +352,40 @@ public class Main {
         for (Node node : nodeList2.getItems()) {
             System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
         }
+    }
+
+    private static void createDownloadShare(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        CreateDownloadShareRequest request = new CreateDownloadShareRequest.Builder(nodeId)
+                .name("Test Download Share")
+                .notes("This is a note.")
+                .expirationDate(new Date(1861916400000L))
+                .showCreatorName(true)
+                .notifyCreator(true)
+                .accessPassword("secret")
+                .build();
+
+        DownloadShare dlShare = client.shares().createDownloadShare(request);
+        System.out.println(String.format("Download share: id=%d, access_key=%s", dlShare.getId(),
+                dlShare.getAccessKey()));
+    }
+
+    private static void createDownloadShareEncrypted(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        CreateDownloadShareRequest request = new CreateDownloadShareRequest.Builder(nodeId)
+                .name("Test Download Share Encrypted")
+                .notes("This is a note.")
+                .expirationDate(new Date(1861916400000L))
+                .showCreatorName(true)
+                .notifyCreator(true)
+                .encryptionPassword("secret")
+                .build();
+
+        DownloadShare dlShare = client.shares().createDownloadShare(request);
+        System.out.println(String.format("Download share: id=%d, access_key=%s", dlShare.getId(),
+                dlShare.getAccessKey()));
     }
 
 }
