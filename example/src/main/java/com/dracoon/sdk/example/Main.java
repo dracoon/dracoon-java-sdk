@@ -75,7 +75,10 @@ public class Main {
         //searchNodesPaged(client);
 
         //createDownloadShare(client);
-        createDownloadShareEncrypted(client);
+        //createDownloadShareEncrypted(client);
+
+        //generateMissingFileKeys(client);
+        generateMissingFileKeysForOneNode(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -386,6 +389,17 @@ public class Main {
         DownloadShare dlShare = client.shares().createDownloadShare(request);
         System.out.println(String.format("Download share: id=%d, access_key=%s", dlShare.getId(),
                 dlShare.getAccessKey()));
+    }
+
+    private static void generateMissingFileKeys(DracoonClient client) throws DracoonException {
+        client.nodes().generateMissingFileKeys(10);
+    }
+
+    private static void generateMissingFileKeysForOneNode(DracoonClient client)
+            throws DracoonException {
+        long nodeId = 1L;
+
+        client.nodes().generateMissingFileKeys(nodeId, 10);
     }
 
 }

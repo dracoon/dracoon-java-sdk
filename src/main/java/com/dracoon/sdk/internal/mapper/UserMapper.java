@@ -120,7 +120,7 @@ public class UserMapper {
         return userPrivateKey;
     }
 
-    private static UserPublicKey fromApiUserPublicKey(ApiUserPublicKey apiUserPublicKey) {
+    public static UserPublicKey fromApiUserPublicKey(ApiUserPublicKey apiUserPublicKey) {
         if (apiUserPublicKey == null) {
             return null;
         }

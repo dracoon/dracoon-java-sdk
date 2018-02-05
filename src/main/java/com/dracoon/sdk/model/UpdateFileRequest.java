@@ -21,9 +21,9 @@ public class UpdateFileRequest {
     }
 
     /**
-     * Returns the ID of the file which should be updated.
+     * Returns the node ID of the file which should be updated.
      *
-     * @return the ID
+     * @return the node ID
      */
     public Long getId() {
         return mId;

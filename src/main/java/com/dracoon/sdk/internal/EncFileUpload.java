@@ -141,7 +141,7 @@ public class EncFileUpload extends FileUpload {
         Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseCompleteFileUploadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseFileUploadCompleteError(response);
             String errorText = String.format("Completion of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);

@@ -17,9 +17,9 @@ public class UpdateFolderRequest {
     }
 
     /**
-     * Returns the ID of the folder which should be updated.
+     * Returns the node ID of the folder which should be updated.
      *
-     * @return the ID
+     * @return the node ID
      */
     public Long getId() {
         return mId;

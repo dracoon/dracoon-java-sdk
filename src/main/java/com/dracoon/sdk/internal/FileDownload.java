@@ -114,7 +114,7 @@ public class FileDownload extends Thread {
         Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseDownloadTokenError(response);
+            DracoonApiCode errorCode = mErrorParser.parseDownloadTokenGetError(response);
             String errorText = String.format("Creation of file download '%s' for file '%d' " +
                     "failed with '%s'!", mId, nodeId, errorCode.name());
             mLog.d(LOG_TAG, errorText);

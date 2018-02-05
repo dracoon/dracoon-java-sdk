@@ -12,11 +12,13 @@ import com.dracoon.sdk.internal.model.ApiDownloadShare;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
+import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
+import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
@@ -148,6 +150,16 @@ public interface DracoonService {
     @GET(API_PATH + "/nodes/files/{file_id}/user_file_key")
     Call<ApiFileKey> getFileKey(@Header(AUTHORIZATION_HEADER) String token,
                                 @Path("file_id") Long fileId);
+
+    @GET(API_PATH + "/nodes/missingFileKeys")
+    Call<ApiMissingFileKeys> getMissingFileKeys(@Header(AUTHORIZATION_HEADER) String token,
+                                                @Query("file_id") Long fileId,
+                                                @Query("offset") Long offset,
+                                                @Query("limit") Long limit);
+
+    @POST(API_PATH + "/nodes/files/keys")
+    Call<Void> setFileKeys(@Header(AUTHORIZATION_HEADER) String token,
+                           @Body ApiSetFileKeysRequest request);
 
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Header(AUTHORIZATION_HEADER) String token,

@@ -39,8 +39,8 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         if (isEncrypted) {
             long nodeId = request.getNodeId();
 
-            String creatorEncPw = mClient.getEncryptionPassword();
             UserKeyPair creatorKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
+            String creatorEncPw = mClient.getEncryptionPassword();
             EncryptedFileKey creatorEncFileKey = mClient.getNodesImpl().getFileKey(nodeId);
 
             PlainFileKey plainFileKey = mClient.getNodesImpl().decryptFileKey(nodeId,

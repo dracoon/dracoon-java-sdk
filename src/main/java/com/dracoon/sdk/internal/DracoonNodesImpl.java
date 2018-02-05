@@ -20,17 +20,24 @@ import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.mapper.RoomMapper;
+import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
+import com.dracoon.sdk.internal.model.ApiFileIdFileKey;
 import com.dracoon.sdk.internal.model.ApiFileKey;
+import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiUserIdFileId;
+import com.dracoon.sdk.internal.model.ApiUserIdFileIdFileKey;
+import com.dracoon.sdk.internal.model.ApiUserIdUserPublicKey;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.NodeValidator;
@@ -57,7 +64,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -440,7 +449,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             userPublicKey = userKeyPair.getUserPublicKey();
         }
 
-        FileUploadCallback stoppedCallback = new FileUploadCallback() {
+        FileUploadCallback internalCallback = new FileUploadCallback() {
             @Override
             public void onStarted(String id) {
 
@@ -475,7 +484,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
 
         upload.addCallback(callback);
-        upload.addCallback(stoppedCallback);
+        upload.addCallback(internalCallback);
 
         mUploads.put(id, upload);
 
@@ -630,6 +639,159 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         ApiNodeList data = response.body();
 
         return NodeMapper.fromApiNodeList(data);
+    }
+
+    // --- File key generation methods ---
+
+    @Override
+    public void generateMissingFileKeys() throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
+        generateMissingFileKeysInternally(null, null);
+    }
+
+    @Override
+    public void generateMissingFileKeys(int limit) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
+        generateMissingFileKeysInternally(null, limit);
+    }
+
+    @Override
+    public void generateMissingFileKeys(long nodeId) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
+        generateMissingFileKeysInternally(nodeId, null);
+    }
+
+    @Override
+    public void generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
+        generateMissingFileKeysInternally(nodeId, limit);
+    }
+
+    private void generateMissingFileKeysInternally(Long nodeId, Integer limit)
+            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        assertServerApiVersion();
+
+        Long batchOffset = 0L;
+        Long batchLimit = 10L;
+
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
+        String userPrivateKeyPassword = mClient.getEncryptionPassword();
+
+        boolean isFinished = false;
+        while (!isFinished) {
+            isFinished = generateMissingFileKeysBatch(nodeId, batchOffset, batchLimit,
+                    userKeyPair.getUserPrivateKey(), userPrivateKeyPassword);
+            batchOffset = batchOffset + batchLimit;
+            if (limit != null && batchOffset > limit) {
+                break;
+            }
+        }
+    }
+
+    private boolean generateMissingFileKeysBatch(Long nodeId, Long offset, Long limit,
+            UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
+            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        ApiMissingFileKeys apiMissingFileKeys = getMissingFileKeysBatch(nodeId, offset, limit);
+        if (apiMissingFileKeys.items.isEmpty()) {
+            return true;
+        }
+
+        List<ApiUserIdFileId> apiUserIdFileIds = apiMissingFileKeys.items;
+        Map<Long, UserPublicKey> userPublicKeys = convertUserPublicKeys(apiMissingFileKeys.users);
+        Map<Long, EncryptedFileKey> encryptedFileKeys = convertFileKeys(apiMissingFileKeys.files);
+        Map<Long, PlainFileKey> plainFileKeys = decryptFileKeys(encryptedFileKeys, userPrivateKey,
+                userPrivateKeyPassword);
+
+        List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys = new ArrayList<>();
+
+        for (ApiUserIdFileId apiUserIdFileId : apiUserIdFileIds) {
+            UserPublicKey userPublicKey = userPublicKeys.get(apiUserIdFileId.userId);
+            PlainFileKey plainFileKey = plainFileKeys.get(apiUserIdFileId.fileId);
+
+            EncryptedFileKey encryptedFileKey = encryptFileKey(apiUserIdFileId.fileId, plainFileKey,
+                    userPublicKey);
+
+            ApiFileKey apiFileKey = FileMapper.toApiFileKey(encryptedFileKey);
+
+            ApiUserIdFileIdFileKey apiUserIdFileIdFileKey = new ApiUserIdFileIdFileKey();
+            apiUserIdFileIdFileKey.userId = apiUserIdFileId.userId;
+            apiUserIdFileIdFileKey.fileId = apiUserIdFileId.fileId;
+            apiUserIdFileIdFileKey.fileKey = apiFileKey;
+
+            apiUserIdFileIdFileKeys.add(apiUserIdFileIdFileKey);
+        }
+
+        setFileKeysBatch(apiUserIdFileIdFileKeys);
+
+        return false;
+    }
+
+    private ApiMissingFileKeys getMissingFileKeysBatch(Long nodeId, Long offset, Long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        String accessToken = mClient.getAccessToken();
+        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(accessToken, nodeId, offset,
+                limit);
+        Response<ApiMissingFileKeys> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseMissingFileKeysQueryError(response);
+            String errorText = String.format("Query of missing file keys failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        return response.body();
+    }
+
+    private Map<Long, UserPublicKey> convertUserPublicKeys(
+            List<ApiUserIdUserPublicKey> apiUserIdUserPublicKeys) {
+        Map<Long, UserPublicKey> userPublicKeys = new HashMap<>();
+        for (ApiUserIdUserPublicKey apiUserIdUserPublicKey : apiUserIdUserPublicKeys) {
+            UserPublicKey userPublicKey = UserMapper.fromApiUserPublicKey(
+                    apiUserIdUserPublicKey.publicKeyContainer);
+            userPublicKeys.put(apiUserIdUserPublicKey.id, userPublicKey);
+        }
+        return userPublicKeys;
+    }
+
+    private Map<Long, EncryptedFileKey> convertFileKeys(List<ApiFileIdFileKey> apiFileIdFileKeys) {
+        Map<Long, EncryptedFileKey> encryptedFileKeys = new HashMap<>();
+        for (ApiFileIdFileKey apiFileIdFileKey : apiFileIdFileKeys) {
+            EncryptedFileKey encryptedFileKey = FileMapper.fromApiFileKey(
+                    apiFileIdFileKey.fileKeyContainer);
+            encryptedFileKeys.put(apiFileIdFileKey.id, encryptedFileKey);
+        }
+        return encryptedFileKeys;
+    }
+
+    private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, EncryptedFileKey> encryptedFileKeys,
+            UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
+            throws DracoonCryptoException {
+        Map<Long, PlainFileKey> plainFileKeys = new HashMap<>();
+        for (Map.Entry<Long, EncryptedFileKey> encryptedFileKey : encryptedFileKeys.entrySet()) {
+            PlainFileKey plainFileKey = decryptFileKey(null, encryptedFileKey.getValue(),
+                    userPrivateKey, userPrivateKeyPassword);
+            plainFileKeys.put(encryptedFileKey.getKey(), plainFileKey);
+        }
+        return plainFileKeys;
+    }
+
+    private void setFileKeysBatch(List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys)
+            throws DracoonNetIOException, DracoonApiException {
+        String accessToken = mClient.getAccessToken();
+        ApiSetFileKeysRequest request = new ApiSetFileKeysRequest();
+        request.items = apiUserIdFileIdFileKeys;
+        Call<Void> call = mService.setFileKeys(accessToken, request);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseFileKeysSetError(response);
+            String errorText = String.format("Setting missing file keys failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
     }
 
     // --- File key methods ---

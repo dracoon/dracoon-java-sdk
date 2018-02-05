@@ -304,7 +304,7 @@ public class DracoonErrorParser {
                 return DracoonApiCode.PERMISSION_CREATE_ERROR;
             case NOT_FOUND:
                 if (errorCode == -40014)
-                    return DracoonApiCode.SERVER_USER_HAS_NO_FILE_KEY;
+                    return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
                 else if (errorCode == -41050)
                     return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
                 else if (errorCode == -41051)
@@ -348,7 +348,7 @@ public class DracoonErrorParser {
                 return DracoonApiCode.PERMISSION_ERROR;
             case NOT_FOUND:
                 if (errorCode == -40014)
-                    return DracoonApiCode.SERVER_USER_HAS_NO_FILE_KEY;
+                    return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
                 else if (errorCode == -41050)
                     return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
                 else if (errorCode == -41051)
@@ -365,7 +365,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseCreateFileUploadError(Response response) {
+    public DracoonApiCode parseFileUploadCreateError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -417,7 +417,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseCompleteFileUploadError(Response response) {
+    public DracoonApiCode parseFileUploadCompleteError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -429,7 +429,7 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -40763)
-                    return DracoonApiCode.VALIDATION_FILE_KEY_MISSING;
+                    return DracoonApiCode.VALIDATION_USER_FILE_KEY_MISSING;
                 else
                     return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
             case CONFLICT:
@@ -442,7 +442,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseDownloadTokenError(Response response) {
+    public DracoonApiCode parseDownloadTokenGetError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -454,28 +454,6 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
-            default:
-                return parseStandardError(statusCode, errorCode);
-        }
-    }
-
-    public DracoonApiCode parseFileKeyQueryError(Response response) {
-        ApiErrorResponse errorResponse = getErrorResponse(response);
-        if (errorResponse == null) {
-            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
-        }
-
-        int statusCode = response.code();
-        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
-
-        switch (HttpStatus.valueOf(statusCode)) {
-            case NOT_FOUND:
-                if (errorCode == -40751)
-                    return DracoonApiCode.SERVER_FILE_NOT_FOUND;
-                else if (errorCode == -40761)
-                    return DracoonApiCode.SERVER_FILE_KEY_NOT_FOUND;
-                else
-                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -516,6 +494,91 @@ public class DracoonErrorParser {
             case BAD_GATEWAY:
                 if (errorCode == -90090)
                     return DracoonApiCode.SERVER_SMS_COULD_NOT_BE_SEND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseFileKeyQueryError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                if (errorCode == -40751)
+                    return DracoonApiCode.SERVER_FILE_NOT_FOUND;
+                else if (errorCode == -40761)
+                    return DracoonApiCode.SERVER_USER_FILE_KEY_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseMissingFileKeysQueryError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -40001)
+                    return DracoonApiCode.VALIDATION_ROOM_NOT_ENCRYPTED;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case NOT_FOUND:
+                if (errorCode == -40000)
+                    return DracoonApiCode.SERVER_ROOM_NOT_FOUND;
+                else if (errorCode == -40751)
+                    return DracoonApiCode.SERVER_FILE_NOT_FOUND;
+                else if (errorCode == -70501)
+                    return DracoonApiCode.SERVER_USER_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseFileKeysSetError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -40001)
+                    return DracoonApiCode.VALIDATION_ROOM_NOT_ENCRYPTED;
+                else
+                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+            case FORBIDDEN:
+                if (errorCode == -40761)
+                    return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
+                else if (errorCode == -70020)
+                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case NOT_FOUND:
+                if (errorCode == -40751)
+                    return DracoonApiCode.SERVER_FILE_NOT_FOUND;
+                else if (errorCode == -70501)
+                    return DracoonApiCode.SERVER_USER_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:

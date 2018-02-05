@@ -314,7 +314,7 @@ public abstract class DracoonClient {
          * @return the new node
          *
          * @throws DracoonFileIOException If a file error occurred.
-         * @throws DracoonCryptoException If a the encryption failed.
+         * @throws DracoonCryptoException If the encryption failed.
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          */
@@ -332,7 +332,7 @@ public abstract class DracoonClient {
          *                 so on. (Null, if not needed.)
          *
          * @throws DracoonFileIOException If a file error occurred.
-         * @throws DracoonCryptoException If a the encryption failed.
+         * @throws DracoonCryptoException If the encryption failed.
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          */
@@ -358,7 +358,7 @@ public abstract class DracoonClient {
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
-         * @throws DracoonCryptoException If a the decryption failed.
+         * @throws DracoonCryptoException If the decryption failed.
          * @throws DracoonFileIOException If a file error occurred.
          */
         void downloadFile(String id, long nodeId, File file,
@@ -376,12 +376,12 @@ public abstract class DracoonClient {
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If the decryption failed.
          * @throws DracoonFileIOException If a file error occurred.
-         * @throws DracoonCryptoException If a the decryption failed.
          */
         void startDownloadFileAsync(String id, long nodeId, File file,
                 FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
-                DracoonFileIOException, DracoonCryptoException;
+                DracoonCryptoException, DracoonFileIOException;
 
         /**
          * Cancels an asynchronous file download.
@@ -424,6 +424,55 @@ public abstract class DracoonClient {
          */
         NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Generates file keys for files with missing file keys.
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If a encryption/decryption failed.
+         */
+        void generateMissingFileKeys() throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
+
+        /**
+         * Generates file keys for files with missing file keys. The argument {@code limit}
+         * restricts the generation to a certain number.
+         *
+         * @param limit The number limit. (Number of records; must be positive.)
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If a encryption/decryption failed.
+         */
+        void generateMissingFileKeys(int limit) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
+
+        /**
+         * Generates file keys for a file with missing file keys.
+         *
+         * @param nodeId The node ID of the file.
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If a encryption/decryption failed.
+         */
+        void generateMissingFileKeys(long nodeId) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
+
+        /**
+         * Generates file keys for files with missing file keys. The argument {@code limit}
+         * restricts the generation to a certain number.
+         *
+         * @param nodeId The node ID of the file.
+         * @param limit  The number limit. (Number of records; must be positive.)
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If a encryption/decryption failed.
+         */
+        void generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
+                DracoonApiException, DracoonCryptoException;
 
     }
 
