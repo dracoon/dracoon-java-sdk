@@ -608,10 +608,10 @@ public abstract class DracoonClient {
      * This builder creates new instances of {@link DracoonClient}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Server URL (mandatory): {@link Builder#Builder(String serverUrl)}<br>
-     * - Access token:           {@link Builder#accessToken(String accessToken)}<br>
-     * - Encryption password:    {@link Builder#encryptionPassword(String encryptionPassword)}<br>
-     * - Logger:                 {@link Builder#log(Log log)}
+     * - Server URL (mandatory): {@link Builder#Builder(String)}<br>
+     * - Access token:           {@link Builder#accessToken(String)}<br>
+     * - Encryption password:    {@link Builder#encryptionPassword(String)}<br>
+     * - Logger:                 {@link Builder#log(Log)}
      */
     public static class Builder {
 

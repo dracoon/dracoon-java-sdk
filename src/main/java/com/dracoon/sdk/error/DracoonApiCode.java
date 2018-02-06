@@ -129,19 +129,19 @@ public enum DracoonApiCode {
     /**
      * Finds a enumeration constant by a provided error number.
      *
-     * @param dracoonApiCode The error number of the constant to return.
+     * @param number The error number of the constant to return.
      *
      * @return the appropriate enumeration constant
      *
      * @throws IllegalArgumentException if no enumeration constant could be found
      */
-    public static DracoonApiCode valueOf(int dracoonApiCode) {
+    public static DracoonApiCode valueOf(int number) {
         for (DracoonApiCode code : values()) {
-            if (code.mNumber == dracoonApiCode) {
+            if (code.mNumber == number) {
                 return code;
             }
         }
-        throw new IllegalArgumentException("No matching constant for [" + dracoonApiCode + "]");
+        throw new IllegalArgumentException("No matching constant for [" + number + "]");
     }
 
 }

@@ -55,19 +55,19 @@ public enum DracoonCryptoCode {
     /**
      * Finds a enumeration constant by a provided error number.
      *
-     * @param dracoonCryptoCode The error number of the constant to return
+     * @param number The error number of the constant to return
      *
      * @return the appropriate enumeration constant
      *
      * @throws IllegalArgumentException if no enumeration constant could be found
      */
-    public static DracoonCryptoCode valueOf(int dracoonCryptoCode) {
+    public static DracoonCryptoCode valueOf(int number) {
         for (DracoonCryptoCode code : values()) {
-            if (code.mNumber == dracoonCryptoCode) {
+            if (code.mNumber == number) {
                 return code;
             }
         }
-        throw new IllegalArgumentException("No matching constant for [" + dracoonCryptoCode + "]");
+        throw new IllegalArgumentException("No matching constant for [" + number + "]");
     }
 
 }

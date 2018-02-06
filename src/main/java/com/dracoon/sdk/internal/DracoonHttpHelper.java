@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.error.DracoonNetIOInterruptedException;
 import com.dracoon.sdk.error.DracoonNetInsecureException;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -33,8 +34,9 @@ public class DracoonHttpHelper {
         try {
             return (Response<T>) executeRequestInternally(call);
         } catch (InterruptedException e) {
-            // Nothing to do here
-            return null;
+            String errorText = "Server communication interrupted.";
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonNetIOInterruptedException(errorText, e);
         }
     }
 
@@ -58,8 +60,9 @@ public class DracoonHttpHelper {
         try {
             return (okhttp3.Response) executeRequestInternally(call);
         } catch (InterruptedException e) {
-            // Nothing to do here
-            return null;
+            String errorText = "Server communication interrupted.";
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonNetIOInterruptedException(errorText, e);
         }
     }
 
