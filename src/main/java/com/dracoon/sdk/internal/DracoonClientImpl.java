@@ -58,7 +58,7 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public String buildAuthString() {
-        return mAccessToken;
+        return DracoonConstants.AUTHORIZATION_TYPE + " " + mAccessToken;
     }
 
     // --- Initialization methods ---
