@@ -57,6 +57,10 @@ public class DracoonClientImpl extends DracoonClient {
         return mDracoonErrorParser;
     }
 
+    public String buildAuthString() {
+        return mAccessToken;
+    }
+
     // --- Initialization methods ---
 
     public void init() {
@@ -171,7 +175,7 @@ public class DracoonClientImpl extends DracoonClient {
     public String buildApiUrl(String... pathSegments) {
         StringBuilder sb = new StringBuilder();
         sb.append(mServerUrl);
-        sb.append(DracoonService.API_PATH);
+        sb.append(DracoonConstants.API_PATH);
         for (String pathSegment : pathSegments) {
             sb.append("/").append(pathSegment);
         }

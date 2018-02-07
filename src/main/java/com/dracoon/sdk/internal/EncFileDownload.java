@@ -57,9 +57,9 @@ public class EncFileDownload extends FileDownload {
 
     private EncryptedFileKey getFileKey(long nodeId) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
-        String authToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
 
-        Call<ApiFileKey> call = mRestService.getFileKey(authToken, nodeId);
+        Call<ApiFileKey> call = mRestService.getFileKey(auth, nodeId);
         Response<ApiFileKey> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {

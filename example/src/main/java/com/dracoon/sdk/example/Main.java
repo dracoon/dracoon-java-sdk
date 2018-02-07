@@ -51,7 +51,7 @@ public class Main {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        //listNodes(client);
+        listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -78,7 +78,7 @@ public class Main {
         //createDownloadShareEncrypted(client);
 
         //generateMissingFileKeys(client);
-        generateMissingFileKeysForOneNode(client);
+        //generateMissingFileKeysForOneNode(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {

@@ -31,8 +31,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
-        String accessToken = mClient.getAccessToken();
-        Call<ApiUserAccount> call = mService.getUserAccount(accessToken);
+        String auth = mClient.buildAuthString();
+        Call<ApiUserAccount> call = mService.getUserAccount(auth);
         Response<ApiUserAccount> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -52,8 +52,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
-        String accessToken = mClient.getAccessToken();
-        Call<ApiCustomerAccount> call = mService.getCustomerAccount(accessToken);
+        String auth = mClient.buildAuthString();
+        Call<ApiCustomerAccount> call = mService.getCustomerAccount(auth);
         Response<ApiCustomerAccount> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -91,8 +91,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
         ApiUserKeyPair apiUserKeyPair = UserMapper.toApiUserKeyPair(userKeyPair);
 
-        String accessToken = mClient.getAccessToken();
-        Call<Void> call = mService.setUserKeyPair(accessToken, apiUserKeyPair);
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.setUserKeyPair(auth, apiUserKeyPair);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -119,8 +119,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     private UserKeyPair getUserKeyPair() throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
-        String accessToken = mClient.getAccessToken();
-        Call<ApiUserKeyPair> call = mService.getUserKeyPair(accessToken);
+        String auth = mClient.buildAuthString();
+        Call<ApiUserKeyPair> call = mService.getUserKeyPair(auth);
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -161,8 +161,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
-        String accessToken = mClient.getAccessToken();
-        Call<Void> call = mService.deleteUserKeyPair(accessToken);
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.deleteUserKeyPair(auth);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

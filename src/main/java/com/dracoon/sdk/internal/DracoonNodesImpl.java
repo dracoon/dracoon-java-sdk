@@ -101,8 +101,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateGetChildRequest(parentNodeId);
 
-        String accessToken = mClient.getAccessToken();
-        Call<ApiNodeList> call = mService.getNodes(accessToken, parentNodeId, 0, null, null,
+        String auth = mClient.buildAuthString();
+        Call<ApiNodeList> call = mService.getNodes(auth, parentNodeId, 0, null, null,
                 offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
@@ -125,8 +125,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateGetRequest(nodeId);
 
-        String accessToken = mClient.getAccessToken();
-        Call<ApiNode> call = mService.getNode(accessToken, nodeId);
+        String auth = mClient.buildAuthString();
+        Call<ApiNode> call = mService.getNode(auth, nodeId);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -202,9 +202,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         RoomValidator.validateCreateRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiCreateRoomRequest apiRequest = RoomMapper.toApiCreateRoomRequest(request);
-        Call<ApiNode> call = mService.createRoom(accessToken, apiRequest);
+        Call<ApiNode> call = mService.createRoom(auth, apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -227,9 +227,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         RoomValidator.validateUpdateRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiUpdateRoomRequest apiRequest = RoomMapper.toApiUpdateRoomRequest(request);
-        Call<ApiNode> call = mService.updateRoom(accessToken, request.getId(), apiRequest);
+        Call<ApiNode> call = mService.updateRoom(auth, request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -254,9 +254,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FolderValidator.validateCreateRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiCreateFolderRequest apiRequest = FolderMapper.toApiCreateFolderRequest(request);
-        Call<ApiNode> call = mService.createFolder(accessToken, apiRequest);
+        Call<ApiNode> call = mService.createFolder(auth, apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -279,9 +279,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FolderValidator.validateUpdateRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiUpdateFolderRequest apiRequest = FolderMapper.toApiUpdateFolderRequest(request);
-        Call<ApiNode> call = mService.updateFolder(accessToken, request.getId(), apiRequest);
+        Call<ApiNode> call = mService.updateFolder(auth, request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -306,9 +306,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateUpdateRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiUpdateFileRequest apiRequest = FileMapper.toApiUpdateFileRequest(request);
-        Call<ApiNode> call = mService.updateFile(accessToken, request.getId(), apiRequest);
+        Call<ApiNode> call = mService.updateFile(auth, request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -333,9 +333,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateDeleteRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiDeleteNodesRequest apiRequest = NodeMapper.toApiDeleteNodesRequest(request);
-        Call<Void> call = mService.deleteNodes(accessToken, apiRequest);
+        Call<Void> call = mService.deleteNodes(auth, apiRequest);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -354,9 +354,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateCopyRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiCopyNodesRequest apiRequest = NodeMapper.toApiCopyNodesRequest(request);
-        Call<ApiNode> call = mService.copyNodes(accessToken, request.getTargetNodeId(), apiRequest);
+        Call<ApiNode> call = mService.copyNodes(auth, request.getTargetNodeId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -380,9 +380,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateMoveRequest(request);
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiMoveNodesRequest apiRequest = NodeMapper.toApiMoveNodesRequest(request);
-        Call<ApiNode> call = mService.moveNodes(accessToken, request.getTargetNodeId(), apiRequest);
+        Call<ApiNode> call = mService.moveNodes(auth, request.getTargetNodeId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -623,8 +623,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
 
-        String accessToken = mClient.getAccessToken();
-        Call<ApiNodeList> call = mService.searchNodes(accessToken, searchString, parentNodeId, -1,
+        String auth = mClient.buildAuthString();
+        Call<ApiNodeList> call = mService.searchNodes(auth, searchString, parentNodeId, -1,
                 null, null, offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
@@ -728,8 +728,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private ApiMissingFileKeys getMissingFileKeysBatch(Long nodeId, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
-        String accessToken = mClient.getAccessToken();
-        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(accessToken, nodeId, offset,
+        String auth = mClient.buildAuthString();
+        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(auth, nodeId, offset,
                 limit);
         Response<ApiMissingFileKeys> response = mHttpHelper.executeRequest(call);
 
@@ -779,10 +779,10 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private void setFileKeysBatch(List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys)
             throws DracoonNetIOException, DracoonApiException {
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiSetFileKeysRequest request = new ApiSetFileKeysRequest();
         request.items = apiUserIdFileIdFileKeys;
-        Call<Void> call = mService.setFileKeys(accessToken, request);
+        Call<Void> call = mService.setFileKeys(auth, request);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -811,8 +811,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonApiException {
         assertServerApiVersion();
 
-        String accessToken = mClient.getAccessToken();
-        Call<ApiFileKey> call = mService.getFileKey(accessToken, nodeId);
+        String auth = mClient.buildAuthString();
+        Call<ApiFileKey> call = mService.getFileKey(auth, nodeId);
         Response<ApiFileKey> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

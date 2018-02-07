@@ -8,7 +8,7 @@ import com.dracoon.sdk.internal.DracoonConstants;
 @SuppressWarnings("unused")
 public enum DracoonApiCode {
 
-    API_VERSION_NOT_SUPPORTED(-1, "Server API versions < " + DracoonConstants.MIN_API_VERSION + " are not supported."),
+    API_VERSION_NOT_SUPPORTED(-1, "Server API versions < " + DracoonConstants.API_MIN_VERSION + " are not supported."),
 
     AUTH_UNKNOWN_ERROR(-100, "An authentication error occurred."),
     AUTH_UNAUTHORIZED(-101, "Unauthorized."),

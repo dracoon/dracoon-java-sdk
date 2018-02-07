@@ -108,9 +108,9 @@ public class FileDownload extends Thread {
 
     protected String getDownloadUrl(long nodeId) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
 
-        Call<ApiDownloadToken> call = mRestService.getDownloadToken(accessToken, nodeId);
+        Call<ApiDownloadToken> call = mRestService.getDownloadToken(auth, nodeId);
         Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
@@ -158,9 +158,9 @@ public class FileDownload extends Thread {
 
     protected long getFileSize(long nodeId) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
 
-        Call<ApiNode> call = mRestService.getNode(accessToken, nodeId);
+        Call<ApiNode> call = mRestService.getNode(auth, nodeId);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {

@@ -38,11 +38,9 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
+import static com.dracoon.sdk.internal.DracoonConstants.*;
+
 public interface DracoonService {
-
-    String API_PATH = "/api/v4";
-
-    String AUTHORIZATION_HEADER = "X-Sds-Auth-Token";
 
     @GET(API_PATH + "/public/software/version")
     Call<ApiServerVersion> getServerVersion();

@@ -130,14 +130,14 @@ public class EncFileUpload extends FileUpload {
     private ApiNode completeUpload(String uploadId, String fileName,
             ResolutionStrategy resolutionStrategy, EncryptedFileKey encryptedFileKey)
             throws DracoonNetIOException, DracoonApiException, InterruptedException {
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();
         request.fileName = fileName;
         request.resolutionStrategy = resolutionStrategy.getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<ApiNode> call = mRestService.completeFileUpload(accessToken, uploadId, request);
+        Call<ApiNode> call = mRestService.completeFileUpload(auth, uploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {

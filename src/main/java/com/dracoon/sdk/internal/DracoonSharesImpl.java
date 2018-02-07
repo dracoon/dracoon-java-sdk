@@ -52,10 +52,10 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
                     userKeyPair.getUserPublicKey());
         }
 
-        String accessToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
         ApiCreateDownloadShareRequest apiRequest = ShareMapper.toApiCreateDownloadShareRequest(
                 request, userKeyPair, userEncFileKey);
-        Call<ApiDownloadShare> call = mService.createDownloadShare(accessToken, apiRequest);
+        Call<ApiDownloadShare> call = mService.createDownloadShare(auth, apiRequest);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

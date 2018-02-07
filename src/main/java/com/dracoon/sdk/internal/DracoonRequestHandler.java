@@ -45,7 +45,7 @@ public abstract class DracoonRequestHandler {
         }
 
         String ApiVersion = getServerApiVersion();
-        String minApiVersion = DracoonConstants.MIN_API_VERSION;
+        String minApiVersion = DracoonConstants.API_MIN_VERSION;
 
         String[] av = ApiVersion.split("\\.");
         String[] mav = minApiVersion.split("\\.");

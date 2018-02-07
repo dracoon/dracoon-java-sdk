@@ -177,7 +177,7 @@ public class FileUpload extends Thread {
     protected String createUpload(long parentNodeId, String name, int classification, String notes,
             Date expirationDate) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String authToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
 
         ApiCreateFileUploadRequest request = new ApiCreateFileUploadRequest();
         request.parentId = parentNodeId;
@@ -191,7 +191,7 @@ public class FileUpload extends Thread {
             request.expiration = apiExpiration;
         }
 
-        Call<ApiFileUpload> call = mRestService.createFileUpload(authToken, request);
+        Call<ApiFileUpload> call = mRestService.createFileUpload(auth, request);
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
@@ -234,7 +234,7 @@ public class FileUpload extends Thread {
             return;
         }
 
-        String authToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
 
         FileRequestBody requestBody = new FileRequestBody(data, count);
         requestBody.setCallback(send -> {
@@ -248,7 +248,7 @@ public class FileUpload extends Thread {
 
         String contentRange = "bytes " + offset + "-" + (offset + count) + "/*";
 
-        Call<Void> call = mRestService.uploadFile(authToken, uploadId, contentRange, body);
+        Call<Void> call = mRestService.uploadFile(auth, uploadId, contentRange, body);
         Response<Void> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
@@ -263,13 +263,13 @@ public class FileUpload extends Thread {
     private ApiNode completeUpload(String uploadId, String fileName,
             ResolutionStrategy resolutionStrategy) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String authToken = mClient.getAccessToken();
+        String auth = mClient.buildAuthString();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();
         request.fileName = fileName;
         request.resolutionStrategy = resolutionStrategy.getValue();
 
-        Call<ApiNode> call = mRestService.completeFileUpload(authToken, uploadId, request);
+        Call<ApiNode> call = mRestService.completeFileUpload(auth, uploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
 
         if (!response.isSuccessful()) {
