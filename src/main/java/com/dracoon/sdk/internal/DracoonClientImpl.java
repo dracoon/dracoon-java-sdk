@@ -1,30 +1,31 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.oauth.OAuthClient;
+import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 public class DracoonClientImpl extends DracoonClient {
 
     private Log mLog = new NullLog();
+    private DracoonHttpConfig mHttpConfig;
+    private OkHttpClient mHttpClient;
 
-    private OkHttpClient mOkHttpClient;
-    private Gson mGson;
-    private Retrofit mRetrofit;
+    private OAuthClient mOAuthClient;
     private DracoonService mDracoonService;
-    private DracoonHttpHelper mDracoonHttpHelper;
     private DracoonErrorParser mDracoonErrorParser;
+    private HttpHelper mHttpHelper;
 
     private DracoonServerImpl mServer;
     private DracoonAccountImpl mAccount;
@@ -33,43 +34,50 @@ public class DracoonClientImpl extends DracoonClient {
     private DracoonNodesImpl mNodes;
     private DracoonSharesImpl mShares;
 
+    private String mOAuthAccessToken;
+    private String mOAuthRefreshToken;
+    private long mOAuthLastRefreshTime;
+
     public DracoonClientImpl(String serverUrl) {
         super(serverUrl);
-    }
-
-    public void setLog(Log log) {
-        mLog = log != null ? log : new NullLog();
     }
 
     public Log getLog() {
         return mLog;
     }
 
-    public DracoonService getDracoonService() {
-        return mDracoonService;
+    public void setLog(Log log) {
+        mLog = log != null ? log : new NullLog();
     }
 
-    public DracoonHttpHelper getDracoonHttpHelper() {
-        return mDracoonHttpHelper;
+    public void setHttpConfig(DracoonHttpConfig httpConfig) {
+        mHttpConfig = httpConfig;
+    }
+
+    public OkHttpClient getHttpClient() {
+        return mHttpClient;
+    }
+
+    public DracoonService getDracoonService() {
+        return mDracoonService;
     }
 
     public DracoonErrorParser getDracoonErrorParser() {
         return mDracoonErrorParser;
     }
 
-    public String buildAuthString() {
-        return DracoonConstants.AUTHORIZATION_TYPE + " " + mAccessToken;
+    public HttpHelper getHttpHelper() {
+        return mHttpHelper;
     }
 
     // --- Initialization methods ---
 
     public void init() {
-        initOkHttp();
-        initGson();
-        initRetrofit();
+        initHttpClient();
+        initOAuthClient();
         initDracoonService();
-        initDracoonHttpHelper();
         initDracoonErrorParser();
+        initHttpHelper();
 
         mServer = new DracoonServerImpl(this);
         mAccount = new DracoonAccountImpl(this);
@@ -77,47 +85,47 @@ public class DracoonClientImpl extends DracoonClient {
         mShares = new DracoonSharesImpl(this);
     }
 
-    private void initOkHttp() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(mHttpConnectTimeout, TimeUnit.SECONDS);
-        builder.readTimeout(mHttpReadTimeout, TimeUnit.SECONDS);
-        builder.writeTimeout(mHttpWriteTimeout, TimeUnit.SECONDS);
-        builder.retryOnConnectionFailure(false);
-        mOkHttpClient = builder.build();
-    }
-
-    private void initGson() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Void.class, new JsonDeserializer<Void>() {
-            @Override
-            public Void deserialize(JsonElement json, Type type, JsonDeserializationContext context)
-                    throws JsonParseException {
-                return null;
-            }
-        });
-        gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        mGson = gsonBuilder.create();
-    }
-
-    private void initRetrofit() {
-        mRetrofit = new Retrofit.Builder()
-                .baseUrl(mServerUrl)
-                .client(mOkHttpClient)
-                .addConverterFactory(GsonConverterFactory.create(mGson))
+    private void initHttpClient() {
+        mHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS)
+                .readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS)
+                .writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS)
+                .retryOnConnectionFailure(false)
                 .build();
     }
 
+    private void initOAuthClient() {
+        mOAuthClient = new OAuthClient(mServerUrl, mAuth.getClientId(), mAuth.getClientSecret());
+        mOAuthClient.setLog(mLog);
+        mOAuthClient.setHttpConfig(mHttpConfig);
+        mOAuthClient.init();
+    }
+
     private void initDracoonService() {
+        Gson mGson = new GsonBuilder()
+                .registerTypeAdapter(Void.class, (JsonDeserializer<Void>) (json, type, context) ->
+                        null)
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                .create();
+
+        Retrofit mRetrofit = new Retrofit.Builder()
+                .baseUrl(mServerUrl)
+                .client(mHttpClient)
+                .addConverterFactory(GsonConverterFactory.create(mGson))
+                .build();
+
         mDracoonService = mRetrofit.create(DracoonService.class);
     }
 
-    private void initDracoonHttpHelper() {
-        mDracoonHttpHelper = new DracoonHttpHelper(mLog);
-        mDracoonHttpHelper.setRetryEnabled(mIsHttpRetryEnabled);
+    private void initDracoonErrorParser() {
+        mDracoonErrorParser = new DracoonErrorParser();
+        mDracoonErrorParser.setLog(mLog);
     }
 
-    private void initDracoonErrorParser() {
-        mDracoonErrorParser = new DracoonErrorParser(mLog);
+    private void initHttpHelper() {
+        mHttpHelper = new HttpHelper();
+        mHttpHelper.setLog(mLog);
+        mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
     }
 
     // --- Methods to get public handlers ---
@@ -168,6 +176,54 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonSharesImpl getSharesImpl() {
         return mShares;
+    }
+
+    // --- OAuth authorization methods ---
+
+    public String buildAuthString() throws DracoonApiException, DracoonNetIOException {
+        if (mOAuthAccessToken == null) {
+            retrieveOAuthTokens();
+        }
+        long nextRefreshTime = mOAuthLastRefreshTime +
+                DracoonConstants.AUTHORIZATION_REFRESH_INTERVAL * 1000;
+        long currentTime = System.currentTimeMillis();
+        if (nextRefreshTime < currentTime) {
+            refreshOAuthTokens();
+        }
+        return DracoonConstants.AUTHORIZATION_TYPE + " " + mOAuthAccessToken;
+    }
+
+    private void retrieveOAuthTokens() throws DracoonNetIOException, DracoonApiException {
+        if (mAuth != null) {
+            switch (mAuth.getMode()) {
+                case ACCESS_TOKEN:
+                    mOAuthAccessToken = mAuth.getAccessToken();
+                    break;
+                case AUTHORIZATION_CODE:
+                    OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getAuthorizationCode());
+                    mOAuthAccessToken = tokens.accessToken;
+                    mOAuthRefreshToken = tokens.refreshToken;
+                    break;
+                case ACCESS_REFRESH_TOKEN:
+                    mOAuthAccessToken = mAuth.getAccessToken();
+                    mOAuthRefreshToken = mAuth.getRefreshToken();
+                    break;
+                default:
+            }
+        } else {
+            mOAuthAccessToken = "";
+        }
+
+        mOAuthLastRefreshTime = System.currentTimeMillis();
+    }
+
+    private void refreshOAuthTokens() throws DracoonNetIOException, DracoonApiException {
+        if (mOAuthRefreshToken != null) {
+            OAuthTokens tokens = mOAuthClient.refreshAccessToken(mOAuthRefreshToken);
+            mOAuthAccessToken = tokens.accessToken;
+            mOAuthRefreshToken = tokens.refreshToken;
+        }
+        mOAuthLastRefreshTime = System.currentTimeMillis();
     }
 
     // --- Helper methods ---

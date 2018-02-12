@@ -1,5 +1,6 @@
 package com.dracoon.sdk.example;
 
+import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonException;
@@ -28,18 +29,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Main {
+public class ApiExamples {
+
+    private static final String SERVER_URL = "https://dracoon.team";
+    private static final String ACCESS_TOKEN = "access-token";
+    private static final String ENCRYPTION_PASSWORD = "encryption-password";
 
     public static void main(String[] args) throws Exception {
-        String serverUrl = "https://dracoon.team";
-        String accessToken = "";
-        String encryptionPassword = "secret";
+        DracoonAuth auth = new DracoonAuth(ACCESS_TOKEN);
 
-        DracoonClient client = new DracoonClient.Builder(serverUrl)
+        DracoonClient client = new DracoonClient.Builder(SERVER_URL)
                 .log(new Logger(Log.DEBUG))
-                .accessToken(accessToken)
-                .encryptionPassword(encryptionPassword)
-                .httpRetryEnabled(true)
+                .auth(auth)
+                .encryptionPassword(ENCRYPTION_PASSWORD)
                 .build();
 
         //getServerData(client);

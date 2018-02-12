@@ -11,16 +11,20 @@ import javax.net.ssl.SSLHandshakeException;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 
-public class DracoonHttpHelper {
+public class HttpHelper {
 
-    private static final String LOG_TAG = DracoonHttpHelper.class.getSimpleName();
+    private static final String LOG_TAG = HttpHelper.class.getSimpleName();
 
-    private final Log mLog;
+    private Log mLog = new NullLog();
 
     private boolean mIsRetryEnabled;
 
-    public DracoonHttpHelper(Log log) {
-        mLog = log;
+    public HttpHelper() {
+
+    }
+
+    public void setLog(Log log) {
+        mLog = log != null ? log : new NullLog();
     }
 
     public void setRetryEnabled(boolean isRetryEnabled) {

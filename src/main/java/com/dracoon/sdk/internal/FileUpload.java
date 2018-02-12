@@ -90,8 +90,8 @@ public class FileUpload extends Thread {
     protected final DracoonClientImpl mClient;
     protected final Log mLog;
     protected final DracoonService mRestService;
-    protected final DracoonHttpHelper mHttpHelper;
     protected final DracoonErrorParser mErrorParser;
+    protected final HttpHelper mHttpHelper;
 
     protected final String mId;
     protected final FileUploadRequest mRequest;
@@ -106,8 +106,8 @@ public class FileUpload extends Thread {
             InputStream srcStream, long srcLength) {
         mClient = client;
         mLog = client.getLog();
+        mHttpHelper = client.getHttpHelper();
         mRestService = client.getDracoonService();
-        mHttpHelper = client.getDracoonHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
 
         mId = id;

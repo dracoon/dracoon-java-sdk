@@ -18,8 +18,8 @@ public abstract class DracoonRequestHandler {
     protected final DracoonClientImpl mClient;
     protected final Log mLog;
     protected final DracoonService mService;
-    protected final DracoonHttpHelper mHttpHelper;
     protected final DracoonErrorParser mErrorParser;
+    protected final HttpHelper mHttpHelper;
 
     private boolean mWasServerVersionChecked = false;
 
@@ -27,8 +27,8 @@ public abstract class DracoonRequestHandler {
         mClient = client;
         mLog = client.getLog();
         mService = client.getDracoonService();
-        mHttpHelper = client.getDracoonHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+        mHttpHelper = client.getHttpHelper();
     }
 
     protected String getServerVersion() throws DracoonNetIOException, DracoonApiException {

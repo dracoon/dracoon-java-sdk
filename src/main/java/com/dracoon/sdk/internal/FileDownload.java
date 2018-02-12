@@ -33,9 +33,9 @@ public class FileDownload extends Thread {
     protected final DracoonClientImpl mClient;
     protected final Log mLog;
     protected final DracoonService mRestService;
-    protected final OkHttpClient mHttpClient;
-    protected final DracoonHttpHelper mHttpHelper;
     protected final DracoonErrorParser mErrorParser;
+    protected final OkHttpClient mHttpClient;
+    protected final HttpHelper mHttpHelper;
 
     protected final String mId;
     protected final long mNodeId;
@@ -49,9 +49,9 @@ public class FileDownload extends Thread {
         mClient = client;
         mLog = client.getLog();
         mRestService = client.getDracoonService();
-        mHttpClient = new OkHttpClient();
-        mHttpHelper = client.getDracoonHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+        mHttpClient = client.getHttpClient();
+        mHttpHelper = client.getHttpHelper();
 
         mId = id;
         mNodeId = nodeId;

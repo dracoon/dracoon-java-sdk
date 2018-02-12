@@ -500,13 +500,8 @@ public abstract class DracoonClient {
 
     protected String mServerUrl;
 
-    protected String mAccessToken;
+    protected DracoonAuth mAuth;
     protected String mEncryptionPassword;
-
-    protected boolean mIsHttpRetryEnabled;
-    protected int mHttpConnectTimeout;
-    protected int mHttpReadTimeout;
-    protected int mHttpWriteTimeout;
 
     /**
      * Constructs a new Dracoon client.
@@ -527,21 +522,12 @@ public abstract class DracoonClient {
     }
 
     /**
-     * Returns the client's access token.
+     * Returns the authorization data.
      *
-     * @return access token
+     * @return authorization data
      */
-    public String getAccessToken() {
-        return mAccessToken;
-    }
-
-    /**
-     * Sets the client's access token.
-     *
-     * @param accessToken The new access token.
-     */
-    public void setAccessToken(String accessToken) {
-        mAccessToken = accessToken;
+    public DracoonAuth getAuth() {
+        return mAuth;
     }
 
     /**
@@ -609,13 +595,15 @@ public abstract class DracoonClient {
      * <br>
      * Following properties can be set:<br>
      * - Server URL (mandatory): {@link Builder#Builder(String)}<br>
-     * - Access token:           {@link Builder#accessToken(String)}<br>
+     * - Logger:                 {@link Builder#log(Log)}<br>
+     * - Authorization data:     {@link Builder#auth(DracoonAuth)}<br>
      * - Encryption password:    {@link Builder#encryptionPassword(String)}<br>
-     * - Logger:                 {@link Builder#log(Log)}
+     * - HTTP configuration:     {@link Builder#httpConfig(DracoonHttpConfig)}
      */
     public static class Builder {
 
         private DracoonClientImpl mClient;
+        private DracoonHttpConfig mHttpConfig;
 
         /**
          * Constructs a new builder for a specific Dracoon server.
@@ -624,11 +612,7 @@ public abstract class DracoonClient {
          */
         public Builder(String serverUrl) {
             mClient = new DracoonClientImpl(serverUrl);
-
-            mClient.mIsHttpRetryEnabled = false;
-            mClient.mHttpConnectTimeout = 15;
-            mClient.mHttpReadTimeout = 15;
-            mClient.mHttpWriteTimeout = 15;
+            mHttpConfig = new DracoonHttpConfig();
         }
 
         /**
@@ -644,14 +628,14 @@ public abstract class DracoonClient {
         }
 
         /**
-         * Sets the access token which is used at requests.
+         * Sets the authorization data for accessing protected resources.
          *
-         * @param accessToken The access token.
+         * @param auth The authorization data.
          *
          * @return a reference to this object
          */
-        public Builder accessToken(String accessToken) {
-            mClient.mAccessToken = accessToken;
+        public Builder auth(DracoonAuth auth) {
+            mClient.mAuth = auth;
             return this;
         }
 
@@ -668,37 +652,14 @@ public abstract class DracoonClient {
         }
 
         /**
-         * Enables/disables HTTP retry. If enabled, requests which failed due to a network error
-         * will be retried 2 times.<br>
-         * <br>
-         * The HTTP retry is disabled by default.
+         * Sets the HTTP configuration.
          *
-         * @param isHttpRetryEnabled <code>true</code> to enable HTTP retry; otherwise
-         *                           <code>false</code>
+         * @param httpConfig The HTTP configuration.
          *
          * @return a reference to this object
          */
-        public Builder httpRetryEnabled(boolean isHttpRetryEnabled) {
-            mClient.mIsHttpRetryEnabled = isHttpRetryEnabled;
-            return this;
-        }
-
-        /**
-         * Sets HTTP timeouts. A value of 0 means no timeout.<br>
-         * <br>
-         * The HTTP timeouts are set to 15 seconds by default.
-         *
-         * @param httpConnectTimeout The connect timeout for new connections in seconds.
-         * @param httpReadTimeout    The read timeout for new connections in seconds.
-         * @param httpWriteTimeout   The write timeout for new connections in seconds.
-         *
-         * @return a reference to this object
-         */
-        public Builder httpTimeout(int httpConnectTimeout, int httpReadTimeout,
-                int httpWriteTimeout) {
-            mClient.mHttpConnectTimeout = httpConnectTimeout;
-            mClient.mHttpReadTimeout = httpReadTimeout;
-            mClient.mHttpWriteTimeout = httpWriteTimeout;
+        public Builder httpConfig(DracoonHttpConfig httpConfig) {
+            mHttpConfig = httpConfig;
             return this;
         }
 
@@ -708,6 +669,7 @@ public abstract class DracoonClient {
          * @return a new {@link DracoonClient} instance
          */
         public DracoonClient build() {
+            mClient.setHttpConfig(mHttpConfig);
             mClient.init();
             return mClient;
         }

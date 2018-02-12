@@ -13,12 +13,16 @@ public class DracoonErrorParser {
 
     private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
 
-    private static final GsonBuilder gsonBuilder = new GsonBuilder();
+    private static final GsonBuilder sGsonBuilder = new GsonBuilder();
 
-    private Log mLog;
+    private Log mLog = new NullLog();
 
-    public DracoonErrorParser(Log log) {
-        mLog = log;
+    public DracoonErrorParser() {
+
+    }
+
+    public void setLog(Log log) {
+        mLog = log != null ? log : new NullLog();
     }
 
     // --- Methods to parse Retrofit error responses ---
@@ -618,7 +622,7 @@ public class DracoonErrorParser {
             return null;
         }
 
-        Gson gson = gsonBuilder.create();
+        Gson gson = sGsonBuilder.create();
         try {
             ApiErrorResponse er = null;
             switch (response.errorBody().contentType().subtype()) {
