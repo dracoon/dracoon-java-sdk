@@ -3,6 +3,7 @@ package com.dracoon.sdk.example;
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
@@ -29,7 +30,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ApiExamples {
+/**
+ * This class shows the usage of the Dracoon SDK.<br>
+ * <br>
+ * (The example uses the Access Token Mode for authorization. For a example of the more complex
+ * Authorization Code Mode see {@link OAuthExamples}.)<br>
+ * <br>
+ * Notice: For the sake of simplicity error handling is ignored.
+ */
+public class DracoonExamples {
 
     private static final String SERVER_URL = "https://dracoon.team";
     private static final String ACCESS_TOKEN = "access-token";
@@ -157,8 +166,8 @@ public class ApiExamples {
     private static void getNodeNotFound(DracoonClient client) throws DracoonException {
         try {
             client.nodes().getNode(123456789);
-        } catch (DracoonException e) {
-            System.err.println("Failed to query node: " + e.getMessage());
+        } catch (DracoonApiException e) {
+            System.err.println("Failed to query node: " + e.getCode().getText());
         }
     }
 
@@ -170,8 +179,8 @@ public class ApiExamples {
     private static void getNodeByPathNotFound(DracoonClient client) throws DracoonException {
         try {
             client.nodes().getNode("/not-existing");
-        } catch (DracoonException e) {
-            System.err.println("Failed to query node: " + e.getMessage());
+        } catch (DracoonApiException e) {
+            System.err.println("Failed to query node: " + e.getCode().getText());
         }
     }
 
