@@ -40,19 +40,19 @@ public class OAuthErrorParser {
 
         switch (error) {
             case ERR_UNSUPPORTED_RESPONSE_TYPE:
-                code = DracoonApiCode.AUTH_AUTHORIZATION_REQUEST_INVALID;
+                code = DracoonApiCode.AUTH_OAUTH_AUTHORIZATION_REQUEST_INVALID;
                 break;
             case ERR_INVALID_CLIENT:
-                code = DracoonApiCode.AUTH_CLIENT_UNKNOWN;
+                code = DracoonApiCode.AUTH_OAUTH_CLIENT_UNKNOWN;
                 break;
             case ERR_INVALID_GRANT:
-                code = DracoonApiCode.AUTH_GRANT_TYPE_NOT_ALLOWED;
+                code = DracoonApiCode.AUTH_OAUTH_GRANT_TYPE_NOT_ALLOWED;
                 break;
             case ERR_INVALID_SCOPE:
-                code = DracoonApiCode.AUTH_AUTHORIZATION_SCOPE_INVALID;
+                code = DracoonApiCode.AUTH_OAUTH_AUTHORIZATION_SCOPE_INVALID;
                 break;
             case ERR_ACCESS_DENIED:
-                code = DracoonApiCode.AUTH_AUTHORIZATION_ACCESS_DENIED;
+                code = DracoonApiCode.AUTH_OAUTH_AUTHORIZATION_ACCESS_DENIED;
                 break;
             default:
                 code = DracoonApiCode.AUTH_UNKNOWN_ERROR;
@@ -73,20 +73,20 @@ public class OAuthErrorParser {
                 switch (error) {
                     case ERR_INVALID_REQUEST:
                     case ERR_UNSUPPORTED_GRANT_TYPE:
-                        code = DracoonApiCode.AUTH_TOKEN_REQUEST_INVALID;
+                        code = DracoonApiCode.AUTH_OAUTH_TOKEN_REQUEST_INVALID;
                         break;
                     case ERR_INVALID_CLIENT:
-                        code = DracoonApiCode.AUTH_GRANT_TYPE_NOT_ALLOWED;
+                        code = DracoonApiCode.AUTH_OAUTH_GRANT_TYPE_NOT_ALLOWED;
                         break;
                     case ERR_INVALID_GRANT:
-                        code = DracoonApiCode.AUTH_TOKEN_CODE_OR_REDIRECT_URI_INVALID;
+                        code = DracoonApiCode.AUTH_OAUTH_TOKEN_CODE_INVALID;
                         break;
                     default:
                         code = DracoonApiCode.AUTH_UNKNOWN_ERROR;
                 }
                 break;
             case UNAUTHORIZED:
-                code = DracoonApiCode.AUTH_CLIENT_UNAUTHORIZED;
+                code = DracoonApiCode.AUTH_OAUTH_CLIENT_UNAUTHORIZED;
                 break;
             default:
                 code = DracoonApiCode.AUTH_UNKNOWN_ERROR;
@@ -107,20 +107,20 @@ public class OAuthErrorParser {
                 switch (error) {
                     case ERR_INVALID_REQUEST:
                     case ERR_UNSUPPORTED_GRANT_TYPE:
-                        code = DracoonApiCode.AUTH_REFRESH_REQUEST_INVALID;
+                        code = DracoonApiCode.AUTH_OAUTH_REFRESH_REQUEST_INVALID;
                         break;
                     case ERR_INVALID_CLIENT:
-                        code = DracoonApiCode.AUTH_GRANT_TYPE_NOT_ALLOWED;
+                        code = DracoonApiCode.AUTH_OAUTH_GRANT_TYPE_NOT_ALLOWED;
                         break;
                     case ERR_INVALID_GRANT:
-                        code = DracoonApiCode.AUTH_REFRESH_TOKEN_INVALID;
+                        code = DracoonApiCode.AUTH_OAUTH_REFRESH_TOKEN_INVALID;
                         break;
                     default:
                         code = DracoonApiCode.AUTH_UNKNOWN_ERROR;
                 }
                 break;
             case UNAUTHORIZED:
-                code = DracoonApiCode.AUTH_CLIENT_UNAUTHORIZED;
+                code = DracoonApiCode.AUTH_OAUTH_CLIENT_UNAUTHORIZED;
                 break;
             default:
                 code = DracoonApiCode.AUTH_UNKNOWN_ERROR;
@@ -144,6 +144,7 @@ public class OAuthErrorParser {
             }
 
             if (er != null) {
+                mLog.d(LOG_TAG, "OAuth REST error:");
                 mLog.d(LOG_TAG, er.toString());
             }
 

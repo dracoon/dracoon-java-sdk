@@ -51,9 +51,9 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -70022 || errorCode == -70023)
-                    return DracoonApiCode.VALIDATION_INVALID_USER_KEY_PAIR;
+                    return DracoonApiCode.VALIDATION_USER_KEY_PAIR_INVALID;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case CONFLICT:
                 if (errorCode == -70021)
                     return DracoonApiCode.SERVER_USER_KEY_PAIR_ALREADY_SET;
@@ -119,16 +119,16 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -40755)
-                    return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
+                    return DracoonApiCode.VALIDATION_FILE_NAME_INVALID;
                 else if (errorCode == -41200)
                     return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 return DracoonApiCode.PERMISSION_CREATE_ERROR;
             case NOT_FOUND:
-                if (errorCode == -40000)
-                    return DracoonApiCode.SERVER_ROOM_NOT_FOUND;
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_ROOM_NOT_FOUND;
                 else if (errorCode == -70501)
                     return DracoonApiCode.SERVER_USER_NOT_FOUND;
                 else
@@ -152,15 +152,15 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -40755)
-                    return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
+                    return DracoonApiCode.VALIDATION_FILE_NAME_INVALID;
                 else if (errorCode == -41200)
                     return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 return DracoonApiCode.PERMISSION_UPDATE_ERROR;
             case NOT_FOUND:
-                if (errorCode == -40000)
+                if (errorCode == -40000 || errorCode == -41000)
                     return DracoonApiCode.SERVER_ROOM_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -182,14 +182,17 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
-                if (errorCode == -40000)
-                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
-                else if (errorCode == -41200)
+                if (errorCode == -41200)
                     return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 return DracoonApiCode.PERMISSION_CREATE_ERROR;
+            case NOT_FOUND:
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
                 return DracoonApiCode.VALIDATION_FOLDER_ALREADY_EXISTS;
             default:
@@ -211,11 +214,11 @@ public class DracoonErrorParser {
                 if (errorCode == -41200)
                     return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 return DracoonApiCode.PERMISSION_UPDATE_ERROR;
             case NOT_FOUND:
-                if (errorCode == -40000)
+                if (errorCode == -40000 || errorCode == -41000)
                     return DracoonApiCode.SERVER_FOLDER_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -238,13 +241,15 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -40755)
-                    return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
+                    return DracoonApiCode.VALIDATION_FILE_NAME_INVALID;
+                else if (errorCode == -41200)
+                    return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
                 else if (errorCode == -80006)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
                 else if (errorCode == -80008)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_TOO_LATE;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 return DracoonApiCode.PERMISSION_UPDATE_ERROR;
             case NOT_FOUND:
@@ -270,12 +275,9 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
-                if (errorCode == -41054)
-                    return DracoonApiCode.VALIDATION_NODES_NOT_IN_SAME_PARENT;
-                else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                return parseValidationError(errorCode);
             case FORBIDDEN:
-                return DracoonApiCode.PERMISSION_UPDATE_ERROR;
+                return DracoonApiCode.PERMISSION_DELETE_ERROR;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_NODE_NOT_FOUND;
             default:
@@ -295,31 +297,41 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -40001)
-                    return DracoonApiCode.VALIDATION_SOURCE_ROOM_NOT_ENCRYPTED;
+                    return DracoonApiCode.VALIDATION_SOURCE_ROOM_ENCRYPTED;
                 else if (errorCode == -40002)
-                    return DracoonApiCode.VALIDATION_TARGET_ROOM_NOT_ENCRYPTED;
+                    return DracoonApiCode.VALIDATION_TARGET_ROOM_ENCRYPTED;
                 else if (errorCode == -41052)
                     return DracoonApiCode.VALIDATION_CAN_NOT_COPY_ROOM;
                 else if (errorCode == -41053)
                     return DracoonApiCode.VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE;
+                else if (errorCode == -41054)
+                    return DracoonApiCode.VALIDATION_NODES_NOT_IN_SAME_PARENT;
+                else if (errorCode == -41200)
+                    return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
+                else if (errorCode == -41302 || errorCode == -41303)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_COPY_NODE_TO_OWN_PLACE_WITHOUT_RENAME;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 return DracoonApiCode.PERMISSION_CREATE_ERROR;
             case NOT_FOUND:
                 if (errorCode == -40014)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
                 else if (errorCode == -41050)
-                    return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
+                    return DracoonApiCode.SERVER_SOURCE_NODE_NOT_FOUND;
                 else if (errorCode == -41051)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
-                if (errorCode == -41001)
-                    return DracoonApiCode.VALIDATION_FOLDER_CAN_NOT_BE_OVERWRITTEN;
+                if (errorCode == -40010)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
+                else if (errorCode == -41001)
+                    return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
+                else if (errorCode == -41304)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_COPY_TO_CHILD;
                 else
-                    return DracoonApiCode.VALIDATION_FOLDER_FILE_ALREADY_EXISTS;
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -337,33 +349,41 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -40001)
-                    return DracoonApiCode.VALIDATION_SOURCE_ROOM_NOT_ENCRYPTED;
+                    return DracoonApiCode.VALIDATION_SOURCE_ROOM_ENCRYPTED;
                 else if (errorCode == -40002)
-                    return DracoonApiCode.VALIDATION_TARGET_ROOM_NOT_ENCRYPTED;
+                    return DracoonApiCode.VALIDATION_TARGET_ROOM_ENCRYPTED;
                 else if (errorCode == -41052)
                     return DracoonApiCode.VALIDATION_CAN_NOT_MOVE_ROOM;
                 else if (errorCode == -41053)
                     return DracoonApiCode.VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE;
+                else if (errorCode == -41054)
+                    return DracoonApiCode.VALIDATION_NODES_NOT_IN_SAME_PARENT;
+                else if (errorCode == -41200)
+                    return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
                 else if (errorCode == -41302)
                     return DracoonApiCode.VALIDATION_CAN_NOT_MOVE_NODE_TO_OWN_PLACE;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
-                return DracoonApiCode.PERMISSION_ERROR;
+                return DracoonApiCode.PERMISSION_UPDATE_ERROR;
             case NOT_FOUND:
                 if (errorCode == -40014)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
                 else if (errorCode == -41050)
-                    return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
+                    return DracoonApiCode.SERVER_SOURCE_NODE_NOT_FOUND;
                 else if (errorCode == -41051)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
-                if (errorCode == -41001)
-                    return DracoonApiCode.VALIDATION_FOLDER_CAN_NOT_BE_OVERWRITTEN;
+                if (errorCode == -40010)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
+                else if (errorCode == -41001)
+                    return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
+                else if (errorCode == -41304)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_MOVE_TO_CHILD;
                 else
-                    return DracoonApiCode.VALIDATION_FOLDER_FILE_ALREADY_EXISTS;
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -381,19 +401,28 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 if (errorCode == -40755)
-                    return DracoonApiCode.VALIDATION_BAD_FILE_NAME;
+                    return DracoonApiCode.VALIDATION_FILE_NAME_INVALID;
+                else if (errorCode == -41200)
+                    return DracoonApiCode.VALIDATION_PATH_TOO_LONG;
                 else if (errorCode == -80006)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
                 else if (errorCode == -80008)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_TOO_LATE;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 return DracoonApiCode.PERMISSION_CREATE_ERROR;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
             case INSUFFICIENT_STORAGE:
-                return DracoonApiCode.SERVER_INSUFFICIENT_STORAGE;
+                if (errorCode == -40200)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_ROOM_QUOTA;
+                else if (errorCode == -50504)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_UL_SHARE_QUOTA;
+                else if (errorCode == -90200)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_CUSTOMER_QUOTA;
+                else
+                    return DracoonApiCode.SERVER_INSUFFICIENT_STORAGE;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -410,12 +439,16 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
-                if (errorCode == -80021)
-                    return DracoonApiCode.SERVER_UPLOAD_SEGMENT_INVALID;
-                else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                return parseValidationError(errorCode);
             case INSUFFICIENT_STORAGE:
-                return DracoonApiCode.SERVER_INSUFFICIENT_STORAGE;
+                if (errorCode == -40200)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_ROOM_QUOTA;
+                else if (errorCode == -50504)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_UL_SHARE_QUOTA;
+                else if (errorCode == -90200)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_CUSTOMER_QUOTA;
+                else
+                    return DracoonApiCode.SERVER_INSUFFICIENT_STORAGE;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -432,13 +465,10 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
-                if (errorCode == -40763)
-                    return DracoonApiCode.VALIDATION_USER_FILE_KEY_MISSING;
-                else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                return parseValidationError(errorCode);
             case CONFLICT:
                 if (errorCode == -40010)
-                    return DracoonApiCode.VALIDATION_ROOM_FOLDER_CAN_NOT_BE_OVERWRITTEN;
+                    return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
                 else
                     return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
             default:
@@ -457,7 +487,7 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(statusCode)) {
             case NOT_FOUND:
-                return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                return DracoonApiCode.SERVER_FILE_NOT_FOUND;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -477,7 +507,7 @@ public class DracoonErrorParser {
                 if (errorCode == -10002)
                     return DracoonApiCode.VALIDATION_PASSWORD_NOT_SECURE;
                 else if (errorCode == -50004)
-                    return DracoonApiCode.VALIDATION_CAN_NOT_CREATE_DL_SHARE_ON_ENCRYPTED_ROOM_FOLDER;
+                    return DracoonApiCode.VALIDATION_DL_SHARE_CAN_NOT_CREATE_ON_ENCRYPTED_ROOM_FOLDER;
                 else if (errorCode == -80006)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
                 else if (errorCode == -80008)
@@ -487,12 +517,12 @@ public class DracoonErrorParser {
                 else if (errorCode == -80030)
                     return DracoonApiCode.SERVER_SMS_IS_DISABLED;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
-                return DracoonApiCode.PERMISSION_READ_ERROR;
+                return DracoonApiCode.PERMISSION_MANAGE_DL_SHARES_ERROR;
             case NOT_FOUND:
-                if (errorCode == -40000)
-                    return DracoonApiCode.SERVER_FOLDER_FILE_NOT_FOUND;
+                if (errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case BAD_GATEWAY:
@@ -541,7 +571,7 @@ public class DracoonErrorParser {
                 if (errorCode == -40001)
                     return DracoonApiCode.VALIDATION_ROOM_NOT_ENCRYPTED;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case NOT_FOUND:
                 if (errorCode == -40000)
                     return DracoonApiCode.SERVER_ROOM_NOT_FOUND;
@@ -570,7 +600,7 @@ public class DracoonErrorParser {
                 if (errorCode == -40001)
                     return DracoonApiCode.VALIDATION_ROOM_NOT_ENCRYPTED;
                 else
-                    return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+                    return parseValidationError(errorCode);
             case FORBIDDEN:
                 if (errorCode == -40761)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
@@ -592,6 +622,8 @@ public class DracoonErrorParser {
 
     private DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
             case FORBIDDEN:
                 if (errorCode == -10003 || errorCode == -10007)
                     return DracoonApiCode.AUTH_USER_LOCKED;
@@ -600,9 +632,12 @@ public class DracoonErrorParser {
                 else if (errorCode == -10005)
                     return DracoonApiCode.AUTH_USER_TEMPORARY_LOCKED;
                 else
-                    return DracoonApiCode.PERMISSION_ERROR;
+                    return DracoonApiCode.PERMISSION_UNKNOWN_ERROR;
             case UNAUTHORIZED:
-                return DracoonApiCode.AUTH_UNAUTHORIZED;
+                if (errorCode == -10006)
+                    return DracoonApiCode.AUTH_OAUTH_CLIENT_NO_PERMISSION;
+                else
+                    return DracoonApiCode.AUTH_UNAUTHORIZED;
             case PRECONDITION_FAILED:
                 if (errorCode == -10103)
                     return DracoonApiCode.PRECONDITION_MUST_ACCEPT_EULA;
@@ -615,6 +650,25 @@ public class DracoonErrorParser {
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
+    }
+
+    private DracoonApiCode parseValidationError(int errorCode) {
+        if (errorCode == -80000)
+            return DracoonApiCode.VALIDATION_FIELD_CAN_NOT_BE_EMPTY;
+        else if (errorCode == -80001)
+            return DracoonApiCode.VALIDATION_FIELD_NOT_POSITIVE;
+        else if (errorCode == -80003)
+            return DracoonApiCode.VALIDATION_FIELD_NOT_ZERO_POSITIVE;
+        else if (errorCode == -80007)
+            return DracoonApiCode.VALIDATION_FIELD_MAX_LENGTH_EXCEEDED;
+        else if (errorCode == -80018)
+            return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_0_9999;
+        else if (errorCode == -80019)
+            return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_1_9999;
+        else if (errorCode == -80035)
+            return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_0_10;
+        else
+            return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
     }
 
     private ApiErrorResponse getErrorResponse(Response response) {
@@ -636,6 +690,7 @@ public class DracoonErrorParser {
             }
 
             if (er != null) {
+                mLog.d(LOG_TAG, "Server REST error:");
                 mLog.d(LOG_TAG, er.toString());
             }
 
@@ -648,13 +703,15 @@ public class DracoonErrorParser {
     // --- Methods to parse OkHttp error responses ---
 
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
-        switch (HttpStatus.valueOf(response.code())) {
+        int code = response.code();
+
+        mLog.d(LOG_TAG, "Server HTTP error: " + code);
+
+        switch (HttpStatus.valueOf(code)) {
             case UNAUTHORIZED:
                 return DracoonApiCode.AUTH_UNAUTHORIZED;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
-            case RANGE_NOT_SATISFIABLE:
-                return DracoonApiCode.SERVER_DOWNLOAD_SEGMENT_INVALID;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
