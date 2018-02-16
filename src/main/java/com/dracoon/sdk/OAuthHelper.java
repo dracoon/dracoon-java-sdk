@@ -1,12 +1,14 @@
 package com.dracoon.sdk;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.internal.oauth.OAuthConstants;
 import com.dracoon.sdk.internal.oauth.OAuthErrorParser;
+import com.dracoon.sdk.internal.validator.ServerUrlValidator;
 
 /**
  * The Dracoon SDK uses OAuth 2.0 for client authorization. See <a href="https://tools.ietf.org/
@@ -16,11 +18,11 @@ import com.dracoon.sdk.internal.oauth.OAuthErrorParser;
  * <br>
  * The class provides methods to:<br>
  * - Create the authorization URL (Which must be opened user's browser.)
- * ({@link OAuthHelper#createAuthorizationUrl(String, String, String)})<br>
+ * ({@link OAuthHelper#createAuthorizationUrl(URL, String, String)})<br>
  * - Extract authorization state from redirect URL
- * ({@link OAuthHelper#extractAuthorizationStateFromUri(String)})<br>
+ * ({@link OAuthHelper#extractAuthorizationStateFromUri(URI)})<br>
  * - Extract authorization code from redirect URL
- * ({@link OAuthHelper#extractAuthorizationCodeFromUri(String)})<br>
+ * ({@link OAuthHelper#extractAuthorizationCodeFromUri(URI)})<br>
  */
 @SuppressWarnings("unused")
 public class OAuthHelper {
@@ -38,7 +40,9 @@ public class OAuthHelper {
      *
      * @return the authorization URL
      */
-    public static String createAuthorizationUrl(String serverUrl, String clientId, String state) {
+    public static String createAuthorizationUrl(URL serverUrl, String clientId, String state) {
+        ServerUrlValidator.validateServerURL(serverUrl);
+
         String base = serverUrl + OAuthConstants.OAUTH_PATH + OAuthConstants.OAUTH_AUTHORIZE_PATH;
 
         String query = "response_type=" + OAuthConstants.OAUTH_FLOW + "&"
@@ -57,7 +61,7 @@ public class OAuthHelper {
      *
      * @throws DracoonApiException If a OAuth error occurred.
      */
-    public static String extractAuthorizationStateFromUri(String uri) throws DracoonApiException {
+    public static String extractAuthorizationStateFromUri(URI uri) throws DracoonApiException {
         return extractAuthorizationDataFromUri(uri, "state");
     }
 
@@ -70,14 +74,13 @@ public class OAuthHelper {
      *
      * @throws DracoonApiException If a OAuth error occurred.
      */
-    public static String extractAuthorizationCodeFromUri(String uri) throws DracoonApiException {
+    public static String extractAuthorizationCodeFromUri(URI uri) throws DracoonApiException {
         return extractAuthorizationDataFromUri(uri, "code");
     }
 
-    private static String extractAuthorizationDataFromUri(String uri, String name)
+    private static String extractAuthorizationDataFromUri(URI uri, String name)
             throws DracoonApiException {
-        URI u = URI.create(uri);
-        String query = u.getQuery();
+        String query = uri.getQuery();
         Map<String, String> queryParams = parseQuery(query);
 
         String error = queryParams.get("error");

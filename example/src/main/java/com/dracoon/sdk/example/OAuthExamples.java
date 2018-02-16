@@ -4,8 +4,10 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,7 +38,7 @@ public class OAuthExamples {
 
     private static final int REDIRECT_PORT = 10000;
 
-    public static void main(String[] args) throws InterruptedException, DracoonException {
+    public static void main(String[] args) throws Exception {
         // Authorize client
         String authCode = authorizeClient();
 
@@ -47,15 +49,16 @@ public class OAuthExamples {
         useClient(client);
     }
 
-    private static String authorizeClient() throws InterruptedException, DracoonException {
+    private static String authorizeClient() throws MalformedURLException, InterruptedException,
+            DracoonException {
         // Generate state
         String state = generateState();
 
         // Create authorization URL
-        String authUrl = OAuthHelper.createAuthorizationUrl(SERVER_URL, CLIENT_ID, state);
+        String authUrl = OAuthHelper.createAuthorizationUrl(new URL(SERVER_URL), CLIENT_ID, state);
 
         // Open authorization URL in user's browser and wait for callback
-        String redirUrl = openUrlInBrowser(authUrl);
+        URI redirUrl = openUrlInBrowser(authUrl);
 
         // Extract state and code from callback URI
         String callbackState = OAuthHelper.extractAuthorizationStateFromUri(redirUrl);
@@ -73,9 +76,9 @@ public class OAuthExamples {
         return Integer.toHexString(new SecureRandom().nextInt());
     }
 
-    private static String openUrlInBrowser(String url) throws InterruptedException {
+    private static URI openUrlInBrowser(String url) throws InterruptedException {
         // Queue to store callback data
-        final BlockingQueue<String> callbackQueue = new LinkedBlockingQueue<>();
+        final BlockingQueue<URI> callbackQueue = new LinkedBlockingQueue<>();
 
         // Open local TCP port to receive callback
         try {
@@ -83,7 +86,7 @@ public class OAuthExamples {
             server.createContext("/", exchange -> {
                 try {
                     // Store callback data
-                    callbackQueue.put(exchange.getRequestURI().toString());
+                    callbackQueue.put(exchange.getRequestURI());
 
                     // Write response
                     String message = "Authorization completed.";
@@ -122,12 +125,12 @@ public class OAuthExamples {
         return callbackQueue.take();
     }
 
-    private static DracoonClient createClient(String authCode) {
+    private static DracoonClient createClient(String authCode) throws MalformedURLException {
         // Create authorization configuration with obtained authorization code
         DracoonAuth auth = new DracoonAuth(CLIENT_ID, CLIENT_SECRET, authCode);
 
         // Create client and supply authorization configuration
-        DracoonClient client = new DracoonClient.Builder(SERVER_URL)
+        DracoonClient client = new DracoonClient.Builder(new URL(SERVER_URL))
                 .log(new Logger(Log.DEBUG))
                 .auth(auth)
                 .build();

@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 public class DracoonClientImpl extends DracoonClient {
@@ -38,7 +39,7 @@ public class DracoonClientImpl extends DracoonClient {
     private String mOAuthRefreshToken;
     private long mOAuthLastRefreshTime;
 
-    public DracoonClientImpl(String serverUrl) {
+    public DracoonClientImpl(URL serverUrl) {
         super(serverUrl);
     }
 
@@ -109,7 +110,7 @@ public class DracoonClientImpl extends DracoonClient {
                 .create();
 
         Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl(mServerUrl)
+                .baseUrl(mServerUrl.toString())
                 .client(mHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(mGson))
                 .build();

@@ -5,6 +5,7 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.internal.validator.ServerUrlValidator;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
@@ -24,6 +25,7 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -498,7 +500,7 @@ public abstract class DracoonClient {
 
     }
 
-    protected String mServerUrl;
+    protected URL mServerUrl;
 
     protected DracoonAuth mAuth;
     protected String mEncryptionPassword;
@@ -508,7 +510,7 @@ public abstract class DracoonClient {
      *
      * @param serverUrl The URL of the Dracoon server.
      */
-    protected DracoonClient(String serverUrl) {
+    protected DracoonClient(URL serverUrl) {
         mServerUrl = serverUrl;
     }
 
@@ -517,7 +519,7 @@ public abstract class DracoonClient {
      *
      * @return server URL
      */
-    public String getServerUrl() {
+    public URL getServerUrl() {
         return mServerUrl;
     }
 
@@ -594,7 +596,7 @@ public abstract class DracoonClient {
      * This builder creates new instances of {@link DracoonClient}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Server URL (mandatory): {@link Builder#Builder(String)}<br>
+     * - Server URL (mandatory): {@link Builder#Builder(URL)}<br>
      * - Logger:                 {@link Builder#log(Log)}<br>
      * - Authorization data:     {@link Builder#auth(DracoonAuth)}<br>
      * - Encryption password:    {@link Builder#encryptionPassword(String)}<br>
@@ -610,7 +612,8 @@ public abstract class DracoonClient {
          *
          * @param serverUrl The URL of the Dracoon server.
          */
-        public Builder(String serverUrl) {
+        public Builder(URL serverUrl) {
+            ServerUrlValidator.validateServerURL(serverUrl);
             mClient = new DracoonClientImpl(serverUrl);
             mHttpConfig = new DracoonHttpConfig();
         }

@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.oauth;
 
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import com.dracoon.sdk.DracoonHttpConfig;
@@ -21,7 +22,7 @@ public class OAuthClient {
 
     private static final String LOG_TAG = OAuthClient.class.getSimpleName();
 
-    private String mServerUrl;
+    private URL mServerUrl;
     private String mClientId;
     private String mClientSecret;
 
@@ -32,7 +33,7 @@ public class OAuthClient {
     private OAuthErrorParser mOAuthErrorParser;
     private HttpHelper mHttpHelper;
 
-    public OAuthClient(String serverUrl, String clientId, String clientSecret) {
+    public OAuthClient(URL serverUrl, String clientId, String clientSecret) {
         mServerUrl = serverUrl;
         mClientId = clientId;
         mClientSecret = clientSecret;
@@ -65,7 +66,7 @@ public class OAuthClient {
         Gson gson = new GsonBuilder().create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(mServerUrl)
+                .baseUrl(mServerUrl.toString())
                 .client(httpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();

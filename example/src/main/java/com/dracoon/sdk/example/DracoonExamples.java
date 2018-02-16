@@ -25,6 +25,7 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,7 +48,7 @@ public class DracoonExamples {
     public static void main(String[] args) throws Exception {
         DracoonAuth auth = new DracoonAuth(ACCESS_TOKEN);
 
-        DracoonClient client = new DracoonClient.Builder(SERVER_URL)
+        DracoonClient client = new DracoonClient.Builder(new URL(SERVER_URL))
                 .log(new Logger(Log.DEBUG))
                 .auth(auth)
                 .encryptionPassword(ENCRYPTION_PASSWORD)
