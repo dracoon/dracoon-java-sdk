@@ -10,10 +10,14 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.mapper.ShareMapper;
 import com.dracoon.sdk.internal.model.ApiCreateDownloadShareRequest;
+import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadShare;
+import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.validator.ShareValidator;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
+import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.DownloadShare;
+import com.dracoon.sdk.model.UploadShare;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -32,7 +36,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         boolean isEncrypted = mClient.getNodesImpl().isNodeEncrypted(request.getNodeId());
 
-        ShareValidator.validateCreateRequest(request, isEncrypted);
+        ShareValidator.validateCreateDownloadRequest(request, isEncrypted);
 
         UserKeyPair userKeyPair = null;
         EncryptedFileKey userEncFileKey = null;
@@ -69,6 +73,31 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         ApiDownloadShare data = response.body();
 
         return ShareMapper.fromApiDownloadShare(data);
+    }
+
+    @Override
+    public UploadShare createUploadShare(CreateUploadShareRequest request)
+            throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        ShareValidator.validateCreateUploadRequest(request);
+
+        String auth = mClient.buildAuthString();
+        ApiCreateUploadShareRequest apiRequest = ShareMapper.toApiCreateUploadShareRequest(request);
+        Call<ApiUploadShare> call = mService.createUploadShare(auth, apiRequest);
+        Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUploadShareCreateError(response);
+            String errorText = String.format("Creation of upload share for node '%d' failed " +
+                    "with '%s'!", request.getTargetNodeId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiUploadShare data = response.body();
+
+        return ShareMapper.fromApiUploadShare(data);
     }
 
 }

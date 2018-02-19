@@ -10,6 +10,7 @@ import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
@@ -22,6 +23,7 @@ import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
+import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
@@ -132,14 +134,14 @@ public abstract class DracoonClient {
     }
 
     /**
-     * Handler to maintain the users.
+     * Handler to maintain users.
      */
     public interface Users {
 
     }
 
     /**
-     * Handler to maintain the groups.
+     * Handler to maintain groups.
      */
     public interface Groups {
 
@@ -479,14 +481,14 @@ public abstract class DracoonClient {
     }
 
     /**
-     * Handler to maintain the shares.
+     * Handler to maintain shares.
      */
     public interface Shares {
 
         /**
-         * Creates a download share for a node.
+         * Creates a download share.
          *
-         * @param request The request with the target node ID and the download share settings.
+         * @param request The request with the node ID and the download share settings.
          *
          * @return the download share
          *
@@ -497,6 +499,19 @@ public abstract class DracoonClient {
          */
         DownloadShare createDownloadShare(CreateDownloadShareRequest request)
                 throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
+
+        /**
+         * Creates an upload share.
+         *
+         * @param request The request with the target node ID and the upload share settings.
+         *
+         * @return the upload share
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        UploadShare createUploadShare(CreateUploadShareRequest request)
+                throws DracoonNetIOException, DracoonApiException;
 
     }
 

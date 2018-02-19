@@ -62,7 +62,7 @@ public class DownloadShare {
     /**
      * Sets the node ID of the download share.
      *
-     * @param nodeId The ID.
+     * @param nodeId The node ID.
      */
     public void setNodeId(Long nodeId) {
         mNodeId = nodeId;

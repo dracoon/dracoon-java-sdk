@@ -6,6 +6,7 @@ import com.dracoon.sdk.internal.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadShare;
@@ -22,6 +23,7 @@ import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import okhttp3.MultipartBody;
@@ -162,5 +164,9 @@ public interface DracoonService {
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
                                                @Body ApiCreateDownloadShareRequest request);
+
+    @POST(API_PATH + "/shares/uploads")
+    Call<ApiUploadShare> createUploadShare(@Header(AUTHORIZATION_HEADER) String token,
+                                           @Body ApiCreateUploadShareRequest request);
 
 }

@@ -10,6 +10,7 @@ import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
@@ -22,6 +23,7 @@ import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
+import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
@@ -63,7 +65,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        listNodes(client);
+        //listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -88,6 +90,7 @@ public class DracoonExamples {
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
+        createUploadShare(client);
 
         //generateMissingFileKeys(client);
         //generateMissingFileKeysForOneNode(client);
@@ -401,6 +404,24 @@ public class DracoonExamples {
         DownloadShare dlShare = client.shares().createDownloadShare(request);
         System.out.println(String.format("Download share: id=%d, access_key=%s", dlShare.getId(),
                 dlShare.getAccessKey()));
+    }
+
+    private static void createUploadShare(DracoonClient client) throws DracoonException {
+        long targetNodeId = 1L;
+
+        CreateUploadShareRequest request = new CreateUploadShareRequest.Builder(targetNodeId)
+                .name("Test Upload Share")
+                .notes("This is a note.")
+                .expirationDate(new Date(1861916400000L))
+                .filesExpirationPeriod(10)
+                .showUploadedFiles(true)
+                .notifyCreator(true)
+                .accessPassword("secret")
+                .build();
+
+        UploadShare ulShare = client.shares().createUploadShare(request);
+        System.out.println(String.format("Upload share: id=%d, access_key=%s", ulShare.getId(),
+                ulShare.getAccessKey()));
     }
 
     private static void generateMissingFileKeys(DracoonClient client) throws DracoonException {
