@@ -5,7 +5,7 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.DracoonClientImpl;
-import com.dracoon.sdk.internal.validator.ServerUrlValidator;
+import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
@@ -613,7 +613,7 @@ public abstract class DracoonClient {
          * @param serverUrl The URL of the Dracoon server.
          */
         public Builder(URL serverUrl) {
-            ServerUrlValidator.validateServerURL(serverUrl);
+            ValidatorUtils.validateServerURL(serverUrl);
             mClient = new DracoonClientImpl(serverUrl);
             mHttpConfig = new DracoonHttpConfig();
         }

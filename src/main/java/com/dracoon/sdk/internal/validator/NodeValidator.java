@@ -17,24 +17,18 @@ public class NodeValidator extends BaseValidator {
     }
 
     public static void validateDeleteRequest(DeleteNodesRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Nodes delete request cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("Nodes delete request", request);
         validateNodeIds(request.getIds());
     }
 
     public static void validateCopyRequest(CopyNodesRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Nodes copy request cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("Nodes copy request", request);
         validateNodeId(request.getTargetNodeId());
         validateNodeIds(request.getSourceNodeIds());
     }
 
     public static void validateMoveRequest(MoveNodesRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Nodes move request cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("Nodes move request", request);
         validateNodeId(request.getTargetNodeId());
         validateNodeIds(request.getSourceNodeIds());
     }
@@ -43,9 +37,7 @@ public class NodeValidator extends BaseValidator {
         if (id != 0L) {
             BaseValidator.validateParentNodeId(id);
         }
-        if (searchString == null || searchString.isEmpty()) {
-            throw new IllegalArgumentException("Search string cannot be null or empty.");
-        }
+        ValidatorUtils.validateString("Search string", searchString, false);
     }
 
 }

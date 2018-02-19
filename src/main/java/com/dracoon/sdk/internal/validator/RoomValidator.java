@@ -6,9 +6,7 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 public class RoomValidator extends BaseValidator {
 
     public static void validateCreateRequest(CreateRoomRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Room creation request cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("Room creation request", request);
         if (request.getParentId() != null) {
             validateParentNodeId(request.getParentId());
         }
@@ -28,9 +26,7 @@ public class RoomValidator extends BaseValidator {
     }
 
     public static void validateUpdateRequest(UpdateRoomRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Room update request cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("Room update request", request);
         if (request.getName() != null) {
             validateName(request.getName());
         }

@@ -8,23 +8,15 @@ import java.io.File;
 public class FileValidator extends BaseValidator {
 
     public static void validateUploadRequest(String id, FileUploadRequest request, File file) {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Upload ID cannot be null.");
-        }
-        if (request == null) {
-            throw new IllegalArgumentException("Upload request cannot be null.");
-        }
+        ValidatorUtils.validateString("Upload ID", id, false);
+        ValidatorUtils.validateNotNull("Upload request", request);
         validateParentNodeId(request.getParentId());
         validateName(request.getName());
-        if (file == null) {
-            throw new IllegalArgumentException("Upload file cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("Upload file", file);
     }
 
     public static void validateUpdateRequest(UpdateFileRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("File update request cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("File update request", request);
         validateFileId(request.getId());
         if (request.getName() != null) {
             validateName(request.getName());

@@ -8,7 +8,7 @@ import java.util.Map;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.internal.oauth.OAuthConstants;
 import com.dracoon.sdk.internal.oauth.OAuthErrorParser;
-import com.dracoon.sdk.internal.validator.ServerUrlValidator;
+import com.dracoon.sdk.internal.validator.ValidatorUtils;
 
 /**
  * The Dracoon SDK uses OAuth 2.0 for client authorization. See <a href="https://tools.ietf.org/
@@ -41,7 +41,9 @@ public class OAuthHelper {
      * @return the authorization URL
      */
     public static String createAuthorizationUrl(URL serverUrl, String clientId, String state) {
-        ServerUrlValidator.validateServerURL(serverUrl);
+        ValidatorUtils.validateServerURL(serverUrl);
+        ValidatorUtils.validateString("Client ID", clientId, false);
+        ValidatorUtils.validateString("State", clientId, false);
 
         String base = serverUrl + OAuthConstants.OAUTH_PATH + OAuthConstants.OAUTH_AUTHORIZE_PATH;
 
@@ -80,6 +82,8 @@ public class OAuthHelper {
 
     private static String extractAuthorizationDataFromUri(URI uri, String name)
             throws DracoonApiException {
+        ValidatorUtils.validateNotNull("Redirect URI", uri);
+
         String query = uri.getQuery();
         Map<String, String> queryParams = parseQuery(query);
 

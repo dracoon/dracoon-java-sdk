@@ -6,9 +6,7 @@ public class ShareValidator extends BaseValidator {
 
     public static void validateCreateRequest(CreateDownloadShareRequest request,
             boolean isEncrypted) {
-        if (request == null) {
-            throw new IllegalArgumentException("Download share creation request cannot be null.");
-        }
+        ValidatorUtils.validateNotNull("Download share creation request", request);
         validateNodeId(request.getNodeId());
         if (request.getName() != null) {
             validateName(request.getName());

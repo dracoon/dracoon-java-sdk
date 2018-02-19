@@ -5,63 +5,63 @@ import java.util.List;
 public class BaseValidator {
 
     protected static void validateNodeId(Long id) {
-        validateId(id, "Node");
+        ValidatorUtils.validateId("Node", id);
     }
 
     protected static void validateNodeIds(List<Long> ids) {
-        validateIds(ids, "Node");
+        ValidatorUtils.validateIds("Node", ids);
     }
 
     protected static void validateParentNodeId(Long id) {
-        validateId(id, "Parent node");
+        ValidatorUtils.validateId("Parent node", id);
     }
 
     protected static void validateRoomId(Long id) {
-        validateId(id, "Room");
+        ValidatorUtils.validateId("Room", id);
     }
 
     protected static void validateFolderId(Long id) {
-        validateId(id, "Folder");
+        ValidatorUtils.validateId("Folder", id);
     }
 
     protected static void validateFileId(Long id) {
-        validateId(id, "File");
+        ValidatorUtils.validateId("File", id);
     }
 
     protected static void validateUserId(Long id) {
-        validateId(id, "User");
+        ValidatorUtils.validateId("User", id);
     }
 
     protected static void validateUserIds(List<Long> ids) {
-        validateIds(ids, "User");
+        ValidatorUtils.validateIds("User", ids);
     }
 
     protected static void validateGroupId(Long id) {
-        validateId(id, "Group");
+        ValidatorUtils.validateId("Group", id);
     }
 
     protected static void validateGroupIds(List<Long> ids) {
-        validateIds(ids, "Group");
+        ValidatorUtils.validateIds("Group", ids);
     }
 
     protected static void validateAccessPassword(String password) {
-        validateString(password, "Access password");
+        ValidatorUtils.validateString("Access password", password, false);
     }
 
     protected static void validateEncryptionPassword(String password) {
-        validateString(password, "Encryption password");
+        ValidatorUtils.validateString("Encryption password", password, false);
     }
 
     protected static void validateMaxDownloads(Integer maxDownloads) {
-        validatePositiveNumber(maxDownloads, "Maximum downloads");
+        ValidatorUtils.validatePositiveNumber("Maximum downloads", maxDownloads, false);
     }
 
     protected static void validateName(String name) {
-        validateString(name, "Name");
+        ValidatorUtils.validateString("Name", name, false);
     }
 
     protected static void validateEmailAddress(String address) {
-        validateString(address, "Email address");
+        ValidatorUtils.validateString("Email address", address, false);
     }
 
     protected static void validateEmailAddresses(List<String> addresses) {
@@ -77,15 +77,15 @@ public class BaseValidator {
     }
 
     protected static void validateEmailSubject(String subject) {
-        validateString(subject, "Email subject");
+        ValidatorUtils.validateString("Email subject", subject, false);
     }
 
     protected static void validateEmailBody(String body) {
-        validateString(body, "Email body");
+        ValidatorUtils.validateString("Email body", body, false);
     }
 
     protected static void validatePhoneNumber(String number) {
-        validateString(number, "Phone number");
+        ValidatorUtils.validateString("Phone number", number, false);
     }
 
     protected static void validatePhoneNumbers(List<String> numbers) {
@@ -101,58 +101,11 @@ public class BaseValidator {
     }
 
     protected static void validateQuota(Long quota) {
-        if (quota == null) {
-            return;
-        }
-        if (quota < 0) {
-            throw new IllegalArgumentException("Quota cannot be negative.");
-        }
+        ValidatorUtils.validatePositiveNumber("Quota", quota, true);
     }
 
     protected static void validatePeriod(Integer period) {
-        if (period == null) {
-            return;
-        }
-        if (period < 0) {
-            throw new IllegalArgumentException("Period cannot be negative.");
-        }
-    }
-
-    private static void validateId(Long id, String type) {
-        if (id == null) {
-            throw new IllegalArgumentException(type + " ID cannot be null.");
-        }
-        if (id <= 0L) {
-            throw new IllegalArgumentException(type + " ID cannot be negative or 0.");
-        }
-    }
-
-    private static void validateIds(List<Long> ids, String type) {
-        if (ids == null) {
-            throw new IllegalArgumentException(type + " IDs cannot be null.");
-        }
-        if (ids.isEmpty()) {
-            throw new IllegalArgumentException(type + " IDs cannot be empty.");
-        }
-        ids.forEach(id -> validateId(id, type));
-    }
-
-    private static void validateString(String string, String type) {
-        if (string == null) {
-            throw new IllegalArgumentException(type + " cannot be null.");
-        }
-        if (string.isEmpty()) {
-            throw new IllegalArgumentException(type + " cannot be empty.");
-        }
-    }
-
-    private static void validatePositiveNumber(Integer number, String type) {
-        if (number == null) {
-            throw new IllegalArgumentException(type + " cannot be null.");
-        }
-        if (number <= 0) {
-            throw new IllegalArgumentException(type + " cannot be negative or 0.");
-        }
+        ValidatorUtils.validatePositiveNumber("Period", period, true);
     }
 
 }

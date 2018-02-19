@@ -1,5 +1,7 @@
 package com.dracoon.sdk;
 
+import com.dracoon.sdk.internal.validator.ValidatorUtils;
+
 /**
  * The Dracoon SDK uses OAuth 2.0 for client authorization. See <a href="https://tools.ietf.org/
  * html/rfc6749">RFC 6749</a> for a detailed description of OAuth 2.0. Because OAuth can be
@@ -34,7 +36,7 @@ package com.dracoon.sdk;
  * String clientSecret, String accessToken, String refreshToken)})<br>
  *   This mode can be used to obtain access and refresh token yourself.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class DracoonAuth {
 
     /**
@@ -43,7 +45,7 @@ public class DracoonAuth {
     public enum Mode {
         AUTHORIZATION_CODE,
         ACCESS_TOKEN,
-        ACCESS_REFRESH_TOKEN;
+        ACCESS_REFRESH_TOKEN
     }
 
     private Mode mMode;
@@ -63,11 +65,11 @@ public class DracoonAuth {
      */
     public DracoonAuth(String clientId, String clientSecret, String authorizationCode) {
         mMode = Mode.AUTHORIZATION_CODE;
-        validateParameter("Client ID", clientId, false);
+        ValidatorUtils.validateString("Client ID", clientId, false);
         mClientId = clientId;
-        validateParameter("Client secret", clientSecret, false);
+        ValidatorUtils.validateString("Client secret", clientSecret, false);
         mClientSecret = clientSecret;
-        validateParameter("Authorization code", clientSecret, false);
+        ValidatorUtils.validateString("Authorization code", clientSecret, false);
         mAuthorizationCode = authorizationCode;
     }
 
@@ -78,7 +80,7 @@ public class DracoonAuth {
      */
     public DracoonAuth(String accessToken) {
         mMode = Mode.ACCESS_TOKEN;
-        validateParameter("Access token", accessToken, false);
+        ValidatorUtils.validateString("Access token", accessToken, false);
         mAccessToken = accessToken;
     }
 
@@ -93,13 +95,13 @@ public class DracoonAuth {
     public DracoonAuth(String clientId, String clientSecret, String accessToken,
             String refreshToken) {
         mMode = Mode.ACCESS_REFRESH_TOKEN;
-        validateParameter("Client ID", clientId, false);
+        ValidatorUtils.validateString("Client ID", clientId, false);
         mClientId = clientId;
-        validateParameter("Client secret", clientSecret, false);
+        ValidatorUtils.validateString("Client secret", clientSecret, false);
         mClientSecret = clientSecret;
-        validateParameter("Access token", accessToken, false);
+        ValidatorUtils.validateString("Access token", accessToken, false);
         mAccessToken = accessToken;
-        validateParameter("Refresh token", refreshToken, true);
+        ValidatorUtils.validateString("Refresh token", refreshToken, true);
         mRefreshToken = refreshToken;
     }
 
@@ -157,17 +159,6 @@ public class DracoonAuth {
      */
     public String getRefreshToken() {
         return mRefreshToken;
-    }
-
-    // --- Helper methods ---
-
-    private static void validateParameter(String name, String value, boolean nullable) {
-        if (value == null && !nullable) {
-            throw new IllegalArgumentException(name + " cannot be null.");
-        }
-        if (value != null && value.isEmpty()) {
-            throw new IllegalArgumentException(name + " cannot be empty.");
-        }
     }
 
 }
