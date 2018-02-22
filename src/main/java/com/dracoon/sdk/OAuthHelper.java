@@ -18,11 +18,11 @@ import com.dracoon.sdk.internal.validator.ValidatorUtils;
  * <br>
  * The class provides methods to:<br>
  * - Create the authorization URL (Which must be opened user's browser.)
- * ({@link OAuthHelper#createAuthorizationUrl(URL, String, String)})<br>
- * - Extract authorization state from redirect URL
- * ({@link OAuthHelper#extractAuthorizationStateFromUri(URI)})<br>
- * - Extract authorization code from redirect URL
- * ({@link OAuthHelper#extractAuthorizationCodeFromUri(URI)})<br>
+ * ({@link #createAuthorizationUrl(URL serverUrl, String clientId, String state)})<br>
+ * - Extract authorization state from redirect URI
+ * ({@link #extractAuthorizationStateFromUri(URI uri)})<br>
+ * - Extract authorization code from redirect URI
+ * ({@link #extractAuthorizationCodeFromUri(URI uri)})<br>
  */
 @SuppressWarnings("unused")
 public class OAuthHelper {
@@ -34,9 +34,9 @@ public class OAuthHelper {
     /**
      * Creates the authorization URL which must be open in the user's browser.
      *
-     * @param serverUrl   The URL of the Dracoon server.
-     * @param clientId    The ID of the OAuth client.
-     * @param state       The state identifier which is used to track running authorizations.
+     * @param serverUrl The URL of the Dracoon server.
+     * @param clientId  The ID of the OAuth client.
+     * @param state     The state identifier which is used to track running authorizations.
      *
      * @return the authorization URL
      */

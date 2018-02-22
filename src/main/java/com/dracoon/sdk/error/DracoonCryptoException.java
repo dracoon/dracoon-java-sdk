@@ -35,7 +35,7 @@ public class DracoonCryptoException extends DracoonException {
      *
      * @param code  The error code.
      * @param cause The cause (which is saved for later retrieval by the
-     *              {@link #getCause()} method). (A {@code null} value is permitted, and
+     *              {@link #getCause()} method). (A <code>null</code> value is permitted, and
      *              indicates that the cause is nonexistent or unknown.)
      */
     public DracoonCryptoException(DracoonCryptoCode code, Throwable cause) {

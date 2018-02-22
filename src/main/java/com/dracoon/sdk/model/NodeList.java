@@ -6,9 +6,8 @@ import java.util.List;
  * Node list model.<br>
  * <br>
  * This model stores a list of nodes. The list may be a paginated response.
- * {@link NodeList#getOffset() Offset} and {@link NodeList#getLimit() limit} can be used to get the
- * start and length of the page. {@link NodeList#getTotal() Total} can be used to get the total
- * number of items.
+ * {@link #getOffset() Offset} and {@link #getLimit() limit} can be used to get the start and length
+ * of the page. {@link #getTotal() Total} can be used to get the total number of items.
  *
  * @see com.dracoon.sdk.model.Node
  */

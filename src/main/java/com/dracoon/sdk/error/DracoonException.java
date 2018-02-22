@@ -13,7 +13,7 @@ public class DracoonException extends Exception {
     private static final long serialVersionUID = 5642720416433996541L;
 
     /**
-     * Constructs a new exception with {@code null} as its detail message. The cause is not
+     * Constructs a new exception with <code>null</code> as its detail message. The cause is not
      * initialized, and may subsequently be initialized by a call to {@link #initCause}.
      */
     public DracoonException() {
@@ -37,7 +37,7 @@ public class DracoonException extends Exception {
      * @param message The detail message (which is saved for later retrieval by the
      *                {@link #getMessage()} method).
      * @param cause The cause (which is saved for later retrieval by the
-     *              {@link #getCause()} method). (A {@code null} value is permitted, and
+     *              {@link #getCause()} method). (A <code>null</code> value is permitted, and
      *              indicates that the cause is nonexistent or unknown.)
      */
     public DracoonException(String message, Throwable cause) {

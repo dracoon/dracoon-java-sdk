@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Request to create a new download share.<br>
  * <br>
- * A new instance can be created with {@link CreateDownloadShareRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class CreateDownloadShareRequest {
@@ -180,18 +180,18 @@ public class CreateDownloadShareRequest {
      * This builder creates new instances of {@link CreateDownloadShareRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Node ID (mandatory):     {@link Builder#Builder(Long)}<br>
-     * - Name:                    {@link Builder#name(String)}<br>
-     * - Notes:                   {@link Builder#notes(String)}<br>
-     * - Expiration date:         {@link Builder#expirationDate(Date)}<br>
-     * - Show creator name:       {@link Builder#showCreatorName(Boolean)}<br>
-     * - Show creator user name:  {@link Builder#showCreatorUserName(Boolean)}<br>
-     * - Notify creator:          {@link Builder#notifyCreator(Boolean)}<br>
-     * - Max downloads:           {@link Builder#maxDownloads(Integer)}<br>
-     * - Access Password:         {@link Builder#accessPassword(String)}<br>
-     * - Encryption Password:     {@link Builder#encryptionPassword(String)}<br>
-     * - Email notification data: {@link Builder#sendEmail(List, String, String)}<br>
-     * - SMS notification data:   {@link Builder#sendSms(List)}
+     * - Node ID (mandatory):     {@link #Builder(Long)}<br>
+     * - Name:                    {@link #name(String)}<br>
+     * - Notes:                   {@link #notes(String)}<br>
+     * - Expiration date:         {@link #expirationDate(Date)}<br>
+     * - Show creator name:       {@link #showCreatorName(Boolean)}<br>
+     * - Show creator user name:  {@link #showCreatorUserName(Boolean)}<br>
+     * - Notify creator:          {@link #notifyCreator(Boolean)}<br>
+     * - Max downloads:           {@link #maxDownloads(Integer)}<br>
+     * - Access Password:         {@link #accessPassword(String)}<br>
+     * - Encryption Password:     {@link #encryptionPassword(String)}<br>
+     * - Email notification data: {@link #sendEmail(List, String, String)}<br>
+     * - SMS notification data:   {@link #sendSms(List)}
      */
     public static class Builder {
 

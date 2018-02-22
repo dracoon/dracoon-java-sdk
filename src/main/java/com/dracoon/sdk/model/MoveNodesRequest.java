@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Request to move nodes.<br>
  * <br>
- * A new instance can be created with {@link MoveNodesRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class MoveNodesRequest {
@@ -50,9 +50,9 @@ public class MoveNodesRequest {
      * This builder creates new instances of {@link MoveNodesRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Target node ID (mandatory):   {@link Builder#Builder(Long)}<br>
-     * - Source node IDs               {@link Builder#addSourceNodeId(Long)}<br>
-     * - Conflict resolution strategy: {@link Builder#resolutionStrategy(ResolutionStrategy)}<br>
+     * - Target node ID (mandatory):   {@link #Builder(Long)}<br>
+     * - Source node IDs               {@link #addSourceNodeId(Long)}<br>
+     * - Conflict resolution strategy: {@link #resolutionStrategy(ResolutionStrategy)}<br>
      * (Default: AUTO_RENAME)
      */
     public static class Builder {

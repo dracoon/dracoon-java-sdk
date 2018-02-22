@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Request to delete nodes.<br>
  * <br>
- * A new instance can be created with {@link DeleteNodesRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class DeleteNodesRequest {
@@ -29,7 +29,7 @@ public class DeleteNodesRequest {
      * This builder creates new instances of {@link DeleteNodesRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Node IDs (mandatory): {@link Builder#Builder(List)}<br>
+     * - Node IDs (mandatory): {@link #Builder(List)}<br>
      */
     public static class Builder {
 

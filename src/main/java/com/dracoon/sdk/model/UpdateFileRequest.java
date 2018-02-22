@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Request to update a file.<br>
  * <br>
- * A new instance can be created with {@link UpdateFileRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class UpdateFileRequest {
@@ -69,11 +69,11 @@ public class UpdateFileRequest {
      * This builder creates new instances of {@link UpdateFileRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Node ID (mandatory): {@link Builder#Builder(Long)}<br>
-     * - Name:                {@link Builder#name(String)}<br>
-     * - Classification:      {@link Builder#classification(Classification)}<br>
-     * - Notes:               {@link Builder#notes(String)}<br>
-     * - Expiration date:     {@link Builder#expirationDate(Date)}
+     * - Node ID (mandatory): {@link #Builder(Long)}<br>
+     * - Name:                {@link #name(String)}<br>
+     * - Classification:      {@link #classification(Classification)}<br>
+     * - Notes:               {@link #notes(String)}<br>
+     * - Expiration date:     {@link #expirationDate(Date)}
      */
     public static class Builder {
 

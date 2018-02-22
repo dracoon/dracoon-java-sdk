@@ -85,7 +85,7 @@ public class Node {
     /**
      * Returns the ID of the parent node of the node, if node is not a root node.
      *
-     * @return the ID, or null
+     * @return the ID, or <code>null</code>
      */
     public Long getParentId() {
         return mParentId;
@@ -139,7 +139,7 @@ public class Node {
     /**
      * Returns the extension of the node, if the node is a file.
      *
-     * @return the extension, or null
+     * @return the extension, or <code>null</code>
      */
     public String getExtension() {
         return mExtension;
@@ -157,7 +157,7 @@ public class Node {
     /**
      * Returns the MIME type of the node, if the node is a file.
      *
-     * @return the MIME type, or null
+     * @return the MIME type, or <code>null</code>
      */
     public String getMediaType() {
         return mMediaType;
@@ -193,7 +193,7 @@ public class Node {
     /**
      * Returns the quota on the node, if node is a room and has quota.
      *
-     * @return the quota in bytes, or null
+     * @return the quota in bytes, or <code>null</code>
      */
     public Long getQuota() {
         return mQuota;
@@ -229,7 +229,7 @@ public class Node {
     /**
      * Returns the notes which are attached to the node, if node has notes.
      *
-     * @return the notes, or null
+     * @return the notes, or <code>null</code>
      */
     public String getNotes() {
         return mNotes;
@@ -247,7 +247,7 @@ public class Node {
     /**
      * Returns the MD5 hash of the node, if the node is a file.
      *
-     * @return the MD5 hash, or null
+     * @return the MD5 hash, or <code>null</code>
      */
     public String getHash() {
         return mHash;
@@ -265,7 +265,7 @@ public class Node {
     /**
      * Returns the expire date of the node, if node is a file and has a expire date.
      *
-     * @return the expire date, or null
+     * @return the expire date, or <code>null</code>
      */
     public Date getExpireAt() {
         return mExpireAt;
@@ -356,7 +356,7 @@ public class Node {
      * Returns <code>true</code> if node inherits permissions of the parent node. (Only for rooms.)
      *
      * @return <code>true</code> if node inherits permissions of the parent node; <code>false</code>
-     *         otherwise; null for folders and files
+     *         otherwise; <code>null</code> for folders and files
      */
     public Boolean hasInheritPermissions() {
         return mHasInheritPermissions;
@@ -431,7 +431,7 @@ public class Node {
     /**
      * Returns the number of child nodes of the node, if node is a room or folder.
      *
-     * @return the number of child nodes, or null
+     * @return the number of child nodes, or <code>null</code>
      */
     public Integer getCntChildren() {
         return mCntChildren;
@@ -468,7 +468,7 @@ public class Node {
      * Returns <code>true</code> if node has recycle bin enabled. (Only for rooms.)
      *
      * @return <code>true</code> if node has recycle bin enabled; <code>false</code> otherwise;
-     *         null for folders and files
+     *         <code>null</code> for folders and files
      */
     public Boolean hasRecycleBin() {
         return mHasRecycleBin;
@@ -487,7 +487,7 @@ public class Node {
     /**
      * Returns the recycle bin retention period of the node, if node is a room.
      *
-     * @return the recycle bin retention period, or null
+     * @return the recycle bin retention period, or <code>null</code>
      */
     public Integer getRecycleBinRetentionPeriod() {
         return mRecycleBinRetentionPeriod;
@@ -505,7 +505,7 @@ public class Node {
     /**
      * Returns the number of download shares on the node, if node is a file.
      *
-     * @return the number of download shares, or null
+     * @return the number of download shares, or <code>null</code>
      */
     public Integer getCntDownloadShares() {
         return mCntDownloadShares;
@@ -523,7 +523,7 @@ public class Node {
     /**
      * Returns the number of upload shares on the node, if node is a room or folder.
      *
-     * @return the number of upload shares, or null
+     * @return the number of upload shares, or <code>null</code>
      */
     public Integer getCntUploadShares() {
         return mCntUploadShares;

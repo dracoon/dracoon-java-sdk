@@ -89,7 +89,7 @@ public class DownloadShare {
     /**
      * Returns the name of the download share, if download share has a name.
      *
-     * @return the name, or null
+     * @return the name, or <code>null</code>
      */
     public String getName() {
         return mName;
@@ -125,7 +125,7 @@ public class DownloadShare {
     /**
      * Returns the notes which are attached to the download share, if download share has notes.
      *
-     * @return the notes, or null
+     * @return the notes, or <code>null</code>
      */
     public String getNotes() {
         return mNotes;
@@ -143,7 +143,7 @@ public class DownloadShare {
     /**
      * Returns the expire date of the download share, if download share has a expire date.
      *
-     * @return the expire date, or null
+     * @return the expire date, or <code>null</code>
      */
     public Date getExpireAt() {
         return mExpireAt;

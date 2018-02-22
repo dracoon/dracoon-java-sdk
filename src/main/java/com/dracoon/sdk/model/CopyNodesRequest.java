@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Request to copy nodes.<br>
  * <br>
- * A new instance can be created with {@link CopyNodesRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class CopyNodesRequest {
@@ -50,10 +50,10 @@ public class CopyNodesRequest {
      * This builder creates new instances of {@link CopyNodesRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Target node ID (mandatory):   {@link Builder#Builder(Long)}<br>
-     * - Source node IDs               {@link Builder#addSourceNodeId(Long)}<br>
-     * - Conflict resolution strategy: {@link Builder#resolutionStrategy(ResolutionStrategy)}<br>
-     * (Default: AUTO_RENAME)
+     * - Target node ID (mandatory):   {@link #Builder(Long)}<br>
+     * - Source node IDs               {@link #addSourceNodeId(Long)}<br>
+     * - Conflict resolution strategy: {@link #resolutionStrategy(ResolutionStrategy)}<br>
+     * (Default: <code>AUTO_RENAME</code>)
      */
     public static class Builder {
 

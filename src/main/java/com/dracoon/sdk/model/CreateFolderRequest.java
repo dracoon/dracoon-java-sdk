@@ -3,7 +3,7 @@ package com.dracoon.sdk.model;
 /**
  * Request to create a new folder.<br>
  * <br>
- * A new instance can be created with {@link CreateFolderRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class CreateFolderRequest {
@@ -47,9 +47,9 @@ public class CreateFolderRequest {
      * This builder creates new instances of {@link CreateFolderRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Parent node ID (mandatory): {@link Builder#Builder(Long, String)}<br>
-     * - Name (mandatory):           {@link Builder#Builder(Long, String)}<br>
-     * - Notes:                      {@link Builder#notes(String)}
+     * - Parent node ID (mandatory): {@link #Builder(Long, String)}<br>
+     * - Name (mandatory):           {@link #Builder(Long, String)}<br>
+     * - Notes:                      {@link #notes(String)}
      */
     public static class Builder {
 

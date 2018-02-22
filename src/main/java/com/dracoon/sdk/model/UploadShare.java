@@ -88,7 +88,7 @@ public class UploadShare {
     /**
      * Returns the name of the up share, if up share has a name.
      *
-     * @return the name, or null
+     * @return the name, or <code>null</code>
      */
     public String getName() {
         return mName;
@@ -106,7 +106,7 @@ public class UploadShare {
     /**
      * Returns the notes which are attached to the up share, if up share has notes.
      *
-     * @return the notes, or null
+     * @return the notes, or <code>null</code>
      */
     public String getNotes() {
         return mNotes;
@@ -124,7 +124,7 @@ public class UploadShare {
     /**
      * Returns the expire date of the up share, if up share has a expire date.
      *
-     * @return the expire date, or null
+     * @return the expire date, or <code>null</code>
      */
     public Date getExpireAt() {
         return mExpireAt;
@@ -143,7 +143,7 @@ public class UploadShare {
      * Returns the expire period of files of the upload share, if upload share has a expire period
      * of files.
      *
-     * @return the expire period of files, or null
+     * @return the expire period of files, or <code>null</code>
      */
     public Integer getFilesExpirePeriod() {
         return mFilesExpirePeriod;

@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Request to upload a file.<br>
  * <br>
- * A new instance can be created with {@link FileUploadRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class FileUploadRequest {
@@ -79,14 +79,14 @@ public class FileUploadRequest {
      * This builder creates new instances of {@link FileUploadRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Parent node ID (mandatory):   {@link Builder#Builder(Long, String)}<br>
-     * - Name (mandatory):             {@link Builder#Builder(Long, String)}<br>
-     * - Conflict resolution strategy: {@link Builder#resolutionStrategy(ResolutionStrategy)}<br>
+     * - Parent node ID (mandatory):   {@link #Builder(Long, String)}<br>
+     * - Name (mandatory):             {@link #Builder(Long, String)}<br>
+     * - Conflict resolution strategy: {@link #resolutionStrategy(ResolutionStrategy)}<br>
      * (Default: AUTO_RENAME)<br>
-     * - Classification:               {@link Builder#classification(Classification)}<br>
+     * - Classification:               {@link #classification(Classification)}<br>
      * (Default: PUBLIC)<br>
-     * - Notes:                        {@link Builder#notes(String)}<br>
-     * - Expiration date:              {@link Builder#expirationDate(Date)}
+     * - Notes:                        {@link #notes(String)}<br>
+     * - Expiration date:              {@link #expirationDate(Date)}
      */
     public static class Builder {
 

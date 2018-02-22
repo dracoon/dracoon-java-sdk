@@ -8,7 +8,7 @@ public class DracoonNetIOInterruptedException extends DracoonNetIOException {
     private static final long serialVersionUID = 4537171225954265678L;
 
     /**
-     * Constructs a new exception with {@code null} as its detail message. The cause is not
+     * Constructs a new exception with <code>null</code> as its detail message. The cause is not
      * initialized, and may subsequently be initialized by a call to {@link #initCause}.
      */
     public DracoonNetIOInterruptedException() {
@@ -32,7 +32,7 @@ public class DracoonNetIOInterruptedException extends DracoonNetIOException {
      * @param message The detail message (which is saved for later retrieval by the
      *                {@link #getMessage()} method).
      * @param cause The cause (which is saved for later retrieval by the
-     *              {@link #getCause()} method). (A {@code null} value is permitted, and
+     *              {@link #getCause()} method). (A <code>null</code> value is permitted, and
      *              indicates that the cause is nonexistent or unknown.)
      */
     public DracoonNetIOInterruptedException(String message, Throwable cause) {

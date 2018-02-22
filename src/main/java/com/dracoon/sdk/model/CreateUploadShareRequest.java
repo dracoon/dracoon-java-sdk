@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Request to create a new Upload share.<br>
  * <br>
- * A new instance can be created with {@link CreateUploadShareRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class CreateUploadShareRequest {
@@ -160,16 +160,16 @@ public class CreateUploadShareRequest {
      * This builder creates new instances of {@link CreateUploadShareRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Target Node ID (mandatory): {@link Builder#Builder(Long)}<br>
-     * - Name:                       {@link Builder#name(String)}<br>
-     * - Notes:                      {@link Builder#notes(String)}<br>
-     * - Expiration date:            {@link Builder#expirationDate(Date)}<br>
-     * - Files expiration period:    {@link Builder#filesExpirationPeriod(Integer)}<br>
-     * - Show uploaded files:        {@link Builder#showUploadedFiles(Boolean)}<br>
-     * - Notify creator:             {@link Builder#notifyCreator(Boolean)}<br>
-     * - Access Password:            {@link Builder#accessPassword(String)}<br>
-     * - Email notification data:    {@link Builder#sendEmail(List, String, String)}<br>
-     * - SMS notification data:      {@link Builder#sendSms(List)}
+     * - Target Node ID (mandatory): {@link #Builder(Long)}<br>
+     * - Name:                       {@link #name(String)}<br>
+     * - Notes:                      {@link #notes(String)}<br>
+     * - Expiration date:            {@link #expirationDate(Date)}<br>
+     * - Files expiration period:    {@link #filesExpirationPeriod(Integer)}<br>
+     * - Show uploaded files:        {@link #showUploadedFiles(Boolean)}<br>
+     * - Notify creator:             {@link #notifyCreator(Boolean)}<br>
+     * - Access Password:            {@link #accessPassword(String)}<br>
+     * - Email notification data:    {@link #sendEmail(List, String, String)}<br>
+     * - SMS notification data:      {@link #sendSms(List)}
      */
     public static class Builder {
 

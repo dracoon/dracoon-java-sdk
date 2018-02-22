@@ -3,7 +3,7 @@ package com.dracoon.sdk.model;
 /**
  * Request to update a room.<br>
  * <br>
- * A new instance can be created with {@link UpdateRoomRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class UpdateRoomRequest {
@@ -57,10 +57,10 @@ public class UpdateRoomRequest {
      * This builder creates new instances of {@link UpdateRoomRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Node ID (mandatory): {@link Builder#Builder(Long)}<br>
-     * - Name:                {@link Builder#name(String)}<br>
-     * - Quota:               {@link Builder#quota(Long)}<br>
-     * - Notes:               {@link Builder#notes(String)}
+     * - Node ID (mandatory): {@link #Builder(Long)}<br>
+     * - Name:                {@link #name(String)}<br>
+     * - Quota:               {@link #quota(Long)}<br>
+     * - Notes:               {@link #notes(String)}
      */
     public static class Builder {
 

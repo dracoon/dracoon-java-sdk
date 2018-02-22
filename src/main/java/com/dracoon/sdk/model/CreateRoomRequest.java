@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Request to create a new room.<br>
  * <br>
- * A new instance can be created with {@link CreateRoomRequest.Builder Builder}.
+ * A new instance can be created with {@link Builder}.
  */
 @SuppressWarnings("unused")
 public class CreateRoomRequest {
@@ -116,16 +116,16 @@ public class CreateRoomRequest {
      * This builder creates new instances of {@link CreateRoomRequest}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Name (mandatory):             {@link Builder#Builder(String)}<br>
-     * - Parent node ID:               {@link Builder#parentId(Long)}<br>
-     * - Quota:                        {@link Builder#quota(Long)}<br>
-     * - Notes:                        {@link Builder#notes(String)}<br>
-     * - Recycle bin:                  {@link Builder#hasRecycleBin(Boolean)}<br>
-     * - Recycle bin retention period: {@link Builder#recycleBinRetentionPeriod(Integer)}<br>
-     * - Permission inheritance:       {@link Builder#hasInheritPermissions(Boolean)}<br>
-     * - Admin user IDs:               {@link Builder#adminUserIds(List)}<br>
-     * - Admin group IDs:              {@link Builder#adminGroupIds(List)}<br>
-     * - Group member acceptance       {@link Builder#newGroupMemberAcceptance(GroupMemberAcceptance)}
+     * - Name (mandatory):             {@link #Builder(String)}<br>
+     * - Parent node ID:               {@link #parentId(Long)}<br>
+     * - Quota:                        {@link #quota(Long)}<br>
+     * - Notes:                        {@link #notes(String)}<br>
+     * - Recycle bin:                  {@link #hasRecycleBin(Boolean)}<br>
+     * - Recycle bin retention period: {@link #recycleBinRetentionPeriod(Integer)}<br>
+     * - Permission inheritance:       {@link #hasInheritPermissions(Boolean)}<br>
+     * - Admin user IDs:               {@link #adminUserIds(List)}<br>
+     * - Admin group IDs:              {@link #adminGroupIds(List)}<br>
+     * - Group member acceptance       {@link #newGroupMemberAcceptance(GroupMemberAcceptance)}
      */
     public static class Builder {
 
@@ -206,7 +206,7 @@ public class CreateRoomRequest {
         /**
          * Enables/disables permission inheritance on the new room.
          *
-         * @param hasInheritPermissions code>true</code> to enable permission inheritance; otherwise
+         * @param hasInheritPermissions <code>true</code> to enable permission inheritance; otherwise
          *                              <code>false</code>.
          *
          * @return a reference to this object

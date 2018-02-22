@@ -44,7 +44,7 @@ import java.util.Date;
  *                            upload/download files, ...<br>
  * - {@link Shares Shares}:   Not implemented yet<br>
  * <br>
- * New client instances can be created via {@link Builder Builder}.
+ * New client instances can be created via {@link Builder}.
  */
 @SuppressWarnings("unused")
 public abstract class DracoonClient {
@@ -155,7 +155,7 @@ public abstract class DracoonClient {
         /**
          * Retrieves child nodes of a node.<br>
          * <br>
-         * Use parent node ID <code>0</code> to retrieve root nodes.
+         * Use parent node ID 0 to retrieve root nodes.
          *
          * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
          *
@@ -170,7 +170,7 @@ public abstract class DracoonClient {
          * Retrieves child nodes of a node. The arguments {@code offset} and {@code limit} restrict
          * the result to a specific range.<br>
          * <br>
-         * Use parent node ID <code>0</code> to retrieve root nodes.
+         * Use parent node ID 0 to retrieve root nodes.
          *
          * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
          * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
@@ -313,7 +313,7 @@ public abstract class DracoonClient {
          * @param request  The request with information about the file.
          * @param file     The source file.
          * @param callback A callback which get called when the upload was started, finished and
-         *                 so on. (Null, if not needed.)
+         *                 so on. (<code>null</code>, if not needed.)
          *
          * @return the new node
          *
@@ -333,7 +333,7 @@ public abstract class DracoonClient {
          * @param request  The request with information about the file.
          * @param file     The source file.
          * @param callback A callback which get called when the upload was started, finished and
-         *                 so on. (Null, if not needed.)
+         *                 so on. (<code>null</code>, if not needed.)
          *
          * @throws DracoonFileIOException If a file error occurred.
          * @throws DracoonCryptoException If the encryption failed.
@@ -358,7 +358,7 @@ public abstract class DracoonClient {
          * @param nodeId   The ID of the node.
          * @param file     The target file.
          * @param callback A callback which get called when the download was started, finished and
-         *                 so on. (Null, if not needed.)
+         *                 so on. (<code>null</code>, if not needed.)
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
@@ -376,7 +376,7 @@ public abstract class DracoonClient {
          * @param nodeId   The ID of the node.
          * @param file     The target file.
          * @param callback A callback which get called when the download was started, finished and
-         *                 so on. (Null, if not needed.)
+         *                 so on. (<code>null</code>, if not needed.)
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
@@ -611,11 +611,11 @@ public abstract class DracoonClient {
      * This builder creates new instances of {@link DracoonClient}.<br>
      * <br>
      * Following properties can be set:<br>
-     * - Server URL (mandatory): {@link Builder#Builder(URL)}<br>
-     * - Logger:                 {@link Builder#log(Log)}<br>
-     * - Authorization data:     {@link Builder#auth(DracoonAuth)}<br>
-     * - Encryption password:    {@link Builder#encryptionPassword(String)}<br>
-     * - HTTP configuration:     {@link Builder#httpConfig(DracoonHttpConfig)}
+     * - Server URL (mandatory): {@link #Builder(URL)}<br>
+     * - Logger:                 {@link #log(Log)}<br>
+     * - Authorization data:     {@link #auth(DracoonAuth)}<br>
+     * - Encryption password:    {@link #encryptionPassword(String)}<br>
+     * - HTTP configuration:     {@link #httpConfig(DracoonHttpConfig)}
      */
     public static class Builder {
 

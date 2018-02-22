@@ -13,7 +13,7 @@ import com.dracoon.sdk.internal.validator.ValidatorUtils;
  * <br>
  * Following three modes are supported:<br>
  * <br>
- * - Authorization Code Mode: ({@link DracoonAuth#DracoonAuth(String clientId, String clientSecret,
+ * - Authorization Code Mode: ({@link #DracoonAuth(String clientId, String clientSecret,
  * String authorizationCode)})<br>
  *   This is the most common mode. Your application must request authorization and obtain an
  *   authorization code and the retrieval of the access and refresh tokens with the authorization
@@ -28,11 +28,11 @@ import com.dracoon.sdk.internal.validator.ValidatorUtils;
  *   (You can use {@link OAuthHelper} to create the Authorization URL which must be opened in the
  *   user's browser or web view and to extract the state and code from the redirect URI.)<br>
  * <br>
- * - Access Token Mode: ({@link DracoonAuth#DracoonAuth(String accessToken)})<br>
+ * - Access Token Mode: ({@link #DracoonAuth(String accessToken)})<br>
  *   This is a simple mode. You can use it at the development or for terminal applications and
  *   scripts where a specific user account is used.<br>
  * <br>
- * - Access and Refresh Token Mode: ({@link DracoonAuth#DracoonAuth(String clientId,
+ * - Access and Refresh Token Mode: ({@link #DracoonAuth(String clientId,
  * String clientSecret, String accessToken, String refreshToken)})<br>
  *   This mode can be used to obtain access and refresh token yourself.
  */
