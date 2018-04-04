@@ -546,6 +546,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonFileIOException {
         assertServerApiVersion();
 
+        FileValidator.validateDownloadRequest(id, file);
+
         OutputStream os = getFileOutputStream(file);
 
         downloadFileInternally(id, nodeId, os, callback);
@@ -556,6 +558,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
         assertServerApiVersion();
+
+        FileValidator.validateDownloadRequest(id, os);
 
         downloadFileInternally(id, nodeId, os, callback);
     }
@@ -588,6 +592,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonCryptoException, DracoonFileIOException {
         assertServerApiVersion();
 
+        FileValidator.validateDownloadRequest(id, file);
+
         OutputStream os = getFileOutputStream(file);
 
         startDownloadFileAsyncInternally(id, nodeId, os, callback);
@@ -598,6 +604,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
         assertServerApiVersion();
+
+        FileValidator.validateDownloadRequest(id, os);
 
         startDownloadFileAsyncInternally(id, nodeId, os, callback);
     }
