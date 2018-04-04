@@ -27,6 +27,8 @@ import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Date;
 
@@ -327,6 +329,27 @@ public abstract class DracoonClient {
                 DracoonNetIOException, DracoonApiException;
 
         /**
+         * Uploads a file.
+         *
+         * @param id       A ID for the upload. (This ID can be used to keep a reference.)
+         * @param request  The request with information about the file.
+         * @param is       The source stream.
+         * @param length   The length of the source stream.
+         * @param callback A callback which get called when the upload was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @return the new node
+         *
+         * @throws DracoonFileIOException If a file error occurred.
+         * @throws DracoonCryptoException If the encryption failed.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         */
+        Node uploadFile(String id, FileUploadRequest request, InputStream is, long length,
+                FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
+                DracoonNetIOException, DracoonApiException;
+
+        /**
          * Starts an asynchronous file upload.
          *
          * @param id       ID for the upload. (This ID can be used to keep a reference.)
@@ -343,6 +366,24 @@ public abstract class DracoonClient {
         void startUploadFileAsync(String id, FileUploadRequest request, File file,
                 FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
                 DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Starts an asynchronous file upload.
+         *
+         * @param id       ID for the upload. (This ID can be used to keep a reference.)
+         * @param request  The request with information about the file.
+         * @param is       The source stream.
+         * @param length   The length of the source stream.
+         * @param callback A callback which get called when the upload was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @throws DracoonCryptoException If the encryption failed.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         */
+        void startUploadFileAsync(String id, FileUploadRequest request, InputStream is, long length,
+                FileUploadCallback callback) throws DracoonCryptoException, DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Cancels an asynchronous file upload.
@@ -370,6 +411,24 @@ public abstract class DracoonClient {
                 DracoonCryptoException, DracoonFileIOException;
 
         /**
+         * Downloads a file.
+         *
+         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param nodeId   The ID of the node.
+         * @param os       The target stream.
+         * @param callback A callback which get called when the download was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If the decryption failed.
+         * @throws DracoonFileIOException If a file error occurred.
+         */
+        void downloadFile(String id, long nodeId, OutputStream os,
+                FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException, DracoonFileIOException;
+
+        /**
          * Starts an asynchronous file download.
          *
          * @param id       ID for the download. (This ID can be used to keep a reference.)
@@ -386,6 +445,23 @@ public abstract class DracoonClient {
         void startDownloadFileAsync(String id, long nodeId, File file,
                 FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
                 DracoonCryptoException, DracoonFileIOException;
+
+        /**
+         * Starts an asynchronous file download.
+         *
+         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param nodeId   The ID of the node.
+         * @param os       The target stream.
+         * @param callback A callback which get called when the download was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If the decryption failed.
+         */
+        void startDownloadFileAsync(String id, long nodeId, OutputStream os,
+                FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
 
         /**
          * Cancels an asynchronous file download.

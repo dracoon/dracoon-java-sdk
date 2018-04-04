@@ -412,6 +412,23 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         InputStream is = getFileInputStream(file);
         long length = file.length();
 
+        return uploadFileInternally(id, request, is, length, callback);
+    }
+
+    @Override
+    public Node uploadFile(String id, FileUploadRequest request, InputStream is, long length,
+            FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        FileValidator.validateUploadRequest(id, request, is);
+
+        return uploadFileInternally(id, request, is, length, callback);
+    }
+
+    private Node uploadFileInternally(String id, FileUploadRequest request, InputStream is,
+            long length, FileUploadCallback callback) throws DracoonFileIOException,
+            DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
         UserPublicKey userPublicKey = null;
         if (isEncryptedUpload) {
@@ -442,6 +459,23 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         InputStream is = getFileInputStream(file);
         long length = file.length();
 
+        startUploadFileAsyncInternally(id, request, is, length, callback);
+    }
+
+    @Override
+    public void startUploadFileAsync(String id, FileUploadRequest request, InputStream is,
+            long length, FileUploadCallback callback) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        FileValidator.validateUploadRequest(id, request, is);
+
+        startUploadFileAsyncInternally(id, request, is, length, callback);
+    }
+
+    private void startUploadFileAsyncInternally(String id, FileUploadRequest request, InputStream is,
+            long length, FileUploadCallback callback) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
         UserPublicKey userPublicKey = null;
         if (isEncryptedUpload) {
@@ -512,14 +546,29 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonFileIOException {
         assertServerApiVersion();
 
+        OutputStream os = getFileOutputStream(file);
+
+        downloadFileInternally(id, nodeId, os, callback);
+    }
+
+    @Override
+    public void downloadFile(String id, long nodeId, OutputStream os, FileDownloadCallback callback)
+            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
+            DracoonFileIOException {
+        assertServerApiVersion();
+
+        downloadFileInternally(id, nodeId, os, callback);
+    }
+
+    private void downloadFileInternally(String id, long nodeId, OutputStream os,
+            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException, DracoonFileIOException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         UserPrivateKey userPrivateKey = null;
         if (isEncryptedDownload) {
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
             userPrivateKey = userKeyPair.getUserPrivateKey();
         }
-
-        OutputStream os = getFileOutputStream(file);
 
         FileDownload download;
         if (isEncryptedDownload) {
@@ -536,17 +585,32 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void startDownloadFileAsync(String id, long nodeId, File file,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
-            DracoonFileIOException, DracoonCryptoException {
+            DracoonCryptoException, DracoonFileIOException {
         assertServerApiVersion();
 
+        OutputStream os = getFileOutputStream(file);
+
+        startDownloadFileAsyncInternally(id, nodeId, os, callback);
+    }
+
+    @Override
+    public void startDownloadFileAsync(String id, long nodeId, OutputStream os,
+            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
+        assertServerApiVersion();
+
+        startDownloadFileAsyncInternally(id, nodeId, os, callback);
+    }
+
+    private void startDownloadFileAsyncInternally(String id, long nodeId, OutputStream os,
+            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         UserPrivateKey userPrivateKey = null;
         if (isEncryptedDownload) {
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
             userPrivateKey = userKeyPair.getUserPrivateKey();
         }
-
-        OutputStream os = getFileOutputStream(file);
 
         FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
             @Override
