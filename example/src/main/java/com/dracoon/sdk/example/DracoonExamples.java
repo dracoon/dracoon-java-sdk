@@ -5,6 +5,9 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.NodeNameFilter;
+import com.dracoon.sdk.filter.NodeTypeFilter;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -20,6 +23,7 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.NodeType;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
@@ -73,6 +77,8 @@ public class DracoonExamples {
         //getNodeByPath(client);
         //getNodeByPathNotFound(client);
 
+        getNodesWithFilter(client);
+
         //createRoom(client);
         //updateRoom(client);
         //createFolder(client);
@@ -90,7 +96,7 @@ public class DracoonExamples {
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
-        createUploadShare(client);
+        //createUploadShare(client);
 
         //generateMissingFileKeys(client);
         //generateMissingFileKeysForOneNode(client);
@@ -163,13 +169,13 @@ public class DracoonExamples {
     }
 
     private static void getNode(DracoonClient client) throws DracoonException {
-        Node node = client.nodes().getNode(1);
+        Node node = client.nodes().getNode(1L);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
     private static void getNodeNotFound(DracoonClient client) throws DracoonException {
         try {
-            client.nodes().getNode(123456789);
+            client.nodes().getNode(123456789L);
         } catch (DracoonApiException e) {
             System.err.println("Failed to query node: " + e.getCode().getText());
         }
@@ -185,6 +191,20 @@ public class DracoonExamples {
             client.nodes().getNode("/not-existing");
         } catch (DracoonApiException e) {
             System.err.println("Failed to query node: " + e.getCode().getText());
+        }
+    }
+
+    private static void getNodesWithFilter(DracoonClient client) throws DracoonException {
+        GetNodesFilters filters = new GetNodesFilters();
+        filters.addNodeTypeFilter(new NodeTypeFilter.Builder()
+                .eq(NodeType.ROOM).or().eq(NodeType.FOLDER).build());
+        filters.addNodeNameFilter(new NodeNameFilter.Builder()
+                .cn("Test").build());
+
+        NodeList nodeList = client.nodes().getNodes(0L, filters);
+        System.out.println("Nodes:");
+        for (Node node : nodeList.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
         }
     }
 

@@ -16,6 +16,8 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.filter.Filters;
+import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
@@ -86,23 +88,36 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public NodeList getNodes(long parentNodeId) throws DracoonNetIOException,
             DracoonApiException {
-        return getNodesInternally(parentNodeId, null, null);
+        return getNodesInternally(parentNodeId, null, null, null);
+    }
+
+    @Override
+    public NodeList getNodes(long parentNodeId, GetNodesFilters filters)
+            throws DracoonNetIOException, DracoonApiException {
+        return getNodesInternally(parentNodeId, filters, null, null);
     }
 
     @Override
     public NodeList getNodes(long parentNodeId, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
-        return getNodesInternally(parentNodeId, offset, limit);
+        return getNodesInternally(parentNodeId, null, offset, limit);
     }
 
-    private NodeList getNodesInternally(long parentNodeId, Long offset, Long limit)
+    @Override
+    public NodeList getNodes(long parentNodeId, GetNodesFilters filters, long offset, long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        return getNodesInternally(parentNodeId, filters, offset, limit);
+    }
+
+    private NodeList getNodesInternally(long parentNodeId, Filters filters, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
         NodeValidator.validateGetChildRequest(parentNodeId);
 
         String auth = mClient.buildAuthString();
-        Call<ApiNodeList> call = mService.getNodes(auth, parentNodeId, 0, null, null,
+        String filter = filters != null ? filters.toString() : null;
+        Call<ApiNodeList> call = mService.getNodes(auth, parentNodeId, 0, filter, null,
                 offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 

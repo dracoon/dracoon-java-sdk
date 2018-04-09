@@ -4,6 +4,7 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CopyNodesRequest;
@@ -169,6 +170,22 @@ public abstract class DracoonClient {
         NodeList getNodes(long parentNodeId) throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Retrieves child nodes of a node.<br>
+         * <br>
+         * Use parent node ID 0 to retrieve root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param filters      The filters to apply.
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getNodes(long parentNodeId, GetNodesFilters filters) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
          * Retrieves child nodes of a node. The arguments {@code offset} and {@code limit} restrict
          * the result to a specific range.<br>
          * <br>
@@ -184,6 +201,25 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         NodeList getNodes(long parentNodeId, long offset, long limit)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves child nodes of a node. The arguments {@code offset} and {@code limit} restrict
+         * the result to a specific range.<br>
+         * <br>
+         * Use parent node ID 0 to retrieve root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param filters      The filters to apply.
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getNodes(long parentNodeId, GetNodesFilters filters, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
 
         /**
