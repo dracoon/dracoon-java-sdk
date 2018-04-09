@@ -88,7 +88,7 @@ public class DracoonExamples {
         //updateFile(client);
         //deleteNodes(client);
         //copyNodes(client);
-        //moveNodes(client);
+        moveNodes(client);
 
         //uploadFile(client);
         //downloadFile(client);
@@ -96,7 +96,7 @@ public class DracoonExamples {
         //searchNodes(client);
         //searchNodesPaged(client);
 
-        searchNodesWithFilter(client);
+        //searchNodesWithFilter(client);
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
@@ -273,9 +273,9 @@ public class DracoonExamples {
 
     private static void copyNodes(DracoonClient client) throws DracoonException {
         CopyNodesRequest request = new CopyNodesRequest.Builder(1L)
-                .addSourceNodeId(2L)
-                .addSourceNodeId(3L)
-                .addSourceNodeId(4L)
+                .addSourceNode(2L)
+                .addSourceNode(3L)
+                .addSourceNode(4L)
                 .build();
         Node node = client.nodes().copyNodes(request);
         System.out.println("id=" + node.getId() + ", size=" + node.getSize());
@@ -283,9 +283,9 @@ public class DracoonExamples {
 
     private static void moveNodes(DracoonClient client) throws DracoonException {
         MoveNodesRequest request = new MoveNodesRequest.Builder(1L)
-                .addSourceNodeId(2L)
-                .addSourceNodeId(3L)
-                .addSourceNodeId(4L)
+                .addSourceNode(2L)
+                .addSourceNode(3L)
+                .addSourceNode(4L)
                 .build();
         Node node = client.nodes().moveNodes(request);
         System.out.println("id=" + node.getId() + ", size=" + node.getSize());

@@ -1,7 +1,9 @@
 package com.dracoon.sdk.internal.mapper;
 
+import com.dracoon.sdk.internal.model.ApiCopyNode;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
+import com.dracoon.sdk.internal.model.ApiMoveNode;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
@@ -15,6 +17,7 @@ import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NodeMapper {
 
@@ -92,14 +95,34 @@ public class NodeMapper {
 
     public static ApiCopyNodesRequest toApiCopyNodesRequest(CopyNodesRequest request) {
         ApiCopyNodesRequest apiRequest = new ApiCopyNodesRequest();
-        apiRequest.nodeIds = request.getSourceNodeIds().toArray(new Long[0]);
+        List<CopyNodesRequest.SourceNode> sourceNodes = request.getSourceNodes();
+        apiRequest.nodeIds = new Long[sourceNodes.size()];
+        apiRequest.items = new ApiCopyNode[sourceNodes.size()];
+        for (int i = 0; i < sourceNodes.size(); i++) {
+            CopyNodesRequest.SourceNode sourceNode = sourceNodes.get(i);
+            apiRequest.nodeIds[i] = sourceNode.getId();
+            ApiCopyNode copyNode = new ApiCopyNode();
+            copyNode.id = sourceNode.getId();
+            copyNode.name = sourceNode.getName();
+            apiRequest.items[i] = copyNode;
+        }
         apiRequest.resolutionStrategy = request.getResolutionStrategy().getValue();
         return apiRequest;
     }
 
     public static ApiMoveNodesRequest toApiMoveNodesRequest(MoveNodesRequest request) {
         ApiMoveNodesRequest apiRequest = new ApiMoveNodesRequest();
-        apiRequest.nodeIds = request.getSourceNodeIds().toArray(new Long[0]);
+        List<MoveNodesRequest.SourceNode> sourceNodes = request.getSourceNodes();
+        apiRequest.nodeIds = new Long[sourceNodes.size()];
+        apiRequest.items = new ApiMoveNode[sourceNodes.size()];
+        for (int i = 0; i < sourceNodes.size(); i++) {
+            MoveNodesRequest.SourceNode sourceNode = sourceNodes.get(i);
+            apiRequest.nodeIds[i] = sourceNode.getId();
+            ApiMoveNode moveNode = new ApiMoveNode();
+            moveNode.id = sourceNode.getId();
+            moveNode.name = sourceNode.getName();
+            apiRequest.items[i] = moveNode;
+        }
         apiRequest.resolutionStrategy = request.getResolutionStrategy().getValue();
         return apiRequest;
     }

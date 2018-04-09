@@ -24,13 +24,23 @@ public class NodeValidator extends BaseValidator {
     public static void validateCopyRequest(CopyNodesRequest request) {
         ValidatorUtils.validateNotNull("Nodes copy request", request);
         validateNodeId(request.getTargetNodeId());
-        validateNodeIds(request.getSourceNodeIds());
+        for (CopyNodesRequest.SourceNode sourceNode : request.getSourceNodes()) {
+            validateNodeId(sourceNode.getId());
+            if (sourceNode.getName() != null) {
+                validateName(sourceNode.getName());
+            }
+        }
     }
 
     public static void validateMoveRequest(MoveNodesRequest request) {
         ValidatorUtils.validateNotNull("Nodes move request", request);
         validateNodeId(request.getTargetNodeId());
-        validateNodeIds(request.getSourceNodeIds());
+        for (MoveNodesRequest.SourceNode sourceNode : request.getSourceNodes()) {
+            validateNodeId(sourceNode.getId());
+            if (sourceNode.getName() != null) {
+                validateName(sourceNode.getName());
+            }
+        }
     }
 
     public static void validateSearchRequest(long id, String searchString) {

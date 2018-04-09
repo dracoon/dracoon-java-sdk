@@ -11,8 +11,45 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class CopyNodesRequest {
 
+    /**
+     * This model class stores information about a node which should be copied.
+     */
+    public static class SourceNode {
+
+        private Long mId;
+        private String mName;
+
+        SourceNode(Long id) {
+            mId = id;
+        }
+
+        SourceNode(Long id, String name) {
+            mId = id;
+            mName = name;
+        }
+
+        /**
+         * Returns the ID of the source node.
+         *
+         * @return the ID of the source node
+         */
+        public Long getId() {
+            return mId;
+        }
+
+        /**
+         * Returns the new name of the source node.
+         *
+         * @return the new name of the source node
+         */
+        public String getName() {
+            return mName;
+        }
+
+    }
+
     private Long mTargetNodeId;
-    private List<Long> mSourceNodeIds;
+    private List<SourceNode> mSourceNodes;
     private ResolutionStrategy mResolutionStrategy;
 
     private CopyNodesRequest() {
@@ -29,12 +66,12 @@ public class CopyNodesRequest {
     }
 
     /**
-     * Returns the IDs of the source nodes which should be copied.
+     * Returns information about the source nodes which should be moved.
      *
-     * @return the IDs of the source nodes
+     * @return information about the source nodes
      */
-    public List<Long> getSourceNodeIds() {
-        return mSourceNodeIds;
+    public List<SourceNode> getSourceNodes() {
+        return mSourceNodes;
     }
 
     /**
@@ -51,7 +88,8 @@ public class CopyNodesRequest {
      * <br>
      * Following properties can be set:<br>
      * - Target node ID (mandatory):   {@link #Builder(Long)}<br>
-     * - Source node IDs               {@link #addSourceNodeId(Long)}<br>
+     * - Source nodes information:     {@link #addSourceNode(Long)},
+     *                                 {@link #addSourceNode(Long, String)}<br>
      * - Conflict resolution strategy: {@link #resolutionStrategy(ResolutionStrategy)}<br>
      * (Default: <code>AUTO_RENAME</code>)
      */
@@ -68,19 +106,32 @@ public class CopyNodesRequest {
         public Builder(Long targetNodeId) {
             mRequest = new CopyNodesRequest();
             mRequest.mTargetNodeId = targetNodeId;
-            mRequest.mSourceNodeIds = new ArrayList<>();
+            mRequest.mSourceNodes = new ArrayList<>();
             mRequest.mResolutionStrategy = ResolutionStrategy.AUTO_RENAME;
         }
 
         /**
-         * Adds the ID of a node which should be copied.
+         * Adds information about a node which should be copied.
          *
-         * @param sourceNodeId The ID of a node.
+         * @param sourceNodeId The ID of the node.
          *
          * @return a reference to this object
          */
-        public Builder addSourceNodeId(Long sourceNodeId) {
-            mRequest.mSourceNodeIds.add(sourceNodeId);
+        public Builder addSourceNode(Long sourceNodeId) {
+            mRequest.mSourceNodes.add(new SourceNode(sourceNodeId));
+            return this;
+        }
+
+        /**
+         * Adds information about a node which should be copied.
+         *
+         * @param sourceNodeId The ID of the node.
+         * @param newNodeName  The new name of the the node.
+         *
+         * @return a reference to this object
+         */
+        public Builder addSourceNode(Long sourceNodeId, String newNodeName) {
+            mRequest.mSourceNodes.add(new SourceNode(sourceNodeId, newNodeName));
             return this;
         }
 
