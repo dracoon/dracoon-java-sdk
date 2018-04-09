@@ -5,9 +5,11 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.filter.FavoriteStatusFilter;
 import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.NodeNameFilter;
 import com.dracoon.sdk.filter.NodeTypeFilter;
+import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -77,7 +79,7 @@ public class DracoonExamples {
         //getNodeByPath(client);
         //getNodeByPathNotFound(client);
 
-        getNodesWithFilter(client);
+        //getNodesWithFilter(client);
 
         //createRoom(client);
         //updateRoom(client);
@@ -93,6 +95,8 @@ public class DracoonExamples {
 
         //searchNodes(client);
         //searchNodesPaged(client);
+
+        searchNodesWithFilter(client);
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
@@ -388,6 +392,19 @@ public class DracoonExamples {
         NodeList nodeList2 = client.nodes().searchNodes(parentNodeId, searchString, 4, 4);
         System.out.println("Nodes search page 2:");
         for (Node node : nodeList2.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+    }
+
+    private static void searchNodesWithFilter(DracoonClient client) throws DracoonException {
+        long parentNodeId = 0L;
+        String searchString = "*";
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addFavoriteStatusFilter(new FavoriteStatusFilter.Builder()
+                .eq(true).build());
+
+        NodeList nodeList = client.nodes().searchNodes(parentNodeId, searchString, filters);
+        for (Node node : nodeList.getItems()) {
             System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
         }
     }

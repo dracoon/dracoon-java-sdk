@@ -18,6 +18,7 @@ import com.dracoon.sdk.error.DracoonFileNotFoundException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.filter.Filters;
 import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
@@ -695,24 +696,38 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public NodeList searchNodes(long parentNodeId, String searchString)
             throws DracoonNetIOException, DracoonApiException {
-        return searchNodesInternally(parentNodeId, searchString, null, null);
+        return searchNodesInternally(parentNodeId, searchString, null, null, null);
+    }
+
+    @Override
+    public NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters)
+            throws DracoonNetIOException, DracoonApiException {
+        return searchNodesInternally(parentNodeId, searchString, filters, null, null);
     }
 
     @Override
     public NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
-        return searchNodesInternally(parentNodeId, searchString, offset, limit);
+        return searchNodesInternally(parentNodeId, searchString, null, offset, limit);
     }
 
-    private NodeList searchNodesInternally(long parentNodeId, String searchString, Long offset,
-            Long limit) throws DracoonNetIOException, DracoonApiException {
+    @Override
+    public NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters,
+            long offset, long limit) throws DracoonNetIOException, DracoonApiException {
+        return searchNodesInternally(parentNodeId, searchString, filters, offset, limit);
+    }
+
+    private NodeList searchNodesInternally(long parentNodeId, String searchString,
+            SearchNodesFilters filters, Long offset, Long limit) throws DracoonNetIOException,
+            DracoonApiException {
         assertServerApiVersion();
 
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
 
         String auth = mClient.buildAuthString();
-        Call<ApiNodeList> call = mService.searchNodes(auth, searchString, parentNodeId, -1,
-                null, null, offset, limit);
+        String filter = filters != null ? filters.toString() : null;
+        Call<ApiNodeList> call = mService.searchNodes(auth, searchString, parentNodeId, -1, filter,
+                null, offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

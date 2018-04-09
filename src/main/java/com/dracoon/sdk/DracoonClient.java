@@ -5,6 +5,7 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CopyNodesRequest;
@@ -523,6 +524,23 @@ public abstract class DracoonClient {
                 throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Searches child nodes of a node by their name.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to search in all root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param searchString The search string. (Search string must not be empty.)
+         * @param filters      The filters to apply.
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
          * Searches child nodes of a node by their name. The arguments {@code offset} and
          * {@code limit} restrict the result to a specific range.<br>
          * <br>
@@ -540,6 +558,26 @@ public abstract class DracoonClient {
          */
         NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Searches child nodes of a node by their name. The arguments {@code offset} and
+         * {@code limit} restrict the result to a specific range.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to search in all root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param searchString The search string. (Search string must not be empty.)
+         * @param filters      The filters to apply.
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters,
+                long offset, long limit) throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Generates file keys for files with missing file keys.
