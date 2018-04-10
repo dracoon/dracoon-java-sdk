@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal.model;
 
+import java.util.Date;
+
 public class ApiUserAccount {
     public Long id;
     public String title;
@@ -16,11 +18,11 @@ public class ApiUserAccount {
     public Boolean needsToChangePassword;
 
     public Integer lockStatus;
-    public String expireAt;
+    public Date expireAt;
 
-    public String lastLoginSuccessAt;
+    public Date lastLoginSuccessAt;
     public String lastLoginSuccessIp;
-    public String lastLoginFailAt;
+    public Date lastLoginFailAt;
     public String lastLoginFailIp;
 
     public ApiUserRoleList userRoles;

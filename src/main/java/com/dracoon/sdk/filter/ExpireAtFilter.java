@@ -1,7 +1,8 @@
 package com.dracoon.sdk.filter;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import com.dracoon.sdk.internal.util.DateUtils;
 
 /**
  * Filter for restricting API requests by expire date. (Time information is ignored.)
@@ -10,8 +11,6 @@ public class ExpireAtFilter extends Filter<String> {
 
     private static final String NAME = "expireAt";
     private static final Type TYPE = Type.MULTI_RESTRICTION;
-
-    private static SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private ExpireAtFilter() {
         super(NAME, TYPE);
@@ -35,14 +34,14 @@ public class ExpireAtFilter extends Filter<String> {
         @Override
         protected Concater ge(Date value) {
             validateRestrictionValue(value);
-            mFilter.addValue(GE, sDateFormat.format(value));
+            mFilter.addValue(GE, DateUtils.formatDate(value));
             return new Concater(mFilter);
         }
 
         @Override
         protected Concater le(Date value) {
             validateRestrictionValue(value);
-            mFilter.addValue(LE, sDateFormat.format(value));
+            mFilter.addValue(LE, DateUtils.formatDate(value));
             return new Concater(mFilter);
         }
 

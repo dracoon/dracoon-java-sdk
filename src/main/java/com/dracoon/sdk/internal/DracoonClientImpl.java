@@ -7,9 +7,12 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
+import com.dracoon.sdk.internal.util.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -19,6 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class DracoonClientImpl extends DracoonClient {
@@ -128,9 +132,28 @@ public class DracoonClientImpl extends DracoonClient {
 
     private void initDracoonService() {
         Gson mGson = new GsonBuilder()
-                .registerTypeAdapter(Void.class, (JsonDeserializer<Void>) (json, type, context) ->
-                        null)
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                .registerTypeAdapter(Void.class, new TypeAdapter<Void>() {
+                    @Override
+                    public void write(JsonWriter out, Void value) {
+
+                    }
+
+                    @Override
+                    public Void read(JsonReader in) {
+                        return null;
+                    }
+                })
+                .registerTypeAdapter(Date.class, new TypeAdapter<Date>() {
+                    @Override
+                    public void write(JsonWriter out, Date value) throws IOException {
+                        out.value(DateUtils.formatTime(value));
+                    }
+
+                    @Override
+                    public Date read(JsonReader in) throws IOException {
+                        return DateUtils.parseTime(in.nextString());
+                    }
+                })
                 .create();
 
         Retrofit mRetrofit = new Retrofit.Builder()

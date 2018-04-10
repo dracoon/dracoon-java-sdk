@@ -7,7 +7,6 @@ import com.dracoon.sdk.internal.model.ApiMoveNode;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
-import com.dracoon.sdk.internal.util.DateUtils;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
@@ -62,11 +61,11 @@ public class NodeMapper {
         }
         node.setNotes(apiNode.notes);
         node.setHash(apiNode.hash);
-        node.setExpireAt(DateUtils.parseDate(apiNode.expireAt));
+        node.setExpireAt(apiNode.expireAt);
 
-        node.setCreatedAt(DateUtils.parseDate(apiNode.createdAt));
+        node.setCreatedAt(apiNode.createdAt);
         node.setCreatedBy(UserMapper.fromApiUserInfo(apiNode.createdBy));
-        node.setUpdatedAt(DateUtils.parseDate(apiNode.updatedAt));
+        node.setUpdatedAt(apiNode.updatedAt);
         node.setUpdatedBy(UserMapper.fromApiUserInfo(apiNode.updatedBy));
 
         node.setHasInheritPermissions(apiNode.inheritPermissions);

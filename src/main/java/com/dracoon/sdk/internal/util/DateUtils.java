@@ -3,16 +3,21 @@ package com.dracoon.sdk.internal.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
+
+import com.dracoon.sdk.internal.DracoonConstants;
 
 public class DateUtils {
 
     private static SimpleDateFormat sDateFormat;
+    private static SimpleDateFormat sTimeFormat;
 
     static {
-        sDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-        sDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        sDateFormat = new SimpleDateFormat(DracoonConstants.API_DATE_FORMAT);
+        sDateFormat.setTimeZone(TimeZone.getTimeZone(DracoonConstants.API_TIME_ZONE));
+
+        sTimeFormat = new SimpleDateFormat(DracoonConstants.API_TIME_FORMAT);
+        sTimeFormat.setTimeZone(TimeZone.getTimeZone(DracoonConstants.API_TIME_ZONE));
     }
 
     private DateUtils() {
@@ -38,6 +43,27 @@ public class DateUtils {
         }
 
         return sDateFormat.format(value);
+    }
+
+    public static Date parseTime(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            return sTimeFormat.parse(value);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String formatTime(Date value) {
+        if (value == null) {
+            return null;
+        }
+
+        return sTimeFormat.format(value);
     }
 
 }
