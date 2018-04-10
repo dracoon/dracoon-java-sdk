@@ -1,16 +1,20 @@
 package com.dracoon.sdk;
 
+import com.dracoon.sdk.internal.BuildDetails;
+
 /**
  * DracoonHttpConfig is used to configure HTTP communication options.<br>
  * <br>
  * Following options can be configured:<br>
+ * - User-Agent string             (Default: Java-SDK|[VERSION]|-|-|[BUILD_TIMESTAMP])<br>
  * - Auto-retry of failed requests (Default: disabled)<br>
- * - HTTP connection timeout (Default: 15 seconds)<br>
- * - HTTP read timeout (Default: 15 seconds)<br>
- * - HTTP write timeout (Default: 15 seconds)<br>
+ * - HTTP connection timeout       (Default: 15 seconds)<br>
+ * - HTTP read timeout             (Default: 15 seconds)<br>
+ * - HTTP write timeout            (Default: 15 seconds)
  */
 public class DracoonHttpConfig {
 
+    private String mUserAgent;
     private boolean mRetryEnabled;
     private int mConnectTimeout;
     private int mReadTimeout;
@@ -20,10 +24,29 @@ public class DracoonHttpConfig {
      * Constructs a default HTTP configuration.
      */
     public DracoonHttpConfig() {
+        mUserAgent = buildDefaultUserAgentString();
         mRetryEnabled = false;
         mConnectTimeout = 15;
         mReadTimeout = 15;
         mWriteTimeout = 15;
+    }
+
+    /**
+     * Returns the User-Agent string.
+     *
+     * @return the User-Agent string
+     */
+    public String getUserAgent() {
+        return mUserAgent;
+    }
+
+    /**
+     * Sets the User-Agent string.
+     *
+     * @param userAgent The User-Agent string.
+     */
+    public void setUserAgent(String userAgent) {
+        mUserAgent = userAgent;
     }
 
     /**
@@ -96,6 +119,14 @@ public class DracoonHttpConfig {
      */
     public void setWriteTimeout(int writeTimeout) {
         this.mWriteTimeout = writeTimeout;
+    }
+
+    private static String buildDefaultUserAgentString() {
+        return "Java-SDK" + "|" +
+                BuildDetails.getVersion() + "|" +
+                "-" + "|" +
+                "-" + "|" +
+                BuildDetails.getBuildTimestamp();
     }
 
 }

@@ -10,14 +10,37 @@ import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 public class DracoonClientImpl extends DracoonClient {
+
+    private static class UserAgentInterceptor implements Interceptor {
+
+        private String mUserAgent;
+
+        public UserAgentInterceptor(String userAgent) {
+            mUserAgent = userAgent;
+        }
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request requestWithUserAgent = chain.request().newBuilder()
+                    .header("User-Agent", mUserAgent)
+                    .build();
+
+            return chain.proceed(requestWithUserAgent);
+        }
+
+    }
 
     private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig;
@@ -88,6 +111,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     private void initHttpClient() {
         mHttpClient = new OkHttpClient.Builder()
+                .addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()))
                 .connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS)
                 .readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS)
                 .writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS)
