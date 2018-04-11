@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal;
 
+import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
@@ -62,8 +63,6 @@ public class DracoonClientImpl extends DracoonClient {
     private DracoonNodesImpl mNodes;
     private DracoonSharesImpl mShares;
 
-    private String mOAuthAccessToken;
-    private String mOAuthRefreshToken;
     private long mOAuthLastRefreshTime;
 
     public DracoonClientImpl(URL serverUrl) {
@@ -229,48 +228,55 @@ public class DracoonClientImpl extends DracoonClient {
     // --- OAuth authorization methods ---
 
     public String buildAuthString() throws DracoonApiException, DracoonNetIOException {
-        if (mOAuthAccessToken == null) {
+        // If no authorization information was provided: Abort
+        if (mAuth == null) {
+            return null;
+        }
+
+        // If OAuth tokens haven't been retrieved yet: Retrieve tokens
+        if (mOAuthLastRefreshTime == 0L) {
             retrieveOAuthTokens();
         }
+
+        // If OAuth tokens validity has been exceeded: Refresh tokens
         long nextRefreshTime = mOAuthLastRefreshTime +
                 DracoonConstants.AUTHORIZATION_REFRESH_INTERVAL * 1000;
         long currentTime = System.currentTimeMillis();
         if (nextRefreshTime < currentTime) {
             refreshOAuthTokens();
         }
-        return DracoonConstants.AUTHORIZATION_TYPE + " " + mOAuthAccessToken;
+
+        // Build authorization header string
+        return DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken();
     }
 
     private void retrieveOAuthTokens() throws DracoonNetIOException, DracoonApiException {
-        if (mAuth != null) {
-            switch (mAuth.getMode()) {
-                case ACCESS_TOKEN:
-                    mOAuthAccessToken = mAuth.getAccessToken();
-                    break;
-                case AUTHORIZATION_CODE:
-                    OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getAuthorizationCode());
-                    mOAuthAccessToken = tokens.accessToken;
-                    mOAuthRefreshToken = tokens.refreshToken;
-                    break;
-                case ACCESS_REFRESH_TOKEN:
-                    mOAuthAccessToken = mAuth.getAccessToken();
-                    mOAuthRefreshToken = mAuth.getRefreshToken();
-                    break;
-                default:
-            }
-        } else {
-            mOAuthAccessToken = "";
+        DracoonAuth.Mode mode = mAuth.getMode();
+
+        // If mode AUTHORIZATION_CODE: Retrieve new tokens
+        if (mode.equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
+            OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getAuthorizationCode());
+            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
+                    tokens.accessToken, tokens.refreshToken);
+        // If mode ACCESS_REFRESH_TOKEN and refresh token was provided: Refresh existing tokens
+        } else if (mode.equals(DracoonAuth.Mode.ACCESS_REFRESH_TOKEN) &&
+                mAuth.getRefreshToken() != null) {
+            OAuthTokens tokens = mOAuthClient.refreshAccessToken(mAuth.getRefreshToken());
+            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
+                    tokens.accessToken, tokens.refreshToken);
         }
 
         mOAuthLastRefreshTime = System.currentTimeMillis();
     }
 
     private void refreshOAuthTokens() throws DracoonNetIOException, DracoonApiException {
-        if (mOAuthRefreshToken != null) {
-            OAuthTokens tokens = mOAuthClient.refreshAccessToken(mOAuthRefreshToken);
-            mOAuthAccessToken = tokens.accessToken;
-            mOAuthRefreshToken = tokens.refreshToken;
+        // If a refresh token was provided: Refresh existing tokens
+        if (mAuth.getRefreshToken() != null) {
+            OAuthTokens tokens = mOAuthClient.refreshAccessToken(mAuth.getRefreshToken());
+            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
+                    tokens.accessToken, tokens.refreshToken);
         }
+
         mOAuthLastRefreshTime = System.currentTimeMillis();
     }
 

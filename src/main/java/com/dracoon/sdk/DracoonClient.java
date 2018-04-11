@@ -689,7 +689,10 @@ public abstract class DracoonClient {
     }
 
     /**
-     * Returns the authorization data.
+     * Returns the <b>current</b> authorization data.<br>
+     * <br>
+     * This method can be used to get the current access and refresh tokens after the SDK has
+     * retrieved them with an authorization code or refreshed them with an previous refresh token.
      *
      * @return authorization data
      */
