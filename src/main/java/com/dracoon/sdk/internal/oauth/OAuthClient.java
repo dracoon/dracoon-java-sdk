@@ -60,7 +60,7 @@ public class OAuthClient {
                 .connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS)
                 .readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS)
                 .writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS)
-                .retryOnConnectionFailure(false)
+                .retryOnConnectionFailure(true)
                 .build();
 
         Gson gson = new GsonBuilder().create();

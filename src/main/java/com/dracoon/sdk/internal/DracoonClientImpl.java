@@ -118,7 +118,7 @@ public class DracoonClientImpl extends DracoonClient {
                 .connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS)
                 .readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS)
                 .writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS)
-                .retryOnConnectionFailure(false)
+                .retryOnConnectionFailure(true)
                 .build();
     }
 
