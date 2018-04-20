@@ -508,6 +508,21 @@ public abstract class DracoonClient {
         void cancelDownloadFileAsync(String id);
 
         /**
+         * Creates a file download stream.
+         *
+         * (Encrypted files are currently not supported.)
+         *
+         * @param nodeId The ID of the node.
+         *
+         * @return input stream for requested file
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         */
+        InputStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
          * Searches child nodes of a node by their name.<br>
          * <br>
          * Use parent node ID <code>0</code> to search in all root nodes.

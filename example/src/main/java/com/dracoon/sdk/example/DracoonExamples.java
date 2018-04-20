@@ -33,6 +33,9 @@ import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +50,7 @@ import java.util.List;
  * <br>
  * Notice: For the sake of simplicity error handling is ignored.
  */
+@SuppressWarnings("unused")
 public class DracoonExamples {
 
     private static final String SERVER_URL = "https://dracoon.team";
@@ -73,7 +77,7 @@ public class DracoonExamples {
 
         //listNodes(client);
         //listNodesPaged(client);
-        getNode(client);
+        //getNode(client);
         //getNodeNotFound(client);
 
         //getNodeByPath(client);
@@ -92,6 +96,7 @@ public class DracoonExamples {
 
         //uploadFile(client);
         //downloadFile(client);
+        downloadFileWithStream(client);
 
         //searchNodes(client);
         //searchNodesPaged(client);
@@ -367,6 +372,25 @@ public class DracoonExamples {
         client.nodes().downloadFile("1", nodeId, file, callback);
 
         System.out.println(String.format("Node downloaded: id=%d", nodeId));
+    }
+
+    private static void downloadFileWithStream(DracoonClient client) throws DracoonException,
+            IOException {
+        long nodeId = 1L;
+
+        File file = new File("C:\\temp\\test.txt");
+
+        InputStream is = client.nodes().createFileDownloadStream(nodeId);
+        FileOutputStream os = new FileOutputStream(file);
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = is.read(buffer)) != -1) {
+            os.write(buffer, 0, bytesRead);
+        }
+
+        os.close();
+        is.close();
     }
 
     private static void searchNodes(DracoonClient client) throws DracoonException {

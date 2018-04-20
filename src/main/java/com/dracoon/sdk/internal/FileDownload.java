@@ -9,6 +9,7 @@ import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.internal.util.FileUtils;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -25,7 +26,7 @@ public class FileDownload extends Thread {
 
     private static final String LOG_TAG = FileDownload.class.getSimpleName();
 
-    protected static final int JUNK_SIZE = 2 * 1024 * 1024;
+    protected static final int CHUNK_SIZE = 2 * 1024 * 1024;
 
     private static final int BLOCK_SIZE = 2 * 1024;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
@@ -139,7 +140,7 @@ public class FileDownload extends Thread {
         try {
             while (offset < length) {
                 long remaining = length - offset;
-                int count = remaining > JUNK_SIZE ? JUNK_SIZE : (int) remaining;
+                int count = remaining > CHUNK_SIZE ? CHUNK_SIZE : (int) remaining;
                 byte[] data = downloadFileChunk(downloadUrl, offset, count, length);
 
                 outStream.write(data);
@@ -222,6 +223,9 @@ public class FileDownload extends Thread {
                 mLog.d(LOG_TAG, errorText);
                 throw new DracoonNetIOException(errorText, e);
             }
+        } finally {
+            FileUtils.closeStream(os);
+            FileUtils.closeStream(is);
         }
 
         return os.toByteArray();

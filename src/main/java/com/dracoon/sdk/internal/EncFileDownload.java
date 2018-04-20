@@ -95,7 +95,7 @@ public class EncFileDownload extends FileDownload {
         try {
             while (offset < length) {
                 long remaining = length - offset;
-                int count = remaining > JUNK_SIZE ? JUNK_SIZE : (int) remaining;
+                int count = remaining > CHUNK_SIZE ? CHUNK_SIZE : (int) remaining;
                 byte[] encBytes = downloadFileChunk(downloadUrl, offset, count, length);
 
                 EncryptedDataContainer encData = new EncryptedDataContainer(encBytes, null);
