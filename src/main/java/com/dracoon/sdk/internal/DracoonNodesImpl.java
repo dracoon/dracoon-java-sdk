@@ -554,6 +554,21 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mUploads.remove(id);
     }
 
+    @Override
+    public OutputStream createFileUploadStream(FileUploadRequest request) throws DracoonNetIOException,
+            DracoonApiException {
+        assertServerApiVersion();
+
+        FileValidator.validateUploadRequest(request);
+
+        boolean isEncryptedDownload = isNodeEncrypted(request.getParentId());
+        if (isEncryptedDownload) {
+            throw new UnsupportedOperationException("Encrypted files aren't supported.");
+        }
+
+        return new StreamUpload(mClient, request);
+    }
+
     // --- File download methods ---
 
     @Override

@@ -430,6 +430,21 @@ public abstract class DracoonClient {
         void cancelUploadFileAsync(String id);
 
         /**
+         * Creates a file upload stream.
+         *
+         * (Encrypted files are currently not supported.)
+         *
+         * @param request The request with information about the file.
+         *
+         * @return output stream for upload
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        OutputStream createFileUploadStream(FileUploadRequest request) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
          * Downloads a file.
          *
          * @param id       ID for the download. (This ID can be used to keep a reference.)
@@ -514,7 +529,7 @@ public abstract class DracoonClient {
          *
          * @param nodeId The ID of the node.
          *
-         * @return input stream for requested file
+         * @return input stream for download
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.

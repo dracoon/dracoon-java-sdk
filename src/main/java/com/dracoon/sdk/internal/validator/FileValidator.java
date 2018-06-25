@@ -10,17 +10,18 @@ import java.io.OutputStream;
 public class FileValidator extends BaseValidator {
 
     public static void validateUploadRequest(String id, FileUploadRequest request, File file) {
-        validateUploadRequest(id, request);
+        ValidatorUtils.validateString("Upload ID", id, false);
+        validateUploadRequest(request);
         ValidatorUtils.validateNotNull("Upload file", file);
     }
 
     public static void validateUploadRequest(String id, FileUploadRequest request, InputStream is) {
-        validateUploadRequest(id, request);
+        ValidatorUtils.validateString("Upload ID", id, false);
+        validateUploadRequest(request);
         ValidatorUtils.validateNotNull("Upload stream", is);
     }
 
-    private static void validateUploadRequest(String id, FileUploadRequest request) {
-        ValidatorUtils.validateString("Upload ID", id, false);
+    public static void validateUploadRequest(FileUploadRequest request) {
         ValidatorUtils.validateNotNull("Upload request", request);
         validateParentNodeId(request.getParentId());
         validateName(request.getName());

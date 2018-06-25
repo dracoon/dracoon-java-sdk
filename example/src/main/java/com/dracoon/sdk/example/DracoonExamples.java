@@ -33,9 +33,11 @@ import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UserAccount;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -96,7 +98,8 @@ public class DracoonExamples {
 
         //uploadFile(client);
         //downloadFile(client);
-        downloadFileWithStream(client);
+        uploadFileWithStream(client);
+        //downloadFileWithStream(client);
 
         //searchNodes(client);
         //searchNodesPaged(client);
@@ -334,6 +337,26 @@ public class DracoonExamples {
 
         System.out.println(String.format("Node uploaded: id=%d, path=%s%s", node.getId(),
                 node.getParentPath(), node.getName()));
+    }
+
+    private static void uploadFileWithStream(DracoonClient client) throws DracoonException,
+            IOException {
+        File file = new File("C:\\temp\\test.txt");
+
+        FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt")
+                .build();
+
+        FileInputStream is = new FileInputStream(file);
+        OutputStream os = client.nodes().createFileUploadStream(request);
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = is.read(buffer)) != -1) {
+            os.write(buffer, 0, bytesRead);
+        }
+
+        os.close();
+        is.close();
     }
 
     private static void downloadFile(DracoonClient client) throws DracoonException {

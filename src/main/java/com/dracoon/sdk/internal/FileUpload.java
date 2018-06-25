@@ -34,7 +34,7 @@ public class FileUpload extends Thread {
 
     private static final String LOG_TAG = FileUpload.class.getSimpleName();
 
-    protected static final int JUNK_SIZE = 2 * 1024 * 1024;
+    protected static final int CHUNK_SIZE = 2 * 1024 * 1024;
 
     private static final int BLOCK_SIZE = 2 * 1024;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
@@ -208,7 +208,7 @@ public class FileUpload extends Thread {
     private void uploadFile(String uploadId, String fileName, InputStream is, long length)
             throws DracoonFileIOException, DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        byte[] buffer = new byte[JUNK_SIZE];
+        byte[] buffer = new byte[CHUNK_SIZE];
         long offset = 0;
         int count;
 
