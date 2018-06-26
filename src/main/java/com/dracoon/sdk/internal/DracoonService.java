@@ -164,6 +164,14 @@ public interface DracoonService {
     Call<Void> setFileKeys(@Header(AUTHORIZATION_HEADER) String token,
                            @Body ApiSetFileKeysRequest request);
 
+    @POST(API_PATH + "/nodes/{node_id}/favorite")
+    Call<Void> markFavorite(@Header(AUTHORIZATION_HEADER) String token,
+                            @Path("node_id") Long nodeId);
+
+    @DELETE(API_PATH + "/nodes/{node_id}/favorite")
+    Call<Void> unmarkFavorite(@Header(AUTHORIZATION_HEADER) String token,
+                              @Path("node_id") Long nodeId);
+
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
                                                @Body ApiCreateDownloadShareRequest request);

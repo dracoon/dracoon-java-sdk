@@ -70,7 +70,7 @@ public class DracoonExamples {
 
         //getServerData(client);
 
-        checkAuth(client);
+        //checkAuth(client);
 
         //getUserAccount(client);
         //getCustomerAccount(client);
@@ -107,6 +107,9 @@ public class DracoonExamples {
         //searchNodesPaged(client);
 
         //searchNodesWithFilter(client);
+
+        //markFavorite(client);
+        unmarkFavorite(client);
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
@@ -465,6 +468,18 @@ public class DracoonExamples {
         for (Node node : nodeList.getItems()) {
             System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
         }
+    }
+
+    private static void markFavorite(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        client.nodes().markFavorite(nodeId);
+    }
+
+    private static void unmarkFavorite(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        client.nodes().unmarkFavorite(nodeId);
     }
 
     private static void createDownloadShare(DracoonClient client) throws DracoonException {

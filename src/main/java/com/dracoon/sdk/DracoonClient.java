@@ -659,6 +659,26 @@ public abstract class DracoonClient {
         void generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
                 DracoonApiException, DracoonCryptoException;
 
+        /**
+         * Marks a node as a favorite.
+         *
+         * @param nodeId The ID of the node.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void markFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Unmarks a node as a favorite.
+         *
+         * @param nodeId The ID of the node.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException;
+
     }
 
     /**

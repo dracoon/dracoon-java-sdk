@@ -988,6 +988,51 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
+    // --- Favorite methods ---
+
+    @Override
+    public void markFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.markFavorite(auth, nodeId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseFavoriteMarkError(response);
+            String errorText = String.format("Mark node %s as favorite failed with '%s'!", nodeId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            if (!errorCode.isValidationError()) {
+                throw new DracoonApiException(errorCode);
+            }
+        }
+    }
+
+    @Override
+    public void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.unmarkFavorite(auth, nodeId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            // Ignore errors with response code 400
+            // (This check fixes a bad designed API. It can be removed after the API has been
+            // reworked.)
+            if (response.code() == HttpStatus.BAD_REQUEST.getNumber()) {
+                return;
+            }
+
+            DracoonApiCode errorCode = mErrorParser.parseFavoriteMarkError(response);
+            String errorText = String.format("Unmark node %s as favorite failed with '%s'!", nodeId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
     // --- Helper methods ---
 
     private InputStream getFileInputStream(File file) throws DracoonFileIOException {
