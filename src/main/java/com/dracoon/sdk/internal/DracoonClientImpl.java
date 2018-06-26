@@ -175,6 +175,21 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
     }
 
+    @Override
+    public boolean checkAuth() throws DracoonNetIOException, DracoonApiException {
+        try {
+            mAccount.pingUser();
+        } catch (DracoonApiException e) {
+            if (e.getCode().isAuthError()) {
+                return false;
+            } else {
+                throw e;
+            }
+        }
+
+        return true;
+    }
+
     // --- Methods to get public handlers ---
 
     @Override

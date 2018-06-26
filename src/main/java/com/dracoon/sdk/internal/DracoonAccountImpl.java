@@ -27,6 +27,21 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         super(client);
     }
 
+    public void pingUser() throws DracoonNetIOException, DracoonApiException {
+        assertServerApiVersion();
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.pingUser(auth);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            String errorText = String.format("Ping failed with '%s'!", errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
     @Override
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();

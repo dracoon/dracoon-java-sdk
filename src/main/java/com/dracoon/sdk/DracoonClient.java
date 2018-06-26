@@ -116,7 +116,7 @@ public abstract class DracoonClient {
                 DracoonApiException;
 
         /**
-         * Checks if the user's encryption key pair can be unlocked whit the provided encryption
+         * Checks if the user's encryption key pair can be unlocked with the provided encryption
          * password.
          *
          * @return <code>true</code> if key pair could be unlocked; <code>false</code> otherwise
@@ -135,6 +135,7 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException;
+
     }
 
     /**
@@ -729,6 +730,16 @@ public abstract class DracoonClient {
     public DracoonAuth getAuth() {
         return mAuth;
     }
+
+    /**
+     * Checks if the <b>current</b> authorization is still valid.
+     *
+     * @return <code>true</code> if authorization is still valid; <code>false</code> otherwise
+     *
+     * @throws DracoonNetIOException If a network error occurred.
+     * @throws DracoonApiException   If the API responded with an error.
+     */
+    public abstract boolean checkAuth() throws DracoonNetIOException, DracoonApiException;
 
     /**
      * Returns the client's encryption password.

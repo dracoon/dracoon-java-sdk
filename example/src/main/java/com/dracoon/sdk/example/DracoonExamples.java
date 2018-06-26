@@ -70,6 +70,8 @@ public class DracoonExamples {
 
         //getServerData(client);
 
+        checkAuth(client);
+
         //getUserAccount(client);
         //getCustomerAccount(client);
 
@@ -98,7 +100,7 @@ public class DracoonExamples {
 
         //uploadFile(client);
         //downloadFile(client);
-        uploadFileWithStream(client);
+        //uploadFileWithStream(client);
         //downloadFileWithStream(client);
 
         //searchNodes(client);
@@ -121,6 +123,15 @@ public class DracoonExamples {
         Date serverDate = client.server().getTime();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         System.out.println("Server date: " + df.format(serverDate));
+    }
+
+    private static void checkAuth(DracoonClient client) throws DracoonException {
+        boolean isAuthValid = client.checkAuth();
+        if (isAuthValid) {
+            System.out.println("Authorization is still valid.");
+        } else {
+            System.out.println("Authorization is no longer valid.");
+        }
     }
 
     private static void getUserAccount(DracoonClient client) throws DracoonException {

@@ -50,6 +50,9 @@ public interface DracoonService {
     @GET(API_PATH + "/public/time")
     Call<ApiServerTime> getServerTime();
 
+    @GET(API_PATH + "/user/ping")
+    Call<Void> pingUser(@Header(AUTHORIZATION_HEADER) String token);
+
     @GET(API_PATH + "/user/account")
     Call<ApiUserAccount> getUserAccount(@Header(AUTHORIZATION_HEADER) String token);
 
