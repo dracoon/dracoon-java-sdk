@@ -184,16 +184,24 @@ public class DracoonExamples {
     private static void listNodesPaged(DracoonClient client) throws DracoonException {
         long parentNodeId = 0L;
 
-        NodeList nodeList1 = client.nodes().getNodes(parentNodeId, 0, 4);
-        System.out.println("Nodes page 1:");
-        for (Node node : nodeList1.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
-        NodeList nodeList2 = client.nodes().getNodes(parentNodeId, 4, 4);
-        System.out.println("Nodes page 2:");
-        for (Node node : nodeList2.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
+        long page = 1;
+        long pageSize = 4;
+
+        long offset = 0;
+        long total;
+
+        do {
+            NodeList nodeList = client.nodes().getNodes(parentNodeId, offset, pageSize);
+            total = nodeList.getTotal();
+
+            System.out.printf("Nodes page %d:\n", page);
+            for (Node node : nodeList.getItems()) {
+                System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
     }
 
     private static void getNode(DracoonClient client) throws DracoonException {
@@ -446,17 +454,25 @@ public class DracoonExamples {
         long parentNodeId = 0L;
         String searchString = "test*";
 
-        NodeList nodeList1 = client.nodes().searchNodes(parentNodeId, searchString, 0, 0);
-        System.out.println("Nodes search page 1:");
-        for (Node node : nodeList1.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
+        long page = 1;
+        long pageSize = 4;
 
-        NodeList nodeList2 = client.nodes().searchNodes(parentNodeId, searchString, 4, 4);
-        System.out.println("Nodes search page 2:");
-        for (Node node : nodeList2.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
+        long offset = 0;
+        long total;
+
+        do {
+            NodeList nodeList = client.nodes().searchNodes(parentNodeId, searchString, offset,
+                    pageSize);
+            total = nodeList.getTotal();
+
+            System.out.printf("Nodes search page %d:\n", page);
+            for (Node node : nodeList.getItems()) {
+                System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
     }
 
     private static void searchNodesWithFilter(DracoonClient client) throws DracoonException {
@@ -492,16 +508,24 @@ public class DracoonExamples {
     }
 
     private static void getFavoritesPaged(DracoonClient client) throws DracoonException {
-        NodeList nodeList1 = client.nodes().getFavorites(0, 2);
-        System.out.println("Favorites page 1:");
-        for (Node node : nodeList1.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
-        NodeList nodeList2 = client.nodes().getFavorites(2, 2);
-        System.out.println("Favorites page 2:");
-        for (Node node : nodeList2.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
+        long page = 1;
+        long pageSize = 4;
+
+        long offset = 0;
+        long total;
+
+        do {
+            NodeList nodeList = client.nodes().getFavorites(offset, pageSize);
+            total = nodeList.getTotal();
+
+            System.out.printf("Favorites page %d:\n", page);
+            for (Node node : nodeList.getItems()) {
+                System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
     }
 
     private static void createDownloadShare(DracoonClient client) throws DracoonException {
