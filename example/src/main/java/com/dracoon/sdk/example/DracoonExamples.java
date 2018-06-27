@@ -2,7 +2,6 @@ package com.dracoon.sdk.example;
 
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
-import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.filter.FavoriteStatusFilter;
@@ -63,7 +62,7 @@ public class DracoonExamples {
         DracoonAuth auth = new DracoonAuth(ACCESS_TOKEN);
 
         DracoonClient client = new DracoonClient.Builder(new URL(SERVER_URL))
-                .log(new Logger(Log.DEBUG))
+                .log(new Logger(Logger.DEBUG))
                 .auth(auth)
                 .encryptionPassword(ENCRYPTION_PASSWORD)
                 .build();

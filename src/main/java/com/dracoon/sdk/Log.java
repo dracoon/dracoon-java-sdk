@@ -10,49 +10,7 @@ package com.dracoon.sdk;
 public interface Log {
 
     /**
-     * Priority constant for the println method; use Log.v.
-     */
-    int VERBOSE = 1;
-
-    /**
-     * Priority constant for the println method; use Log.d.
-     */
-    int DEBUG = 2;
-
-    /**
-     * Priority constant for the println method; use Log.i.
-     */
-    int INFO = 3;
-
-    /**
-     * Priority constant for the println method; use Log.w.
-     */
-    int WARN = 4;
-
-    /**
-     * Priority constant for the println method; use Log.e.
-     */
-    int ERROR = 5;
-
-    /**
-     * Writes a {@link #VERBOSE} log message.
-     *
-     * @param tag Used to identify the source of a log message.
-     * @param msg The message you would like logged.
-     */
-    void v(String tag, String msg);
-
-    /**
-     * Writes a {@link #VERBOSE} log message and exception.
-     *
-     * @param tag Used to identify the source of a log message.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log.
-     */
-    void v(String tag, String msg, Throwable tr);
-
-    /**
-     * Writes a {@link #DEBUG} log message.
+     * Writes a debug log message.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
@@ -60,7 +18,7 @@ public interface Log {
     void d(String tag, String msg);
 
     /**
-     * Writes a {@link #DEBUG} log message and exception.
+     * Writes a debug log message and exception.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
@@ -69,7 +27,7 @@ public interface Log {
     void d(String tag, String msg, Throwable tr);
 
     /**
-     * Writes an {@link #INFO} log message.
+     * Writes an information log message.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
@@ -77,7 +35,7 @@ public interface Log {
     void i(String tag, String msg);
 
     /**
-     * Writes a {@link #INFO} log message and exception.
+     * Writes a information log message and exception.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
@@ -86,7 +44,7 @@ public interface Log {
     void i(String tag, String msg, Throwable tr);
 
     /**
-     * Writes a {@link #WARN} log message.
+     * Writes a warning log message.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
@@ -94,7 +52,7 @@ public interface Log {
     void w(String tag, String msg);
 
     /**
-     * Writes a {@link #WARN} log message and exception.
+     * Writes a warning log message and exception.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
@@ -103,7 +61,7 @@ public interface Log {
     void w(String tag, String msg, Throwable tr);
 
     /**
-     * Writes an {@link #ERROR} log message.
+     * Writes a error log message.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
@@ -111,7 +69,7 @@ public interface Log {
     void e(String tag, String msg);
 
     /**
-     * Writes a {@link #ERROR} log message and exception.
+     * Writes a error log message and exception.
      *
      * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.

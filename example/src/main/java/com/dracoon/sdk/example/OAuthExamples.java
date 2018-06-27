@@ -14,7 +14,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
-import com.dracoon.sdk.Log;
 import com.dracoon.sdk.OAuthHelper;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Node;
@@ -131,7 +130,7 @@ public class OAuthExamples {
 
         // Create client and supply authorization configuration
         DracoonClient client = new DracoonClient.Builder(new URL(SERVER_URL))
-                .log(new Logger(Log.DEBUG))
+                .log(new Logger(Logger.DEBUG))
                 .auth(auth)
                 .build();
 
