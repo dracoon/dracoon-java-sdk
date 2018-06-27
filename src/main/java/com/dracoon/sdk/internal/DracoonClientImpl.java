@@ -22,6 +22,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +54,7 @@ public class DracoonClientImpl extends DracoonClient {
     private OkHttpClient mHttpClient;
 
     private OAuthClient mOAuthClient;
+
     private DracoonService mDracoonService;
     private DracoonErrorParser mDracoonErrorParser;
     private HttpHelper mHttpHelper;
@@ -100,8 +103,9 @@ public class DracoonClientImpl extends DracoonClient {
     // --- Initialization methods ---
 
     public void init() {
-        initHttpClient();
         initOAuthClient();
+
+        initHttpClient();
         initDracoonService();
         initDracoonErrorParser();
         initHttpHelper();
@@ -112,21 +116,26 @@ public class DracoonClientImpl extends DracoonClient {
         mShares = new DracoonSharesImpl(this);
     }
 
-    private void initHttpClient() {
-        mHttpClient = new OkHttpClient.Builder()
-                .addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()))
-                .connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS)
-                .readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS)
-                .writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS)
-                .retryOnConnectionFailure(true)
-                .build();
-    }
-
     private void initOAuthClient() {
         mOAuthClient = new OAuthClient(mServerUrl, mAuth.getClientId(), mAuth.getClientSecret());
         mOAuthClient.setLog(mLog);
         mOAuthClient.setHttpConfig(mHttpConfig);
         mOAuthClient.init();
+    }
+
+    private void initHttpClient() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()));
+        builder.connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS);
+        builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
+        builder.writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS);
+        builder.retryOnConnectionFailure(true);
+        if (mHttpConfig.isProxyEnabled()) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
+                    mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
+            builder.proxy(proxy);
+        }
+        mHttpClient = builder.build();
     }
 
     private void initDracoonService() {
@@ -222,7 +231,7 @@ public class DracoonClientImpl extends DracoonClient {
         return mShares;
     }
 
-    /// --- Methods to get internal handlers ---
+    // --- Methods to get internal handlers ---
 
     public DracoonServerImpl getServerImpl() {
         return mServer;

@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal.oauth;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +30,7 @@ public class OAuthClient {
 
     private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig;
+    private OkHttpClient mHttpClient;
 
     private OAuthService mOAuthService;
     private OAuthErrorParser mOAuthErrorParser;
@@ -50,24 +53,32 @@ public class OAuthClient {
     // --- Initialization methods ---
 
     public void init() {
+        initHttpClient();
         initOAuthService();
         initOAuthErrorParser();
         initHttpHelper();
     }
 
-    private void initOAuthService() {
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS)
-                .readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS)
-                .writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS)
-                .retryOnConnectionFailure(true)
-                .build();
+    private void initHttpClient() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS);
+        builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
+        builder.writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS);
+        builder.retryOnConnectionFailure(true);
+        if (mHttpConfig.isProxyEnabled()) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
+                    mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
+            builder.proxy(proxy);
+        }
+        mHttpClient = builder.build();
+    }
 
+    private void initOAuthService() {
         Gson gson = new GsonBuilder().create();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(mServerUrl.toString())
-                .client(httpClient)
+                .client(mHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

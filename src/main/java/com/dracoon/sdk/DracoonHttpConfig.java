@@ -1,6 +1,9 @@
 package com.dracoon.sdk;
 
+import java.net.InetAddress;
+
 import com.dracoon.sdk.internal.BuildDetails;
+import com.dracoon.sdk.internal.validator.ValidatorUtils;
 
 /**
  * DracoonHttpConfig is used to configure HTTP communication options.<br>
@@ -10,7 +13,10 @@ import com.dracoon.sdk.internal.BuildDetails;
  * - Auto-retry of failed requests (Default: disabled)<br>
  * - HTTP connection timeout       (Default: 15 seconds)<br>
  * - HTTP read timeout             (Default: 15 seconds)<br>
- * - HTTP write timeout            (Default: 15 seconds)
+ * - HTTP write timeout            (Default: 15 seconds)<br>
+ * - Proxy server enabled          (Default: false)<br>
+ * - Proxy server address          (Default: null)<br>
+ * - Proxy server port             (Default: null)
  */
 public class DracoonHttpConfig {
 
@@ -19,6 +25,9 @@ public class DracoonHttpConfig {
     private int mConnectTimeout;
     private int mReadTimeout;
     private int mWriteTimeout;
+    private boolean mProxyEnabled = false;
+    private InetAddress mProxyAddress;
+    private Integer mProxyPort;
 
     /**
      * Constructs a default HTTP configuration.
@@ -119,6 +128,47 @@ public class DracoonHttpConfig {
      */
     public void setWriteTimeout(int writeTimeout) {
         this.mWriteTimeout = writeTimeout;
+    }
+
+    /**
+     * Enables the use of a proxy server and sets the address and port to use.
+     *
+     * @param address The proxy server address.
+     * @param port    The proxy server port.
+     */
+    public void setProxy(InetAddress address, Integer port) {
+        ValidatorUtils.validateNotNull("Address", address);
+        ValidatorUtils.validateNotNull("Port", port);
+        mProxyEnabled = true;
+        mProxyAddress = address;
+        mProxyPort = port;
+    }
+
+    /**
+     * Returns <code>true</code> if a proxy server is used.
+     *
+     * @return <code>true</code> if a proxy server is used; <code>false</code> otherwise
+     */
+    public boolean isProxyEnabled() {
+        return mProxyEnabled;
+    }
+
+    /**
+     * Returns the address of the proxy server, if a proxy server was configured.
+     *
+     * @return the address of the proxy server; or <code>null</code> if no proxy server is configured
+     */
+    public InetAddress getProxyAddress() {
+        return mProxyAddress;
+    }
+
+    /**
+     * Returns the port of the proxy server, if a proxy server was configured.
+     *
+     * @return the port of the proxy server; or <code>null</code> if no proxy server is configured
+     */
+    public Integer getProxyPort() {
+        return mProxyPort;
     }
 
     private static String buildDefaultUserAgentString() {
