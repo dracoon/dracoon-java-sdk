@@ -6,14 +6,14 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 
 public class NodeValidator extends BaseValidator {
 
-    public static void validateGetRequest(long id) {
-        BaseValidator.validateNodeId(id);
-    }
-
-    public static void validateGetChildRequest(long id) {
+    public static void validateParentNodeId(long id) {
         if (id != 0L) {
             BaseValidator.validateParentNodeId(id);
         }
+    }
+
+    public static void validateNodeId(long id) {
+        BaseValidator.validateNodeId(id);
     }
 
     public static void validateDeleteRequest(DeleteNodesRequest request) {

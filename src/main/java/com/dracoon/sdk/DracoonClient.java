@@ -679,6 +679,31 @@ public abstract class DracoonClient {
          */
         void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException;
 
+        /**
+         * Retrieves favorites.
+         *
+         * @return list of favorites
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getFavorites() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves favorites. The arguments {@code offset} and {@code limit} restrict the result
+         * to a specific range.
+         *
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of favorites
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getFavorites(long offset, long limit) throws DracoonNetIOException,
+                DracoonApiException;
+
     }
 
     /**

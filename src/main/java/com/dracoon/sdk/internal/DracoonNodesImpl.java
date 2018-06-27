@@ -16,6 +16,7 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.filter.FavoriteStatusFilter;
 import com.dracoon.sdk.filter.Filters;
 import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.SearchNodesFilters;
@@ -114,7 +115,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
-        NodeValidator.validateGetChildRequest(parentNodeId);
+        NodeValidator.validateParentNodeId(parentNodeId);
 
         String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
@@ -139,7 +140,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public Node getNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
-        NodeValidator.validateGetRequest(nodeId);
+        NodeValidator.validateNodeId(nodeId);
 
         String auth = mClient.buildAuthString();
         Call<ApiNode> call = mService.getNode(auth, nodeId);
@@ -994,6 +995,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void markFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
+        NodeValidator.validateNodeId(nodeId);
+
         String auth = mClient.buildAuthString();
         Call<Void> call = mService.markFavorite(auth, nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
@@ -1013,6 +1016,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
+        NodeValidator.validateNodeId(nodeId);
+
         String auth = mClient.buildAuthString();
         Call<Void> call = mService.unmarkFavorite(auth, nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
@@ -1031,6 +1036,25 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
+    }
+
+    @Override
+    public NodeList getFavorites() throws DracoonNetIOException, DracoonApiException {
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addFavoriteStatusFilter(new FavoriteStatusFilter.Builder()
+                .eq(true).build());
+
+        return searchNodes(0L, "*", filters);
+    }
+
+    @Override
+    public NodeList getFavorites(long offset, long limit) throws DracoonNetIOException,
+            DracoonApiException {
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addFavoriteStatusFilter(new FavoriteStatusFilter.Builder()
+                .eq(true).build());
+
+        return searchNodes(0L, "*", filters, offset, limit);
     }
 
     // --- Helper methods ---

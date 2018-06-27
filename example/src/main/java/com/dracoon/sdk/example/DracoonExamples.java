@@ -109,7 +109,9 @@ public class DracoonExamples {
         //searchNodesWithFilter(client);
 
         //markFavorite(client);
-        unmarkFavorite(client);
+        //unmarkFavorite(client);
+        //getFavorites(client);
+        getFavoritesPaged(client);
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
@@ -480,6 +482,26 @@ public class DracoonExamples {
         long nodeId = 1L;
 
         client.nodes().unmarkFavorite(nodeId);
+    }
+
+    private static void getFavorites(DracoonClient client) throws DracoonException {
+        NodeList nodeList = client.nodes().getFavorites();
+        for (Node node : nodeList.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+    }
+
+    private static void getFavoritesPaged(DracoonClient client) throws DracoonException {
+        NodeList nodeList1 = client.nodes().getFavorites(0, 2);
+        System.out.println("Favorites page 1:");
+        for (Node node : nodeList1.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+        NodeList nodeList2 = client.nodes().getFavorites(2, 2);
+        System.out.println("Favorites page 2:");
+        for (Node node : nodeList2.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
     }
 
     private static void createDownloadShare(DracoonClient client) throws DracoonException {
