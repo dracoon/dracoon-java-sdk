@@ -27,7 +27,7 @@ public class NodeValidator extends BaseValidator {
         for (CopyNodesRequest.SourceNode sourceNode : request.getSourceNodes()) {
             validateNodeId(sourceNode.getId());
             if (sourceNode.getName() != null) {
-                validateName(sourceNode.getName());
+                validateNodeName(sourceNode.getName());
             }
         }
     }
@@ -38,7 +38,7 @@ public class NodeValidator extends BaseValidator {
         for (MoveNodesRequest.SourceNode sourceNode : request.getSourceNodes()) {
             validateNodeId(sourceNode.getId());
             if (sourceNode.getName() != null) {
-                validateName(sourceNode.getName());
+                validateNodeName(sourceNode.getName());
             }
         }
     }

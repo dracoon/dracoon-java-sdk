@@ -59,7 +59,8 @@ public class CreateFolderRequest {
          * Constructs a new builder.
          *
          * @param parentId The ID of the parent node of the new folder.
-         * @param name     The name of the new folder.
+         * @param name     The name of the new folder. (Name must not be empty and cannot contain
+         *                 '<', '>', ':', '"', '|', '?', '*', '/', '\'.)
          */
         public Builder(Long parentId, String name) {
             mRequest = new CreateFolderRequest();

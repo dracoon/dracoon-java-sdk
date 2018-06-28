@@ -134,7 +134,8 @@ public class CreateRoomRequest {
         /**
          * Constructs a new builder.
          *
-         * @param name The name of the new room. (Name must not be empty.)
+         * @param name The name of the new room. (Name must not be empty and cannot contain '<',
+         *             '>', ':', '"', '|', '?', '*', '/', '\'.)
          */
         public Builder(String name) {
             mRequest = new CreateRoomRequest();

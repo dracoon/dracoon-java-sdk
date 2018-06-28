@@ -126,7 +126,8 @@ public class CopyNodesRequest {
          * Adds information about a node which should be copied.
          *
          * @param sourceNodeId The ID of the node.
-         * @param newNodeName  The new name of the the node.
+         * @param newNodeName  The new name of the the node. (Name can be left null, but must not be
+         *                     empty and cannot contain '<', '>', ':', '"', '|', '?', '*', '/', '\'.)
          *
          * @return a reference to this object
          */

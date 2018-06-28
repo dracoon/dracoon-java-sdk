@@ -24,7 +24,7 @@ public class FileValidator extends BaseValidator {
     public static void validateUploadRequest(FileUploadRequest request) {
         ValidatorUtils.validateNotNull("Upload request", request);
         validateParentNodeId(request.getParentId());
-        validateName(request.getName());
+        validateFileName(request.getName());
     }
 
     public static void validateDownloadRequest(String id, File file) {
@@ -45,7 +45,7 @@ public class FileValidator extends BaseValidator {
         ValidatorUtils.validateNotNull("File update request", request);
         validateFileId(request.getId());
         if (request.getName() != null) {
-            validateName(request.getName());
+            validateFileName(request.getName());
         }
     }
 

@@ -96,7 +96,8 @@ public class FileUploadRequest {
          * Constructs a new builder.
          *
          * @param parentId The ID of the parent node of the new file. (ID must be positive.)
-         * @param name     The name of the new file. (Name must not be empty.)
+         * @param name     The name of the new file. (Name must not be empty and cannot contain '<',
+         *                 '>', ':', '"', '|', '?', '*', '/', '\'.)
          */
         public Builder(Long parentId, String name) {
             mRequest = new FileUploadRequest();

@@ -69,7 +69,7 @@ public class DracoonExamples {
                 .build();
 
         //getServerData(client);
-        getServerSettings(client);
+        //getServerSettings(client);
 
         //checkAuth(client);
 
@@ -95,6 +95,7 @@ public class DracoonExamples {
         //createFolder(client);
         //updateFolder(client);
         //updateFile(client);
+        updateFileInvalidName(client);
         //deleteNodes(client);
         //copyNodes(client);
         //moveNodes(client);
@@ -300,6 +301,13 @@ public class DracoonExamples {
                 .build();
         Node node = client.nodes().updateFile(request);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
+    }
+
+    private static void updateFileInvalidName(DracoonClient client) throws DracoonException {
+        UpdateFileRequest request = new UpdateFileRequest.Builder(1L)
+                .name("<Invalid-Name>.txt")
+                .build();
+        Node node = client.nodes().updateFile(request);
     }
 
     private static void deleteNodes(DracoonClient client) throws DracoonException {
