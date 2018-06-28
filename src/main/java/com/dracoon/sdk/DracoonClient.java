@@ -19,6 +19,7 @@ import com.dracoon.sdk.model.DownloadShare;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
@@ -54,7 +55,7 @@ import java.util.Date;
 public abstract class DracoonClient {
 
     /**
-     * Handler to query server information
+     * Handler to query server information.
      */
     public interface Server {
 
@@ -77,6 +78,30 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         Date getTime() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Get ServerSettings handler.
+         *
+         * @return ServerSettings handler
+         */
+        ServerSettings settings();
+
+    }
+
+    /**
+     * Handler to query server settings information.
+     */
+    public interface ServerSettings {
+
+        /**
+         * Retrieves the server's general settings.
+         *
+         * @return server general settings
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException, DracoonApiException;
 
     }
 

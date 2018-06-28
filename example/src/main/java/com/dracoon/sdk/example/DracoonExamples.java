@@ -25,6 +25,7 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
+import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
@@ -68,6 +69,7 @@ public class DracoonExamples {
                 .build();
 
         //getServerData(client);
+        getServerSettings(client);
 
         //checkAuth(client);
 
@@ -78,7 +80,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        listNodes(client);
+        //listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -127,6 +129,15 @@ public class DracoonExamples {
         Date serverDate = client.server().getTime();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         System.out.println("Server date: " + df.format(serverDate));
+    }
+
+    private static void getServerSettings(DracoonClient client) throws DracoonException {
+        ServerGeneralSettings settings = client.server().settings().getGeneralSettings();
+        System.out.println("Server general settings:");
+        System.out.printf("isSharePasswordSmsEnabled: %s\n", settings.isSharePasswordSmsEnabled());
+        System.out.printf("isCryptoEnabled: %s\n", settings.isCryptoEnabled());
+        System.out.printf("isMediaServerEnabled: %s\n", settings.isMediaServerEnabled());
+        System.out.printf("isWeakPasswordEnabled: %s\n", settings.isWeakPasswordEnabled());
     }
 
     private static void checkAuth(DracoonClient client) throws DracoonException {

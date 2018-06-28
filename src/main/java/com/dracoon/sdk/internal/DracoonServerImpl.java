@@ -8,10 +8,12 @@ import java.util.Date;
 
 class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.Server {
 
-    private static final String LOG_TAG = DracoonServerImpl.class.getSimpleName();
+    private DracoonServerSettingsImpl mServerSettings;
 
     DracoonServerImpl(DracoonClientImpl client) {
         super(client);
+
+        mServerSettings = new DracoonServerSettingsImpl(client);
     }
 
     @Override
@@ -24,6 +26,11 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
         assertServerApiVersion();
 
         return getServerTime();
+    }
+
+    @Override
+    public DracoonClient.ServerSettings settings() {
+        return mServerSettings;
     }
 
 }
