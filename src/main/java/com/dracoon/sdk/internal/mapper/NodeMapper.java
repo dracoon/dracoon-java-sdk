@@ -81,6 +81,8 @@ public class NodeMapper {
         node.setCntUploadShares(apiNode.cntUploadShares);
         node.setBranchVersion(apiNode.branchVersion);
 
+        node.setMediaToken(apiNode.mediaToken);
+
         return node;
     }
 

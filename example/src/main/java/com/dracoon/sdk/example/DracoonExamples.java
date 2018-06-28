@@ -78,7 +78,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        //listNodes(client);
+        listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -110,7 +110,7 @@ public class DracoonExamples {
         //markFavorite(client);
         //unmarkFavorite(client);
         //getFavorites(client);
-        getFavoritesPaged(client);
+        //getFavoritesPaged(client);
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
