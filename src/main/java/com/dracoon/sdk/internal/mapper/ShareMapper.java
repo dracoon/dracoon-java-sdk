@@ -52,6 +52,10 @@ public class ShareMapper {
     }
 
     public static DownloadShare fromApiDownloadShare(ApiDownloadShare apiDownloadShare) {
+        if (apiDownloadShare == null) {
+            return null;
+        }
+
         DownloadShare downloadShare = new DownloadShare();
         downloadShare.setId(apiDownloadShare.id);
         downloadShare.setNodeId(apiDownloadShare.nodeId);
@@ -102,6 +106,10 @@ public class ShareMapper {
     }
 
     public static UploadShare fromApiUploadShare(ApiUploadShare apiUploadShare) {
+        if (apiUploadShare == null) {
+            return null;
+        }
+
         UploadShare uploadShare = new UploadShare();
         uploadShare.setId(apiUploadShare.id);
         uploadShare.setTargetNodeId(apiUploadShare.targetId);
