@@ -85,7 +85,7 @@ public class DracoonExamples {
         //getNode(client);
         //getNodeNotFound(client);
 
-        //getNodeByPath(client);
+        getNodeByPath(client);
         //getNodeByPathNotFound(client);
 
         //getNodesWithFilter(client);
@@ -95,7 +95,7 @@ public class DracoonExamples {
         //createFolder(client);
         //updateFolder(client);
         //updateFile(client);
-        updateFileInvalidName(client);
+        //updateFileInvalidName(client);
         //deleteNodes(client);
         //copyNodes(client);
         //moveNodes(client);

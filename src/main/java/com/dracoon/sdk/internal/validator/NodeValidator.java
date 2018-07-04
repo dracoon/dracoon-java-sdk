@@ -16,6 +16,10 @@ public class NodeValidator extends BaseValidator {
         BaseValidator.validateNodeId(id);
     }
 
+    public static void validateNodePath(String path) {
+        ValidatorUtils.validateFilePath("Node path", path);
+    }
+
     public static void validateDeleteRequest(DeleteNodesRequest request) {
         ValidatorUtils.validateNotNull("Nodes delete request", request);
         validateNodeIds(request.getIds());

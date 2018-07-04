@@ -19,6 +19,7 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.filter.FavoriteStatusFilter;
 import com.dracoon.sdk.filter.Filters;
 import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.NodeParentPathFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
@@ -72,7 +73,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
 
@@ -163,38 +163,21 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public Node getNode(String nodePath) throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
-        String[] nodePathParts = nodePath.split("/", -1);
-        long parentNodeId = 0L;
+        NodeValidator.validateNodePath(nodePath);
 
-        Node wantedNode = null;
+        int slashPos = nodePath.lastIndexOf('/');
+        String path = nodePath.substring(0, slashPos + 1);
+        String name = nodePath.substring(slashPos + 1, nodePath.length());
 
-        for (int i = 1; i < nodePathParts.length; i++) {
-            if (nodePathParts[i].isEmpty()) {
-                break;
-            }
+        NodeParentPathFilter pathFilter = new NodeParentPathFilter.Builder()
+                .eq(path)
+                .build();
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addNodeParentPathFilter(pathFilter);
 
-            NodeList nodes = getNodes(parentNodeId);
+        NodeList nodeList = searchNodes(0L, name, filters);
 
-            Node node = null;
-            for (int j = 0; j < nodes.getItems().size(); j++) {
-                if (Objects.equals(nodes.getItems().get(j).getName(), nodePathParts[i])) {
-                    node = nodes.getItems().get(j);
-                    break;
-                }
-            }
-
-            if (node == null) {
-                break;
-            }
-
-            if (i == nodePathParts.length - 1) {
-                wantedNode = node;
-            }
-
-            parentNodeId = node.getId();
-        }
-
-        if (wantedNode == null) {
+        if (nodeList.getItems().isEmpty()) {
             DracoonApiCode errorCode = DracoonApiCode.SERVER_NODE_NOT_FOUND;
             String errorText = String.format("Query of node '%s' failed with '%s'!", nodePath,
                     errorCode.name());
@@ -202,7 +185,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             throw new DracoonApiException(errorCode);
         }
 
-        return wantedNode;
+        return nodeList.getItems().get(0);
     }
 
     public boolean isNodeEncrypted(long nodeId) throws DracoonNetIOException, DracoonApiException {
