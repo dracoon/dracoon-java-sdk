@@ -561,8 +561,10 @@ public class Node {
     /**
      * Returns the media token for the node, if a media server is available.<br>
      * <br>
-     * A media token can be used to get a thumbnail or preview image for a node. The image URL must
-     * be built as follows.<br>
+     * A media token can be used to get a thumbnail or preview image for a node. To retrieve the
+     * image the appropriate media URL must be generate first. It can be created via
+     * {@link com.dracoon.sdk.DracoonClient.Nodes#buildMediaUrl buildMediaUrl} or by using the
+     * following template.<br>
      * <br>
      * http(s)://[host]/mediaserver/image/[media-token]/[width]x[height]
      *

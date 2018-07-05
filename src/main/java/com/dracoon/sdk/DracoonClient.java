@@ -718,8 +718,8 @@ public abstract class DracoonClient {
          * Retrieves favorites. The arguments {@code offset} and {@code limit} restrict the result
          * to a specific range.
          *
-         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
-         * @param limit        The range limit. (Number of records; must be positive.)
+         * @param offset The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit  The range limit. (Number of records; must be positive.)
          *
          * @return list of favorites
          *
@@ -728,6 +728,17 @@ public abstract class DracoonClient {
          */
         NodeList getFavorites(long offset, long limit) throws DracoonNetIOException,
                 DracoonApiException;
+
+        /**
+         * Builds a media URL. The URL can be used to get a thumbnail or preview image for a node.
+         *
+         * @param mediaToken The media token for the node.
+         * @param width      The width of the image. (Must positive.)
+         * @param height     The height of the image. (Must positive.)
+         *
+         * @return the media URL
+         */
+        URL buildMediaUrl(String mediaToken, int width, int height);
 
     }
 

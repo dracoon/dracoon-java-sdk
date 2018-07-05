@@ -32,8 +32,7 @@ public class DateUtils {
         try {
             return sDateFormat.parse(value);
         } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
+            throw new Error(e);
         }
     }
 
@@ -53,8 +52,7 @@ public class DateUtils {
         try {
             return sTimeFormat.parse(value);
         } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
+            throw new Error(e);
         }
     }
 

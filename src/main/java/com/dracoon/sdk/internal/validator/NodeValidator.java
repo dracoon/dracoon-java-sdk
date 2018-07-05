@@ -54,4 +54,10 @@ public class NodeValidator extends BaseValidator {
         ValidatorUtils.validateString("Search string", searchString, false);
     }
 
+    public static void validateMediaUrlRequest(String mediaToken, int width, int height) {
+        ValidatorUtils.validateString("Media token", mediaToken, false);
+        ValidatorUtils.validatePositiveNumber("Width", width, false);
+        ValidatorUtils.validatePositiveNumber("Height", height, false);
+    }
+
 }

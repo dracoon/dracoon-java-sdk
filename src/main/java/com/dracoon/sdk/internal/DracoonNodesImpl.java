@@ -69,6 +69,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +79,8 @@ import java.util.Map;
 class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
 
     private static final String LOG_TAG = DracoonNodesImpl.class.getSimpleName();
+
+    private static final String MEDIA_URL_TEMPLATE = "%s/mediaserver/image/%s/%dx%d";
 
     private Map<String, FileUpload> mUploads = new HashMap<>();
     private Map<String, FileDownload> mDownloads = new HashMap<>();
@@ -1038,6 +1042,21 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                 .eq(true).build());
 
         return searchNodes(0L, "*", filters, offset, limit);
+    }
+
+    // --- Media methods ---
+
+    @Override
+    public URL buildMediaUrl(String mediaToken, int width, int height) {
+        NodeValidator.validateMediaUrlRequest(mediaToken, width, height);
+
+        String url = String.format(MEDIA_URL_TEMPLATE, mClient.getServerUrl(), mediaToken, width,
+                height);
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            throw new Error(e);
+        }
     }
 
     // --- Helper methods ---

@@ -85,7 +85,7 @@ public class DracoonExamples {
         //getNode(client);
         //getNodeNotFound(client);
 
-        getNodeByPath(client);
+        //getNodeByPath(client);
         //getNodeByPathNotFound(client);
 
         //getNodesWithFilter(client);
@@ -114,6 +114,8 @@ public class DracoonExamples {
         //unmarkFavorite(client);
         //getFavorites(client);
         //getFavoritesPaged(client);
+
+        buildMediaUrl(client);
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
@@ -544,6 +546,21 @@ public class DracoonExamples {
             page++;
             offset = offset + pageSize;
         } while (offset < total);
+    }
+
+    private static void buildMediaUrl(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        ServerGeneralSettings settings = client.server().settings().getGeneralSettings();
+        if (!settings.isMediaServerEnabled()) {
+            System.err.println("Media server is not available!");
+            return;
+        }
+
+        Node node = client.nodes().getNode(nodeId);
+        URL mediaUrl = client.nodes().buildMediaUrl(node.getMediaToken(), 640, 480);
+
+        System.out.println(String.format("Media token URL for node '%d': %s", nodeId, mediaUrl));
     }
 
     private static void createDownloadShare(DracoonClient client) throws DracoonException {
