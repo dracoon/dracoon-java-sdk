@@ -13,4 +13,8 @@ public interface DracoonConstants {
     String AUTHORIZATION_TYPE = "Bearer";
     int AUTHORIZATION_REFRESH_INTERVAL = 60 * 60;
 
+    int KIB = 1024;
+    int MIB = 1024 * KIB;
+    int GIB = 1024 * MIB;
+
 }

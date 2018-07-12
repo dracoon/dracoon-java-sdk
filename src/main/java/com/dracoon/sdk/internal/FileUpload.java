@@ -34,9 +34,7 @@ public class FileUpload extends Thread {
 
     private static final String LOG_TAG = FileUpload.class.getSimpleName();
 
-    protected static final int CHUNK_SIZE = 2 * 1024 * 1024;
-
-    private static final int BLOCK_SIZE = 2 * 1024;
+    private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
 
     private static class FileRequestBody extends RequestBody {
@@ -90,8 +88,9 @@ public class FileUpload extends Thread {
     protected final DracoonClientImpl mClient;
     protected final Log mLog;
     protected final DracoonService mRestService;
-    protected final DracoonErrorParser mErrorParser;
     protected final HttpHelper mHttpHelper;
+    protected final int mChunkSize;
+    protected final DracoonErrorParser mErrorParser;
 
     protected final String mId;
     protected final FileUploadRequest mRequest;
@@ -106,8 +105,9 @@ public class FileUpload extends Thread {
             InputStream srcStream, long srcLength) {
         mClient = client;
         mLog = client.getLog();
-        mHttpHelper = client.getHttpHelper();
         mRestService = client.getDracoonService();
+        mHttpHelper = client.getHttpHelper();
+        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
         mErrorParser = client.getDracoonErrorParser();
 
         mId = id;
@@ -208,7 +208,7 @@ public class FileUpload extends Thread {
     private void uploadFile(String uploadId, String fileName, InputStream is, long length)
             throws DracoonFileIOException, DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        byte[] buffer = new byte[CHUNK_SIZE];
+        byte[] buffer = new byte[mChunkSize];
         long offset = 0;
         int count;
 

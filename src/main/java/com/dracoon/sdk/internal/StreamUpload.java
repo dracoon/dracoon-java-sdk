@@ -24,19 +24,18 @@ public class StreamUpload extends FileUploadStream {
 
     private static final String LOG_TAG = StreamUpload.class.getSimpleName();
 
-    private static final int CHUNK_SIZE = 256 * 1024;
-
     private final DracoonClientImpl mClient;
     private final Log mLog;
     private final DracoonService mRestService;
-    private final DracoonErrorParser mErrorParser;
     private final HttpHelper mHttpHelper;
+    private final int mChunkSize;
+    private final DracoonErrorParser mErrorParser;
 
     private final FileUploadRequest mFileUploadRequest;
 
     private String mUploadId;
 
-    private byte[] mChunk = new byte[CHUNK_SIZE];
+    private byte[] mChunk;
     private long mChunkNum = 0L;
     private int mChunkOffset = 0;
     private boolean mIsCompleted = false;
@@ -47,10 +46,13 @@ public class StreamUpload extends FileUploadStream {
         mClient = client;
         mLog = client.getLog();
         mRestService = client.getDracoonService();
-        mErrorParser = client.getDracoonErrorParser();
         mHttpHelper = client.getHttpHelper();
+        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
+        mErrorParser = client.getDracoonErrorParser();
 
         mFileUploadRequest = request;
+
+        mChunk = new byte[mChunkSize];
 
         init();
     }
@@ -85,12 +87,12 @@ public class StreamUpload extends FileUploadStream {
         int read = 0;
         while (read < len) {
             // Calculate current total offset and total remaining bytes
-            long totalOffset = mChunkNum * CHUNK_SIZE + mChunkOffset;
+            long totalOffset = mChunkNum * mChunkSize + mChunkOffset;
 
             // Calculate number of bytes which should be copied
             int count = len - read;
-            if (count > CHUNK_SIZE - mChunkOffset) {
-                count = CHUNK_SIZE - mChunkOffset;
+            if (count > mChunkSize - mChunkOffset) {
+                count = mChunkSize - mChunkOffset;
             }
 
             mLog.d(LOG_TAG, String.format("Loading: %d: %d-%d (%d-%d)", mChunkNum,
@@ -103,7 +105,7 @@ public class StreamUpload extends FileUploadStream {
             mChunkOffset = mChunkOffset + count;
 
             // If end of current chunk was reached: Load next chunk
-            if (mChunkOffset == CHUNK_SIZE) {
+            if (mChunkOffset == mChunkSize) {
                 try {
                     loadNextChunk();
                 } catch (DracoonException e) {
@@ -181,7 +183,7 @@ public class StreamUpload extends FileUploadStream {
             return;
         }
 
-        long offset = mChunkNum * CHUNK_SIZE;
+        long offset = mChunkNum * mChunkSize;
 
         String auth = mClient.buildAuthString();
 

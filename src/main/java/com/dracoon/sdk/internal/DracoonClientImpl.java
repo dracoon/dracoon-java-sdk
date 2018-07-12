@@ -80,6 +80,10 @@ public class DracoonClientImpl extends DracoonClient {
         mLog = log != null ? log : new NullLog();
     }
 
+    public DracoonHttpConfig getHttpConfig() {
+        return mHttpConfig;
+    }
+
     public void setHttpConfig(DracoonHttpConfig httpConfig) {
         mHttpConfig = httpConfig;
     }

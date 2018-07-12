@@ -3,6 +3,7 @@ package com.dracoon.sdk;
 import java.net.InetAddress;
 
 import com.dracoon.sdk.internal.BuildDetails;
+import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
 
 /**
@@ -14,6 +15,7 @@ import com.dracoon.sdk.internal.validator.ValidatorUtils;
  * - HTTP connection timeout       (Default: 15 seconds)<br>
  * - HTTP read timeout             (Default: 15 seconds)<br>
  * - HTTP write timeout            (Default: 15 seconds)<br>
+ * - Upload/download chunk size    (Default: 2 MiB)<br>
  * - Proxy server enabled          (Default: false)<br>
  * - Proxy server address          (Default: null)<br>
  * - Proxy server port             (Default: null)
@@ -25,6 +27,7 @@ public class DracoonHttpConfig {
     private int mConnectTimeout;
     private int mReadTimeout;
     private int mWriteTimeout;
+    private int mChunkSize;
     private boolean mProxyEnabled = false;
     private InetAddress mProxyAddress;
     private Integer mProxyPort;
@@ -38,6 +41,7 @@ public class DracoonHttpConfig {
         mConnectTimeout = 15;
         mReadTimeout = 15;
         mWriteTimeout = 15;
+        mChunkSize = 2 * DracoonConstants.MIB;
     }
 
     /**
@@ -73,7 +77,7 @@ public class DracoonHttpConfig {
      * @param retryEnabled <code>true</code> to enable auto-retry; otherwise <code>false</code>.
      */
     public void setRetryEnabled(boolean retryEnabled) {
-        this.mRetryEnabled = retryEnabled;
+        mRetryEnabled = retryEnabled;
     }
 
     /**
@@ -91,7 +95,7 @@ public class DracoonHttpConfig {
      * @param connectTimeout The HTTP connection timeout.
      */
     public void setConnectTimeout(int connectTimeout) {
-        this.mConnectTimeout = connectTimeout;
+        mConnectTimeout = connectTimeout;
     }
 
     /**
@@ -109,7 +113,7 @@ public class DracoonHttpConfig {
      * @param readTimeout The HTTP read timeout.
      */
     public void setReadTimeout(int readTimeout) {
-        this.mReadTimeout = readTimeout;
+        mReadTimeout = readTimeout;
     }
 
     /**
@@ -127,7 +131,25 @@ public class DracoonHttpConfig {
      * @param writeTimeout The HTTP write timeout.
      */
     public void setWriteTimeout(int writeTimeout) {
-        this.mWriteTimeout = writeTimeout;
+        mWriteTimeout = writeTimeout;
+    }
+
+    /**
+     * Returns the upload/download chunk size in KiB.
+     *
+     * @return the upload/download chunk size
+     */
+    public int getChunkSize() {
+        return mChunkSize;
+    }
+
+    /**
+     * Sets the upload/download chunk size in KiB.
+     *
+     * @param chunkSize The upload/download chunk size.
+     */
+    public void setChunkSize(int chunkSize) {
+        mChunkSize = chunkSize;
     }
 
     /**

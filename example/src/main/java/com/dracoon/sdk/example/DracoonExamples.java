@@ -103,7 +103,7 @@ public class DracoonExamples {
         //uploadFile(client);
         //downloadFile(client);
         //uploadFileWithStream(client);
-        //downloadFileWithStream(client);
+        downloadFileWithStream(client);
 
         //searchNodes(client);
         //searchNodesPaged(client);
@@ -115,7 +115,7 @@ public class DracoonExamples {
         //getFavorites(client);
         //getFavoritesPaged(client);
 
-        buildMediaUrl(client);
+        //buildMediaUrl(client);
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);

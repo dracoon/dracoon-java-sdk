@@ -81,7 +81,7 @@ public class EncFileUpload extends FileUpload {
             throw new DracoonCryptoException(errorCode, e);
         }
 
-        byte[] buffer = new byte[CHUNK_SIZE];
+        byte[] buffer = new byte[mChunkSize];
         long offset = 0;
         int count;
 

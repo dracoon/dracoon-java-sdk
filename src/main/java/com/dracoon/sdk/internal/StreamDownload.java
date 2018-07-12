@@ -20,21 +20,20 @@ public class StreamDownload extends FileDownloadStream {
 
     private static final String LOG_TAG = StreamDownload.class.getSimpleName();
 
-    private static final int CHUNK_SIZE = 256 * 1024;
-
     private final DracoonClientImpl mClient;
     private final Log mLog;
     private final DracoonService mRestService;
-    private final DracoonErrorParser mErrorParser;
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
+    private final int mChunkSize;
+    private final DracoonErrorParser mErrorParser;
 
     private final long mNodeId;
 
     private long mDownloadLength;
     private String mDownloadUrl;
 
-    private byte[] mChunk = new byte[CHUNK_SIZE];
+    private byte[] mChunk;
     private boolean mLoadChunk = true;
     private long mChunkNum = 0L;
     private int mChunkOffset = 0;
@@ -45,11 +44,14 @@ public class StreamDownload extends FileDownloadStream {
         mClient = client;
         mLog = client.getLog();
         mRestService = client.getDracoonService();
-        mErrorParser = client.getDracoonErrorParser();
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
+        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
+        mErrorParser = client.getDracoonErrorParser();
 
         mNodeId = nodeId;
+
+        mChunk = new byte[mChunkSize];
 
         init();
     }
@@ -83,7 +85,7 @@ public class StreamDownload extends FileDownloadStream {
         }
 
         // Calculate total offset and total remaining bytes
-        long totalOffset = mChunkNum * CHUNK_SIZE + mChunkOffset;
+        long totalOffset = mChunkNum * mChunkSize + mChunkOffset;
         long totalRemaining = mDownloadLength - totalOffset;
 
         // If no bytes are available anymore: Abort
@@ -95,7 +97,7 @@ public class StreamDownload extends FileDownloadStream {
         int read = 0;
         while (read < len) {
             // Calculate current total offset and total remaining bytes
-            totalOffset = mChunkNum * CHUNK_SIZE + mChunkOffset;
+            totalOffset = mChunkNum * mChunkSize + mChunkOffset;
             totalRemaining = mDownloadLength - totalOffset;
 
             // If last chunk was processed: Abort
@@ -104,7 +106,7 @@ public class StreamDownload extends FileDownloadStream {
             }
 
             // If end of current chunk was reached: Force to load next chunk
-            if (mChunkOffset == CHUNK_SIZE) {
+            if (mChunkOffset == mChunkSize) {
                 mLoadChunk = true;
                 mChunkNum++;
                 mChunkOffset = 0;
@@ -121,8 +123,8 @@ public class StreamDownload extends FileDownloadStream {
 
             // Calculate number of bytes which should be copied
             int count = len - read;
-            if (count > CHUNK_SIZE - mChunkOffset) {
-                count = CHUNK_SIZE - mChunkOffset;
+            if (count > mChunkSize - mChunkOffset) {
+                count = mChunkSize - mChunkOffset;
             }
             if (count > totalRemaining) {
                 count = (int) totalRemaining;
@@ -155,7 +157,7 @@ public class StreamDownload extends FileDownloadStream {
         }
 
         // Calculate current total offset, total remaining bytes and skipped bytes
-        long curTotalOffset = mChunkNum * CHUNK_SIZE + mChunkOffset;
+        long curTotalOffset = mChunkNum * mChunkSize + mChunkOffset;
         long totalRemaining = mDownloadLength - curTotalOffset;
         long skip = n < totalRemaining ? n : totalRemaining;
 
@@ -163,8 +165,8 @@ public class StreamDownload extends FileDownloadStream {
         long newTotalOffset = curTotalOffset + skip;
 
         // Calculate new chunk number and new chunk offset
-        long newChunkNum = newTotalOffset / CHUNK_SIZE;
-        int newChunkOffset = (int) (newTotalOffset % CHUNK_SIZE);
+        long newChunkNum = newTotalOffset / mChunkSize;
+        int newChunkOffset = (int) (newTotalOffset % mChunkSize);
 
         // If there are more bytes and a new chunk was reached: Force to load next chunk
         if (totalRemaining > skip && newChunkNum > mChunkNum) {
@@ -182,7 +184,7 @@ public class StreamDownload extends FileDownloadStream {
     public int available() throws IOException {
         assertNotClosed();
 
-        long offset = mChunkNum * CHUNK_SIZE + mChunkOffset;
+        long offset = mChunkNum * mChunkSize + mChunkOffset;
         long remaining = mDownloadLength - offset;
         return remaining > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) remaining;
     }
@@ -239,9 +241,9 @@ public class StreamDownload extends FileDownloadStream {
     }
 
     private void loadNextChunk() throws DracoonNetIOException, DracoonApiException {
-        long offset = mChunkNum * CHUNK_SIZE;
+        long offset = mChunkNum * mChunkSize;
         long remaining = mDownloadLength - offset;
-        int count = remaining > CHUNK_SIZE ? CHUNK_SIZE : (int) remaining;
+        int count = remaining > mChunkSize ? mChunkSize : (int) remaining;
 
         String range = "bytes=" + offset + "-" + (offset + count - 1);
 
@@ -263,7 +265,7 @@ public class StreamDownload extends FileDownloadStream {
 
         BufferedInputStream is = new BufferedInputStream(response.body().byteStream());
         int bytesRead = 0;
-        int bytesRemaining = CHUNK_SIZE;
+        int bytesRemaining = mChunkSize;
         int bytesCount;
         try {
             do {

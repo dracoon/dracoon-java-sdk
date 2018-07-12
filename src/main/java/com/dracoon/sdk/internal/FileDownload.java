@@ -26,17 +26,16 @@ public class FileDownload extends Thread {
 
     private static final String LOG_TAG = FileDownload.class.getSimpleName();
 
-    protected static final int CHUNK_SIZE = 2 * 1024 * 1024;
-
-    private static final int BLOCK_SIZE = 2 * 1024;
+    private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
 
     protected final DracoonClientImpl mClient;
     protected final Log mLog;
     protected final DracoonService mRestService;
-    protected final DracoonErrorParser mErrorParser;
     protected final OkHttpClient mHttpClient;
     protected final HttpHelper mHttpHelper;
+    protected final int mChunkSize;
+    protected final DracoonErrorParser mErrorParser;
 
     protected final String mId;
     protected final long mNodeId;
@@ -50,9 +49,10 @@ public class FileDownload extends Thread {
         mClient = client;
         mLog = client.getLog();
         mRestService = client.getDracoonService();
-        mErrorParser = client.getDracoonErrorParser();
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
+        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
+        mErrorParser = client.getDracoonErrorParser();
 
         mId = id;
         mNodeId = nodeId;
@@ -140,7 +140,7 @@ public class FileDownload extends Thread {
         try {
             while (offset < length) {
                 long remaining = length - offset;
-                int count = remaining > CHUNK_SIZE ? CHUNK_SIZE : (int) remaining;
+                int count = remaining > mChunkSize ? mChunkSize : (int) remaining;
                 byte[] data = downloadFileChunk(downloadUrl, offset, count, length);
 
                 outStream.write(data);
