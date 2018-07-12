@@ -24,6 +24,13 @@ public class CreatedByFilter extends Filter<String> {
         }
 
         @Override
+        public Concater eq(String value) {
+            validateRestrictionValue(value);
+            mFilter.addValue(EQ, value);
+            return new Concater(mFilter);
+        }
+
+        @Override
         public Concater cn(String value) {
             validateRestrictionValue(value);
             mFilter.addValue(CN, value);
