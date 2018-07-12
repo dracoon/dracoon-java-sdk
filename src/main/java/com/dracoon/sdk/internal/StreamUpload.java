@@ -1,8 +1,5 @@
 package com.dracoon.sdk.internal;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
@@ -14,13 +11,16 @@ import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.FileUploadStream;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class StreamUpload extends OutputStream {
+import java.io.IOException;
+
+public class StreamUpload extends FileUploadStream {
 
     private static final String LOG_TAG = StreamUpload.class.getSimpleName();
 
@@ -39,6 +39,7 @@ public class StreamUpload extends OutputStream {
     private byte[] mChunk = new byte[CHUNK_SIZE];
     private long mChunkNum = 0L;
     private int mChunkOffset = 0;
+    private boolean mIsCompleted = false;
     private boolean mIsClosed = false;
 
     StreamUpload(DracoonClientImpl client, FileUploadRequest request) throws DracoonNetIOException,
@@ -67,6 +68,7 @@ public class StreamUpload extends OutputStream {
 
     @Override
     public void write(byte b[], int off, int len) throws IOException {
+        assertNotCompleted();
         assertNotClosed();
 
         // If start offset and/or maximum number of bytes is invalid: Throw error
@@ -117,7 +119,8 @@ public class StreamUpload extends OutputStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public void complete() throws IOException {
+        assertNotCompleted();
         assertNotClosed();
 
         try {
@@ -132,6 +135,12 @@ public class StreamUpload extends OutputStream {
             throw new IOException("Could not close upload stream.", e);
         }
 
+        mIsCompleted = true;
+    }
+
+    @Override
+    public void close() throws IOException {
+        assertNotClosed();
         mChunk = null;
         mIsClosed = true;
     }
@@ -165,12 +174,6 @@ public class StreamUpload extends OutputStream {
         }
 
         return response.body().uploadId;
-    }
-
-    private void assertNotClosed() throws IOException {
-        if (mIsClosed) {
-            throw new IOException("Stream was already closed.");
-        }
     }
 
     private void loadNextChunk() throws DracoonNetIOException, DracoonApiException {
@@ -217,6 +220,18 @@ public class StreamUpload extends OutputStream {
                             "with '%s'!", mFileUploadRequest.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
+        }
+    }
+
+    private void assertNotCompleted() throws IOException {
+        if (mIsCompleted) {
+            throw new IOException("Upload stream was already completed.");
+        }
+    }
+
+    private void assertNotClosed() throws IOException {
+        if (mIsClosed) {
+            throw new IOException("Upload stream was already closed.");
         }
     }
 

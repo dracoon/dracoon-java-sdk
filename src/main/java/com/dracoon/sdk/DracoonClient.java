@@ -17,8 +17,10 @@ import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
 import com.dracoon.sdk.model.FileDownloadCallback;
+import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
@@ -467,8 +469,8 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        OutputStream createFileUploadStream(FileUploadRequest request) throws DracoonNetIOException,
-                DracoonApiException;
+        FileUploadStream createFileUploadStream(FileUploadRequest request)
+                throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Downloads a file.
@@ -557,10 +559,10 @@ public abstract class DracoonClient {
          *
          * @return input stream for download
          *
-         * @throws DracoonNetIOException  If a network error occurred.
-         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
          */
-        InputStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
+        FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
                 DracoonApiException;
 
         /**

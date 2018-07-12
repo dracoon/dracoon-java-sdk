@@ -8,15 +8,15 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.util.FileUtils;
+import com.dracoon.sdk.model.FileDownloadStream;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
-public class StreamDownload extends InputStream {
+public class StreamDownload extends FileDownloadStream {
 
     private static final String LOG_TAG = StreamDownload.class.getSimpleName();
 
@@ -238,12 +238,6 @@ public class StreamDownload extends InputStream {
         }
     }
 
-    private void assertNotClosed() throws IOException {
-        if (mIsClosed) {
-            throw new IOException("Stream was already closed.");
-        }
-    }
-
     private void loadNextChunk() throws DracoonNetIOException, DracoonApiException {
         long offset = mChunkNum * CHUNK_SIZE;
         long remaining = mDownloadLength - offset;
@@ -286,6 +280,12 @@ public class StreamDownload extends InputStream {
         }
 
         mLoadChunk = false;
+    }
+
+    private void assertNotClosed() throws IOException {
+        if (mIsClosed) {
+            throw new IOException("Download stream was already closed.");
+        }
     }
 
 }

@@ -52,8 +52,10 @@ import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
+import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
@@ -543,8 +545,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
-    public OutputStream createFileUploadStream(FileUploadRequest request) throws DracoonNetIOException,
-            DracoonApiException {
+    public FileUploadStream createFileUploadStream(FileUploadRequest request)
+            throws DracoonNetIOException, DracoonApiException {
         assertServerApiVersion();
 
         FileValidator.validateUploadRequest(request);
@@ -695,7 +697,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
-    public InputStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
+    public FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
             DracoonApiException {
         assertServerApiVersion();
 

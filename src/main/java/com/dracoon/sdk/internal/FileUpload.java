@@ -1,11 +1,5 @@
 package com.dracoon.sdk.internal;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
@@ -29,6 +23,12 @@ import okhttp3.RequestBody;
 import okio.BufferedSink;
 import retrofit2.Call;
 import retrofit2.Response;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class FileUpload extends Thread {
 
