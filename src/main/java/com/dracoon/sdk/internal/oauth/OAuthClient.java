@@ -87,6 +87,24 @@ public class OAuthClient {
 
     // --- Methods to retrieve an refresh tokens ---
 
+    public OAuthTokens getAccessToken(String username, String password) throws DracoonNetIOException,
+            DracoonApiException {
+        String auth = Credentials.basic(mClientId, mClientSecret);
+
+        Call<OAuthTokens> call = mOAuthService.getOAuthToken(auth,
+                OAuthConstants.OAuthGrantTypes.PASSWORD, username, password);
+        Response<OAuthTokens> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiException e = mOAuthErrorParser.parseTokenError(response);
+            mLog.d(LOG_TAG, String.format("Retrieval of OAuth tokens failed with '%s'!",
+                    e.getCode().name()));
+            throw e;
+        }
+
+        return response.body();
+    }
+
     public OAuthTokens getAccessToken(String code) throws DracoonNetIOException,
             DracoonApiException {
         String auth = Credentials.basic(mClientId, mClientSecret);

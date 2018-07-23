@@ -200,11 +200,18 @@ public class DracoonClientImpl extends DracoonClient {
                 case ACCESS_TOKEN:
                     mOAuthAccessToken = mAuth.getAccessToken();
                     break;
-                case AUTHORIZATION_CODE:
-                    OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getAuthorizationCode());
-                    mOAuthAccessToken = tokens.accessToken;
-                    mOAuthRefreshToken = tokens.refreshToken;
-                    break;
+                case PASSWORD: {
+					OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getUsername(), mAuth.getPassword());
+					mOAuthAccessToken = tokens.accessToken;
+					mOAuthRefreshToken = tokens.refreshToken;
+					break;
+				}
+                case AUTHORIZATION_CODE: {
+					OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getAuthorizationCode());
+					mOAuthAccessToken = tokens.accessToken;
+					mOAuthRefreshToken = tokens.refreshToken;
+					break;
+				}
                 case ACCESS_REFRESH_TOKEN:
                     mOAuthAccessToken = mAuth.getAccessToken();
                     mOAuthRefreshToken = mAuth.getRefreshToken();
