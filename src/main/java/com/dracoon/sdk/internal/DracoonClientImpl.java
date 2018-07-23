@@ -268,7 +268,7 @@ public class DracoonClientImpl extends DracoonClient {
 
         // If OAuth tokens validity has been exceeded: Refresh tokens
         long nextRefreshTime = mOAuthLastRefreshTime +
-                DracoonConstants.AUTHORIZATION_REFRESH_INTERVAL * 1000;
+                DracoonConstants.AUTHORIZATION_REFRESH_INTERVAL;
         long currentTime = System.currentTimeMillis();
         if (nextRefreshTime < currentTime) {
             refreshOAuthTokens();
