@@ -292,7 +292,11 @@ public class DracoonClientImpl extends DracoonClient {
             OAuthTokens tokens = mOAuthClient.refreshAccessToken(mAuth.getRefreshToken());
             mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
                     tokens.accessToken, tokens.refreshToken);
-        }
+        } else if (mode.equals(DracoonAuth.Mode.PASSWORD)) {
+        	OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getUsername(), mAuth.getPassword());
+			mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
+					tokens.accessToken, tokens.refreshToken);
+		}
 
         mOAuthLastRefreshTime = System.currentTimeMillis();
     }

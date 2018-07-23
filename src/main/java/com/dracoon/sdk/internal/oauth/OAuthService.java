@@ -17,7 +17,14 @@ public interface OAuthService {
                                     @Field("grant_type") String grantType,
                                     @Field("code") String code);
 
-    @FormUrlEncoded
+	@FormUrlEncoded
+	@POST(OAUTH_PATH + OAUTH_TOKEN_PATH)
+	Call<OAuthTokens> getOAuthToken(@Header("Authorization") String authorization,
+									@Field("grant_type") String grantType,
+									@Field("username") String username,
+									@Field("password") String password);
+
+	@FormUrlEncoded
     @POST(OAUTH_PATH + OAUTH_TOKEN_PATH)
     Call<OAuthTokens> refreshOAuthToken(@Header("Authorization") String authorization,
                                         @Field("grant_type") String grantType,

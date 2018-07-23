@@ -44,6 +44,7 @@ public class DracoonAuth {
      */
     public enum Mode {
         AUTHORIZATION_CODE,
+		PASSWORD,
         ACCESS_TOKEN,
         ACCESS_REFRESH_TOKEN
     }
@@ -55,6 +56,8 @@ public class DracoonAuth {
     private String mAuthorizationCode;
     private String mAccessToken;
     private String mRefreshToken;
+    private String mUsername;
+    private String mPassword;
 
     /**
      * Constructs a new configuration for the Authorization Code Mode.
@@ -73,7 +76,38 @@ public class DracoonAuth {
         mAuthorizationCode = authorizationCode;
     }
 
-    /**
+	/**
+	 * constructs an empty configuration
+	 * used for {@link #passwordAuth(String, String, String, String)}
+	 */
+	private DracoonAuth() {}
+
+	/** Constructs a new configuration for the Password Mode.
+	 *
+	 * @param clientId		The OAuth client ID.
+	 * @param clientSecret 	The OAuth client secret.
+	 * @param username		The user's username.
+	 * @param password		The user's password.
+	 * @return				created auth
+	 */
+	public static DracoonAuth passwordAuth(String clientId, String clientSecret, String username, String password) {
+		DracoonAuth auth = new DracoonAuth();
+
+		auth.mMode = Mode.PASSWORD;
+		ValidatorUtils.validateString("Client ID", clientId, false);
+		auth.mClientId = clientId;
+		ValidatorUtils.validateString("Client secret", clientSecret, false);
+		auth.mClientSecret = clientSecret;
+		ValidatorUtils.validateString("Username", username, false);
+		auth.mUsername = username;
+		ValidatorUtils.validateString("Password", password, false);
+		auth.mPassword = password;
+
+		return auth;
+	}
+
+
+	/**
      * Constructs a new configuration for the Access Token Mode.
      *
      * @param accessToken The OAuth access token.
@@ -160,5 +194,19 @@ public class DracoonAuth {
     public String getRefreshToken() {
         return mRefreshToken;
     }
+
+	/**
+	 * Returns the user's username.
+	 *
+	 * @return the user's username.
+	 */
+	public String getUsername() { return mUsername; }
+
+	/**
+	 * Returns the user's password.
+	 * @return the user's password.
+	 */
+	public String getPassword() { return mPassword; }
+
 
 }
