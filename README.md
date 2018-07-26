@@ -32,7 +32,7 @@ compile 'com.dracoon:dracoon-sdk:1.0.0'
 
 ##### JAR import
 
-The latest JAR can be found [here](https://github.com/dracoon/sdk-java/releases).
+The latest JAR can be found [here](https://github.com/dracoon/dracoon-java-sdk/releases).
 
 Note that you also need to include the following dependencies:
 1. Bouncy Castle Provider: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
