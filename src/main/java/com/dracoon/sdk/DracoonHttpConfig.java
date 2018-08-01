@@ -41,7 +41,7 @@ public class DracoonHttpConfig {
         mConnectTimeout = 15;
         mReadTimeout = 15;
         mWriteTimeout = 15;
-        mChunkSize = 2 * DracoonConstants.MIB;
+        mChunkSize = (2 * DracoonConstants.MIB) / DracoonConstants.KIB;
     }
 
     /**
