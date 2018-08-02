@@ -80,7 +80,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        //listNodes(client);
+        listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -103,7 +103,7 @@ public class DracoonExamples {
         //uploadFile(client);
         //downloadFile(client);
         //uploadFileWithStream(client);
-        downloadFileWithStream(client);
+        //downloadFileWithStream(client);
 
         //searchNodes(client);
         //searchNodesPaged(client);

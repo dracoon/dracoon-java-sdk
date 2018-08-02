@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.util;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -8,17 +9,6 @@ import java.util.TimeZone;
 import com.dracoon.sdk.internal.DracoonConstants;
 
 public class DateUtils {
-
-    private static SimpleDateFormat sDateFormat;
-    private static SimpleDateFormat sTimeFormat;
-
-    static {
-        sDateFormat = new SimpleDateFormat(DracoonConstants.API_DATE_FORMAT);
-        sDateFormat.setTimeZone(TimeZone.getTimeZone(DracoonConstants.API_TIME_ZONE));
-
-        sTimeFormat = new SimpleDateFormat(DracoonConstants.API_TIME_FORMAT);
-        sTimeFormat.setTimeZone(TimeZone.getTimeZone(DracoonConstants.API_TIME_ZONE));
-    }
 
     private DateUtils() {
 
@@ -29,8 +19,10 @@ public class DateUtils {
             return null;
         }
 
+        DateFormat df = createDateFormat(DracoonConstants.API_DATE_FORMAT);
+
         try {
-            return sDateFormat.parse(value);
+            return df.parse(value);
         } catch (ParseException e) {
             throw new Error(e);
         }
@@ -41,7 +33,9 @@ public class DateUtils {
             return null;
         }
 
-        return sDateFormat.format(value);
+        DateFormat df = createDateFormat(DracoonConstants.API_DATE_FORMAT);
+
+        return df.format(value);
     }
 
     public static Date parseTime(String value) {
@@ -49,8 +43,10 @@ public class DateUtils {
             return null;
         }
 
+        DateFormat tf = createDateFormat(DracoonConstants.API_TIME_FORMAT);
+
         try {
-            return sTimeFormat.parse(value);
+            return tf.parse(value);
         } catch (ParseException e) {
             throw new Error(e);
         }
@@ -61,7 +57,15 @@ public class DateUtils {
             return null;
         }
 
-        return sTimeFormat.format(value);
+        DateFormat tf = createDateFormat(DracoonConstants.API_TIME_FORMAT);
+
+        return tf.format(value);
+    }
+
+    private static DateFormat createDateFormat(String format) {
+        SimpleDateFormat df = new SimpleDateFormat(format);
+        df.setTimeZone(TimeZone.getTimeZone(DracoonConstants.API_TIME_ZONE));
+        return df;
     }
 
 }
