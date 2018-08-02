@@ -1,24 +1,29 @@
 package com.dracoon.sdk;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.dracoon.sdk.internal.BuildDetails;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
+import okhttp3.Interceptor;
 
 /**
  * DracoonHttpConfig is used to configure HTTP communication options.<br>
  * <br>
  * Following options can be configured:<br>
- * - User-Agent string             (Default: Java-SDK|[VERSION]|-|-|[BUILD_TIMESTAMP])<br>
- * - Auto-retry of failed requests (Default: disabled)<br>
- * - HTTP connection timeout       (Default: 15 seconds)<br>
- * - HTTP read timeout             (Default: 15 seconds)<br>
- * - HTTP write timeout            (Default: 15 seconds)<br>
- * - Upload/download chunk size    (Default: 2 MiB)<br>
- * - Proxy server enabled          (Default: false)<br>
- * - Proxy server address          (Default: null)<br>
- * - Proxy server port             (Default: null)
+ * - User-Agent string               (Default: Java-SDK|[VERSION]|-|-|[BUILD_TIMESTAMP])<br>
+ * - Auto-retry of failed requests   (Default: disabled)<br>
+ * - HTTP connection timeout         (Default: 15 seconds)<br>
+ * - HTTP read timeout               (Default: 15 seconds)<br>
+ * - HTTP write timeout              (Default: 15 seconds)<br>
+ * - Upload/download chunk size      (Default: 2 MiB)<br>
+ * - Proxy server enabled            (Default: false)<br>
+ * - Proxy server address            (Default: null)<br>
+ * - Proxy server port               (Default: null)<br>
+ * - OkHttp application interceptors (Default: none)<br>
+ * - OkHttp network interceptors     (Default: none)
  */
 public class DracoonHttpConfig {
 
@@ -31,6 +36,8 @@ public class DracoonHttpConfig {
     private boolean mProxyEnabled = false;
     private InetAddress mProxyAddress;
     private Integer mProxyPort;
+    private List<Interceptor> mOkHttpApplicationInterceptors;
+    private List<Interceptor> mOkHttpNetworkInterceptors;
 
     /**
      * Constructs a default HTTP configuration.
@@ -42,6 +49,8 @@ public class DracoonHttpConfig {
         mReadTimeout = 15;
         mWriteTimeout = 15;
         mChunkSize = (2 * DracoonConstants.MIB) / DracoonConstants.KIB;
+        mOkHttpApplicationInterceptors = new ArrayList<>();
+        mOkHttpNetworkInterceptors = new ArrayList<>();
     }
 
     /**
@@ -191,6 +200,52 @@ public class DracoonHttpConfig {
      */
     public Integer getProxyPort() {
         return mProxyPort;
+    }
+
+    /**
+     * Returns the list of added OkHttp application interceptors.
+     *
+     * @return the list of added OkHttp application interceptors
+     */
+    public List<Interceptor> getOkHttpApplicationInterceptors() {
+        return mOkHttpApplicationInterceptors;
+    }
+
+    /**
+     * Adds an OkHttp application interceptor.<br>
+     * <br>
+     * The Dracoon SDK uses OkHttp for http communication. OkHttp interceptors allow you to monitor,
+     * rewrite, ... outgoing requests and incoming responses. For more information see OkHttp's
+     * <a href="https://github.com/square/okhttp/wiki/Interceptors">documentation</a>.
+     *
+     * @param interceptor The OkHttp application interceptor.
+     */
+    public void addOkHttpApplicationInterceptor(Interceptor interceptor) {
+        ValidatorUtils.validateNotNull("OkHttp application interceptor", interceptor);
+        mOkHttpApplicationInterceptors.add(interceptor);
+    }
+
+    /**
+     * Returns the list of added OkHttp network interceptors.
+     *
+     * @return the list of added OkHttp network interceptors
+     */
+    public List<Interceptor> getOkHttpNetworkInterceptors() {
+        return mOkHttpNetworkInterceptors;
+    }
+
+    /**
+     * Adds an OkHttp network interceptor.<br>
+     * <br>
+     * The Dracoon SDK uses OkHttp for http communication. OkHttp interceptors allow you to monitor,
+     * rewrite, ... outgoing requests and incoming responses. For more information see OkHttp's
+     * <a href="https://github.com/square/okhttp/wiki/Interceptors">documentation</a>.
+     *
+     * @param interceptor The OkHttp network interceptor.
+     */
+    public void addOkHttpNetworkInterceptor(Interceptor interceptor) {
+        ValidatorUtils.validateNotNull("OkHttp network interceptor", interceptor);
+        mOkHttpNetworkInterceptors.add(interceptor);
     }
 
     private static String buildDefaultUserAgentString() {

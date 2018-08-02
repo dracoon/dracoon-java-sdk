@@ -129,7 +129,6 @@ public class DracoonClientImpl extends DracoonClient {
 
     private void initHttpClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()));
         builder.connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS);
         builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
         builder.writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS);
@@ -138,6 +137,13 @@ public class DracoonClientImpl extends DracoonClient {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
                     mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
             builder.proxy(proxy);
+        }
+        for (Interceptor interceptor : mHttpConfig.getOkHttpApplicationInterceptors()) {
+            builder.addInterceptor(interceptor);
+        }
+        builder.addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()));
+        for (Interceptor interceptor : mHttpConfig.getOkHttpNetworkInterceptors()) {
+            builder.addNetworkInterceptor(interceptor);
         }
         mHttpClient = builder.build();
     }
