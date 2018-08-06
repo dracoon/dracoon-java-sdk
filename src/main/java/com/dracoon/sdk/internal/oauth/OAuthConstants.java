@@ -10,7 +10,8 @@ public interface OAuthConstants {
     String OAUTH_FLOW = "code";
 
     interface OAuthGrantTypes {
-        String AUTHORIZATION_CODE = "authorization_code";
+		String PASSWORD = "password";
+		String AUTHORIZATION_CODE = "authorization_code";
         String REFRESH_TOKEN = "refresh_token";
     }
 
