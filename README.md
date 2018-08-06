@@ -83,6 +83,14 @@ for (Node node : nodeList.getItems()) {
 
 The documentation of the Dracoon SDK can be found [here](doc/main.md).
 
+## Contribution
+
+If you would like to contribute code, fork the repository and send a pull request. We don't use the
+GitHub Flow, so please create a feature branch of the develop branch and make your changes there.
+
+When submitting code, please make every effort to follow existing conventions and style in order to
+keep the code as readable as possible.
+
 ## Copyright and License
 
 Copyright Dracoon GmbH. All rights reserved.
