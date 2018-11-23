@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
@@ -18,8 +20,6 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import java.io.IOException;
 
 public class StreamUpload extends FileUploadStream {
 

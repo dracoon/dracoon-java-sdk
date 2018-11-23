@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import com.dracoon.sdk.crypto.BadFileException;
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.CryptoException;
@@ -21,9 +24,6 @@ import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 public class EncFileDownload extends FileDownload {
 

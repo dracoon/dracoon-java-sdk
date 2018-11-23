@@ -1,13 +1,13 @@
 package com.dracoon.sdk.internal.mapper;
 
+import java.util.Date;
+
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.UpdateFileRequest;
-
-import java.util.Date;
 
 public class FileMapper {
 

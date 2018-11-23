@@ -41,7 +41,8 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
-import static com.dracoon.sdk.internal.DracoonConstants.*;
+import static com.dracoon.sdk.internal.DracoonConstants.API_PATH;
+import static com.dracoon.sdk.internal.DracoonConstants.AUTHORIZATION_HEADER;
 
 public interface DracoonService {
 

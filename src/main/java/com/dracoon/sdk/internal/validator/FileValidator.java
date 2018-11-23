@@ -1,11 +1,11 @@
 package com.dracoon.sdk.internal.validator;
 
-import com.dracoon.sdk.model.FileUploadRequest;
-import com.dracoon.sdk.model.UpdateFileRequest;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.UpdateFileRequest;
 
 public class FileValidator extends BaseValidator {
 

@@ -1,9 +1,9 @@
 package com.dracoon.sdk.example;
 
-import com.dracoon.sdk.Log;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import com.dracoon.sdk.Log;
 
 @SuppressWarnings("WeakerAccess")
 public class Logger implements Log {

@@ -1,5 +1,12 @@
 package com.dracoon.sdk.internal;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
@@ -14,13 +21,6 @@ import com.dracoon.sdk.model.FileDownloadCallback;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FileDownload extends Thread {
 

@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dracoon.sdk.internal.model.ApiCopyNode;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
@@ -14,9 +17,6 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class NodeMapper {
 

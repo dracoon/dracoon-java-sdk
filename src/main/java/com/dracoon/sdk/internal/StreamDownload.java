@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
@@ -12,9 +15,6 @@ import com.dracoon.sdk.model.FileDownloadStream;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
 
 public class StreamDownload extends FileDownloadStream {
 

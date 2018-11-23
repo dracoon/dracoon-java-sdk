@@ -1,5 +1,12 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
@@ -21,13 +28,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class DracoonClientImpl extends DracoonClient {
 

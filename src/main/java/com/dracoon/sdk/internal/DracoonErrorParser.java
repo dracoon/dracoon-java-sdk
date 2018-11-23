@@ -1,13 +1,13 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.internal.model.ApiErrorResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import retrofit2.Response;
-
-import java.io.IOException;
 
 public class DracoonErrorParser {
 

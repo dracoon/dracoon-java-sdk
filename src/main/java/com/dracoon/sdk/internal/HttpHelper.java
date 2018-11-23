@@ -1,15 +1,15 @@
 package com.dracoon.sdk.internal;
 
+import java.io.InterruptedIOException;
+import java.io.IOException;
+import javax.net.ssl.SSLHandshakeException;
+
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.error.DracoonNetIOInterruptedException;
 import com.dracoon.sdk.error.DracoonNetInsecureException;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import javax.net.ssl.SSLHandshakeException;
-import java.io.InterruptedIOException;
-import java.io.IOException;
 
 public class HttpHelper {
 

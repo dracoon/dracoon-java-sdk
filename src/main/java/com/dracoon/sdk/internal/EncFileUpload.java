@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.CryptoException;
 import com.dracoon.sdk.crypto.CryptoSystemException;
@@ -26,9 +29,6 @@ import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.ResolutionStrategy;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class EncFileUpload extends FileUpload {
 

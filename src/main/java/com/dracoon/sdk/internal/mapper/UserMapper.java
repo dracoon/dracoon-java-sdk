@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.crypto.model.UserPrivateKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
@@ -13,9 +16,6 @@ import com.dracoon.sdk.model.Gender;
 import com.dracoon.sdk.model.UserAccount;
 import com.dracoon.sdk.model.UserInfo;
 import com.dracoon.sdk.model.UserRole;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserMapper {
 
