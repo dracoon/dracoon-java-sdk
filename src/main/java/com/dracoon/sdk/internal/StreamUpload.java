@@ -10,6 +10,7 @@ import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import okhttp3.MediaType;
@@ -152,10 +153,18 @@ public class StreamUpload extends FileUploadStream {
     private String createUpload() throws DracoonNetIOException, DracoonApiException {
         String auth = mClient.buildAuthString();
 
+        Integer classification = mFileUploadRequest.getClassification() != null ?
+                mFileUploadRequest.getClassification().getValue() : null;
+
+        if (classification == null && !mClient.isApiVersionGreaterEqual(
+                DracoonConstants.API_MIN_VERSION_DEFAULT_CLASSIFICATION)) {
+            classification = Classification.PUBLIC.getValue();
+        }
+
         ApiCreateFileUploadRequest request = new ApiCreateFileUploadRequest();
         request.parentId = mFileUploadRequest.getParentId();
         request.name = mFileUploadRequest.getName();
-        request.classification = mFileUploadRequest.getClassification().getValue();
+        request.classification = classification;
         request.notes = mFileUploadRequest.getNotes();
         if (mFileUploadRequest.getExpirationDate() != null) {
             ApiExpiration apiExpiration = new ApiExpiration();

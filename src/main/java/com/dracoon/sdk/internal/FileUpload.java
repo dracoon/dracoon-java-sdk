@@ -13,6 +13,7 @@ import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
@@ -158,9 +159,16 @@ public class FileUpload extends Thread {
             DracoonNetIOException, DracoonApiException, InterruptedException {
         notifyStarted(mId);
 
-        String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
-                mRequest.getClassification().getValue(), mRequest.getNotes(),
-                mRequest.getExpirationDate());
+        Integer classification = mRequest.getClassification() != null ?
+                mRequest.getClassification().getValue() : null;
+
+        if (classification == null && !mClient.isApiVersionGreaterEqual(
+                DracoonConstants.API_MIN_VERSION_DEFAULT_CLASSIFICATION)) {
+            classification = Classification.PUBLIC.getValue();
+        }
+
+        String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(), classification,
+                mRequest.getNotes(), mRequest.getExpirationDate());
 
         uploadFile(uploadId, mRequest.getName(), mSrcStream, mSrcLength);
 
@@ -174,8 +182,8 @@ public class FileUpload extends Thread {
         return node;
     }
 
-    protected String createUpload(long parentNodeId, String name, int classification, String notes,
-            Date expirationDate) throws DracoonNetIOException, DracoonApiException,
+    protected String createUpload(long parentNodeId, String name, Integer classification,
+            String notes, Date expirationDate) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
         String auth = mClient.buildAuthString();
 

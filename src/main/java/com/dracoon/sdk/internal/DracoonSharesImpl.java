@@ -32,7 +32,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     @Override
     public DownloadShare createDownloadShare(CreateDownloadShareRequest request)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         boolean isEncrypted = mClient.getNodesImpl().isNodeEncrypted(request.getNodeId());
 
@@ -78,7 +78,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     @Override
     public UploadShare createUploadShare(CreateUploadShareRequest request)
             throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         ShareValidator.validateCreateUploadRequest(request);
 

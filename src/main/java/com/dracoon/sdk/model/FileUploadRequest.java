@@ -84,7 +84,6 @@ public class FileUploadRequest {
      * - Conflict resolution strategy: {@link #resolutionStrategy(ResolutionStrategy)}<br>
      * (Default: AUTO_RENAME)<br>
      * - Classification:               {@link #classification(Classification)}<br>
-     * (Default: PUBLIC)<br>
      * - Notes:                        {@link #notes(String)}<br>
      * - Expiration date:              {@link #expirationDate(Date)}
      */
@@ -104,7 +103,6 @@ public class FileUploadRequest {
             mRequest.mParentId = parentId;
             mRequest.mName = name;
             mRequest.mResolutionStrategy = ResolutionStrategy.AUTO_RENAME;
-            mRequest.mClassification = Classification.PUBLIC;
         }
 
         /**

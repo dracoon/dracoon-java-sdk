@@ -21,7 +21,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler implements Dracoon
     @Override
     public ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
         Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings(auth);

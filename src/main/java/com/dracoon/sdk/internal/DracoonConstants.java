@@ -13,6 +13,7 @@ public interface DracoonConstants {
 
     String API_PATH = "/api/v4";
     String API_MIN_VERSION = "4.6.0";
+    String API_MIN_VERSION_DEFAULT_CLASSIFICATION = "4.9.0";
 
     String API_TIME_ZONE = "UTC";
     String API_DATE_FORMAT = "yyyy-MM-dd";

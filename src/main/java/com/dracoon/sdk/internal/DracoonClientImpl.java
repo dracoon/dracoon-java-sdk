@@ -4,6 +4,7 @@ import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
@@ -65,6 +66,8 @@ public class DracoonClientImpl extends DracoonClient {
     private Groups mGroups;
     private DracoonNodesImpl mNodes;
     private DracoonSharesImpl mShares;
+
+    private String mApiVersion = null;
 
     private long mOAuthLastRefreshTime;
 
@@ -192,6 +195,50 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpHelper = new HttpHelper();
         mHttpHelper.setLog(mLog);
         mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
+    }
+
+    public void assertApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
+        if (mApiVersion != null) {
+            return;
+        }
+
+        String apiVersion = mServer.getVersion();
+
+        if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_VERSION)) {
+            throw new DracoonApiException(DracoonApiCode.API_VERSION_NOT_SUPPORTED);
+        }
+
+        mApiVersion = apiVersion;
+    }
+
+    public boolean isApiVersionGreaterEqual(String minApiVersion)
+            throws DracoonNetIOException, DracoonApiException {
+        if (mApiVersion == null) {
+            mApiVersion = mServer.getVersion();
+        }
+
+        String[] av = mApiVersion.split("\\.");
+        String[] mav = minApiVersion.split("\\.");
+
+        for (int i = 0; i < 3; i++) {
+            int v;
+            int mv;
+
+            try {
+                v = Integer.valueOf(av[i]);
+                mv = Integer.valueOf(mav[i]);
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Can't parse server API version.", e);
+            }
+
+            if (v > mv) {
+                break;
+            } else if (v < mv) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
