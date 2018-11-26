@@ -33,7 +33,9 @@ public class ValidatorUtils {
         if (ids.isEmpty()) {
             throw new IllegalArgumentException(name + " IDs cannot be empty.");
         }
-        ids.forEach(id -> validateId(name, id));
+        for (Long id : ids) {
+            validateId(name, id);
+        }
     }
 
     // --- Number validation methods ---

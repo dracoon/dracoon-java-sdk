@@ -235,8 +235,8 @@ public class FileUpload extends Thread {
         }
     }
 
-    protected void uploadFileChunk(String uploadId, String fileName, byte[] data, long offset,
-            int count, long length) throws DracoonNetIOException, DracoonApiException,
+    protected void uploadFileChunk(String uploadId, String fileName, byte[] data, final long offset,
+            int count, final long length) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
         if (count <= 0) {
             return;
@@ -245,11 +245,14 @@ public class FileUpload extends Thread {
         String auth = mClient.buildAuthString();
 
         FileRequestBody requestBody = new FileRequestBody(data, count);
-        requestBody.setCallback(send -> {
-            if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
-                    && !isInterrupted()) {
-                notifyRunning(mId, offset + send, length);
-                mProgressUpdateTime = System.currentTimeMillis();
+        requestBody.setCallback(new FileRequestBody.Callback() {
+            @Override
+            public void onProgress(long send) {
+                if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
+                        && !isInterrupted()) {
+                    notifyRunning(mId, offset + send, length);
+                    mProgressUpdateTime = System.currentTimeMillis();
+                }
             }
         });
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileName, requestBody);
@@ -294,23 +297,33 @@ public class FileUpload extends Thread {
     // --- Callback helper methods ---
 
     protected void notifyStarted(String id) {
-        mCallbacks.forEach(callback -> callback.onStarted(id));
+        for (FileUploadCallback callback : mCallbacks) {
+            callback.onStarted(id);
+        }
     }
 
     protected void notifyRunning(String id, long bytesSend, long bytesTotal) {
-        mCallbacks.forEach(callback -> callback.onRunning(id, bytesSend, bytesTotal));
+        for (FileUploadCallback callback : mCallbacks) {
+            callback.onRunning(id, bytesSend, bytesTotal);
+        }
     }
 
     protected void notifyFinished(String id, Node node) {
-        mCallbacks.forEach(callback -> callback.onFinished(id, node));
+        for (FileUploadCallback callback : mCallbacks) {
+            callback.onFinished(id, node);
+        }
     }
 
     protected void notifyCanceled(String id) {
-        mCallbacks.forEach(callback -> callback.onCanceled(id));
+        for (FileUploadCallback callback : mCallbacks) {
+            callback.onCanceled(id);
+        }
     }
 
     protected void notifyFailed(String id, DracoonException e) {
-        mCallbacks.forEach(callback -> callback.onFailed(id, e));
+        for (FileUploadCallback callback : mCallbacks) {
+            callback.onFailed(id, e);
+        }
     }
 
 }

@@ -234,23 +234,33 @@ public class FileDownload extends Thread {
     // --- Callback helper methods ---
 
     protected void notifyStarted(String id) {
-        mCallbacks.forEach(callback -> callback.onStarted(id));
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onStarted(id);
+        }
     }
 
     protected void notifyRunning(String id, long bytesRead, long bytesTotal) {
-        mCallbacks.forEach(callback -> callback.onRunning(id, bytesRead, bytesTotal));
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onRunning(id, bytesRead, bytesTotal);
+        }
     }
 
     protected void notifyFinished(String id) {
-        mCallbacks.forEach(callback -> callback.onFinished(id));
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onFinished(id);
+        }
     }
 
     protected void notifyCanceled(String id) {
-        mCallbacks.forEach(callback -> callback.onCanceled(id));
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onCanceled(id);
+        }
     }
 
     protected void notifyFailed(String id, DracoonException e) {
-        mCallbacks.forEach(callback -> callback.onFailed(id, e));
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onFailed(id, e);
+        }
     }
 
 }
