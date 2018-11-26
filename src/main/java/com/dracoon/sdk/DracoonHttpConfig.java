@@ -1,29 +1,74 @@
 package com.dracoon.sdk;
 
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.dracoon.sdk.internal.BuildDetails;
+import com.dracoon.sdk.internal.DracoonConstants;
+import com.dracoon.sdk.internal.validator.ValidatorUtils;
+import okhttp3.Interceptor;
+
 /**
  * DracoonHttpConfig is used to configure HTTP communication options.<br>
  * <br>
  * Following options can be configured:<br>
- * - Auto-retry of failed requests (Default: disabled)<br>
- * - HTTP connection timeout (Default: 15 seconds)<br>
- * - HTTP read timeout (Default: 15 seconds)<br>
- * - HTTP write timeout (Default: 15 seconds)<br>
+ * - User-Agent string               (Default: Java-SDK|[VERSION]|-|-|[BUILD_TIMESTAMP])<br>
+ * - Auto-retry of failed requests   (Default: disabled)<br>
+ * - HTTP connection timeout         (Default: 15 seconds)<br>
+ * - HTTP read timeout               (Default: 15 seconds)<br>
+ * - HTTP write timeout              (Default: 15 seconds)<br>
+ * - Upload/download chunk size      (Default: 2 MiB)<br>
+ * - Proxy server enabled            (Default: false)<br>
+ * - Proxy server address            (Default: null)<br>
+ * - Proxy server port               (Default: null)<br>
+ * - OkHttp application interceptors (Default: none)<br>
+ * - OkHttp network interceptors     (Default: none)
  */
 public class DracoonHttpConfig {
 
+    private String mUserAgent;
     private boolean mRetryEnabled;
     private int mConnectTimeout;
     private int mReadTimeout;
     private int mWriteTimeout;
+    private int mChunkSize;
+    private boolean mProxyEnabled = false;
+    private InetAddress mProxyAddress;
+    private Integer mProxyPort;
+    private List<Interceptor> mOkHttpApplicationInterceptors;
+    private List<Interceptor> mOkHttpNetworkInterceptors;
 
     /**
      * Constructs a default HTTP configuration.
      */
     public DracoonHttpConfig() {
+        mUserAgent = buildDefaultUserAgentString();
         mRetryEnabled = false;
         mConnectTimeout = 15;
         mReadTimeout = 15;
         mWriteTimeout = 15;
+        mChunkSize = (2 * DracoonConstants.MIB) / DracoonConstants.KIB;
+        mOkHttpApplicationInterceptors = new ArrayList<>();
+        mOkHttpNetworkInterceptors = new ArrayList<>();
+    }
+
+    /**
+     * Returns the User-Agent string.
+     *
+     * @return the User-Agent string
+     */
+    public String getUserAgent() {
+        return mUserAgent;
+    }
+
+    /**
+     * Sets the User-Agent string.
+     *
+     * @param userAgent The User-Agent string.
+     */
+    public void setUserAgent(String userAgent) {
+        mUserAgent = userAgent;
     }
 
     /**
@@ -41,7 +86,7 @@ public class DracoonHttpConfig {
      * @param retryEnabled <code>true</code> to enable auto-retry; otherwise <code>false</code>.
      */
     public void setRetryEnabled(boolean retryEnabled) {
-        this.mRetryEnabled = retryEnabled;
+        mRetryEnabled = retryEnabled;
     }
 
     /**
@@ -59,7 +104,7 @@ public class DracoonHttpConfig {
      * @param connectTimeout The HTTP connection timeout.
      */
     public void setConnectTimeout(int connectTimeout) {
-        this.mConnectTimeout = connectTimeout;
+        mConnectTimeout = connectTimeout;
     }
 
     /**
@@ -77,7 +122,7 @@ public class DracoonHttpConfig {
      * @param readTimeout The HTTP read timeout.
      */
     public void setReadTimeout(int readTimeout) {
-        this.mReadTimeout = readTimeout;
+        mReadTimeout = readTimeout;
     }
 
     /**
@@ -95,7 +140,120 @@ public class DracoonHttpConfig {
      * @param writeTimeout The HTTP write timeout.
      */
     public void setWriteTimeout(int writeTimeout) {
-        this.mWriteTimeout = writeTimeout;
+        mWriteTimeout = writeTimeout;
+    }
+
+    /**
+     * Returns the upload/download chunk size in KiB.
+     *
+     * @return the upload/download chunk size
+     */
+    public int getChunkSize() {
+        return mChunkSize;
+    }
+
+    /**
+     * Sets the upload/download chunk size in KiB.
+     *
+     * @param chunkSize The upload/download chunk size.
+     */
+    public void setChunkSize(int chunkSize) {
+        mChunkSize = chunkSize;
+    }
+
+    /**
+     * Enables the use of a proxy server and sets the address and port to use.
+     *
+     * @param address The proxy server address.
+     * @param port    The proxy server port.
+     */
+    public void setProxy(InetAddress address, Integer port) {
+        ValidatorUtils.validateNotNull("Address", address);
+        ValidatorUtils.validateNotNull("Port", port);
+        mProxyEnabled = true;
+        mProxyAddress = address;
+        mProxyPort = port;
+    }
+
+    /**
+     * Returns <code>true</code> if a proxy server is used.
+     *
+     * @return <code>true</code> if a proxy server is used; <code>false</code> otherwise
+     */
+    public boolean isProxyEnabled() {
+        return mProxyEnabled;
+    }
+
+    /**
+     * Returns the address of the proxy server, if a proxy server was configured.
+     *
+     * @return the address of the proxy server; or <code>null</code> if no proxy server is configured
+     */
+    public InetAddress getProxyAddress() {
+        return mProxyAddress;
+    }
+
+    /**
+     * Returns the port of the proxy server, if a proxy server was configured.
+     *
+     * @return the port of the proxy server; or <code>null</code> if no proxy server is configured
+     */
+    public Integer getProxyPort() {
+        return mProxyPort;
+    }
+
+    /**
+     * Returns the list of added OkHttp application interceptors.
+     *
+     * @return the list of added OkHttp application interceptors
+     */
+    public List<Interceptor> getOkHttpApplicationInterceptors() {
+        return mOkHttpApplicationInterceptors;
+    }
+
+    /**
+     * Adds an OkHttp application interceptor.<br>
+     * <br>
+     * The Dracoon SDK uses OkHttp for http communication. OkHttp interceptors allow you to monitor,
+     * rewrite, ... outgoing requests and incoming responses. For more information see OkHttp's
+     * <a href="https://github.com/square/okhttp/wiki/Interceptors">documentation</a>.
+     *
+     * @param interceptor The OkHttp application interceptor.
+     */
+    public void addOkHttpApplicationInterceptor(Interceptor interceptor) {
+        ValidatorUtils.validateNotNull("OkHttp application interceptor", interceptor);
+        mOkHttpApplicationInterceptors.add(interceptor);
+    }
+
+    /**
+     * Returns the list of added OkHttp network interceptors.
+     *
+     * @return the list of added OkHttp network interceptors
+     */
+    public List<Interceptor> getOkHttpNetworkInterceptors() {
+        return mOkHttpNetworkInterceptors;
+    }
+
+    /**
+     * Adds an OkHttp network interceptor.<br>
+     * <br>
+     * The Dracoon SDK uses OkHttp for http communication. OkHttp interceptors allow you to monitor,
+     * rewrite, ... outgoing requests and incoming responses. For more information see OkHttp's
+     * <a href="https://github.com/square/okhttp/wiki/Interceptors">documentation</a>.
+     *
+     * @param interceptor The OkHttp network interceptor.
+     */
+    public void addOkHttpNetworkInterceptor(Interceptor interceptor) {
+        ValidatorUtils.validateNotNull("OkHttp network interceptor", interceptor);
+        mOkHttpNetworkInterceptors.add(interceptor);
+    }
+
+    private static String buildDefaultUserAgentString() {
+        return "Java-SDK" + "|" +
+                BuildDetails.getVersion() + "|" +
+                "-" + "|" +
+                "-" + "|" +
+                BuildDetails.getBuildTimestamp();
     }
 
 }

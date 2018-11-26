@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.CryptoException;
 import com.dracoon.sdk.crypto.CryptoSystemException;
@@ -20,14 +23,12 @@ import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.ResolutionStrategy;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class EncFileUpload extends FileUpload {
 
@@ -46,9 +47,16 @@ public class EncFileUpload extends FileUpload {
             DracoonNetIOException, DracoonApiException, InterruptedException {
         notifyStarted(mId);
 
-        String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(),
-                mRequest.getClassification().getValue(), mRequest.getNotes(),
-                mRequest.getExpirationDate());
+        Integer classification = mRequest.getClassification() != null ?
+                mRequest.getClassification().getValue() : null;
+
+        if (classification == null && !mClient.isApiVersionGreaterEqual(
+                DracoonConstants.API_MIN_VERSION_DEFAULT_CLASSIFICATION)) {
+            classification = Classification.PUBLIC.getValue();
+        }
+
+        String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(), classification,
+                mRequest.getNotes(), mRequest.getExpirationDate());
 
         PlainFileKey plainFileKey = mClient.getNodesImpl().createFileKey(mUserPublicKey.getVersion());
 
@@ -81,7 +89,7 @@ public class EncFileUpload extends FileUpload {
             throw new DracoonCryptoException(errorCode, e);
         }
 
-        byte[] buffer = new byte[JUNK_SIZE];
+        byte[] buffer = new byte[mChunkSize];
         long offset = 0;
         int count;
 

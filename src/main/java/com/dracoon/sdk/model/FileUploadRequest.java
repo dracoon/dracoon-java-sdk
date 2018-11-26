@@ -84,7 +84,6 @@ public class FileUploadRequest {
      * - Conflict resolution strategy: {@link #resolutionStrategy(ResolutionStrategy)}<br>
      * (Default: AUTO_RENAME)<br>
      * - Classification:               {@link #classification(Classification)}<br>
-     * (Default: PUBLIC)<br>
      * - Notes:                        {@link #notes(String)}<br>
      * - Expiration date:              {@link #expirationDate(Date)}
      */
@@ -96,14 +95,14 @@ public class FileUploadRequest {
          * Constructs a new builder.
          *
          * @param parentId The ID of the parent node of the new file. (ID must be positive.)
-         * @param name     The name of the new file. (Name must not be empty.)
+         * @param name     The name of the new file. (Name must not be empty and cannot contain '<',
+         *                 '>', ':', '"', '|', '?', '*', '/', '\'.)
          */
         public Builder(Long parentId, String name) {
             mRequest = new FileUploadRequest();
             mRequest.mParentId = parentId;
             mRequest.mName = name;
             mRequest.mResolutionStrategy = ResolutionStrategy.AUTO_RENAME;
-            mRequest.mClassification = Classification.PUBLIC;
         }
 
         /**

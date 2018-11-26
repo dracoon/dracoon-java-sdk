@@ -1,12 +1,12 @@
 package com.dracoon.sdk.internal.mapper;
 
+import java.util.List;
+
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.GroupMemberAcceptance;
 import com.dracoon.sdk.model.UpdateRoomRequest;
-
-import java.util.List;
 
 public class RoomMapper {
 

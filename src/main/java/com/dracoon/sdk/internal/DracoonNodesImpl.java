@@ -1,5 +1,18 @@
 package com.dracoon.sdk.internal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.CryptoException;
@@ -16,6 +29,11 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.filter.FavoriteStatusFilter;
+import com.dracoon.sdk.filter.Filters;
+import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.NodeParentPathFilter;
+import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;
@@ -47,8 +65,10 @@ import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
+import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
@@ -58,21 +78,11 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
 
     private static final String LOG_TAG = DracoonNodesImpl.class.getSimpleName();
+
+    private static final String MEDIA_URL_TEMPLATE = "%s/mediaserver/image/%s/%dx%d";
 
     private Map<String, FileUpload> mUploads = new HashMap<>();
     private Map<String, FileDownload> mDownloads = new HashMap<>();
@@ -86,23 +96,36 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public NodeList getNodes(long parentNodeId) throws DracoonNetIOException,
             DracoonApiException {
-        return getNodesInternally(parentNodeId, null, null);
+        return getNodesInternally(parentNodeId, null, null, null);
+    }
+
+    @Override
+    public NodeList getNodes(long parentNodeId, GetNodesFilters filters)
+            throws DracoonNetIOException, DracoonApiException {
+        return getNodesInternally(parentNodeId, filters, null, null);
     }
 
     @Override
     public NodeList getNodes(long parentNodeId, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
-        return getNodesInternally(parentNodeId, offset, limit);
+        return getNodesInternally(parentNodeId, null, offset, limit);
     }
 
-    private NodeList getNodesInternally(long parentNodeId, Long offset, Long limit)
+    @Override
+    public NodeList getNodes(long parentNodeId, GetNodesFilters filters, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        return getNodesInternally(parentNodeId, filters, offset, limit);
+    }
 
-        NodeValidator.validateGetChildRequest(parentNodeId);
+    private NodeList getNodesInternally(long parentNodeId, Filters filters, Long offset, Long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateParentNodeId(parentNodeId);
 
         String auth = mClient.buildAuthString();
-        Call<ApiNodeList> call = mService.getNodes(auth, parentNodeId, 0, null, null,
+        String filter = filters != null ? filters.toString() : null;
+        Call<ApiNodeList> call = mService.getNodes(auth, parentNodeId, 0, filter, null,
                 offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
@@ -121,9 +144,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public Node getNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
-        NodeValidator.validateGetRequest(nodeId);
+        NodeValidator.validateNodeId(nodeId);
 
         String auth = mClient.buildAuthString();
         Call<ApiNode> call = mService.getNode(auth, nodeId);
@@ -144,40 +167,23 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public Node getNode(String nodePath) throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
-        String[] nodePathParts = nodePath.split("/", -1);
-        long parentNodeId = 0L;
+        NodeValidator.validateNodePath(nodePath);
 
-        Node wantedNode = null;
+        int slashPos = nodePath.lastIndexOf('/');
+        String path = nodePath.substring(0, slashPos + 1);
+        String name = nodePath.substring(slashPos + 1, nodePath.length());
 
-        for (int i = 1; i < nodePathParts.length; i++) {
-            if (nodePathParts[i].isEmpty()) {
-                break;
-            }
+        NodeParentPathFilter pathFilter = new NodeParentPathFilter.Builder()
+                .eq(path)
+                .build();
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addNodeParentPathFilter(pathFilter);
 
-            NodeList nodes = getNodes(parentNodeId);
+        NodeList nodeList = searchNodes(0L, name, filters);
 
-            Node node = null;
-            for (int j = 0; j < nodes.getItems().size(); j++) {
-                if (Objects.equals(nodes.getItems().get(j).getName(), nodePathParts[i])) {
-                    node = nodes.getItems().get(j);
-                    break;
-                }
-            }
-
-            if (node == null) {
-                break;
-            }
-
-            if (i == nodePathParts.length - 1) {
-                wantedNode = node;
-            }
-
-            parentNodeId = node.getId();
-        }
-
-        if (wantedNode == null) {
+        if (nodeList.getItems().isEmpty()) {
             DracoonApiCode errorCode = DracoonApiCode.SERVER_NODE_NOT_FOUND;
             String errorText = String.format("Query of node '%s' failed with '%s'!", nodePath,
                     errorCode.name());
@@ -185,7 +191,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             throw new DracoonApiException(errorCode);
         }
 
-        return wantedNode;
+        return nodeList.getItems().get(0);
     }
 
     public boolean isNodeEncrypted(long nodeId) throws DracoonNetIOException, DracoonApiException {
@@ -198,7 +204,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node createRoom(CreateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         RoomValidator.validateCreateRequest(request);
 
@@ -223,7 +229,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         RoomValidator.validateUpdateRequest(request);
 
@@ -250,7 +256,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node createFolder(CreateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         FolderValidator.validateCreateRequest(request);
 
@@ -275,7 +281,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateFolder(UpdateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         FolderValidator.validateUpdateRequest(request);
 
@@ -302,7 +308,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateFile(UpdateFileRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         FileValidator.validateUpdateRequest(request);
 
@@ -329,7 +335,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void deleteNodes(DeleteNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         NodeValidator.validateDeleteRequest(request);
 
@@ -350,7 +356,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node copyNodes(CopyNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         NodeValidator.validateCopyRequest(request);
 
@@ -376,7 +382,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node moveNodes(MoveNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         NodeValidator.validateMoveRequest(request);
 
@@ -405,13 +411,30 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public Node uploadFile(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = getFileInputStream(file);
         long length = file.length();
 
+        return uploadFileInternally(id, request, is, length, callback);
+    }
+
+    @Override
+    public Node uploadFile(String id, FileUploadRequest request, InputStream is, long length,
+            FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        FileValidator.validateUploadRequest(id, request, is);
+
+        return uploadFileInternally(id, request, is, length, callback);
+    }
+
+    private Node uploadFileInternally(String id, FileUploadRequest request, InputStream is,
+            long length, FileUploadCallback callback) throws DracoonFileIOException,
+            DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
         UserPublicKey userPublicKey = null;
         if (isEncryptedUpload) {
@@ -435,13 +458,30 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startUploadFileAsync(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = getFileInputStream(file);
         long length = file.length();
 
+        startUploadFileAsyncInternally(id, request, is, length, callback);
+    }
+
+    @Override
+    public void startUploadFileAsync(String id, FileUploadRequest request, InputStream is,
+            long length, FileUploadCallback callback) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        FileValidator.validateUploadRequest(id, request, is);
+
+        startUploadFileAsyncInternally(id, request, is, length, callback);
+    }
+
+    private void startUploadFileAsyncInternally(String id, FileUploadRequest request, InputStream is,
+            long length, FileUploadCallback callback) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
         UserPublicKey userPublicKey = null;
         if (isEncryptedUpload) {
@@ -504,22 +544,56 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mUploads.remove(id);
     }
 
+    @Override
+    public FileUploadStream createFileUploadStream(FileUploadRequest request)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        FileValidator.validateUploadRequest(request);
+
+        boolean isEncryptedDownload = isNodeEncrypted(request.getParentId());
+        if (isEncryptedDownload) {
+            throw new UnsupportedOperationException("Encrypted files aren't supported.");
+        }
+
+        return new StreamUpload(mClient, request);
+    }
+
     // --- File download methods ---
 
     @Override
     public void downloadFile(String id, long nodeId, File file, FileDownloadCallback callback)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
+        FileValidator.validateDownloadRequest(id, file);
+
+        OutputStream os = getFileOutputStream(file);
+
+        downloadFileInternally(id, nodeId, os, callback);
+    }
+
+    @Override
+    public void downloadFile(String id, long nodeId, OutputStream os, FileDownloadCallback callback)
+            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
+            DracoonFileIOException {
+        mClient.assertApiVersionSupported();
+
+        FileValidator.validateDownloadRequest(id, os);
+
+        downloadFileInternally(id, nodeId, os, callback);
+    }
+
+    private void downloadFileInternally(String id, long nodeId, OutputStream os,
+            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException, DracoonFileIOException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         UserPrivateKey userPrivateKey = null;
         if (isEncryptedDownload) {
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
             userPrivateKey = userKeyPair.getUserPrivateKey();
         }
-
-        OutputStream os = getFileOutputStream(file);
 
         FileDownload download;
         if (isEncryptedDownload) {
@@ -536,17 +610,36 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void startDownloadFileAsync(String id, long nodeId, File file,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
-            DracoonFileIOException, DracoonCryptoException {
-        assertServerApiVersion();
+            DracoonCryptoException, DracoonFileIOException {
+        mClient.assertApiVersionSupported();
 
+        FileValidator.validateDownloadRequest(id, file);
+
+        OutputStream os = getFileOutputStream(file);
+
+        startDownloadFileAsyncInternally(id, nodeId, os, callback);
+    }
+
+    @Override
+    public void startDownloadFileAsync(String id, long nodeId, OutputStream os,
+            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
+        mClient.assertApiVersionSupported();
+
+        FileValidator.validateDownloadRequest(id, os);
+
+        startDownloadFileAsyncInternally(id, nodeId, os, callback);
+    }
+
+    private void startDownloadFileAsyncInternally(String id, long nodeId, OutputStream os,
+            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         UserPrivateKey userPrivateKey = null;
         if (isEncryptedDownload) {
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
             userPrivateKey = userKeyPair.getUserPrivateKey();
         }
-
-        OutputStream os = getFileOutputStream(file);
 
         FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
             @Override
@@ -603,29 +696,56 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mDownloads.remove(id);
     }
 
+    @Override
+    public FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        boolean isEncryptedDownload = isNodeEncrypted(nodeId);
+        if (isEncryptedDownload) {
+            throw new UnsupportedOperationException("Encrypted files aren't supported.");
+        }
+
+        return new StreamDownload(mClient, nodeId);
+    }
+
     // --- Search methods ---
 
     @Override
     public NodeList searchNodes(long parentNodeId, String searchString)
             throws DracoonNetIOException, DracoonApiException {
-        return searchNodesInternally(parentNodeId, searchString, null, null);
+        return searchNodesInternally(parentNodeId, searchString, null, null, null);
+    }
+
+    @Override
+    public NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters)
+            throws DracoonNetIOException, DracoonApiException {
+        return searchNodesInternally(parentNodeId, searchString, filters, null, null);
     }
 
     @Override
     public NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
-        return searchNodesInternally(parentNodeId, searchString, offset, limit);
+        return searchNodesInternally(parentNodeId, searchString, null, offset, limit);
     }
 
-    private NodeList searchNodesInternally(long parentNodeId, String searchString, Long offset,
-            Long limit) throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+    @Override
+    public NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters,
+            long offset, long limit) throws DracoonNetIOException, DracoonApiException {
+        return searchNodesInternally(parentNodeId, searchString, filters, offset, limit);
+    }
+
+    private NodeList searchNodesInternally(long parentNodeId, String searchString,
+            SearchNodesFilters filters, Long offset, Long limit) throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
 
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
 
         String auth = mClient.buildAuthString();
-        Call<ApiNodeList> call = mService.searchNodes(auth, searchString, parentNodeId, -1,
-                null, null, offset, limit);
+        String filter = filters != null ? filters.toString() : null;
+        Call<ApiNodeList> call = mService.searchNodes(auth, searchString, parentNodeId, -1, filter,
+                null, offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -669,7 +789,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private void generateMissingFileKeysInternally(Long nodeId, Integer limit)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         Long batchOffset = 0L;
         Long batchLimit = 10L;
@@ -809,7 +929,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     public EncryptedFileKey getFileKey(long nodeId) throws DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
         Call<ApiFileKey> call = mService.getFileKey(auth, nodeId);
@@ -855,6 +975,89 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
+        }
+    }
+
+    // --- Favorite methods ---
+
+    @Override
+    public void markFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateNodeId(nodeId);
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.markFavorite(auth, nodeId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseFavoriteMarkError(response);
+            String errorText = String.format("Mark node %s as favorite failed with '%s'!", nodeId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            if (!errorCode.isValidationError()) {
+                throw new DracoonApiException(errorCode);
+            }
+        }
+    }
+
+    @Override
+    public void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateNodeId(nodeId);
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.unmarkFavorite(auth, nodeId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            // Ignore errors with response code 400
+            // (This check fixes a bad designed API. It can be removed after the API has been
+            // reworked.)
+            if (response.code() == HttpStatus.BAD_REQUEST.getNumber()) {
+                return;
+            }
+
+            DracoonApiCode errorCode = mErrorParser.parseFavoriteMarkError(response);
+            String errorText = String.format("Unmark node %s as favorite failed with '%s'!", nodeId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
+    public NodeList getFavorites() throws DracoonNetIOException, DracoonApiException {
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addFavoriteStatusFilter(new FavoriteStatusFilter.Builder()
+                .eq(true).build());
+
+        return searchNodes(0L, "*", filters);
+    }
+
+    @Override
+    public NodeList getFavorites(long offset, long limit) throws DracoonNetIOException,
+            DracoonApiException {
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addFavoriteStatusFilter(new FavoriteStatusFilter.Builder()
+                .eq(true).build());
+
+        return searchNodes(0L, "*", filters, offset, limit);
+    }
+
+    // --- Media methods ---
+
+    @Override
+    public URL buildMediaUrl(String mediaToken, int width, int height) {
+        NodeValidator.validateMediaUrlRequest(mediaToken, width, height);
+
+        String url = String.format(MEDIA_URL_TEMPLATE, mClient.getServerUrl(), mediaToken, width,
+                height);
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            throw new Error(e);
         }
     }
 

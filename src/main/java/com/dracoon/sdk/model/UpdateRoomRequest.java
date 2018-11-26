@@ -79,7 +79,8 @@ public class UpdateRoomRequest {
         /**
          * Sets the new name of the room.
          *
-         * @param name The new name. (Name must not be empty.)
+         * @param name The new name. (Name must not be empty and cannot contain '<', '>', ':', '"',
+         *             '|', '?', '*', '/', '\'.)
          *
          * @return a reference to this object
          */

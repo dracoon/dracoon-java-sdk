@@ -1,13 +1,13 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.internal.model.ApiErrorResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import retrofit2.Response;
-
-import java.io.IOException;
 
 public class DracoonErrorParser {
 
@@ -657,6 +657,26 @@ public class DracoonErrorParser {
                     return DracoonApiCode.SERVER_FILE_NOT_FOUND;
                 else if (errorCode == -70501)
                     return DracoonApiCode.SERVER_USER_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseFavoriteMarkError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:

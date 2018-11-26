@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.crypto.model.UserPrivateKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
@@ -9,14 +12,10 @@ import com.dracoon.sdk.internal.model.ApiUserPublicKey;
 import com.dracoon.sdk.internal.model.ApiUserRole;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
 import com.dracoon.sdk.internal.model.ApiUserInfo;
-import com.dracoon.sdk.internal.util.DateUtils;
 import com.dracoon.sdk.model.Gender;
 import com.dracoon.sdk.model.UserAccount;
 import com.dracoon.sdk.model.UserInfo;
 import com.dracoon.sdk.model.UserRole;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserMapper {
 
@@ -51,11 +50,11 @@ public class UserMapper {
         userAccount.setNeedsToChangeUserName(apiUserAccount.needsToChangeUserName);
         userAccount.setNeedsToChangePassword(apiUserAccount.needsToChangePassword);
 
-        userAccount.setExpireAt(DateUtils.parseDate(apiUserAccount.expireAt));
+        userAccount.setExpireAt(apiUserAccount.expireAt);
 
-        userAccount.setLastLoginSuccessAt(DateUtils.parseDate(apiUserAccount.lastLoginSuccessAt));
+        userAccount.setLastLoginSuccessAt(apiUserAccount.lastLoginSuccessAt);
         userAccount.setLastLoginSuccessIp(apiUserAccount.lastLoginSuccessIp);
-        userAccount.setLastLoginFailAt(DateUtils.parseDate(apiUserAccount.lastLoginFailAt));
+        userAccount.setLastLoginFailAt(apiUserAccount.lastLoginFailAt);
         userAccount.setLastLoginFailIp(apiUserAccount.lastLoginFailIp);
 
         List<UserRole> userRoles = new ArrayList<>();

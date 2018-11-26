@@ -46,6 +46,8 @@ public class Node {
     private Integer mCntUploadShares;
     private Long mBranchVersion;
 
+    private String mMediaToken;
+
     /**
      * Returns the ID of the node.
      *
@@ -554,6 +556,31 @@ public class Node {
      */
     public void setBranchVersion(Long branchVersion) {
         mBranchVersion = branchVersion;
+    }
+
+    /**
+     * Returns the media token for the node, if a media server is available.<br>
+     * <br>
+     * A media token can be used to get a thumbnail or preview image for a node. To retrieve the
+     * image the appropriate media URL must be generate first. It can be created via
+     * {@link com.dracoon.sdk.DracoonClient.Nodes#buildMediaUrl buildMediaUrl} or by using the
+     * following template.<br>
+     * <br>
+     * http(s)://[host]/mediaserver/image/[media-token]/[width]x[height]
+     *
+     * @return the media token
+     */
+    public String getMediaToken() {
+        return mMediaToken;
+    }
+
+    /**
+     * Sets the media token for the node.
+     *
+     * @param mMediaToken The media token.
+     */
+    public void setMediaToken(String mMediaToken) {
+        this.mMediaToken = mMediaToken;
     }
 
 }

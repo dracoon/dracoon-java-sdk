@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import com.dracoon.sdk.crypto.BadFileException;
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.CryptoException;
@@ -21,9 +24,6 @@ import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 public class EncFileDownload extends FileDownload {
 
@@ -95,7 +95,7 @@ public class EncFileDownload extends FileDownload {
         try {
             while (offset < length) {
                 long remaining = length - offset;
-                int count = remaining > JUNK_SIZE ? JUNK_SIZE : (int) remaining;
+                int count = remaining > mChunkSize ? mChunkSize : (int) remaining;
                 byte[] encBytes = downloadFileChunk(downloadUrl, offset, count, length);
 
                 EncryptedDataContainer encData = new EncryptedDataContainer(encBytes, null);

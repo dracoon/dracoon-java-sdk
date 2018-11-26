@@ -6,14 +6,18 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 
 public class NodeValidator extends BaseValidator {
 
-    public static void validateGetRequest(long id) {
-        BaseValidator.validateNodeId(id);
-    }
-
-    public static void validateGetChildRequest(long id) {
+    public static void validateParentNodeId(long id) {
         if (id != 0L) {
             BaseValidator.validateParentNodeId(id);
         }
+    }
+
+    public static void validateNodeId(long id) {
+        BaseValidator.validateNodeId(id);
+    }
+
+    public static void validateNodePath(String path) {
+        ValidatorUtils.validateFilePath("Node path", path);
     }
 
     public static void validateDeleteRequest(DeleteNodesRequest request) {
@@ -24,13 +28,23 @@ public class NodeValidator extends BaseValidator {
     public static void validateCopyRequest(CopyNodesRequest request) {
         ValidatorUtils.validateNotNull("Nodes copy request", request);
         validateNodeId(request.getTargetNodeId());
-        validateNodeIds(request.getSourceNodeIds());
+        for (CopyNodesRequest.SourceNode sourceNode : request.getSourceNodes()) {
+            validateNodeId(sourceNode.getId());
+            if (sourceNode.getName() != null) {
+                validateNodeName(sourceNode.getName());
+            }
+        }
     }
 
     public static void validateMoveRequest(MoveNodesRequest request) {
         ValidatorUtils.validateNotNull("Nodes move request", request);
         validateNodeId(request.getTargetNodeId());
-        validateNodeIds(request.getSourceNodeIds());
+        for (MoveNodesRequest.SourceNode sourceNode : request.getSourceNodes()) {
+            validateNodeId(sourceNode.getId());
+            if (sourceNode.getName() != null) {
+                validateNodeName(sourceNode.getName());
+            }
+        }
     }
 
     public static void validateSearchRequest(long id, String searchString) {
@@ -38,6 +52,12 @@ public class NodeValidator extends BaseValidator {
             BaseValidator.validateParentNodeId(id);
         }
         ValidatorUtils.validateString("Search string", searchString, false);
+    }
+
+    public static void validateMediaUrlRequest(String mediaToken, int width, int height) {
+        ValidatorUtils.validateString("Media token", mediaToken, false);
+        ValidatorUtils.validatePositiveNumber("Width", width, false);
+        ValidatorUtils.validatePositiveNumber("Height", height, false);
     }
 
 }

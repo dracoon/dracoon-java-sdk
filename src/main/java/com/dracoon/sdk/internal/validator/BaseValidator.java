@@ -16,16 +16,32 @@ public class BaseValidator {
         ValidatorUtils.validateId("Parent node", id);
     }
 
+    protected static void validateNodeName(String name) {
+        ValidatorUtils.validateFileName("Node name", name);
+    }
+
     protected static void validateRoomId(Long id) {
         ValidatorUtils.validateId("Room", id);
+    }
+
+    protected static void validateRoomName(String name) {
+        ValidatorUtils.validateFileName("Room name", name);
     }
 
     protected static void validateFolderId(Long id) {
         ValidatorUtils.validateId("Folder", id);
     }
 
+    protected static void validateFolderName(String name) {
+        ValidatorUtils.validateFileName("Folder name", name);
+    }
+
     protected static void validateFileId(Long id) {
         ValidatorUtils.validateId("File", id);
+    }
+
+    protected static void validateFileName(String name) {
+        ValidatorUtils.validateFileName("File name", name);
     }
 
     protected static void validateUserId(Long id) {

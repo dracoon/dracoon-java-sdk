@@ -14,11 +14,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
-import com.dracoon.sdk.Log;
 import com.dracoon.sdk.OAuthHelper;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 /**
@@ -83,20 +84,23 @@ public class OAuthExamples {
         // Open local TCP port to receive callback
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(REDIRECT_PORT), 0);
-            server.createContext("/", exchange -> {
-                try {
-                    // Store callback data
-                    callbackQueue.put(exchange.getRequestURI());
+            server.createContext("/", new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    try {
+                        // Store callback data
+                        callbackQueue.put(exchange.getRequestURI());
 
-                    // Write response
-                    String message = "Authorization completed.";
-                    byte[] data = message.getBytes();
-                    exchange.sendResponseHeaders(200, data.length);
-                    OutputStream os = exchange.getResponseBody();
-                    os.write(data);
-                    os.close();
-                } catch (InterruptedException e) {
-                    // Nothing to do here
+                        // Write response
+                        String message = "Authorization completed.";
+                        byte[] data = message.getBytes();
+                        exchange.sendResponseHeaders(200, data.length);
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(data);
+                        os.close();
+                    } catch (InterruptedException e) {
+                        // Nothing to do here
+                    }
                 }
             });
             server.start();
@@ -131,7 +135,7 @@ public class OAuthExamples {
 
         // Create client and supply authorization configuration
         DracoonClient client = new DracoonClient.Builder(new URL(SERVER_URL))
-                .log(new Logger(Log.DEBUG))
+                .log(new Logger(Logger.DEBUG))
                 .auth(auth)
                 .build();
 

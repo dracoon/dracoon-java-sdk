@@ -1,33 +1,24 @@
 package com.dracoon.sdk.example;
 
-import com.dracoon.sdk.Log;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.dracoon.sdk.Log;
+
+@SuppressWarnings("WeakerAccess")
 public class Logger implements Log {
 
     private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+    public static final int DEBUG = 1;
+    public static final int INFO = 2;
+    public static final int WARN = 3;
+    public static final int ERROR = 4;
 
     private int mLevel;
 
     public Logger(int level) {
         mLevel = level;
-    }
-
-    @Override
-    public void v(String tag, String msg) {
-        if (mLevel <= VERBOSE) {
-            System.out.println(buildLogMessage("v", tag, msg));
-        }
-    }
-
-    @Override
-    public void v(String tag, String msg, Throwable tr) {
-        if (mLevel <= VERBOSE) {
-            v(tag, msg);
-            tr.printStackTrace(System.out);
-        }
     }
 
     @Override

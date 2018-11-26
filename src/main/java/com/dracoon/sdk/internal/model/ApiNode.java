@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal.model;
 
+import java.util.Date;
+
 public class ApiNode {
     public Long id;
     public String type;
@@ -14,11 +16,11 @@ public class ApiNode {
     public Integer classification;
     public String notes;
     public String hash;
-    public String expireAt;
+    public Date expireAt;
 
-    public String createdAt;
+    public Date createdAt;
     public ApiUserInfo createdBy;
-    public String updatedAt;
+    public Date updatedAt;
     public ApiUserInfo updatedBy;
 
     public ApiNodePermissions permissions;

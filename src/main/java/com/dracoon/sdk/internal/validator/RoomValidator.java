@@ -10,7 +10,7 @@ public class RoomValidator extends BaseValidator {
         if (request.getParentId() != null) {
             validateParentNodeId(request.getParentId());
         }
-        validateName(request.getName());
+        validateRoomName(request.getName());
         validateQuota(request.getQuota());
         validatePeriod(request.getRecycleBinRetentionPeriod());
         if ((request.getAdminUserIds() == null || request.getAdminUserIds().isEmpty()) &&
@@ -28,7 +28,7 @@ public class RoomValidator extends BaseValidator {
     public static void validateUpdateRequest(UpdateRoomRequest request) {
         ValidatorUtils.validateNotNull("Room update request", request);
         if (request.getName() != null) {
-            validateName(request.getName());
+            validateRoomName(request.getName());
         }
         validateRoomId(request.getId());
         validateQuota(request.getQuota());

@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal.model;
 
+import java.util.Date;
+
 public class ApiDownloadShare {
     public Long id;
     public Long nodeId;
@@ -7,7 +9,7 @@ public class ApiDownloadShare {
     public String name;
     public Integer classification;
     public String notes;
-    public String expireAt;
+    public Date expireAt;
 
     public String accessKey;
 
@@ -17,7 +19,7 @@ public class ApiDownloadShare {
     public Integer maxDownloads;
     public Integer cntDownloads;
 
-    public String createdAt;
+    public Date createdAt;
     public ApiUserInfo createdBy;
 
     public Boolean isProtected;

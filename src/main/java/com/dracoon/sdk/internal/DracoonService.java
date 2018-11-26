@@ -17,6 +17,7 @@ import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
@@ -40,7 +41,8 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
-import static com.dracoon.sdk.internal.DracoonConstants.*;
+import static com.dracoon.sdk.internal.DracoonConstants.API_PATH;
+import static com.dracoon.sdk.internal.DracoonConstants.AUTHORIZATION_HEADER;
 
 public interface DracoonService {
 
@@ -49,6 +51,12 @@ public interface DracoonService {
 
     @GET(API_PATH + "/public/time")
     Call<ApiServerTime> getServerTime();
+
+    @GET(API_PATH + "/config/info/general")
+    Call<ApiServerGeneralSettings> getServerGeneralSettings(@Header(AUTHORIZATION_HEADER) String token);
+
+    @GET(API_PATH + "/user/ping")
+    Call<Void> pingUser(@Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/user/account")
     Call<ApiUserAccount> getUserAccount(@Header(AUTHORIZATION_HEADER) String token);
@@ -160,6 +168,14 @@ public interface DracoonService {
     @POST(API_PATH + "/nodes/files/keys")
     Call<Void> setFileKeys(@Header(AUTHORIZATION_HEADER) String token,
                            @Body ApiSetFileKeysRequest request);
+
+    @POST(API_PATH + "/nodes/{node_id}/favorite")
+    Call<Void> markFavorite(@Header(AUTHORIZATION_HEADER) String token,
+                            @Path("node_id") Long nodeId);
+
+    @DELETE(API_PATH + "/nodes/{node_id}/favorite")
+    Call<Void> unmarkFavorite(@Header(AUTHORIZATION_HEADER) String token,
+                              @Path("node_id") Long nodeId);
 
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Header(AUTHORIZATION_HEADER) String token,

@@ -1,11 +1,15 @@
 package com.dracoon.sdk.internal.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.dracoon.sdk.internal.model.ApiCopyNode;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
+import com.dracoon.sdk.internal.model.ApiMoveNode;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
-import com.dracoon.sdk.internal.util.DateUtils;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
@@ -13,8 +17,6 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
-
-import java.util.ArrayList;
 
 public class NodeMapper {
 
@@ -59,11 +61,11 @@ public class NodeMapper {
         }
         node.setNotes(apiNode.notes);
         node.setHash(apiNode.hash);
-        node.setExpireAt(DateUtils.parseDate(apiNode.expireAt));
+        node.setExpireAt(apiNode.expireAt);
 
-        node.setCreatedAt(DateUtils.parseDate(apiNode.createdAt));
+        node.setCreatedAt(apiNode.createdAt);
         node.setCreatedBy(UserMapper.fromApiUserInfo(apiNode.createdBy));
-        node.setUpdatedAt(DateUtils.parseDate(apiNode.updatedAt));
+        node.setUpdatedAt(apiNode.updatedAt);
         node.setUpdatedBy(UserMapper.fromApiUserInfo(apiNode.updatedBy));
 
         node.setHasInheritPermissions(apiNode.inheritPermissions);
@@ -79,6 +81,8 @@ public class NodeMapper {
         node.setCntUploadShares(apiNode.cntUploadShares);
         node.setBranchVersion(apiNode.branchVersion);
 
+        node.setMediaToken(apiNode.mediaToken);
+
         return node;
     }
 
@@ -92,14 +96,34 @@ public class NodeMapper {
 
     public static ApiCopyNodesRequest toApiCopyNodesRequest(CopyNodesRequest request) {
         ApiCopyNodesRequest apiRequest = new ApiCopyNodesRequest();
-        apiRequest.nodeIds = request.getSourceNodeIds().toArray(new Long[0]);
+        List<CopyNodesRequest.SourceNode> sourceNodes = request.getSourceNodes();
+        apiRequest.nodeIds = new Long[sourceNodes.size()];
+        apiRequest.items = new ApiCopyNode[sourceNodes.size()];
+        for (int i = 0; i < sourceNodes.size(); i++) {
+            CopyNodesRequest.SourceNode sourceNode = sourceNodes.get(i);
+            apiRequest.nodeIds[i] = sourceNode.getId();
+            ApiCopyNode copyNode = new ApiCopyNode();
+            copyNode.id = sourceNode.getId();
+            copyNode.name = sourceNode.getName();
+            apiRequest.items[i] = copyNode;
+        }
         apiRequest.resolutionStrategy = request.getResolutionStrategy().getValue();
         return apiRequest;
     }
 
     public static ApiMoveNodesRequest toApiMoveNodesRequest(MoveNodesRequest request) {
         ApiMoveNodesRequest apiRequest = new ApiMoveNodesRequest();
-        apiRequest.nodeIds = request.getSourceNodeIds().toArray(new Long[0]);
+        List<MoveNodesRequest.SourceNode> sourceNodes = request.getSourceNodes();
+        apiRequest.nodeIds = new Long[sourceNodes.size()];
+        apiRequest.items = new ApiMoveNode[sourceNodes.size()];
+        for (int i = 0; i < sourceNodes.size(); i++) {
+            MoveNodesRequest.SourceNode sourceNode = sourceNodes.get(i);
+            apiRequest.nodeIds[i] = sourceNode.getId();
+            ApiMoveNode moveNode = new ApiMoveNode();
+            moveNode.id = sourceNode.getId();
+            moveNode.name = sourceNode.getName();
+            apiRequest.items[i] = moveNode;
+        }
         apiRequest.resolutionStrategy = request.getResolutionStrategy().getValue();
         return apiRequest;
     }

@@ -1,9 +1,15 @@
 package com.dracoon.sdk.internal.validator;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.dracoon.sdk.internal.util.TextUtils;
+
 public class ValidatorUtils {
+
+    private static final char[] INVALID_FILE_NAME_CHARS = {'<', '>', ':', '"', '|', '?', '*', '/', '\\'};
+    private static final char[] INVALID_FILE_PATH_CHARS = {'<', '>', ':', '"', '|', '?', '*', '\\'};
 
     // --- Null validation methods ---
 
@@ -27,7 +33,9 @@ public class ValidatorUtils {
         if (ids.isEmpty()) {
             throw new IllegalArgumentException(name + " IDs cannot be empty.");
         }
-        ids.forEach(id -> validateId(name, id));
+        for (Long id : ids) {
+            validateId(name, id);
+        }
     }
 
     // --- Number validation methods ---
@@ -83,6 +91,43 @@ public class ValidatorUtils {
         String query = serverUrl.getQuery();
         if (query != null) {
             throw new IllegalArgumentException("Server URL cannot have query.");
+        }
+    }
+
+    public static void validateFileName(String name, String string) {
+        validateNotNull(name, string);
+
+        List<String> invalidCharacters = new ArrayList<>();
+        for (char invalidChar : INVALID_FILE_NAME_CHARS) {
+            if (string.indexOf(invalidChar) > -1) {
+                invalidCharacters.add("'" + invalidChar + "'");
+            }
+        }
+        if (!invalidCharacters.isEmpty()) {
+            throw new IllegalArgumentException(name + " cannot contain " + TextUtils.join(
+                    invalidCharacters) + ".");
+        }
+    }
+
+    public static void validateFilePath(String name, String string) {
+        validateNotNull(name, string);
+
+        List<String> invalidCharacters = new ArrayList<>();
+        for (char invalidChar : INVALID_FILE_PATH_CHARS) {
+            if (string.indexOf(invalidChar) > -1) {
+                invalidCharacters.add("'" + invalidChar + "'");
+            }
+        }
+        if (!invalidCharacters.isEmpty()) {
+            throw new IllegalArgumentException(name + " cannot contain " + TextUtils.join(
+                    invalidCharacters) + ".");
+        }
+
+        if (!string.startsWith("/")) {
+            throw new IllegalArgumentException(name + " must start with '/'.");
+        }
+        if (string.endsWith("/")) {
+            throw new IllegalArgumentException(name + " cannot end with '/'.");
         }
     }
 

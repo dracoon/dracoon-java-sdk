@@ -43,7 +43,7 @@ public class OAuthHelper {
     public static String createAuthorizationUrl(URL serverUrl, String clientId, String state) {
         ValidatorUtils.validateServerURL(serverUrl);
         ValidatorUtils.validateString("Client ID", clientId, false);
-        ValidatorUtils.validateString("State", clientId, false);
+        ValidatorUtils.validateString("State", state, false);
 
         String base = serverUrl + OAuthConstants.OAUTH_PATH + OAuthConstants.OAUTH_AUTHORIZE_PATH;
 

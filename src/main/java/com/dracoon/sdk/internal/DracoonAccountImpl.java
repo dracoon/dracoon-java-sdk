@@ -27,9 +27,24 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         super(client);
     }
 
+    public void pingUser() throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.pingUser(auth);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            String errorText = String.format("Ping failed with '%s'!", errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
     @Override
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
         Call<ApiUserAccount> call = mService.getUserAccount(auth);
@@ -50,7 +65,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
         Call<ApiCustomerAccount> call = mService.getCustomerAccount(auth);
@@ -84,7 +99,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     @Override
     public void setUserKeyPair() throws DracoonCryptoException, DracoonNetIOException,
             DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         String encryptionPassword = mClient.getEncryptionPassword();
         UserKeyPair userKeyPair = generateUserKeyPair(encryptionPassword);
@@ -117,7 +132,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     private UserKeyPair getUserKeyPair() throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
         Call<ApiUserKeyPair> call = mService.getUserKeyPair(auth);
@@ -159,7 +174,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException {
-        assertServerApiVersion();
+        mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
         Call<Void> call = mService.deleteUserKeyPair(auth);

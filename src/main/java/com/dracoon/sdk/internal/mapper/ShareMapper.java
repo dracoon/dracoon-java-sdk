@@ -9,7 +9,6 @@ import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadShare;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
-import com.dracoon.sdk.internal.util.DateUtils;
 import com.dracoon.sdk.internal.util.TextUtils;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -53,6 +52,10 @@ public class ShareMapper {
     }
 
     public static DownloadShare fromApiDownloadShare(ApiDownloadShare apiDownloadShare) {
+        if (apiDownloadShare == null) {
+            return null;
+        }
+
         DownloadShare downloadShare = new DownloadShare();
         downloadShare.setId(apiDownloadShare.id);
         downloadShare.setNodeId(apiDownloadShare.nodeId);
@@ -62,14 +65,14 @@ public class ShareMapper {
             downloadShare.setClassification(Classification.getByValue(apiDownloadShare.classification));
         }
         downloadShare.setNotes(apiDownloadShare.notes);
-        downloadShare.setExpireAt(DateUtils.parseDate(apiDownloadShare.expireAt));
+        downloadShare.setExpireAt(apiDownloadShare.expireAt);
         downloadShare.setAccessKey(apiDownloadShare.accessKey);
         downloadShare.setShowsCreatorName(apiDownloadShare.showCreatorName);
         downloadShare.setShowsCreatorUserName(apiDownloadShare.showCreatorUsername);
         downloadShare.setNotifiesCreator(apiDownloadShare.notifyCreator);
         downloadShare.setMaxDownloads(apiDownloadShare.maxDownloads);
         downloadShare.setCntDownloads(apiDownloadShare.cntDownloads);
-        downloadShare.setCreatedAt(DateUtils.parseDate(apiDownloadShare.createdAt));
+        downloadShare.setCreatedAt(apiDownloadShare.createdAt);
         downloadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiDownloadShare.createdBy));
         downloadShare.setIsProtected(apiDownloadShare.isProtected);
         downloadShare.setIsEncrypted(apiDownloadShare.isEncrypted);
@@ -103,20 +106,24 @@ public class ShareMapper {
     }
 
     public static UploadShare fromApiUploadShare(ApiUploadShare apiUploadShare) {
+        if (apiUploadShare == null) {
+            return null;
+        }
+
         UploadShare uploadShare = new UploadShare();
         uploadShare.setId(apiUploadShare.id);
         uploadShare.setTargetNodeId(apiUploadShare.targetId);
         uploadShare.setTargetNodePath(apiUploadShare.targetPath);
         uploadShare.setName(apiUploadShare.name);
         uploadShare.setNotes(apiUploadShare.notes);
-        uploadShare.setExpireAt(DateUtils.parseDate(apiUploadShare.expireAt));
+        uploadShare.setExpireAt(apiUploadShare.expireAt);
         uploadShare.setFilesExpirePeriod(apiUploadShare.filesExpiryPeriod);
         uploadShare.setAccessKey(apiUploadShare.accessKey);
         uploadShare.setShowsUploadedFiles(apiUploadShare.showUploadedFiles);
         uploadShare.setNotifiesCreator(apiUploadShare.notifyCreator);
         uploadShare.setCntUploads(apiUploadShare.cntUploads);
         uploadShare.setCntFiles(apiUploadShare.cntFiles);
-        uploadShare.setCreatedAt(DateUtils.parseDate(apiUploadShare.createdAt));
+        uploadShare.setCreatedAt(apiUploadShare.createdAt);
         uploadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiUploadShare.createdBy));
         uploadShare.setIsProtected(apiUploadShare.isProtected);
         uploadShare.setIsEncrypted(apiUploadShare.isEncrypted);

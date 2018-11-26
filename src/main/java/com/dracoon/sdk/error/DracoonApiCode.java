@@ -179,4 +179,49 @@ public enum DracoonApiCode {
         throw new IllegalArgumentException("No matching constant for [" + number + "]");
     }
 
+    /**
+     * Checks if the error is a authorization error.
+     *
+     * @return <code>true</code> if error is a authorization error; <code>false</code> otherwise
+     */
+    public boolean isAuthError() {
+        return mNumber <= -1000 && mNumber > -2000;
+    }
+
+    /**
+     * Checks if the error is a precondition error.
+     *
+     * @return <code>true</code> if error is a precondition error; <code>false</code> otherwise
+     */
+    public boolean isPreconditionError() {
+        return mNumber <= -2000 && mNumber > -3000;
+    }
+
+    /**
+     * Checks if the error is a validation error.
+     *
+     * @return <code>true</code> if error is a validation error; <code>false</code> otherwise
+     */
+    public boolean isValidationError() {
+        return mNumber <= -3000 && mNumber > -4000;
+    }
+
+    /**
+     * Checks if the error is a permission error.
+     *
+     * @return <code>true</code> if error is a permission error; <code>false</code> otherwise
+     */
+    public boolean isPermissionError() {
+        return mNumber <= -4000 && mNumber > -5000;
+    }
+
+    /**
+     * Checks if the error is a server error.
+     *
+     * @return <code>true</code> if error is a server error; <code>false</code> otherwise
+     */
+    public boolean isServerError() {
+        return mNumber <= -5000 && mNumber > -6000;
+    }
+
 }

@@ -1,10 +1,24 @@
 package com.dracoon.sdk.example;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
-import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.filter.FavoriteStatusFilter;
+import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.NodeNameFilter;
+import com.dracoon.sdk.filter.NodeTypeFilter;
+import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -15,23 +29,20 @@ import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
 import com.dracoon.sdk.model.FileDownloadCallback;
+import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.NodeType;
+import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UserAccount;
-
-import java.io.File;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * This class shows the usage of the Dracoon SDK.<br>
@@ -41,6 +52,7 @@ import java.util.List;
  * <br>
  * Notice: For the sake of simplicity error handling is ignored.
  */
+@SuppressWarnings("unused")
 public class DracoonExamples {
 
     private static final String SERVER_URL = "https://dracoon.team";
@@ -51,12 +63,15 @@ public class DracoonExamples {
         DracoonAuth auth = new DracoonAuth(ACCESS_TOKEN);
 
         DracoonClient client = new DracoonClient.Builder(new URL(SERVER_URL))
-                .log(new Logger(Log.DEBUG))
+                .log(new Logger(Logger.DEBUG))
                 .auth(auth)
                 .encryptionPassword(ENCRYPTION_PASSWORD)
                 .build();
 
         //getServerData(client);
+        //getServerSettings(client);
+
+        //checkAuth(client);
 
         //getUserAccount(client);
         //getCustomerAccount(client);
@@ -65,7 +80,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        //listNodes(client);
+        listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -73,24 +88,38 @@ public class DracoonExamples {
         //getNodeByPath(client);
         //getNodeByPathNotFound(client);
 
+        //getNodesWithFilter(client);
+
         //createRoom(client);
         //updateRoom(client);
         //createFolder(client);
         //updateFolder(client);
         //updateFile(client);
+        //updateFileInvalidName(client);
         //deleteNodes(client);
         //copyNodes(client);
         //moveNodes(client);
 
         //uploadFile(client);
         //downloadFile(client);
+        //uploadFileWithStream(client);
+        //downloadFileWithStream(client);
 
         //searchNodes(client);
         //searchNodesPaged(client);
 
+        //searchNodesWithFilter(client);
+
+        //markFavorite(client);
+        //unmarkFavorite(client);
+        //getFavorites(client);
+        //getFavoritesPaged(client);
+
+        //buildMediaUrl(client);
+
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
-        createUploadShare(client);
+        //createUploadShare(client);
 
         //generateMissingFileKeys(client);
         //generateMissingFileKeysForOneNode(client);
@@ -103,6 +132,24 @@ public class DracoonExamples {
         Date serverDate = client.server().getTime();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         System.out.println("Server date: " + df.format(serverDate));
+    }
+
+    private static void getServerSettings(DracoonClient client) throws DracoonException {
+        ServerGeneralSettings settings = client.server().settings().getGeneralSettings();
+        System.out.println("Server general settings:");
+        System.out.printf("isSharePasswordSmsEnabled: %s\n", settings.isSharePasswordSmsEnabled());
+        System.out.printf("isCryptoEnabled: %s\n", settings.isCryptoEnabled());
+        System.out.printf("isMediaServerEnabled: %s\n", settings.isMediaServerEnabled());
+        System.out.printf("isWeakPasswordEnabled: %s\n", settings.isWeakPasswordEnabled());
+    }
+
+    private static void checkAuth(DracoonClient client) throws DracoonException {
+        boolean isAuthValid = client.checkAuth();
+        if (isAuthValid) {
+            System.out.println("Authorization is still valid.");
+        } else {
+            System.out.println("Authorization is no longer valid.");
+        }
     }
 
     private static void getUserAccount(DracoonClient client) throws DracoonException {
@@ -150,26 +197,34 @@ public class DracoonExamples {
     private static void listNodesPaged(DracoonClient client) throws DracoonException {
         long parentNodeId = 0L;
 
-        NodeList nodeList1 = client.nodes().getNodes(parentNodeId, 0, 4);
-        System.out.println("Nodes page 1:");
-        for (Node node : nodeList1.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
-        NodeList nodeList2 = client.nodes().getNodes(parentNodeId, 4, 4);
-        System.out.println("Nodes page 2:");
-        for (Node node : nodeList2.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
+        long page = 1;
+        long pageSize = 4;
+
+        long offset = 0;
+        long total;
+
+        do {
+            NodeList nodeList = client.nodes().getNodes(parentNodeId, offset, pageSize);
+            total = nodeList.getTotal();
+
+            System.out.printf("Nodes page %d:\n", page);
+            for (Node node : nodeList.getItems()) {
+                System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
     }
 
     private static void getNode(DracoonClient client) throws DracoonException {
-        Node node = client.nodes().getNode(1);
+        Node node = client.nodes().getNode(1L);
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
     private static void getNodeNotFound(DracoonClient client) throws DracoonException {
         try {
-            client.nodes().getNode(123456789);
+            client.nodes().getNode(123456789L);
         } catch (DracoonApiException e) {
             System.err.println("Failed to query node: " + e.getCode().getText());
         }
@@ -185,6 +240,20 @@ public class DracoonExamples {
             client.nodes().getNode("/not-existing");
         } catch (DracoonApiException e) {
             System.err.println("Failed to query node: " + e.getCode().getText());
+        }
+    }
+
+    private static void getNodesWithFilter(DracoonClient client) throws DracoonException {
+        GetNodesFilters filters = new GetNodesFilters();
+        filters.addNodeTypeFilter(new NodeTypeFilter.Builder()
+                .eq(NodeType.ROOM).or().eq(NodeType.FOLDER).build());
+        filters.addNodeNameFilter(new NodeNameFilter.Builder()
+                .cn("Test").build());
+
+        NodeList nodeList = client.nodes().getNodes(0L, filters);
+        System.out.println("Nodes:");
+        for (Node node : nodeList.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
         }
     }
 
@@ -236,6 +305,13 @@ public class DracoonExamples {
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
+    private static void updateFileInvalidName(DracoonClient client) throws DracoonException {
+        UpdateFileRequest request = new UpdateFileRequest.Builder(1L)
+                .name("<Invalid-Name>.txt")
+                .build();
+        Node node = client.nodes().updateFile(request);
+    }
+
     private static void deleteNodes(DracoonClient client) throws DracoonException {
         List<Long> ids = new ArrayList<>();
         ids.add(1L);
@@ -249,9 +325,9 @@ public class DracoonExamples {
 
     private static void copyNodes(DracoonClient client) throws DracoonException {
         CopyNodesRequest request = new CopyNodesRequest.Builder(1L)
-                .addSourceNodeId(2L)
-                .addSourceNodeId(3L)
-                .addSourceNodeId(4L)
+                .addSourceNode(2L)
+                .addSourceNode(3L)
+                .addSourceNode(4L)
                 .build();
         Node node = client.nodes().copyNodes(request);
         System.out.println("id=" + node.getId() + ", size=" + node.getSize());
@@ -259,9 +335,9 @@ public class DracoonExamples {
 
     private static void moveNodes(DracoonClient client) throws DracoonException {
         MoveNodesRequest request = new MoveNodesRequest.Builder(1L)
-                .addSourceNodeId(2L)
-                .addSourceNodeId(3L)
-                .addSourceNodeId(4L)
+                .addSourceNode(2L)
+                .addSourceNode(3L)
+                .addSourceNode(4L)
                 .build();
         Node node = client.nodes().moveNodes(request);
         System.out.println("id=" + node.getId() + ", size=" + node.getSize());
@@ -307,6 +383,27 @@ public class DracoonExamples {
                 node.getParentPath(), node.getName()));
     }
 
+    private static void uploadFileWithStream(DracoonClient client) throws DracoonException,
+            IOException {
+        File file = new File("C:\\temp\\test.txt");
+
+        FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt")
+                .build();
+
+        FileInputStream is = new FileInputStream(file);
+        FileUploadStream us = client.nodes().createFileUploadStream(request);
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = is.read(buffer)) != -1) {
+            us.write(buffer, 0, bytesRead);
+        }
+        us.complete();
+
+        us.close();
+        is.close();
+    }
+
     private static void downloadFile(DracoonClient client) throws DracoonException {
         long nodeId = 1L;
 
@@ -345,6 +442,25 @@ public class DracoonExamples {
         System.out.println(String.format("Node downloaded: id=%d", nodeId));
     }
 
+    private static void downloadFileWithStream(DracoonClient client) throws DracoonException,
+            IOException {
+        long nodeId = 1L;
+
+        File file = new File("C:\\temp\\test.txt");
+
+        FileDownloadStream ds = client.nodes().createFileDownloadStream(nodeId);
+        FileOutputStream os = new FileOutputStream(file);
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = ds.read(buffer)) != -1) {
+            os.write(buffer, 0, bytesRead);
+        }
+
+        os.close();
+        ds.close();
+    }
+
     private static void searchNodes(DracoonClient client) throws DracoonException {
         long parentNodeId = 0L;
         String searchString = "test*";
@@ -359,17 +475,93 @@ public class DracoonExamples {
         long parentNodeId = 0L;
         String searchString = "test*";
 
-        NodeList nodeList1 = client.nodes().searchNodes(parentNodeId, searchString, 0, 0);
-        System.out.println("Nodes search page 1:");
-        for (Node node : nodeList1.getItems()) {
+        long page = 1;
+        long pageSize = 4;
+
+        long offset = 0;
+        long total;
+
+        do {
+            NodeList nodeList = client.nodes().searchNodes(parentNodeId, searchString, offset,
+                    pageSize);
+            total = nodeList.getTotal();
+
+            System.out.printf("Nodes search page %d:\n", page);
+            for (Node node : nodeList.getItems()) {
+                System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
+    }
+
+    private static void searchNodesWithFilter(DracoonClient client) throws DracoonException {
+        long parentNodeId = 0L;
+        String searchString = "*";
+        SearchNodesFilters filters = new SearchNodesFilters();
+        filters.addFavoriteStatusFilter(new FavoriteStatusFilter.Builder()
+                .eq(true).build());
+
+        NodeList nodeList = client.nodes().searchNodes(parentNodeId, searchString, filters);
+        for (Node node : nodeList.getItems()) {
             System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+    }
+
+    private static void markFavorite(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        client.nodes().markFavorite(nodeId);
+    }
+
+    private static void unmarkFavorite(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        client.nodes().unmarkFavorite(nodeId);
+    }
+
+    private static void getFavorites(DracoonClient client) throws DracoonException {
+        NodeList nodeList = client.nodes().getFavorites();
+        for (Node node : nodeList.getItems()) {
+            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+        }
+    }
+
+    private static void getFavoritesPaged(DracoonClient client) throws DracoonException {
+        long page = 1;
+        long pageSize = 4;
+
+        long offset = 0;
+        long total;
+
+        do {
+            NodeList nodeList = client.nodes().getFavorites(offset, pageSize);
+            total = nodeList.getTotal();
+
+            System.out.printf("Favorites page %d:\n", page);
+            for (Node node : nodeList.getItems()) {
+                System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
+    }
+
+    private static void buildMediaUrl(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+
+        ServerGeneralSettings settings = client.server().settings().getGeneralSettings();
+        if (!settings.isMediaServerEnabled()) {
+            System.err.println("Media server is not available!");
+            return;
         }
 
-        NodeList nodeList2 = client.nodes().searchNodes(parentNodeId, searchString, 4, 4);
-        System.out.println("Nodes search page 2:");
-        for (Node node : nodeList2.getItems()) {
-            System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
-        }
+        Node node = client.nodes().getNode(nodeId);
+        URL mediaUrl = client.nodes().buildMediaUrl(node.getMediaToken(), 640, 480);
+
+        System.out.println(String.format("Media token URL for node '%d': %s", nodeId, mediaUrl));
     }
 
     private static void createDownloadShare(DracoonClient client) throws DracoonException {

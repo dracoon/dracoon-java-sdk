@@ -1,9 +1,17 @@
 package com.dracoon.sdk;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.Date;
+
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CopyNodesRequest;
@@ -15,8 +23,11 @@ import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
 import com.dracoon.sdk.model.FileDownloadCallback;
+import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.FileUploadStream;
+import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
@@ -25,10 +36,6 @@ import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UserAccount;
-
-import java.io.File;
-import java.net.URL;
-import java.util.Date;
 
 /**
  * DracoonClient is the main class of the Dracoon SDK. It contains several handlers which group the
@@ -50,7 +57,7 @@ import java.util.Date;
 public abstract class DracoonClient {
 
     /**
-     * Handler to query server information
+     * Handler to query server information.
      */
     public interface Server {
 
@@ -73,6 +80,30 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         Date getTime() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Get ServerSettings handler.
+         *
+         * @return ServerSettings handler
+         */
+        ServerSettings settings();
+
+    }
+
+    /**
+     * Handler to query server settings information.
+     */
+    public interface ServerSettings {
+
+        /**
+         * Retrieves the server's general settings.
+         *
+         * @return server general settings
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException, DracoonApiException;
 
     }
 
@@ -112,7 +143,7 @@ public abstract class DracoonClient {
                 DracoonApiException;
 
         /**
-         * Checks if the user's encryption key pair can be unlocked whit the provided encryption
+         * Checks if the user's encryption key pair can be unlocked with the provided encryption
          * password.
          *
          * @return <code>true</code> if key pair could be unlocked; <code>false</code> otherwise
@@ -131,6 +162,7 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException;
+
     }
 
     /**
@@ -167,6 +199,22 @@ public abstract class DracoonClient {
         NodeList getNodes(long parentNodeId) throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Retrieves child nodes of a node.<br>
+         * <br>
+         * Use parent node ID 0 to retrieve root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param filters      The filters to apply.
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getNodes(long parentNodeId, GetNodesFilters filters) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
          * Retrieves child nodes of a node. The arguments {@code offset} and {@code limit} restrict
          * the result to a specific range.<br>
          * <br>
@@ -182,6 +230,25 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         NodeList getNodes(long parentNodeId, long offset, long limit)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves child nodes of a node. The arguments {@code offset} and {@code limit} restrict
+         * the result to a specific range.<br>
+         * <br>
+         * Use parent node ID 0 to retrieve root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param filters      The filters to apply.
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getNodes(long parentNodeId, GetNodesFilters filters, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
 
         /**
@@ -327,6 +394,27 @@ public abstract class DracoonClient {
                 DracoonNetIOException, DracoonApiException;
 
         /**
+         * Uploads a file.
+         *
+         * @param id       A ID for the upload. (This ID can be used to keep a reference.)
+         * @param request  The request with information about the file.
+         * @param is       The source stream.
+         * @param length   The length of the source stream.
+         * @param callback A callback which get called when the upload was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @return the new node
+         *
+         * @throws DracoonFileIOException If a file error occurred.
+         * @throws DracoonCryptoException If the encryption failed.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         */
+        Node uploadFile(String id, FileUploadRequest request, InputStream is, long length,
+                FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
+                DracoonNetIOException, DracoonApiException;
+
+        /**
          * Starts an asynchronous file upload.
          *
          * @param id       ID for the upload. (This ID can be used to keep a reference.)
@@ -345,11 +433,44 @@ public abstract class DracoonClient {
                 DracoonNetIOException, DracoonApiException;
 
         /**
+         * Starts an asynchronous file upload.
+         *
+         * @param id       ID for the upload. (This ID can be used to keep a reference.)
+         * @param request  The request with information about the file.
+         * @param is       The source stream.
+         * @param length   The length of the source stream.
+         * @param callback A callback which get called when the upload was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @throws DracoonCryptoException If the encryption failed.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         */
+        void startUploadFileAsync(String id, FileUploadRequest request, InputStream is, long length,
+                FileUploadCallback callback) throws DracoonCryptoException, DracoonNetIOException,
+                DracoonApiException;
+
+        /**
          * Cancels an asynchronous file upload.
          *
          * @param id The ID of the upload.
          */
         void cancelUploadFileAsync(String id);
+
+        /**
+         * Creates a file upload stream.
+         *
+         * (Encrypted files are currently not supported.)
+         *
+         * @param request The request with information about the file.
+         *
+         * @return output stream for upload
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        FileUploadStream createFileUploadStream(FileUploadRequest request)
+                throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Downloads a file.
@@ -366,6 +487,24 @@ public abstract class DracoonClient {
          * @throws DracoonFileIOException If a file error occurred.
          */
         void downloadFile(String id, long nodeId, File file,
+                FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException, DracoonFileIOException;
+
+        /**
+         * Downloads a file.
+         *
+         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param nodeId   The ID of the node.
+         * @param os       The target stream.
+         * @param callback A callback which get called when the download was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If the decryption failed.
+         * @throws DracoonFileIOException If a file error occurred.
+         */
+        void downloadFile(String id, long nodeId, OutputStream os,
                 FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
                 DracoonCryptoException, DracoonFileIOException;
 
@@ -388,11 +527,43 @@ public abstract class DracoonClient {
                 DracoonCryptoException, DracoonFileIOException;
 
         /**
+         * Starts an asynchronous file download.
+         *
+         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param nodeId   The ID of the node.
+         * @param os       The target stream.
+         * @param callback A callback which get called when the download was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If the decryption failed.
+         */
+        void startDownloadFileAsync(String id, long nodeId, OutputStream os,
+                FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
+
+        /**
          * Cancels an asynchronous file download.
          *
          * @param id The ID of the download.
          */
         void cancelDownloadFileAsync(String id);
+
+        /**
+         * Creates a file download stream.
+         *
+         * (Encrypted files are currently not supported.)
+         *
+         * @param nodeId The ID of the node.
+         *
+         * @return input stream for download
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Searches child nodes of a node by their name.<br>
@@ -408,6 +579,23 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         NodeList searchNodes(long parentNodeId, String searchString)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Searches child nodes of a node by their name.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to search in all root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param searchString The search string. (Search string must not be empty.)
+         * @param filters      The filters to apply.
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters)
                 throws DracoonNetIOException, DracoonApiException;
 
         /**
@@ -428,6 +616,26 @@ public abstract class DracoonClient {
          */
         NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Searches child nodes of a node by their name. The arguments {@code offset} and
+         * {@code limit} restrict the result to a specific range.<br>
+         * <br>
+         * Use parent node ID <code>0</code> to search in all root nodes.
+         *
+         * @param parentNodeId The ID of the parent node. (ID must be 0 or positive.)
+         * @param searchString The search string. (Search string must not be empty.)
+         * @param filters      The filters to apply.
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of nodes
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters,
+                long offset, long limit) throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Generates file keys for files with missing file keys.
@@ -477,6 +685,62 @@ public abstract class DracoonClient {
          */
         void generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
                 DracoonApiException, DracoonCryptoException;
+
+        /**
+         * Marks a node as a favorite.
+         *
+         * @param nodeId The ID of the node.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void markFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Unmarks a node as a favorite.
+         *
+         * @param nodeId The ID of the node.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves favorites.
+         *
+         * @return list of favorites
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getFavorites() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves favorites. The arguments {@code offset} and {@code limit} restrict the result
+         * to a specific range.
+         *
+         * @param offset The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit  The range limit. (Number of records; must be positive.)
+         *
+         * @return list of favorites
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeList getFavorites(long offset, long limit) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Builds a media URL. The URL can be used to get a thumbnail or preview image for a node.
+         *
+         * @param mediaToken The media token for the node.
+         * @param width      The width of the image. (Must positive.)
+         * @param height     The height of the image. (Must positive.)
+         *
+         * @return the media URL
+         */
+        URL buildMediaUrl(String mediaToken, int width, int height);
 
     }
 
@@ -539,13 +803,26 @@ public abstract class DracoonClient {
     }
 
     /**
-     * Returns the authorization data.
+     * Returns the <b>current</b> authorization data.<br>
+     * <br>
+     * This method can be used to get the current access and refresh tokens after the SDK has
+     * retrieved them with an authorization code or refreshed them with an previous refresh token.
      *
      * @return authorization data
      */
     public DracoonAuth getAuth() {
         return mAuth;
     }
+
+    /**
+     * Checks if the <b>current</b> authorization is still valid.
+     *
+     * @return <code>true</code> if authorization is still valid; <code>false</code> otherwise
+     *
+     * @throws DracoonNetIOException If a network error occurred.
+     * @throws DracoonApiException   If the API responded with an error.
+     */
+    public abstract boolean checkAuth() throws DracoonNetIOException, DracoonApiException;
 
     /**
      * Returns the client's encryption password.
