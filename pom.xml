@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.dracoon</groupId>
-    <artifactId>dracoon-sdk</artifactId>
+    <artifactId>dracoon-android-sdk</artifactId>
     <version>${dracoon-sdk.version}</version>
 
     <name>dracoon-sdk</name>
-    <description>The Dracoon SDK for Java.</description>
+    <description>The Dracoon SDK for Android.</description>
     <url>https://github.com/dracoon/dracoon-java-sdk</url>
 
     <developers>
@@ -62,7 +62,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dracoon</groupId>
-            <artifactId>dracoon-crypto-sdk</artifactId>
+            <artifactId>dracoon-android-crypto-sdk</artifactId>
             <version>${dracoon-crypto-sdk.version}</version>
         </dependency>
 
