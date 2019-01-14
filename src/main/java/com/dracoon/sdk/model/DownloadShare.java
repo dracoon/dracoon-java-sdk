@@ -226,7 +226,8 @@ public class DownloadShare {
     /**
      * Sets if creator is notified at downloads of the download share.
      *
-     * @param notifiesCreator <code>true</code> if creator is notified; otherwise <code>false</code>.
+     * @param notifiesCreator <code>true</code> if creator is notified; otherwise
+     *                        <code>false</code>.
      */
     public void setNotifiesCreator(Boolean notifiesCreator) {
         mNotifiesCreator = notifiesCreator;

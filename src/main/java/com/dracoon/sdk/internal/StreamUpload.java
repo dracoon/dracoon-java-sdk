@@ -228,7 +228,7 @@ public class StreamUpload extends FileUploadStream {
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseFileUploadCompleteError(response);
             String errorText = String.format("Closing of upload stream for file '%s' failed " +
-                            "with '%s'!", mFileUploadRequest.getName(), errorCode.name());
+                    "with '%s'!", mFileUploadRequest.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }

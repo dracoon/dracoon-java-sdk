@@ -27,10 +27,10 @@ import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
-import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
@@ -103,7 +103,8 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException, DracoonApiException;
+        ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException,
+                DracoonApiException;
 
     }
 
@@ -285,7 +286,8 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        Node createRoom(CreateRoomRequest request) throws DracoonNetIOException, DracoonApiException;
+        Node createRoom(CreateRoomRequest request) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Updates a room.
@@ -297,7 +299,8 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException, DracoonApiException;
+        Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Creates a new folder.

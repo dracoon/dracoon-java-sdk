@@ -187,7 +187,8 @@ public class DracoonHttpConfig {
     /**
      * Returns the address of the proxy server, if a proxy server was configured.
      *
-     * @return the address of the proxy server; or <code>null</code> if no proxy server is configured
+     * @return the address of the proxy server; or <code>null</code> if no proxy server is
+     * configured
      */
     public InetAddress getProxyAddress() {
         return mProxyAddress;

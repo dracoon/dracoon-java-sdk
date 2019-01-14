@@ -60,7 +60,7 @@ public abstract class Filter<T> {
 
         for (int i = 0; i < mValues.size(); i++) {
             sb.append(mValues.get(i));
-            sb.append(i < mValues.size()-1 ? MV_SEPARATOR : "");
+            sb.append(i < mValues.size() - 1 ? MV_SEPARATOR : "");
         }
 
         return sb.toString();
@@ -75,7 +75,7 @@ public abstract class Filter<T> {
             sb.append(mOperators.get(i));
             sb.append(MV_SEPARATOR);
             sb.append(mValues.get(i));
-            sb.append(i < mValues.size()-1 ? MR_SEPARATOR : "");
+            sb.append(i < mValues.size() - 1 ? MR_SEPARATOR : "");
         }
 
         return sb.toString();

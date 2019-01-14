@@ -16,7 +16,8 @@ public class ServerGeneralSettings {
     /**
      * Returns <code>true</code> if share passwords can be send via SMS.
      *
-     * @return <code>true</code> if share passwords can be send via SMS; <code>false</code> otherwise
+     * @return <code>true</code> if share passwords can be send via SMS; <code>false</code>
+     * otherwise
      */
     public boolean isSharePasswordSmsEnabled() {
         return mSharePasswordSmsEnabled;
@@ -90,8 +91,8 @@ public class ServerGeneralSettings {
     /**
      * Sets if weak passwords are allowed.
      *
-     * @param weakPasswordEnabled <code>true</code> if weak passwords are allowed; <code>false</code>
-     *                            otherwise.
+     * @param weakPasswordEnabled <code>true</code> if weak passwords are allowed;
+     *                            <code>false</code> otherwise.
      */
     public void setWeakPasswordEnabled(boolean weakPasswordEnabled) {
         mWeakPasswordEnabled = weakPasswordEnabled;

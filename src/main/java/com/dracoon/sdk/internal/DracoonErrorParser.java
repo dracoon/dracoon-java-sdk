@@ -507,7 +507,8 @@ public class DracoonErrorParser {
                 if (errorCode == -10002)
                     return DracoonApiCode.VALIDATION_PASSWORD_NOT_SECURE;
                 else if (errorCode == -50004)
-                    return DracoonApiCode.VALIDATION_DL_SHARE_CAN_NOT_CREATE_ON_ENCRYPTED_ROOM_FOLDER;
+                    return DracoonApiCode
+                            .VALIDATION_DL_SHARE_CAN_NOT_CREATE_ON_ENCRYPTED_ROOM_FOLDER;
                 else if (errorCode == -80006)
                     return DracoonApiCode.VALIDATION_EXPIRATION_DATE_IN_PAST;
                 else if (errorCode == -80008)

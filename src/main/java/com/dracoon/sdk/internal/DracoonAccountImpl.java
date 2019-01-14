@@ -158,7 +158,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return checkUserKeyPairPassword(userKeyPair);
     }
 
-    private boolean checkUserKeyPairPassword(UserKeyPair userKeyPair) throws DracoonCryptoException {
+    private boolean checkUserKeyPairPassword(UserKeyPair userKeyPair)
+            throws DracoonCryptoException {
         String encryptionPassword = mClient.getEncryptionPassword();
 
         try {

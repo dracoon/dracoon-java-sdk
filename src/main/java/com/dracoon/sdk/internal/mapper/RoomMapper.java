@@ -22,7 +22,8 @@ public class RoomMapper {
         List<Long> adminUserIds = request.getAdminUserIds();
         apiRequest.adminIds = adminUserIds != null ? adminUserIds.toArray(new Long[0]) : null;
         List<Long> adminGroupIds = request.getAdminGroupIds();
-        apiRequest.adminGroupIds = adminGroupIds != null ? adminGroupIds.toArray(new Long[0]) : null;
+        apiRequest.adminGroupIds = adminGroupIds != null ? adminGroupIds.toArray(new Long[0]) :
+                null;
         GroupMemberAcceptance groupMemberAcceptance = request.getNewGroupMemberAcceptance();
         apiRequest.newGroupMemberAcceptance = groupMemberAcceptance != null ?
                 groupMemberAcceptance.getValue() : null;

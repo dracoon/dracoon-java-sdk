@@ -62,7 +62,8 @@ public class ShareMapper {
         downloadShare.setNodePath(apiDownloadShare.nodePath);
         downloadShare.setName(apiDownloadShare.name);
         if (apiDownloadShare.classification != null) {
-            downloadShare.setClassification(Classification.getByValue(apiDownloadShare.classification));
+            downloadShare.setClassification(Classification.getByValue(
+                    apiDownloadShare.classification));
         }
         downloadShare.setNotes(apiDownloadShare.notes);
         downloadShare.setExpireAt(apiDownloadShare.expireAt);

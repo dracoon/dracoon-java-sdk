@@ -58,12 +58,13 @@ public class EncFileUpload extends FileUpload {
         String uploadId = createUpload(mRequest.getParentId(), mRequest.getName(), classification,
                 mRequest.getNotes(), mRequest.getExpirationDate());
 
-        PlainFileKey plainFileKey = mClient.getNodesImpl().createFileKey(mUserPublicKey.getVersion());
+        PlainFileKey plainFileKey = mClient.getNodesImpl().createFileKey(
+                mUserPublicKey.getVersion());
 
         uploadFile(uploadId, mRequest.getName(), mSrcStream, mSrcLength, plainFileKey);
 
-        EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().encryptFileKey(null, plainFileKey,
-                mUserPublicKey);
+        EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().encryptFileKey(null,
+                plainFileKey, mUserPublicKey);
 
         ApiNode apiNode = completeUpload(uploadId, mRequest.getName(),
                 mRequest.getResolutionStrategy(), encryptedFileKey);

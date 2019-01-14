@@ -56,7 +56,7 @@ public abstract class Filters {
 
         for (int i = 0; i < mFilters.size(); i++) {
             sb.append(mFilters.get(i));
-            sb.append(i < mFilters.size()-1 ? SEPARATOR : "");
+            sb.append(i < mFilters.size() - 1 ? SEPARATOR : "");
         }
 
         return sb.toString();

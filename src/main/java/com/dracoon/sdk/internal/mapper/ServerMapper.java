@@ -12,7 +12,8 @@ public class ServerMapper {
         }
 
         ServerGeneralSettings serverGeneralSettings = new ServerGeneralSettings();
-        serverGeneralSettings.setSharePasswordSmsEnabled(apiServerGeneralSettings.sharePasswordSmsEnabled);
+        serverGeneralSettings.setSharePasswordSmsEnabled(
+                apiServerGeneralSettings.sharePasswordSmsEnabled);
         serverGeneralSettings.setCryptoEnabled(apiServerGeneralSettings.cryptoEnabled);
         serverGeneralSettings.setMediaServerEnabled(apiServerGeneralSettings.mediaServerEnabled);
         serverGeneralSettings.setWeakPasswordEnabled(apiServerGeneralSettings.weakPasswordEnabled);
