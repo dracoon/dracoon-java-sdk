@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.mapper;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
@@ -7,14 +8,18 @@ import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.internal.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadShare;
+import com.dracoon.sdk.internal.model.ApiDownloadShareList;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
+import com.dracoon.sdk.internal.model.ApiUploadShareList;
 import com.dracoon.sdk.internal.util.TextUtils;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.DownloadShare;
+import com.dracoon.sdk.model.DownloadShareList;
 import com.dracoon.sdk.model.UploadShare;
+import com.dracoon.sdk.model.UploadShareList;
 
 public class ShareMapper {
 
@@ -80,6 +85,23 @@ public class ShareMapper {
         return downloadShare;
     }
 
+    public static DownloadShareList fromApiDownloadShareList(ApiDownloadShareList apiDownloadShareList) {
+        if (apiDownloadShareList == null) {
+            return null;
+        }
+
+        DownloadShareList shareList = new DownloadShareList();
+        shareList.setOffset(apiDownloadShareList.range.offset);
+        shareList.setLimit(apiDownloadShareList.range.limit);
+        shareList.setTotal(apiDownloadShareList.range.total);
+        ArrayList<DownloadShare> items = new ArrayList<>();
+        for (ApiDownloadShare apiDownloadShare : apiDownloadShareList.items) {
+            items.add(ShareMapper.fromApiDownloadShare(apiDownloadShare));
+        }
+        shareList.setItems(items);
+        return shareList;
+    }
+
     public static ApiCreateUploadShareRequest toApiCreateUploadShareRequest(
             CreateUploadShareRequest request) {
         ApiCreateUploadShareRequest apiRequest = new ApiCreateUploadShareRequest();
@@ -129,6 +151,23 @@ public class ShareMapper {
         uploadShare.setIsProtected(apiUploadShare.isProtected);
         uploadShare.setIsEncrypted(apiUploadShare.isEncrypted);
         return uploadShare;
+    }
+
+    public static UploadShareList fromApiUploadShareList(ApiUploadShareList apiUploadShareList) {
+        if (apiUploadShareList == null) {
+            return null;
+        }
+
+        UploadShareList shareList = new UploadShareList();
+        shareList.setOffset(apiUploadShareList.range.offset);
+        shareList.setLimit(apiUploadShareList.range.limit);
+        shareList.setTotal(apiUploadShareList.range.total);
+        ArrayList<UploadShare> items = new ArrayList<>();
+        for (ApiUploadShare apiUploadShare : apiUploadShareList.items) {
+            items.add(ShareMapper.fromApiUploadShare(apiUploadShare));
+        }
+        shareList.setItems(items);
+        return shareList;
     }
 
 }
