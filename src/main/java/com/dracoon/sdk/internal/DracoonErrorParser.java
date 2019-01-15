@@ -812,6 +812,8 @@ public class DracoonErrorParser {
             return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_0_9999;
         else if (errorCode == -80019)
             return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_1_9999;
+        else if (errorCode == -80024)
+            return DracoonApiCode.VALIDATION_INVALID_OFFSET_OR_LIMIT;
         else if (errorCode == -80035)
             return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_0_10;
         else

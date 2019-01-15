@@ -109,6 +109,8 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
+        ShareValidator.validateRange(offset, limit, true);
+
         String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
         Call<ApiDownloadShareList> call = mService.getDownloadShares(auth, filter, offset, limit);
@@ -195,6 +197,8 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     private UploadShareList getUploadSharesInternally(Filters filters, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
+
+        ShareValidator.validateRange(offset, limit, true);
 
         String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
