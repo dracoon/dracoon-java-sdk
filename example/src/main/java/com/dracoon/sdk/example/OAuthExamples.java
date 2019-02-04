@@ -129,7 +129,7 @@ public class OAuthExamples {
         return callbackQueue.take();
     }
 
-    private static DracoonClient createClient(String authCode) throws MalformedURLException {
+    private static DracoonClient createClient(String authCode) throws Exception {
         // Create authorization configuration with obtained authorization code
         DracoonAuth auth = new DracoonAuth(CLIENT_ID, CLIENT_SECRET, authCode);
 

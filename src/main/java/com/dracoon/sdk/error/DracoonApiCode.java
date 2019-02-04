@@ -8,7 +8,8 @@ import com.dracoon.sdk.internal.DracoonConstants;
 @SuppressWarnings("unused")
 public enum DracoonApiCode {
 
-    API_VERSION_NOT_SUPPORTED(-1, "Server API versions < " + DracoonConstants.API_MIN_VERSION +
+    API_NOT_FOUND(-1, "API could not be found. (Wrong server URL?)"),
+    API_VERSION_NOT_SUPPORTED(-2, "API versions < " + DracoonConstants.API_MIN_VERSION +
             " are not supported."),
 
     // General

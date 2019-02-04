@@ -85,7 +85,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        //listNodes(client);
+        listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);

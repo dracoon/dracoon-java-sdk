@@ -1086,11 +1086,19 @@ public abstract class DracoonClient {
         }
 
         /**
-         * Creates a new {@link DracoonClient} instance with the supplied configuration.
+         * Creates a new {@link DracoonClient} instance with the supplied configuration.<br>
+         * <br>
+         * Beside creating a new instance, this methods does some pre-flight checks. It checks if
+         * the server API version is supported by the SDK. Furthermore, if authorization data was
+         * provided, new OAuth tokens are retrieved and a authorization check is made. (Afterwards,
+         * the current authorization data can be retrieved via {@link DracoonClient#getAuth()}.)
          *
          * @return a new {@link DracoonClient} instance
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
          */
-        public DracoonClient build() {
+        public DracoonClient build() throws DracoonNetIOException, DracoonApiException {
             mClient.setHttpConfig(mHttpConfig);
             mClient.init();
             return mClient;

@@ -132,7 +132,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     // --- Initialization methods ---
 
-    public void init() {
+    public void init() throws DracoonNetIOException, DracoonApiException {
         initOAuthClient();
 
         initHttpClient();
@@ -144,9 +144,19 @@ public class DracoonClientImpl extends DracoonClient {
         mAccount = new DracoonAccountImpl(this);
         mNodes = new DracoonNodesImpl(this);
         mShares = new DracoonSharesImpl(this);
+
+        assertApiVersionSupported();
+
+        if (mAuth != null) {
+            mAccount.pingUser();
+        }
     }
 
     private void initOAuthClient() {
+        if (mAuth == null) {
+            return;
+        }
+
         mOAuthClient = new OAuthClient(mServerUrl, mAuth.getClientId(), mAuth.getClientSecret());
         mOAuthClient.setLog(mLog);
         mOAuthClient.setHttpConfig(mHttpConfig);
