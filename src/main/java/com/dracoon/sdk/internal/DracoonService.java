@@ -10,6 +10,7 @@ import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadShare;
+import com.dracoon.sdk.internal.model.ApiDownloadShareList;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
@@ -25,6 +26,7 @@ import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
+import com.dracoon.sdk.internal.model.ApiUploadShareList;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import okhttp3.MultipartBody;
@@ -181,8 +183,28 @@ public interface DracoonService {
     Call<ApiDownloadShare> createDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
             @Body ApiCreateDownloadShareRequest request);
 
+    @GET(API_PATH + "/shares/downloads")
+    Call<ApiDownloadShareList> getDownloadShares(@Header(AUTHORIZATION_HEADER) String token,
+            @Query(value = "filter", encoded = true) String filter,
+            @Query("offset") Long offset,
+            @Query("limit") Long limit);
+
+    @DELETE(API_PATH + "/shares/downloads/{share_id}")
+    Call<Void> deleteDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("share_id") Long shareId);
+
     @POST(API_PATH + "/shares/uploads")
     Call<ApiUploadShare> createUploadShare(@Header(AUTHORIZATION_HEADER) String token,
             @Body ApiCreateUploadShareRequest request);
+
+    @GET(API_PATH + "/shares/uploads")
+    Call<ApiUploadShareList> getUploadShares(@Header(AUTHORIZATION_HEADER) String token,
+            @Query(value = "filter", encoded = true) String filter,
+            @Query("offset") Long offset,
+            @Query("limit") Long limit);
+
+    @DELETE(API_PATH + "/shares/uploads/{share_id}")
+    Call<Void> deleteUploadShare(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("share_id") Long shareId);
 
 }

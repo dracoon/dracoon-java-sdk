@@ -536,6 +536,47 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseDownloadSharesGetError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseDownloadShareDeleteError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+                else if (errorCode == -60000)
+                    return DracoonApiCode.SERVER_DL_SHARE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     public DracoonApiCode parseUploadShareCreateError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
@@ -573,6 +614,47 @@ public class DracoonErrorParser {
             case BAD_GATEWAY:
                 if (errorCode == -90090)
                     return DracoonApiCode.SERVER_SMS_COULD_NOT_BE_SEND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseUploadSharesGetError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseUploadShareDeleteError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -40000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+                else if (errorCode == -60500)
+                    return DracoonApiCode.SERVER_UL_SHARE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:
@@ -730,6 +812,8 @@ public class DracoonErrorParser {
             return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_0_9999;
         else if (errorCode == -80019)
             return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_1_9999;
+        else if (errorCode == -80024)
+            return DracoonApiCode.VALIDATION_INVALID_OFFSET_OR_LIMIT;
         else if (errorCode == -80035)
             return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_0_10;
         else

@@ -61,6 +61,16 @@ public class ValidatorUtils {
         }
     }
 
+    public static void validateNotNegative(String name, Long number, boolean nullable) {
+        if (nullable && number == null) {
+            return;
+        }
+        validateNotNull(name, number);
+        if (number < 0) {
+            throw new IllegalArgumentException(name + " cannot be negative.");
+        }
+    }
+
     // --- String validation methods ---
 
     public static void validateString(String name, String string, boolean nullable) {

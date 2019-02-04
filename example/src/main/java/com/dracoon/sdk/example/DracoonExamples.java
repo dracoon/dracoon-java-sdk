@@ -15,7 +15,10 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.filter.FavoriteStatusFilter;
+import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.GetUploadSharesFilter;
+import com.dracoon.sdk.filter.NodeIdFilter;
 import com.dracoon.sdk.filter.NodeNameFilter;
 import com.dracoon.sdk.filter.NodeTypeFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
@@ -28,6 +31,7 @@ import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
+import com.dracoon.sdk.model.DownloadShareList;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
@@ -42,6 +46,7 @@ import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
+import com.dracoon.sdk.model.UploadShareList;
 import com.dracoon.sdk.model.UserAccount;
 
 /**
@@ -80,7 +85,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        listNodes(client);
+        //listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -119,7 +124,11 @@ public class DracoonExamples {
 
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
+        //getDownloadShares(client);
+        //deleteDownloadShare(client);
         //createUploadShare(client);
+        //getUploadShares(client);
+        //deleteUploadShare(client);
 
         //generateMissingFileKeys(client);
         //generateMissingFileKeysForOneNode(client);
@@ -598,6 +607,25 @@ public class DracoonExamples {
                 dlShare.getAccessKey()));
     }
 
+    private static void getDownloadShares(DracoonClient client) throws DracoonException {
+        long targetNodeId = 1L;
+
+        GetDownloadSharesFilter filters = new GetDownloadSharesFilter();
+        filters.addNodeIdFilter(new NodeIdFilter.Builder().eq(targetNodeId).build());
+
+        DownloadShareList sharesList = client.shares().getDownloadShares(filters);
+        System.out.println("Download shares:");
+        for (DownloadShare share : sharesList.getItems()) {
+            System.out.println(share.getId() + ": " + share.getName());
+        }
+    }
+
+    private static void deleteDownloadShare(DracoonClient client) throws DracoonException {
+        long shareId = 1L;
+
+        client.shares().deleteDownloadShare(shareId);
+    }
+
     private static void createUploadShare(DracoonClient client) throws DracoonException {
         long targetNodeId = 1L;
 
@@ -614,6 +642,25 @@ public class DracoonExamples {
         UploadShare ulShare = client.shares().createUploadShare(request);
         System.out.println(String.format("Upload share: id=%d, access_key=%s", ulShare.getId(),
                 ulShare.getAccessKey()));
+    }
+
+    private static void getUploadShares(DracoonClient client) throws DracoonException {
+        long targetNodeId = 1L;
+
+        GetUploadSharesFilter filters = new GetUploadSharesFilter();
+        filters.addNodeIdFilter(new NodeIdFilter.Builder().eq(targetNodeId).build());
+
+        UploadShareList sharesList = client.shares().getUploadShares(filters);
+        System.out.println("Upload shares:");
+        for (UploadShare share : sharesList.getItems()) {
+            System.out.println(share.getId() + ": " + share.getName());
+        }
+    }
+
+    private static void deleteUploadShare(DracoonClient client) throws DracoonException {
+        long shareId = 1L;
+
+        client.shares().deleteUploadShare(shareId);
     }
 
     private static void generateMissingFileKeys(DracoonClient client) throws DracoonException {

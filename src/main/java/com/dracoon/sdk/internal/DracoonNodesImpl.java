@@ -56,6 +56,7 @@ import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUserIdFileId;
 import com.dracoon.sdk.internal.model.ApiUserIdFileIdFileKey;
 import com.dracoon.sdk.internal.model.ApiUserIdUserPublicKey;
+import com.dracoon.sdk.internal.validator.BaseValidator;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.NodeValidator;
@@ -122,6 +123,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mClient.assertApiVersionSupported();
 
         NodeValidator.validateParentNodeId(parentNodeId);
+        NodeValidator.validateRange(offset, limit, true);
 
         String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
@@ -741,6 +743,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mClient.assertApiVersionSupported();
 
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
+        NodeValidator.validateRange(offset, limit, true);
 
         String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
