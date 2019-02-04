@@ -18,10 +18,10 @@ import com.dracoon.sdk.filter.FavoriteStatusFilter;
 import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.GetUploadSharesFilter;
+import com.dracoon.sdk.filter.NodeIdFilter;
 import com.dracoon.sdk.filter.NodeNameFilter;
 import com.dracoon.sdk.filter.NodeTypeFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
-import com.dracoon.sdk.filter.UserIdFilter;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -590,27 +590,6 @@ public class DracoonExamples {
                 dlShare.getAccessKey()));
     }
 
-    private static void getDownloadShares(DracoonClient client) throws DracoonException {
-        // Request own download shares so the own user id is required
-        UserAccount userAccount = client.account().getUserAccount();
-
-        GetDownloadSharesFilter filters = new GetDownloadSharesFilter();
-        filters.addUserIdFilter(new UserIdFilter.Builder()
-                .eq(userAccount.getId()).build());
-
-        DownloadShareList sharesList = client.shares().getDownloadShares(filters);
-        System.out.println("Download shares:");
-        for (DownloadShare share : sharesList.getItems()) {
-            System.out.println(share.getId() + ": " + share.getName());
-        }
-    }
-
-    private static void deleteDownloadShare(DracoonClient client) throws DracoonException {
-        long shareId = 1L;
-
-        client.shares().deleteDownloadShare(shareId);
-    }
-
     private static void createDownloadShareEncrypted(DracoonClient client) throws DracoonException {
         long nodeId = 1L;
 
@@ -626,6 +605,25 @@ public class DracoonExamples {
         DownloadShare dlShare = client.shares().createDownloadShare(request);
         System.out.println(String.format("Download share: id=%d, access_key=%s", dlShare.getId(),
                 dlShare.getAccessKey()));
+    }
+
+    private static void getDownloadShares(DracoonClient client) throws DracoonException {
+        long targetNodeId = 1L;
+
+        GetDownloadSharesFilter filters = new GetDownloadSharesFilter();
+        filters.addNodeIdFilter(new NodeIdFilter.Builder().eq(targetNodeId).build());
+
+        DownloadShareList sharesList = client.shares().getDownloadShares(filters);
+        System.out.println("Download shares:");
+        for (DownloadShare share : sharesList.getItems()) {
+            System.out.println(share.getId() + ": " + share.getName());
+        }
+    }
+
+    private static void deleteDownloadShare(DracoonClient client) throws DracoonException {
+        long shareId = 1L;
+
+        client.shares().deleteDownloadShare(shareId);
     }
 
     private static void createUploadShare(DracoonClient client) throws DracoonException {
@@ -647,12 +645,10 @@ public class DracoonExamples {
     }
 
     private static void getUploadShares(DracoonClient client) throws DracoonException {
-        // Request own download shares so the own user id is required
-        UserAccount userAccount = client.account().getUserAccount();
+        long targetNodeId = 1L;
 
         GetUploadSharesFilter filters = new GetUploadSharesFilter();
-        filters.addUserIdFilter(new UserIdFilter.Builder()
-                .eq(userAccount.getId()).build());
+        filters.addNodeIdFilter(new NodeIdFilter.Builder().eq(targetNodeId).build());
 
         UploadShareList sharesList = client.shares().getUploadShares(filters);
         System.out.println("Upload shares:");
