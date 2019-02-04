@@ -917,9 +917,6 @@ public abstract class DracoonClient {
 
     protected URL mServerUrl;
 
-    protected DracoonAuth mAuth;
-    protected String mEncryptionPassword;
-
     /**
      * Constructs a new Dracoon client.
      *
@@ -946,9 +943,7 @@ public abstract class DracoonClient {
      *
      * @return authorization data
      */
-    public DracoonAuth getAuth() {
-        return mAuth;
-    }
+    public abstract DracoonAuth getAuth();
 
     /**
      * Checks if the <b>current</b> authorization is still valid.
@@ -965,18 +960,14 @@ public abstract class DracoonClient {
      *
      * @return encryption password
      */
-    public String getEncryptionPassword() {
-        return mEncryptionPassword;
-    }
+    public abstract String getEncryptionPassword();
 
     /**
      * Sets the client's encryption password.
      *
      * @param encryptionPassword The new encryption password.
      */
-    public void setEncryptionPassword(String encryptionPassword) {
-        mEncryptionPassword = encryptionPassword;
-    }
+    public abstract void setEncryptionPassword(String encryptionPassword);
 
     /**
      * Get Server handler.
@@ -1047,18 +1038,6 @@ public abstract class DracoonClient {
         }
 
         /**
-         * Sets the logger which should be used.
-         *
-         * @param log The logger.
-         *
-         * @return a reference to this object
-         */
-        public Builder log(Log log) {
-            mClient.setLog(log);
-            return this;
-        }
-
-        /**
          * Sets the authorization data for accessing protected resources.
          *
          * @param auth The authorization data.
@@ -1066,7 +1045,7 @@ public abstract class DracoonClient {
          * @return a reference to this object
          */
         public Builder auth(DracoonAuth auth) {
-            mClient.mAuth = auth;
+            mClient.setAuth(auth);
             return this;
         }
 
@@ -1078,7 +1057,19 @@ public abstract class DracoonClient {
          * @return a reference to this object
          */
         public Builder encryptionPassword(String encryptionPassword) {
-            mClient.mEncryptionPassword = encryptionPassword;
+            mClient.setEncryptionPassword(encryptionPassword);
+            return this;
+        }
+
+        /**
+         * Sets the logger which should be used.
+         *
+         * @param log The logger.
+         *
+         * @return a reference to this object
+         */
+        public Builder log(Log log) {
+            mClient.setLog(log);
             return this;
         }
 
