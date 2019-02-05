@@ -96,9 +96,9 @@ public class OAuthClient {
         mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
     }
 
-    // --- Methods to retrieve an refresh tokens ---
+    // --- Methods to retrieve and refresh tokens ---
 
-    public OAuthTokens getAccessToken(String code) throws DracoonNetIOException,
+    public OAuthTokens retrieveTokens(String code) throws DracoonNetIOException,
             DracoonApiException {
         String auth = Credentials.basic(mClientId, mClientSecret);
 
@@ -116,7 +116,7 @@ public class OAuthClient {
         return response.body();
     }
 
-    public OAuthTokens refreshAccessToken(String refreshToken) throws DracoonNetIOException,
+    public OAuthTokens refreshTokens(String refreshToken) throws DracoonNetIOException,
             DracoonApiException {
         String auth = Credentials.basic(mClientId, mClientSecret);
 

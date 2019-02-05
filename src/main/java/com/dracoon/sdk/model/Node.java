@@ -505,7 +505,7 @@ public class Node {
     }
 
     /**
-     * Returns the number of download shares on the node, if node is a file.
+     * Returns the number of download shares on the node.
      *
      * @return the number of download shares, or <code>null</code>
      */

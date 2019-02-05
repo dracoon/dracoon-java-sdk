@@ -12,7 +12,7 @@ public class ApiErrorInfos {
             sb.append("[");
             for (int i = 0; i < conflictNodes.length; i++) {
                 sb.append(conflictNodes[i]);
-                if (i < conflictNodes.length-1) {
+                if (i < conflictNodes.length - 1) {
                     sb.append(", ");
                 }
             }

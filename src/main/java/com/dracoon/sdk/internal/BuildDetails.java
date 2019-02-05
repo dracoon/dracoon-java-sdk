@@ -24,7 +24,7 @@ public class BuildDetails {
         Properties properties = new Properties();
         try (InputStream is = BuildDetails.class.getClassLoader().getResourceAsStream(fileName)) {
             properties.load(is);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new Error(String.format("Loading properties from '%s' failed!", fileName), e);
         }
 

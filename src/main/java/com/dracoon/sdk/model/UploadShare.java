@@ -207,7 +207,8 @@ public class UploadShare {
     /**
      * Sets if creator is notified at ups of the up share.
      *
-     * @param notifiesCreator <code>true</code> if creator is notified; otherwise <code>false</code>.
+     * @param notifiesCreator <code>true</code> if creator is notified; otherwise
+     *                        <code>false</code>.
      */
     public void setNotifiesCreator(Boolean notifiesCreator) {
         mNotifiesCreator = notifiesCreator;

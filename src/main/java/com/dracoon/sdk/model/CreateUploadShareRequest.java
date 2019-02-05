@@ -78,7 +78,8 @@ public class CreateUploadShareRequest {
     /**
      * Returns <code>true</code> if already uploaded files will be shown for the new upload share.
      *
-     * @return <code>true</code> if already uploaded files will be shown; <code>false</code> otherwise
+     * @return <code>true</code> if already uploaded files will be shown; <code>false</code>
+     * otherwise
      */
     public Boolean showUploadedFiles() {
         return mShowUploadedFiles;

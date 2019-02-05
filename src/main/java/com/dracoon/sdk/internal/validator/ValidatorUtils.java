@@ -8,7 +8,8 @@ import com.dracoon.sdk.internal.util.TextUtils;
 
 public class ValidatorUtils {
 
-    private static final char[] INVALID_FILE_NAME_CHARS = {'<', '>', ':', '"', '|', '?', '*', '/', '\\'};
+    private static final char[] INVALID_FILE_NAME_CHARS = {'<', '>', ':', '"', '|', '?', '*',
+            '/', '\\'};
     private static final char[] INVALID_FILE_PATH_CHARS = {'<', '>', ':', '"', '|', '?', '*', '\\'};
 
     // --- Null validation methods ---
@@ -57,6 +58,16 @@ public class ValidatorUtils {
         validateNotNull(name, number);
         if (number <= 0) {
             throw new IllegalArgumentException(name + " cannot be negative or 0.");
+        }
+    }
+
+    public static void validateNotNegative(String name, Long number, boolean nullable) {
+        if (nullable && number == null) {
+            return;
+        }
+        validateNotNull(name, number);
+        if (number < 0) {
+            throw new IllegalArgumentException(name + " cannot be negative.");
         }
     }
 

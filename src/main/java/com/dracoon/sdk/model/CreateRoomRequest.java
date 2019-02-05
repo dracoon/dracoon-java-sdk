@@ -183,7 +183,8 @@ public class CreateRoomRequest {
         /**
          * Enables/disables the recycle bin on the new room.
          *
-         * @param hasRecycleBin <code>true</code> to enable recycle bin; otherwise <code>false</code>.
+         * @param hasRecycleBin <code>true</code> to enable recycle bin; otherwise
+         *                      <code>false</code>.
          *
          * @return a reference to this object
          */
@@ -195,7 +196,8 @@ public class CreateRoomRequest {
         /**
          * Sets the recycle bin retention period of the new room.
          *
-         * @param recycleBinRetentionPeriod The recycle bin retention period. (Period must be positive.)
+         * @param recycleBinRetentionPeriod The recycle bin retention period. (Period must be
+         *                                  positive.)
          *
          * @return a reference to this object
          */
@@ -207,8 +209,8 @@ public class CreateRoomRequest {
         /**
          * Enables/disables permission inheritance on the new room.
          *
-         * @param hasInheritPermissions <code>true</code> to enable permission inheritance; otherwise
-         *                              <code>false</code>.
+         * @param hasInheritPermissions <code>true</code> to enable permission inheritance;
+         *                              otherwise <code>false</code>.
          *
          * @return a reference to this object
          */

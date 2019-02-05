@@ -6,7 +6,7 @@ import com.dracoon.sdk.model.CreateUploadShareRequest;
 public class ShareValidator extends BaseValidator {
 
     public static void validateCreateDownloadRequest(CreateDownloadShareRequest request,
-                boolean isEncrypted) {
+            boolean isEncrypted) {
         ValidatorUtils.validateNotNull("Download share creation request", request);
         validateNodeId(request.getNodeId());
         if (request.getName() != null) {

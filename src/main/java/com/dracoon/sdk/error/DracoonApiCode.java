@@ -8,7 +8,9 @@ import com.dracoon.sdk.internal.DracoonConstants;
 @SuppressWarnings("unused")
 public enum DracoonApiCode {
 
-    API_VERSION_NOT_SUPPORTED(-1, "Server API versions < " + DracoonConstants.API_MIN_VERSION + " are not supported."),
+    API_NOT_FOUND(-1, "API could not be found. (Wrong server URL?)"),
+    API_VERSION_NOT_SUPPORTED(-2, "API versions < " + DracoonConstants.API_MIN_VERSION +
+            " are not supported."),
 
     // General
     AUTH_UNKNOWN_ERROR(-1000, "An authentication/authorization error occurred."),
@@ -23,9 +25,10 @@ public enum DracoonApiCode {
     AUTH_OAUTH_TOKEN_CODE_INVALID(-1107, "OAuth authorization code is invalid."),
     AUTH_OAUTH_REFRESH_REQUEST_INVALID(-1108, "OAuth token refresh request is invalid."),
     AUTH_OAUTH_REFRESH_TOKEN_INVALID(-1109, "OAuth refresh token is invalid."),
-    AUTH_OAUTH_CLIENT_NO_PERMISSION(-1150, "OAuth client has no permissions to execute the action.")
+    AUTH_OAUTH_CLIENT_NO_PERMISSION(-1150, "OAuth client has no permissions to execute the " +
+            "action."),
     // Authorization
-,    AUTH_UNAUTHORIZED(-1200, "Unauthorized."),
+    AUTH_UNAUTHORIZED(-1200, "Unauthorized."),
     // User
     AUTH_USER_TEMPORARY_LOCKED(-1300, "User is temporary locked."),
     AUTH_USER_LOCKED(-1301, "User is locked."),
@@ -45,17 +48,20 @@ public enum DracoonApiCode {
     VALIDATION_FIELD_NOT_BETWEEN_0_10(-3005, "Field value must be between 0 and 10."),
     VALIDATION_FIELD_NOT_BETWEEN_0_9999(-3006, "Field value must be between 0 and 9999."),
     VALIDATION_FIELD_NOT_BETWEEN_1_9999(-3007, "Field value must be between 1 and 9999."),
+    VALIDATION_INVALID_OFFSET_OR_LIMIT(-3008, "Invalid offset or limit."),
     // Nodes
     VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE(-3100, "A file can't be a target node."),
     VALIDATION_FILE_NAME_INVALID(-3101, "File name invalid."),
     VALIDATION_EXPIRATION_DATE_IN_PAST(-3102, "Expiration date is in past."),
-    VALIDATION_EXPIRATION_DATE_TOO_LATE(-3103, "Expiration date is too late. Max year is limited to 9999."),
+    VALIDATION_EXPIRATION_DATE_TOO_LATE(-3103, "Expiration date is too late. Max year is limited " +
+            "to 9999."),
     VALIDATION_NODE_ALREADY_EXISTS(-3104, "A node with the same name already exits."),
     VALIDATION_ROOM_ALREADY_EXISTS(-3105, "A room with the same name already exits."),
     VALIDATION_FOLDER_ALREADY_EXISTS(-3106, "A folder with the same name already exits."),
     VALIDATION_FILE_ALREADY_EXISTS(-3107, "A file with the same name already exits."),
     VALIDATION_NODES_NOT_IN_SAME_PARENT(-3108, "Folders/files must be in same parent."),
-    VALIDATION_CAN_NOT_COPY_NODE_TO_OWN_PLACE_WITHOUT_RENAME(-3109, "A node can\'t be copied to its own place without renaming."),
+    VALIDATION_CAN_NOT_COPY_NODE_TO_OWN_PLACE_WITHOUT_RENAME(-3109, "A node can\'t be copied to " +
+            "its own place without renaming."),
     VALIDATION_CAN_NOT_MOVE_NODE_TO_OWN_PLACE(-3110, "A node can\'t be moved to its own place."),
     VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER(-3111, "A room or folder can\'t be overwritten."),
     VALIDATION_CAN_NOT_COPY_TO_CHILD(-3112, "A node can\'t be copied to its child node."),
@@ -65,10 +71,13 @@ public enum DracoonApiCode {
     VALIDATION_PATH_TOO_LONG(-3116, "Path is too long."),
     VALIDATION_NODE_IS_NO_FAVORITE(-3117, "Node is not marked as favorite."),
     VALIDATION_ROOM_NOT_ENCRYPTED(-3118, "Room not encrypted."),
-    VALIDATION_SOURCE_ROOM_ENCRYPTED(-3119, "Encrypted files can\'t be copied or moved to an not encrypted room."),
-    VALIDATION_TARGET_ROOM_ENCRYPTED(-3120, "Not encrypted files can\'t be copied or moved to an encrypted room."),
+    VALIDATION_SOURCE_ROOM_ENCRYPTED(-3119, "Encrypted files can\'t be copied or moved to an not " +
+            "encrypted room."),
+    VALIDATION_TARGET_ROOM_ENCRYPTED(-3120, "Not encrypted files can\'t be copied or moved to an " +
+            "encrypted room."),
     // Shares
-    VALIDATION_DL_SHARE_CAN_NOT_CREATE_ON_ENCRYPTED_ROOM_FOLDER(-3200, "A download share can\'t be created on a encrypted room or folder."),
+    VALIDATION_DL_SHARE_CAN_NOT_CREATE_ON_ENCRYPTED_ROOM_FOLDER(-3200, "A download share can\'t " +
+            "be created on a encrypted room or folder."),
     VALIDATION_UL_SHARE_NAME_ALREADY_EXISTS(-3201, "Upload share name already exits."),
     // Customers
     // Users
@@ -86,11 +95,16 @@ public enum DracoonApiCode {
     PERMISSION_CREATE_ERROR(-4102, "User has no permission to create nodes in this room."),
     PERMISSION_UPDATE_ERROR(-4103, "User has no permission to change nodes in this room."),
     PERMISSION_DELETE_ERROR(-4104, "User has no permission to change nodes in this room."),
-    PERMISSION_MANAGE_DL_SHARES_ERROR(-4105, "User has no permission to manage download shares in this room."),
-    PERMISSION_MANAGE_UL_SHARES_ERROR(-4106, "User has no permission to manage upload shares in this room."),
-    PERMISSION_READ_RECYCLE_BIN_ERROR(-4107, "User has no permission to read recycle bin in this room."),
-    PERMISSION_RESTORE_RECYCLE_BIN_ERROR(-4108, "User has no permission to restore recycle bin items in this room."),
-    PERMISSION_DELETE_RECYCLE_BIN_ERROR(-4109, "User has no permission to delete recycle bin items in this room."),
+    PERMISSION_MANAGE_DL_SHARES_ERROR(-4105, "User has no permission to manage download shares " +
+            "in this room."),
+    PERMISSION_MANAGE_UL_SHARES_ERROR(-4106, "User has no permission to manage upload shares in " +
+            "this room."),
+    PERMISSION_READ_RECYCLE_BIN_ERROR(-4107, "User has no permission to read recycle bin in this " +
+            "room."),
+    PERMISSION_RESTORE_RECYCLE_BIN_ERROR(-4108, "User has no permission to restore recycle bin " +
+            "items in this room."),
+    PERMISSION_DELETE_RECYCLE_BIN_ERROR(-4109, "User has no permission to delete recycle bin " +
+            "items in this room."),
 
     // General
     SERVER_UNKNOWN_ERROR(-5000, "A server error occurred."),
