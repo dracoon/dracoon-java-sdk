@@ -10,7 +10,9 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetNodesFilters;
+import com.dracoon.sdk.filter.GetUploadSharesFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
@@ -22,19 +24,21 @@ import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
+import com.dracoon.sdk.model.DownloadShareList;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
-import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
+import com.dracoon.sdk.model.UploadShareList;
 import com.dracoon.sdk.model.UserAccount;
 
 /**
@@ -103,7 +107,8 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException, DracoonApiException;
+        ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException,
+                DracoonApiException;
 
     }
 
@@ -285,7 +290,8 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        Node createRoom(CreateRoomRequest request) throws DracoonNetIOException, DracoonApiException;
+        Node createRoom(CreateRoomRequest request) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Updates a room.
@@ -297,7 +303,8 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException, DracoonApiException;
+        Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Creates a new folder.
@@ -765,6 +772,71 @@ public abstract class DracoonClient {
                 throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
 
         /**
+         * Retrieves all download shares.
+         *
+         * @return list of download shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        DownloadShareList getDownloadShares() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves all download shares. The arguments {@code offset} and {@code limit} restrict
+         * the result to a specific range.
+         *
+         * @param offset The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit  The range limit. (Number of records; must be positive.)
+         *
+         * @return list of download shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        DownloadShareList getDownloadShares(long offset, long limit) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves filtered download shares.
+         *
+         * @param filters The filters to apply.
+         *
+         * @return list of download shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        DownloadShareList getDownloadShares(GetDownloadSharesFilter filters)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves filtered download shares. The arguments {@code offset} and {@code limit}
+         * restrict
+         * the result to a specific range.
+         *
+         * @param filters The filters to apply.
+         * @param offset  The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit   The range limit. (Number of records; must be positive.)
+         *
+         * @return list of download shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        DownloadShareList getDownloadShares(GetDownloadSharesFilter filters, long offset,
+                long limit) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Delete a download share.
+         *
+         * @param shareId The ID of the download share which should be deleted.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteDownloadShare(long shareId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
          * Creates an upload share.
          *
          * @param request The request with the target node ID and the upload share settings.
@@ -777,12 +849,73 @@ public abstract class DracoonClient {
         UploadShare createUploadShare(CreateUploadShareRequest request)
                 throws DracoonNetIOException, DracoonApiException;
 
+        /**
+         * Retrieves all upload shares.
+         *
+         * @return list of upload shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        UploadShareList getUploadShares() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves all upload shares. The arguments {@code offset} and {@code limit} restrict
+         * the result to a specific range.
+         *
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of upload shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        UploadShareList getUploadShares(long offset, long limit) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves filtered upload shares.
+         *
+         * @param filters      The filters to apply.
+         *
+         * @return list of upload shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        UploadShareList getUploadShares(GetUploadSharesFilter filters) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves filtered upload shares. The arguments {@code offset} and {@code limit}
+         * restrict the result to a specific range.
+         *
+         * @param filters      The filters to apply.
+         * @param offset       The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit        The range limit. (Number of records; must be positive.)
+         *
+         * @return list of upload shares
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        UploadShareList getUploadShares(GetUploadSharesFilter filters, long offset, long limit)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Delete a upload share.
+         *
+         * @param shareId The ID of the upload share which should be deleted.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteUploadShare(long shareId) throws DracoonNetIOException, DracoonApiException;
+
     }
 
     protected URL mServerUrl;
-
-    protected DracoonAuth mAuth;
-    protected String mEncryptionPassword;
 
     /**
      * Constructs a new Dracoon client.
@@ -810,9 +943,7 @@ public abstract class DracoonClient {
      *
      * @return authorization data
      */
-    public DracoonAuth getAuth() {
-        return mAuth;
-    }
+    public abstract DracoonAuth getAuth();
 
     /**
      * Checks if the <b>current</b> authorization is still valid.
@@ -829,18 +960,14 @@ public abstract class DracoonClient {
      *
      * @return encryption password
      */
-    public String getEncryptionPassword() {
-        return mEncryptionPassword;
-    }
+    public abstract String getEncryptionPassword();
 
     /**
      * Sets the client's encryption password.
      *
      * @param encryptionPassword The new encryption password.
      */
-    public void setEncryptionPassword(String encryptionPassword) {
-        mEncryptionPassword = encryptionPassword;
-    }
+    public abstract void setEncryptionPassword(String encryptionPassword);
 
     /**
      * Get Server handler.
@@ -911,18 +1038,6 @@ public abstract class DracoonClient {
         }
 
         /**
-         * Sets the logger which should be used.
-         *
-         * @param log The logger.
-         *
-         * @return a reference to this object
-         */
-        public Builder log(Log log) {
-            mClient.setLog(log);
-            return this;
-        }
-
-        /**
          * Sets the authorization data for accessing protected resources.
          *
          * @param auth The authorization data.
@@ -930,7 +1045,7 @@ public abstract class DracoonClient {
          * @return a reference to this object
          */
         public Builder auth(DracoonAuth auth) {
-            mClient.mAuth = auth;
+            mClient.setAuth(auth);
             return this;
         }
 
@@ -942,7 +1057,19 @@ public abstract class DracoonClient {
          * @return a reference to this object
          */
         public Builder encryptionPassword(String encryptionPassword) {
-            mClient.mEncryptionPassword = encryptionPassword;
+            mClient.setEncryptionPassword(encryptionPassword);
+            return this;
+        }
+
+        /**
+         * Sets the logger which should be used.
+         *
+         * @param log The logger.
+         *
+         * @return a reference to this object
+         */
+        public Builder log(Log log) {
+            mClient.setLog(log);
             return this;
         }
 
@@ -959,11 +1086,19 @@ public abstract class DracoonClient {
         }
 
         /**
-         * Creates a new {@link DracoonClient} instance with the supplied configuration.
+         * Creates a new {@link DracoonClient} instance with the supplied configuration.<br>
+         * <br>
+         * Beside creating a new instance, this methods does some pre-flight checks. It checks if
+         * the server API version is supported by the SDK. Furthermore, if authorization data was
+         * provided, new OAuth tokens are retrieved and a authorization check is made. (Afterwards,
+         * the current authorization data can be retrieved via {@link DracoonClient#getAuth()}.)
          *
          * @return a new {@link DracoonClient} instance
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
          */
-        public DracoonClient build() {
+        public DracoonClient build() throws DracoonNetIOException, DracoonApiException {
             mClient.setHttpConfig(mHttpConfig);
             mClient.init();
             return mClient;

@@ -56,6 +56,7 @@ import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUserIdFileId;
 import com.dracoon.sdk.internal.model.ApiUserIdFileIdFileKey;
 import com.dracoon.sdk.internal.model.ApiUserIdUserPublicKey;
+import com.dracoon.sdk.internal.validator.BaseValidator;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.NodeValidator;
@@ -122,6 +123,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mClient.assertApiVersionSupported();
 
         NodeValidator.validateParentNodeId(parentNodeId);
+        NodeValidator.validateRange(offset, limit, true);
 
         String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
@@ -479,8 +481,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         startUploadFileAsyncInternally(id, request, is, length, callback);
     }
 
-    private void startUploadFileAsyncInternally(String id, FileUploadRequest request, InputStream is,
-            long length, FileUploadCallback callback) throws DracoonCryptoException,
+    private void startUploadFileAsyncInternally(String id, FileUploadRequest request,
+            InputStream is, long length, FileUploadCallback callback) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
         UserPublicKey userPublicKey = null;
@@ -741,6 +743,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mClient.assertApiVersionSupported();
 
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
+        NodeValidator.validateRange(offset, limit, true);
 
         String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
@@ -770,14 +773,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
-    public void generateMissingFileKeys(int limit) throws DracoonNetIOException, DracoonApiException,
-            DracoonCryptoException {
+    public void generateMissingFileKeys(int limit) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
         generateMissingFileKeysInternally(null, limit);
     }
 
     @Override
-    public void generateMissingFileKeys(long nodeId) throws DracoonNetIOException, DracoonApiException,
-            DracoonCryptoException {
+    public void generateMissingFileKeys(long nodeId) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
         generateMissingFileKeysInternally(nodeId, null);
     }
 
@@ -956,8 +959,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                     userPrivateKeyPassword);
         } catch (CryptoException e) {
             String nodeErrorText = nodeId != null ? String.format("for node '%d' ", nodeId) : "";
-            String errorText = String.format("Decryption of file key " + nodeErrorText + "failed! %s",
-                    nodeId, e.getMessage());
+            String errorText = String.format("Decryption of file key " + nodeErrorText +
+                    "failed! %s", nodeId, e.getMessage());
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
@@ -970,8 +973,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             return Crypto.encryptFileKey(plainFileKey, userPublicKey);
         } catch (CryptoException e) {
             String nodeErrorText = nodeId != null ? String.format("for node '%d' ", nodeId) : "";
-            String errorText = String.format("Encryption of file key " + nodeErrorText + "failed! %s",
-                    nodeId, e.getMessage());
+            String errorText = String.format("Encryption of file key " + nodeErrorText +
+                    "failed! %s", nodeId, e.getMessage());
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);

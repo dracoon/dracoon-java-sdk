@@ -28,15 +28,13 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     public void pingUser() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         String auth = mClient.buildAuthString();
         Call<Void> call = mService.pingUser(auth);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
-            String errorText = String.format("Ping failed with '%s'!", errorCode.name());
+            String errorText = String.format("Auth ping failed with '%s'!", errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -158,7 +156,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return checkUserKeyPairPassword(userKeyPair);
     }
 
-    private boolean checkUserKeyPairPassword(UserKeyPair userKeyPair) throws DracoonCryptoException {
+    private boolean checkUserKeyPairPassword(UserKeyPair userKeyPair)
+            throws DracoonCryptoException {
         String encryptionPassword = mClient.getEncryptionPassword();
 
         try {

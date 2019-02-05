@@ -272,8 +272,8 @@ public class FileUpload extends Thread {
     }
 
     private ApiNode completeUpload(String uploadId, String fileName,
-            ResolutionStrategy resolutionStrategy) throws DracoonNetIOException, DracoonApiException,
-            InterruptedException {
+            ResolutionStrategy resolutionStrategy) throws DracoonNetIOException,
+            DracoonApiException, InterruptedException {
         String auth = mClient.buildAuthString();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();

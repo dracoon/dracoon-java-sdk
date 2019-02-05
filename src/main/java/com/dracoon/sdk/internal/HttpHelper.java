@@ -1,7 +1,7 @@
 package com.dracoon.sdk.internal;
 
-import java.io.InterruptedIOException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import javax.net.ssl.SSLHandshakeException;
 
 import com.dracoon.sdk.Log;
@@ -121,7 +121,7 @@ public class HttpHelper {
                 }
             }
 
-            return  response;
+            return response;
         }
     }
 

@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.dracoon.sdk.DracoonAuth;
@@ -31,6 +32,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DracoonClientImpl extends DracoonClient {
 
+    private static final String LOG_TAG = DracoonClientImpl.class.getSimpleName();
+
+    private static final long AUTH_EXPIRE_TOLERANCE = 5 * DracoonConstants.SECOND;
+
     private static class UserAgentInterceptor implements Interceptor {
 
         private String mUserAgent;
@@ -49,6 +54,10 @@ public class DracoonClientImpl extends DracoonClient {
         }
 
     }
+
+    private DracoonAuth mAuth;
+    private long mAuthExpireTime = 0L;
+    private String mEncryptionPassword;
 
     private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig;
@@ -69,10 +78,24 @@ public class DracoonClientImpl extends DracoonClient {
 
     private String mApiVersion = null;
 
-    private long mOAuthLastRefreshTime;
-
     public DracoonClientImpl(URL serverUrl) {
         super(serverUrl);
+    }
+
+    public DracoonAuth getAuth() {
+        return mAuth;
+    }
+
+    public void setAuth(DracoonAuth auth) {
+        mAuth = auth;
+    }
+
+    public String getEncryptionPassword() {
+        return mEncryptionPassword;
+    }
+
+    public void setEncryptionPassword(String encryptionPassword) {
+        mEncryptionPassword = encryptionPassword;
     }
 
     public Log getLog() {
@@ -109,7 +132,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     // --- Initialization methods ---
 
-    public void init() {
+    public void init() throws DracoonNetIOException, DracoonApiException {
         initOAuthClient();
 
         initHttpClient();
@@ -121,9 +144,19 @@ public class DracoonClientImpl extends DracoonClient {
         mAccount = new DracoonAccountImpl(this);
         mNodes = new DracoonNodesImpl(this);
         mShares = new DracoonSharesImpl(this);
+
+        assertApiVersionSupported();
+
+        if (mAuth != null) {
+            mAccount.pingUser();
+        }
     }
 
     private void initOAuthClient() {
+        if (mAuth == null) {
+            return;
+        }
+
         mOAuthClient = new OAuthClient(mServerUrl, mAuth.getClientId(), mAuth.getClientSecret());
         mOAuthClient.setLog(mLog);
         mOAuthClient.setHttpConfig(mHttpConfig);
@@ -308,57 +341,91 @@ public class DracoonClientImpl extends DracoonClient {
 
     // --- OAuth authorization methods ---
 
-    public String buildAuthString() throws DracoonApiException, DracoonNetIOException {
+    public synchronized String buildAuthString() throws DracoonApiException, DracoonNetIOException {
         // If no authorization information was provided: Abort
         if (mAuth == null) {
             return null;
         }
 
-        // If OAuth tokens haven't been retrieved yet: Retrieve tokens
-        if (mOAuthLastRefreshTime == 0L) {
-            retrieveOAuthTokens();
+        // If expire time is not exceeded: Return current access token
+        if (mAuth.getMode().equals(DracoonAuth.Mode.ACCESS_TOKEN) ||
+                mAuthExpireTime - AUTH_EXPIRE_TOLERANCE > System.currentTimeMillis()) {
+            return DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken();
         }
 
-        // If OAuth tokens validity has been exceeded: Refresh tokens
-        long nextRefreshTime = mOAuthLastRefreshTime +
-                DracoonConstants.AUTHORIZATION_REFRESH_INTERVAL;
-        long currentTime = System.currentTimeMillis();
-        if (nextRefreshTime < currentTime) {
-            refreshOAuthTokens();
+        // If mode AUTHORIZATION_CODE: Retrieve new tokens
+        if (mAuth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
+            retrieveAuthTokens();
+        // If mode ACCESS_REFRESH_TOKEN: Refresh existing tokens
+        } else if (mAuth.getMode().equals(DracoonAuth.Mode.ACCESS_REFRESH_TOKEN)) {
+            refreshAuthTokens();
         }
 
         // Build authorization header string
         return DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken();
     }
 
-    private void retrieveOAuthTokens() throws DracoonNetIOException, DracoonApiException {
-        DracoonAuth.Mode mode = mAuth.getMode();
+    private void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
+        String authorizationCode = mAuth.getAuthorizationCode();
 
-        // If mode AUTHORIZATION_CODE: Retrieve new tokens
-        if (mode.equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
-            OAuthTokens tokens = mOAuthClient.getAccessToken(mAuth.getAuthorizationCode());
-            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
-                    tokens.accessToken, tokens.refreshToken);
-        // If mode ACCESS_REFRESH_TOKEN and refresh token was provided: Refresh existing tokens
-        } else if (mode.equals(DracoonAuth.Mode.ACCESS_REFRESH_TOKEN) &&
-                mAuth.getRefreshToken() != null) {
-            OAuthTokens tokens = mOAuthClient.refreshAccessToken(mAuth.getRefreshToken());
-            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
-                    tokens.accessToken, tokens.refreshToken);
-        }
+        // Try to retrieve auth tokens
+        OAuthTokens tokens = mOAuthClient.retrieveTokens(authorizationCode);
 
-        mOAuthLastRefreshTime = System.currentTimeMillis();
+        // Update auth data
+        mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
+                tokens.accessToken, tokens.refreshToken);
+        // Update auth expire time
+        mAuthExpireTime = System.currentTimeMillis() + tokens.expiresIn;
     }
 
-    private void refreshOAuthTokens() throws DracoonNetIOException, DracoonApiException {
-        // If a refresh token was provided: Refresh existing tokens
-        if (mAuth.getRefreshToken() != null) {
-            OAuthTokens tokens = mOAuthClient.refreshAccessToken(mAuth.getRefreshToken());
-            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
-                    tokens.accessToken, tokens.refreshToken);
+    private void refreshAuthTokens() throws DracoonApiException, DracoonNetIOException {
+        String accessToken = mAuth.getAccessToken();
+        String refreshToken = mAuth.getRefreshToken();
+
+        String newAccessToken;
+        long expiresIn;
+        String newRefreshToken;
+
+        // TODO: Rework following logic when OAuth server is refactored
+        // Try to refresh auth tokens
+        try {
+            while (true) {
+                OAuthTokens tokens = mOAuthClient.refreshTokens(refreshToken);
+
+                newAccessToken = tokens.accessToken;
+                expiresIn = tokens.expiresIn * DracoonConstants.SECOND;
+                newRefreshToken = tokens.refreshToken;
+
+                // If new auth tokens have been issued: Abort
+                if (!Objects.equals(accessToken, newAccessToken)) {
+                    mLog.d(LOG_TAG, "A new auth token was created.");
+                    break;
+                }
+
+                // If auth tokens are still valid: Abort
+                if (expiresIn > AUTH_EXPIRE_TOLERANCE) {
+                    mLog.d(LOG_TAG, "Auth token is still valid.");
+                    break;
+                }
+
+                // Sleep some time before next try
+                mLog.d(LOG_TAG, "Old auth token is still valid. Trying again in 1 second.");
+                Thread.sleep(DracoonConstants.SECOND);
+            }
+        } catch (InterruptedException e) {
+            return;
         }
 
-        mOAuthLastRefreshTime = System.currentTimeMillis();
+        // Update auth data
+        if (newRefreshToken != null) {
+            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
+                    newAccessToken, newRefreshToken);
+        } else {
+            mAuth = new DracoonAuth(newAccessToken);
+        }
+
+        // Update auth expire time
+        mAuthExpireTime = System.currentTimeMillis() + expiresIn;
     }
 
     // --- Helper methods ---

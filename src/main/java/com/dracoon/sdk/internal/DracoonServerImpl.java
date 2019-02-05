@@ -29,7 +29,7 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
         Response<ApiServerVersion> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            DracoonApiCode errorCode = mErrorParser.parseServerVersionError(response);
             String errorText = String.format("Query of server version failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);

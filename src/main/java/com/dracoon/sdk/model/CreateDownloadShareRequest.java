@@ -353,7 +353,8 @@ public class CreateDownloadShareRequest {
         }
 
         /**
-         * Creates a new {@link CreateDownloadShareRequest} instance with the supplied configuration.
+         * Creates a new {@link CreateDownloadShareRequest} instance with the supplied
+         * configuration.
          *
          * @return a new {@link CreateDownloadShareRequest} instance
          */

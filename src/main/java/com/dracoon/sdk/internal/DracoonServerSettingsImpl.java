@@ -10,7 +10,8 @@ import com.dracoon.sdk.model.ServerGeneralSettings;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class DracoonServerSettingsImpl extends DracoonRequestHandler implements DracoonClient.ServerSettings {
+class DracoonServerSettingsImpl extends DracoonRequestHandler
+        implements DracoonClient.ServerSettings {
 
     private static final String LOG_TAG = DracoonServerSettingsImpl.class.getSimpleName();
 

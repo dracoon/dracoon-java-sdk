@@ -14,13 +14,13 @@ public interface OAuthService {
     @FormUrlEncoded
     @POST(OAUTH_PATH + OAUTH_TOKEN_PATH)
     Call<OAuthTokens> getOAuthToken(@Header("Authorization") String authorization,
-                                    @Field("grant_type") String grantType,
-                                    @Field("code") String code);
+            @Field("grant_type") String grantType,
+            @Field("code") String code);
 
     @FormUrlEncoded
     @POST(OAUTH_PATH + OAUTH_TOKEN_PATH)
     Call<OAuthTokens> refreshOAuthToken(@Header("Authorization") String authorization,
-                                        @Field("grant_type") String grantType,
-                                        @Field("refresh_token") String refreshToken);
+            @Field("grant_type") String grantType,
+            @Field("refresh_token") String refreshToken);
 
 }
