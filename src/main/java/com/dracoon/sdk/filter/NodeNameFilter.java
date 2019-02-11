@@ -30,6 +30,13 @@ public class NodeNameFilter extends Filter<String> {
             return new Concater(mFilter);
         }
 
+        @Override
+        public Concater eq(String value) {
+            validateRestrictionValue(value);
+            mFilter.addValue(EQ, value);
+            return new Concater(mFilter);
+        }
+
     }
 
     /**
