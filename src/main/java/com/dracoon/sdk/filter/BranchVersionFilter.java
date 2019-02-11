@@ -28,14 +28,14 @@ public class BranchVersionFilter extends Filter<String> {
         }
 
         @Override
-        protected Concater ge(Long value) {
+        public Concater ge(Long value) {
             validateRestrictionValue(value);
             mFilter.addValue(GE, Long.toString(value));
             return new Concater(mFilter);
         }
 
         @Override
-        protected Concater le(Long value) {
+        public Concater le(Long value) {
             validateRestrictionValue(value);
             mFilter.addValue(LE, Long.toString(value));
             return new Concater(mFilter);
@@ -55,7 +55,7 @@ public class BranchVersionFilter extends Filter<String> {
         }
 
         @Override
-        protected Builder and() {
+        public Builder and() {
             return new Builder(mFilter);
         }
 
