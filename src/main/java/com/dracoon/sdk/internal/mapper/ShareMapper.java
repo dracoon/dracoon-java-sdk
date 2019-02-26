@@ -21,7 +21,7 @@ import com.dracoon.sdk.model.DownloadShareList;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
 
-public class ShareMapper {
+public class ShareMapper extends BaseMapper {
 
     public static ApiCreateDownloadShareRequest toApiCreateDownloadShareRequest(
             CreateDownloadShareRequest request, UserKeyPair keyPair, EncryptedFileKey fileKey) {
@@ -73,15 +73,15 @@ public class ShareMapper {
         downloadShare.setNotes(apiDownloadShare.notes);
         downloadShare.setExpireAt(apiDownloadShare.expireAt);
         downloadShare.setAccessKey(apiDownloadShare.accessKey);
-        downloadShare.setShowsCreatorName(apiDownloadShare.showCreatorName);
-        downloadShare.setShowsCreatorUserName(apiDownloadShare.showCreatorUsername);
-        downloadShare.setNotifiesCreator(apiDownloadShare.notifyCreator);
+        downloadShare.setShowsCreatorName(toBoolean(apiDownloadShare.showCreatorName));
+        downloadShare.setShowsCreatorUserName(toBoolean(apiDownloadShare.showCreatorUsername));
+        downloadShare.setNotifiesCreator(toBoolean(apiDownloadShare.notifyCreator));
         downloadShare.setMaxDownloads(apiDownloadShare.maxDownloads);
         downloadShare.setCntDownloads(apiDownloadShare.cntDownloads);
         downloadShare.setCreatedAt(apiDownloadShare.createdAt);
         downloadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiDownloadShare.createdBy));
-        downloadShare.setIsProtected(apiDownloadShare.isProtected);
-        downloadShare.setIsEncrypted(apiDownloadShare.isEncrypted);
+        downloadShare.setIsProtected(toBoolean(apiDownloadShare.isProtected));
+        downloadShare.setIsEncrypted(toBoolean(apiDownloadShare.isEncrypted));
         return downloadShare;
     }
 
@@ -142,14 +142,14 @@ public class ShareMapper {
         uploadShare.setExpireAt(apiUploadShare.expireAt);
         uploadShare.setFilesExpirePeriod(apiUploadShare.filesExpiryPeriod);
         uploadShare.setAccessKey(apiUploadShare.accessKey);
-        uploadShare.setShowsUploadedFiles(apiUploadShare.showUploadedFiles);
-        uploadShare.setNotifiesCreator(apiUploadShare.notifyCreator);
+        uploadShare.setShowsUploadedFiles(toBoolean(apiUploadShare.showUploadedFiles));
+        uploadShare.setNotifiesCreator(toBoolean(apiUploadShare.notifyCreator));
         uploadShare.setCntUploads(apiUploadShare.cntUploads);
         uploadShare.setCntFiles(apiUploadShare.cntFiles);
         uploadShare.setCreatedAt(apiUploadShare.createdAt);
         uploadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiUploadShare.createdBy));
-        uploadShare.setIsProtected(apiUploadShare.isProtected);
-        uploadShare.setIsEncrypted(apiUploadShare.isEncrypted);
+        uploadShare.setIsProtected(toBoolean(apiUploadShare.isProtected));
+        uploadShare.setIsEncrypted(toBoolean(apiUploadShare.isEncrypted));
         return uploadShare;
     }
 
