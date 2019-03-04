@@ -17,4 +17,9 @@ public class GetUploadSharesFilter extends Filters {
         mFilters.add(filter);
     }
 
+    public void addNameFilter(ShareNameFilter filter) {
+        validateSingleFilter(filter);
+        mFilters.add(filter);
+    }
+
 }

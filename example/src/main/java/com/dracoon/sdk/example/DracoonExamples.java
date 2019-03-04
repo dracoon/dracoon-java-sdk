@@ -22,6 +22,7 @@ import com.dracoon.sdk.filter.NodeIdFilter;
 import com.dracoon.sdk.filter.NodeNameFilter;
 import com.dracoon.sdk.filter.NodeTypeFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
+import com.dracoon.sdk.filter.ShareNameFilter;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -648,7 +649,7 @@ public class DracoonExamples {
         long targetNodeId = 1L;
 
         GetUploadSharesFilter filters = new GetUploadSharesFilter();
-        filters.addNodeIdFilter(new NodeIdFilter.Builder().eq(targetNodeId).build());
+        filters.addNameFilter(new ShareNameFilter.Builder().cn("Test").build());
 
         UploadShareList sharesList = client.shares().getUploadShares(filters);
         System.out.println("Upload shares:");
