@@ -81,8 +81,8 @@ public interface DracoonService {
     Call<ApiNodeList> getNodes(@Header(AUTHORIZATION_HEADER) String token,
             @Query("parent_id") Long id,
             @Query("depth_level") Integer depthLevel,
-            @Query(value = "filter", encoded = true) String filter,
-            @Query(value = "sort", encoded = true) String sort,
+            @Query("filter") String filter,
+            @Query("sort") String sort,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
@@ -95,8 +95,8 @@ public interface DracoonService {
             @Query("search_string") String searchString,
             @Query("parent_id") Long id,
             @Query("depth_level") Integer depthLevel,
-            @Query(value = "filter", encoded = true) String filter,
-            @Query(value = "sort", encoded = true) String sort,
+            @Query("filter") String filter,
+            @Query("sort") String sort,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
@@ -185,7 +185,7 @@ public interface DracoonService {
 
     @GET(API_PATH + "/shares/downloads")
     Call<ApiDownloadShareList> getDownloadShares(@Header(AUTHORIZATION_HEADER) String token,
-            @Query(value = "filter", encoded = true) String filter,
+            @Query("filter") String filter,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
@@ -199,7 +199,7 @@ public interface DracoonService {
 
     @GET(API_PATH + "/shares/uploads")
     Call<ApiUploadShareList> getUploadShares(@Header(AUTHORIZATION_HEADER) String token,
-            @Query(value = "filter", encoded = true) String filter,
+            @Query("filter") String filter,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
