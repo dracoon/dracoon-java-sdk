@@ -827,6 +827,20 @@ public abstract class DracoonClient {
                 long limit) throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Retrieve the qr image for a given download share id as byte array.
+         *
+         *
+         * @param shareId the download share id.
+         *
+         * @return the byte array with the qr image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getDownloadShareQRCode(long shareId) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
          * Delete a download share.
          *
          * @param shareId The ID of the download share which should be deleted.
@@ -902,6 +916,20 @@ public abstract class DracoonClient {
          */
         UploadShareList getUploadShares(GetUploadSharesFilter filters, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieve the qr image for a given upload share id as byte array.
+         *
+         *
+         * @param shareId the upload share id.
+         *
+         * @return the byte array with the qr image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getUploadShareQRCode(long shareId) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Delete a upload share.

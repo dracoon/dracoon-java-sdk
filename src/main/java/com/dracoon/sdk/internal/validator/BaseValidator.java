@@ -133,4 +133,8 @@ public class BaseValidator {
         ValidatorUtils.validatePositiveNumber("limit", limit, nullable);
     }
 
+    public static void validateShareId(Long shareId) {
+        ValidatorUtils.validateId("Share ID", shareId);
+    }
+
 }

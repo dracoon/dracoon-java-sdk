@@ -86,7 +86,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        listNodes(client);
+        //listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -126,9 +126,11 @@ public class DracoonExamples {
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
         //getDownloadShares(client);
+        //getDownloadShareQR(client);
         //deleteDownloadShare(client);
         //createUploadShare(client);
         //getUploadShares(client);
+        //getUploadShareQR(client);
         //deleteUploadShare(client);
 
         //generateMissingFileKeys(client);
@@ -621,6 +623,12 @@ public class DracoonExamples {
         }
     }
 
+    private static void getDownloadShareQR(DracoonClient client) throws DracoonException {
+        long shareId = 1L;
+
+        byte[] qrImage = client.shares().getDownloadShareQRCode(shareId);
+    }
+
     private static void deleteDownloadShare(DracoonClient client) throws DracoonException {
         long shareId = 1L;
 
@@ -656,6 +664,12 @@ public class DracoonExamples {
         for (UploadShare share : sharesList.getItems()) {
             System.out.println(share.getId() + ": " + share.getName());
         }
+    }
+
+    private static void getUploadShareQR(DracoonClient client) throws DracoonException {
+        long shareId = 1L;
+
+        byte[] qrImage = client.shares().getUploadShareQRCode(shareId);
     }
 
     private static void deleteUploadShare(DracoonClient client) throws DracoonException {

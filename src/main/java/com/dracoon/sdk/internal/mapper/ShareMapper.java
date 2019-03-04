@@ -85,6 +85,10 @@ public class ShareMapper extends BaseMapper {
         return downloadShare;
     }
 
+    public static String fromApiDownloadShareQRCode(ApiDownloadShare apiDownloadShare){
+        return apiDownloadShare.dataUrl;
+    }
+
     public static DownloadShareList fromApiDownloadShareList(ApiDownloadShareList apiDownloadShareList) {
         if (apiDownloadShareList == null) {
             return null;
@@ -155,6 +159,10 @@ public class ShareMapper extends BaseMapper {
         uploadShare.setIsProtected(toBoolean(apiUploadShare.isProtected));
         uploadShare.setIsEncrypted(toBoolean(apiUploadShare.isEncrypted));
         return uploadShare;
+    }
+
+    public static String fromApiUploadShareQRCode(ApiUploadShare apiUploadShare){
+        return apiUploadShare.dataUrl;
     }
 
     public static UploadShareList fromApiUploadShareList(ApiUploadShareList apiUploadShareList) {

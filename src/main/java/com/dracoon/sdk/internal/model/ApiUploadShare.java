@@ -25,4 +25,6 @@ public class ApiUploadShare {
 
     public Boolean isProtected;
     public Boolean isEncrypted;
+
+    public String dataUrl;
 }
