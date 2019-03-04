@@ -72,6 +72,10 @@ public class BaseValidator {
         ValidatorUtils.validatePositiveNumber("Maximum downloads", maxDownloads, false);
     }
 
+    protected static void validateMaxUploads(Integer maxUploads) {
+        ValidatorUtils.validatePositiveNumber("Maximum uploads", maxUploads, false);
+    }
+
     protected static void validateName(String name) {
         ValidatorUtils.validateString("Name", name, false);
     }

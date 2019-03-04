@@ -638,6 +638,8 @@ public class DracoonExamples {
                 .showUploadedFiles(true)
                 .notifyCreator(true)
                 .accessPassword("secret")
+                .maxUploads(5)
+                .maxQuota(10240L)
                 .build();
 
         UploadShare ulShare = client.shares().createUploadShare(request);
@@ -646,8 +648,6 @@ public class DracoonExamples {
     }
 
     private static void getUploadShares(DracoonClient client) throws DracoonException {
-        long targetNodeId = 1L;
-
         GetUploadSharesFilter filters = new GetUploadSharesFilter();
         filters.addNameFilter(new ShareNameFilter.Builder().cn("Test").build());
 

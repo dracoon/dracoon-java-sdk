@@ -45,6 +45,12 @@ public class ShareValidator extends BaseValidator {
         validateNodeId(request.getTargetNodeId());
         validateName(request.getName());
         validatePeriod(request.getFilesExpirationPeriod());
+        if (request.getMaxUploads() != null) {
+            validateMaxUploads(request.getMaxUploads());
+        }
+        if (request.getMaxQuota() != null) {
+            validateQuota(request.getMaxQuota());
+        }
         if (request.getAccessPassword() != null) {
             validateAccessPassword(request.getAccessPassword());
         }

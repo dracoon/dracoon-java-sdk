@@ -115,6 +115,8 @@ public class ShareMapper extends BaseMapper {
             apiExpiration.expireAt = expirationDate;
             apiRequest.expiration = apiExpiration;
         }
+        apiRequest.maxSlots = request.getMaxUploads();
+        apiRequest.maxSize = request.getMaxQuota();
         apiRequest.filesExpiryPeriod = request.getFilesExpirationPeriod();
         apiRequest.showUploadedFiles = request.showUploadedFiles();
         apiRequest.notifyCreator = request.notifyCreator();
@@ -144,6 +146,8 @@ public class ShareMapper extends BaseMapper {
         uploadShare.setAccessKey(apiUploadShare.accessKey);
         uploadShare.setShowsUploadedFiles(toBoolean(apiUploadShare.showUploadedFiles));
         uploadShare.setNotifiesCreator(toBoolean(apiUploadShare.notifyCreator));
+        uploadShare.setMaxUploads(apiUploadShare.maxSlots);
+        uploadShare.setMaxQuota(apiUploadShare.maxSize);
         uploadShare.setCntUploads(apiUploadShare.cntUploads);
         uploadShare.setCntFiles(apiUploadShare.cntFiles);
         uploadShare.setCreatedAt(apiUploadShare.createdAt);

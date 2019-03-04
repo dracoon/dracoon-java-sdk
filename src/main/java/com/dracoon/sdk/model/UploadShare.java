@@ -17,6 +17,8 @@ public class UploadShare {
     private String mNotes;
     private Date mExpireAt;
     private Integer mFilesExpirePeriod;
+    private Integer mMaxUploads;
+    private Long mMaxQuota;
 
     private String mAccessKey;
 
@@ -324,4 +326,39 @@ public class UploadShare {
         mIsEncrypted = isEncrypted;
     }
 
+    /**
+     * Returns the maximum number of uploads of the uploads share.
+     *
+     * @return the maximum number of uploads
+     */
+    public Integer getMaxUploads() {
+        return mMaxUploads;
+    }
+
+    /**
+     * Sets the maximum number of uploads of the upload share.
+     *
+     * @param maxUploads The maximum number of uploads.
+     */
+    public void setMaxUploads(Integer maxUploads) {
+        this.mMaxUploads = maxUploads;
+    }
+
+    /**
+     * Returns the maximum number of bytes which can be uploaded by this upload share.
+     *
+     * @return the maximum number of bytes
+     */
+    public Long getMaxQuota() {
+        return mMaxQuota;
+    }
+
+    /**
+     * Sets the maximum number of bytes which can be uploaded by this upload share.
+     *
+     * @param maxQuota The maximum number of bytes.
+     */
+    public void setMaxQuota(Long maxQuota) {
+        this.mMaxQuota = maxQuota;
+    }
 }

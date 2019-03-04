@@ -10,6 +10,8 @@ public class ApiUploadShare {
     public String notes;
     public Date expireAt;
     public Integer filesExpiryPeriod;
+    public Integer maxSlots;
+    public Long maxSize;
 
     public String accessKey;
 
