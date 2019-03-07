@@ -189,6 +189,10 @@ public interface DracoonService {
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
+    @GET(API_PATH + "/shares/downloads/{share_id}/qr")
+    Call<ApiDownloadShare> getDownloadShareQR(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("share_id") Long shareId);
+
     @DELETE(API_PATH + "/shares/downloads/{share_id}")
     Call<Void> deleteDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
             @Path("share_id") Long shareId);
@@ -202,6 +206,10 @@ public interface DracoonService {
             @Query("filter") String filter,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
+
+    @GET(API_PATH + "/shares/uploads/{share_id}/qr")
+    Call<ApiUploadShare> getUploadShareQR(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("share_id") Long shareId);
 
     @DELETE(API_PATH + "/shares/uploads/{share_id}")
     Call<Void> deleteUploadShare(@Header(AUTHORIZATION_HEADER) String token,

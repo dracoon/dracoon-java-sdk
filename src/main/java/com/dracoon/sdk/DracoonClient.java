@@ -811,8 +811,7 @@ public abstract class DracoonClient {
 
         /**
          * Retrieves filtered download shares. The arguments {@code offset} and {@code limit}
-         * restrict
-         * the result to a specific range.
+         * restrict the result to a specific range.
          *
          * @param filters The filters to apply.
          * @param offset  The range offset. (Zero-based index; must be 0 or positive.)
@@ -825,6 +824,19 @@ public abstract class DracoonClient {
          */
         DownloadShareList getDownloadShares(GetDownloadSharesFilter filters, long offset,
                 long limit) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieve the QR code image for a given download share ID as byte array.
+         *
+         * @param shareId The download share ID.
+         *
+         * @return the byte array with the qr image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getDownloadShareQrCode(long shareId) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Delete a download share.
@@ -902,6 +914,19 @@ public abstract class DracoonClient {
          */
         UploadShareList getUploadShares(GetUploadSharesFilter filters, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieve the QR code image for a given upload share ID as byte array.
+         *
+         * @param shareId The upload share ID.
+         *
+         * @return the byte array with the QR code image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getUploadShareQrCode(long shareId) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Delete a upload share.

@@ -24,4 +24,6 @@ public class ApiDownloadShare {
 
     public Boolean isProtected;
     public Boolean isEncrypted;
+
+    public String dataUrl;
 }

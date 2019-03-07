@@ -22,6 +22,7 @@ import com.dracoon.sdk.filter.NodeIdFilter;
 import com.dracoon.sdk.filter.NodeNameFilter;
 import com.dracoon.sdk.filter.NodeTypeFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
+import com.dracoon.sdk.filter.ShareNameFilter;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -85,7 +86,7 @@ public class DracoonExamples {
         //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
 
-        listNodes(client);
+        //listNodes(client);
         //listNodesPaged(client);
         //getNode(client);
         //getNodeNotFound(client);
@@ -125,9 +126,11 @@ public class DracoonExamples {
         //createDownloadShare(client);
         //createDownloadShareEncrypted(client);
         //getDownloadShares(client);
+        //getDownloadShareQrCode(client);
         //deleteDownloadShare(client);
         //createUploadShare(client);
         //getUploadShares(client);
+        //getUploadShareQrCode(client);
         //deleteUploadShare(client);
 
         //generateMissingFileKeys(client);
@@ -620,6 +623,12 @@ public class DracoonExamples {
         }
     }
 
+    private static void getDownloadShareQrCode(DracoonClient client) throws DracoonException {
+        long shareId = 1L;
+
+        byte[] qrImage = client.shares().getDownloadShareQrCode(shareId);
+    }
+
     private static void deleteDownloadShare(DracoonClient client) throws DracoonException {
         long shareId = 1L;
 
@@ -637,6 +646,8 @@ public class DracoonExamples {
                 .showUploadedFiles(true)
                 .notifyCreator(true)
                 .accessPassword("secret")
+                .maxUploads(5)
+                .maxQuota(10240L)
                 .build();
 
         UploadShare ulShare = client.shares().createUploadShare(request);
@@ -645,16 +656,20 @@ public class DracoonExamples {
     }
 
     private static void getUploadShares(DracoonClient client) throws DracoonException {
-        long targetNodeId = 1L;
-
         GetUploadSharesFilter filters = new GetUploadSharesFilter();
-        filters.addNodeIdFilter(new NodeIdFilter.Builder().eq(targetNodeId).build());
+        filters.addNameFilter(new ShareNameFilter.Builder().cn("Test").build());
 
         UploadShareList sharesList = client.shares().getUploadShares(filters);
         System.out.println("Upload shares:");
         for (UploadShare share : sharesList.getItems()) {
             System.out.println(share.getId() + ": " + share.getName());
         }
+    }
+
+    private static void getUploadShareQR(DracoonClient client) throws DracoonException {
+        long shareId = 1L;
+
+        byte[] qrImage = client.shares().getUploadShareQrCode(shareId);
     }
 
     private static void deleteUploadShare(DracoonClient client) throws DracoonException {
