@@ -18,8 +18,6 @@ import com.dracoon.sdk.internal.model.ApiDownloadShare;
 import com.dracoon.sdk.internal.model.ApiDownloadShareList;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
-import com.dracoon.sdk.internal.util.EncodingUtils;
-import com.dracoon.sdk.internal.validator.BaseValidator;
 import com.dracoon.sdk.internal.validator.ShareValidator;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
@@ -33,7 +31,6 @@ import retrofit2.Response;
 public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonClient.Shares {
 
     private static final String LOG_TAG = DracoonSharesImpl.class.getSimpleName();
-    private static final String SHARES_QR_PREFIX = "data:image/png;base64,";
 
     DracoonSharesImpl(DracoonClientImpl client) {
         super(client);
@@ -132,7 +129,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     }
 
     @Override
-    public byte[] getDownloadShareQRCode(long shareId) throws DracoonNetIOException,
+    public byte[] getDownloadShareQrCode(long shareId) throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
@@ -150,9 +147,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             throw new DracoonApiException(errorCode);
         }
 
-        String base64QrString = ShareMapper.fromApiDownloadShareQRCode(response.body());
-        String base64QrStringWithoutPrefix = base64QrString.substring(SHARES_QR_PREFIX.length());
-        return EncodingUtils.decodeBase64(base64QrStringWithoutPrefix);
+        return ShareMapper.fromApiDownloadShareQrCode(response.body());
     }
 
     @Override
@@ -245,7 +240,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     }
 
     @Override
-    public byte[] getUploadShareQRCode(long shareId) throws DracoonNetIOException,
+    public byte[] getUploadShareQrCode(long shareId) throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
@@ -263,8 +258,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             throw new DracoonApiException(errorCode);
         }
 
-        String base64QrString = ShareMapper.fromApiUploadShareQRCode(response.body());
-        return EncodingUtils.decodeBase64(base64QrString);
+        return ShareMapper.fromApiUploadShareQrCode(response.body());
     }
 
     @Override

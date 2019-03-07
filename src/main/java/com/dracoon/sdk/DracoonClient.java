@@ -811,8 +811,7 @@ public abstract class DracoonClient {
 
         /**
          * Retrieves filtered download shares. The arguments {@code offset} and {@code limit}
-         * restrict
-         * the result to a specific range.
+         * restrict the result to a specific range.
          *
          * @param filters The filters to apply.
          * @param offset  The range offset. (Zero-based index; must be 0 or positive.)
@@ -827,17 +826,16 @@ public abstract class DracoonClient {
                 long limit) throws DracoonNetIOException, DracoonApiException;
 
         /**
-         * Retrieve the qr image for a given download share id as byte array.
+         * Retrieve the QR code image for a given download share ID as byte array.
          *
-         *
-         * @param shareId the download share id.
+         * @param shareId The download share ID.
          *
          * @return the byte array with the qr image
          *
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        byte[] getDownloadShareQRCode(long shareId) throws DracoonNetIOException,
+        byte[] getDownloadShareQrCode(long shareId) throws DracoonNetIOException,
                 DracoonApiException;
 
         /**
@@ -918,17 +916,16 @@ public abstract class DracoonClient {
                 throws DracoonNetIOException, DracoonApiException;
 
         /**
-         * Retrieve the qr image for a given upload share id as byte array.
+         * Retrieve the QR code image for a given upload share ID as byte array.
          *
+         * @param shareId The upload share ID.
          *
-         * @param shareId the upload share id.
-         *
-         * @return the byte array with the qr image
+         * @return the byte array with the QR code image
          *
          * @throws DracoonNetIOException If a network error occurred.
          * @throws DracoonApiException   If the API responded with an error.
          */
-        byte[] getUploadShareQRCode(long shareId) throws DracoonNetIOException,
+        byte[] getUploadShareQrCode(long shareId) throws DracoonNetIOException,
                 DracoonApiException;
 
         /**

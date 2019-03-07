@@ -12,4 +12,5 @@ public class EncodingUtils {
         ByteString byteString = ByteString.decodeBase64(data);
         return byteString != null ? byteString.toByteArray() : null;
     }
+
 }
