@@ -33,6 +33,7 @@ import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
@@ -109,6 +110,16 @@ public abstract class DracoonClient {
          */
         ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException,
                 DracoonApiException;
+
+        /**
+         * Retrieves the server's defaults.
+         *
+         * @return server defaults
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        ServerDefaults getDefaults() throws DracoonNetIOException, DracoonApiException;
 
     }
 

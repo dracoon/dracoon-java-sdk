@@ -1,6 +1,8 @@
 package com.dracoon.sdk.internal.mapper;
 
+import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
+import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 
 public class ServerMapper extends BaseMapper {
@@ -21,6 +23,21 @@ public class ServerMapper extends BaseMapper {
         serverGeneralSettings.setWeakPasswordEnabled(toBoolean(
                 apiServerGeneralSettings.weakPasswordEnabled));
         return serverGeneralSettings;
+    }
+
+    public static ServerDefaults fromApiServerDefaults(ApiServerDefaults apiServerDefaults) {
+        if (apiServerDefaults == null) {
+            return null;
+        }
+
+        ServerDefaults serverDefaults = new ServerDefaults();
+        serverDefaults.setDownloadShareExpirationPeriod(
+                apiServerDefaults.downloadShareDefaultExpirationPeriod);
+        serverDefaults.setUploadShareExpirationPeriod(
+                apiServerDefaults.uploadShareDefaultExpirationPeriod);
+        serverDefaults.setFileExpirationPeriod(
+                apiServerDefaults.fileDefaultExpirationPeriod);
+        return serverDefaults;
     }
 
 }

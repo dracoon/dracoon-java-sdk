@@ -42,6 +42,7 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
+import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
@@ -76,6 +77,7 @@ public class DracoonExamples {
 
         //getServerData(client);
         //getServerSettings(client);
+        getServerDefaults(client);
 
         //checkAuth(client);
 
@@ -153,6 +155,17 @@ public class DracoonExamples {
         System.out.printf("isCryptoEnabled: %s\n", settings.isCryptoEnabled());
         System.out.printf("isMediaServerEnabled: %s\n", settings.isMediaServerEnabled());
         System.out.printf("isWeakPasswordEnabled: %s\n", settings.isWeakPasswordEnabled());
+    }
+
+    private static void getServerDefaults(DracoonClient client) throws DracoonException {
+        ServerDefaults defaults = client.server().settings().getDefaults();
+        System.out.println("Server defaults:");
+        System.out.printf("downloadShareExpirationPeriod: %s\n",
+                defaults.getDownloadShareExpirationPeriod());
+        System.out.printf("uploadShareExpirationPeriod: %s\n",
+                defaults.getUploadShareExpirationPeriod());
+        System.out.printf("fileExpirationPeriod: %s\n",
+                defaults.getFileExpirationPeriod());
     }
 
     private static void checkAuth(DracoonClient client) throws DracoonException {
