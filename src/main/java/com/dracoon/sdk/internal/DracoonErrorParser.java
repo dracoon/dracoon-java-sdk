@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+@SuppressWarnings("Duplicates")
 public class DracoonErrorParser {
 
     private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
@@ -438,12 +439,16 @@ public class DracoonErrorParser {
     }
 
     public DracoonApiCode parseFileUploadError(Response response) {
+        int statusCode = response.code();
+        if (HttpStatus.valueOf(statusCode) == HttpStatus.MALICIOUS_FILE_DETECTED) {
+            return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+        }
+
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
 
-        int statusCode = response.code();
         int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
 
         switch (HttpStatus.valueOf(statusCode)) {
@@ -876,15 +881,17 @@ public class DracoonErrorParser {
     // --- Methods to parse OkHttp error responses ---
 
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
-        int code = response.code();
+        int statusCode = response.code();
 
-        mLog.d(LOG_TAG, "Server HTTP error: " + code);
+        mLog.d(LOG_TAG, "Server HTTP error: " + statusCode);
 
-        switch (HttpStatus.valueOf(code)) {
+        switch (HttpStatus.valueOf(statusCode)) {
             case UNAUTHORIZED:
                 return DracoonApiCode.AUTH_UNAUTHORIZED;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
+            case MALICIOUS_FILE_DETECTED:
+                return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }

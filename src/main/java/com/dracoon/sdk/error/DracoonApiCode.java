@@ -108,6 +108,7 @@ public enum DracoonApiCode {
 
     // General
     SERVER_UNKNOWN_ERROR(-5000, "A server error occurred."),
+    SERVER_MALICIOUS_FILE_DETECTED(-5090, "Malicious file detected."),
     // Nodes
     SERVER_NODE_NOT_FOUND(-5100, "Requested room/folder/file was not found."),
     SERVER_ROOM_NOT_FOUND(-5101, "Requested room was not found."),
