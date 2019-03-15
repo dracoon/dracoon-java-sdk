@@ -76,8 +76,8 @@ public class DracoonExamples {
                 .build();
 
         //getServerData(client);
-        //getServerSettings(client);
-        getServerDefaults(client);
+        getServerSettings(client);
+        //getServerDefaults(client);
 
         //checkAuth(client);
 
