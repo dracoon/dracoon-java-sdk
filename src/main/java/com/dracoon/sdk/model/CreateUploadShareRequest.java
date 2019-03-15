@@ -18,6 +18,8 @@ public class CreateUploadShareRequest {
     private Integer mFilesExpirationPeriod;
     private Boolean mShowUploadedFiles;
     private Boolean mNotifyCreator;
+    private Integer mMaxUploads;
+    private Long mMaxQuota;
     private String mAccessPassword;
     private Boolean mSendEmail;
     private List<String> mEmailRecipients;
@@ -95,6 +97,20 @@ public class CreateUploadShareRequest {
     }
 
     /**
+     * Returns the maximum number of uploads for the new upload share.
+     *
+     * @return the maximum number of uploads
+     */
+    public Integer getMaxUploads() {return mMaxUploads;}
+
+    /**
+     * Returns the maximum number of bytes which can be uploaded with the new upload share.
+     *
+     * @return the maximum number of bytes
+     */
+    public Long getMaxQuota() {return mMaxQuota;}
+
+    /**
      * Returns the access password of the new upload share.
      *
      * @return the access password
@@ -166,6 +182,8 @@ public class CreateUploadShareRequest {
      * - Notes:                      {@link #notes(String)}<br>
      * - Expiration date:            {@link #expirationDate(Date)}<br>
      * - Files expiration period:    {@link #filesExpirationPeriod(Integer)}<br>
+     * - Maximum uploads:            {@link #maxUploads(Integer)}<br>
+     * - Maximum quota:              {@link #maxQuota(Long)}<br>
      * - Show uploaded files:        {@link #showUploadedFiles(Boolean)}<br>
      * - Notify creator:             {@link #notifyCreator(Boolean)}<br>
      * - Access Password:            {@link #accessPassword(String)}<br>
@@ -272,6 +290,30 @@ public class CreateUploadShareRequest {
          */
         public Builder accessPassword(String accessPassword) {
             mRequest.mAccessPassword = accessPassword;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of uploads for the new upload share.
+         *
+         * @param maxUploads The maximum number of uploads. (Number must be positive.)
+         *
+         * @return a reference to this object
+         */
+        public Builder maxUploads(Integer maxUploads) {
+            mRequest.mMaxUploads = maxUploads;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of bytes which can be uploaded with the new upload share.
+         *
+         * @param maxQuota The maximum number of bytes. (Number must be positive.)
+         *
+         * @return a reference to this object
+         */
+        public Builder maxQuota(Long maxQuota) {
+            mRequest.mMaxQuota = maxQuota;
             return this;
         }
 

@@ -129,6 +129,28 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     }
 
     @Override
+    public byte[] getDownloadShareQrCode(long shareId) throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        ShareValidator.validateShareId(shareId);
+
+        String auth = mClient.buildAuthString();
+        Call<ApiDownloadShare> call = mService.getDownloadShareQR(auth, shareId);
+        Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseDownloadSharesGetError(response);
+            String errorText = String.format("Query of get download share qr failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        return ShareMapper.fromApiDownloadShareQrCode(response.body());
+    }
+
+    @Override
     public void deleteDownloadShare(long shareId) throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();
@@ -215,6 +237,28 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ApiUploadShareList data = response.body();
         return ShareMapper.fromApiUploadShareList(data);
+    }
+
+    @Override
+    public byte[] getUploadShareQrCode(long shareId) throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        ShareValidator.validateShareId(shareId);
+
+        String auth = mClient.buildAuthString();
+        Call<ApiUploadShare> call = mService.getUploadShareQR(auth, shareId);
+        Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUploadSharesGetError(response);
+            String errorText = String.format("Query of get upload share qr failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        return ShareMapper.fromApiUploadShareQrCode(response.body());
     }
 
     @Override

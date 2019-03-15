@@ -56,7 +56,7 @@ import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUserIdFileId;
 import com.dracoon.sdk.internal.model.ApiUserIdFileIdFileKey;
 import com.dracoon.sdk.internal.model.ApiUserIdUserPublicKey;
-import com.dracoon.sdk.internal.validator.BaseValidator;
+import com.dracoon.sdk.internal.util.StreamUtils;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.NodeValidator;
@@ -420,7 +420,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         InputStream is = getFileInputStream(file);
         long length = file.length();
 
-        return uploadFileInternally(id, request, is, length, callback);
+        return uploadFileInternally(id, request, is, length, true, callback);
     }
 
     @Override
@@ -431,11 +431,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateUploadRequest(id, request, is);
 
-        return uploadFileInternally(id, request, is, length, callback);
+        return uploadFileInternally(id, request, is, length, false, callback);
     }
 
     private Node uploadFileInternally(String id, FileUploadRequest request, InputStream is,
-            long length, FileUploadCallback callback) throws DracoonFileIOException,
+            long length, boolean close, FileUploadCallback callback) throws DracoonFileIOException,
             DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
         UserPublicKey userPublicKey = null;
@@ -453,7 +453,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         upload.addCallback(callback);
 
-        return upload.runSync();
+        Node node;
+        try {
+            node = upload.runSync();
+        } finally {
+            closeStream(is, close);
+        }
+
+        return node;
     }
 
     @Override
@@ -467,7 +474,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         InputStream is = getFileInputStream(file);
         long length = file.length();
 
-        startUploadFileAsyncInternally(id, request, is, length, callback);
+        startUploadFileAsyncInternally(id, request, is, length, true, callback);
     }
 
     @Override
@@ -478,11 +485,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateUploadRequest(id, request, is);
 
-        startUploadFileAsyncInternally(id, request, is, length, callback);
+        startUploadFileAsyncInternally(id, request, is, length, false, callback);
     }
 
     private void startUploadFileAsyncInternally(String id, FileUploadRequest request,
-            InputStream is, long length, FileUploadCallback callback) throws DracoonCryptoException,
+            final InputStream is, long length, final boolean close, FileUploadCallback callback)
+            throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
         UserPublicKey userPublicKey = null;
@@ -504,16 +512,19 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
             @Override
             public void onFinished(String id, Node node) {
+                closeStream(is, close);
                 mUploads.remove(id);
             }
 
             @Override
             public void onCanceled(String id) {
+                closeStream(is, close);
                 mUploads.remove(id);
             }
 
             @Override
             public void onFailed(String id, DracoonException e) {
+                closeStream(is, close);
                 mUploads.remove(id);
             }
         };
@@ -573,7 +584,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         OutputStream os = getFileOutputStream(file);
 
-        downloadFileInternally(id, nodeId, os, callback);
+        downloadFileInternally(id, nodeId, os, true, callback);
     }
 
     @Override
@@ -584,10 +595,10 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateDownloadRequest(id, os);
 
-        downloadFileInternally(id, nodeId, os, callback);
+        downloadFileInternally(id, nodeId, os, false, callback);
     }
 
-    private void downloadFileInternally(String id, long nodeId, OutputStream os,
+    private void downloadFileInternally(String id, long nodeId, OutputStream os, boolean close,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException, DracoonFileIOException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
@@ -606,7 +617,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         download.addCallback(callback);
 
-        download.runSync();
+        try {
+            download.runSync();
+        } finally {
+            closeStream(os, close);
+        }
     }
 
     @Override
@@ -619,7 +634,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         OutputStream os = getFileOutputStream(file);
 
-        startDownloadFileAsyncInternally(id, nodeId, os, callback);
+        startDownloadFileAsyncInternally(id, nodeId, os, true, callback);
     }
 
     @Override
@@ -630,12 +645,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateDownloadRequest(id, os);
 
-        startDownloadFileAsyncInternally(id, nodeId, os, callback);
+        startDownloadFileAsyncInternally(id, nodeId, os, false, callback);
     }
 
-    private void startDownloadFileAsyncInternally(String id, long nodeId, OutputStream os,
-            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
-            DracoonCryptoException {
+    private void startDownloadFileAsyncInternally(String id, long nodeId, final OutputStream os,
+            final boolean close, FileDownloadCallback callback) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         UserPrivateKey userPrivateKey = null;
         if (isEncryptedDownload) {
@@ -656,16 +671,19 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
             @Override
             public void onFinished(String id) {
+                closeStream(os, close);
                 mDownloads.remove(id);
             }
 
             @Override
             public void onCanceled(String id) {
+                closeStream(os, close);
                 mDownloads.remove(id);
             }
 
             @Override
             public void onFailed(String id, DracoonException e) {
+                closeStream(os, close);
                 mDownloads.remove(id);
             }
         };
@@ -1066,7 +1084,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Helper methods ---
 
-    private InputStream getFileInputStream(File file) throws DracoonFileIOException {
+    private static InputStream getFileInputStream(File file) throws DracoonFileIOException {
         if (!file.exists()) {
             throw new DracoonFileNotFoundException("File not found.");
         }
@@ -1082,11 +1100,23 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    private OutputStream getFileOutputStream(File file) throws DracoonFileIOException {
+    private static OutputStream getFileOutputStream(File file) throws DracoonFileIOException {
         try {
             return new FileOutputStream(file);
         } catch (FileNotFoundException e) {
             throw new DracoonFileIOException("File cannot be opened.", e);
+        }
+    }
+
+    private static void closeStream(InputStream is, boolean close) {
+        if (close) {
+            StreamUtils.closeStream(is);
+        }
+    }
+
+    private static void closeStream(OutputStream os, boolean close) {
+        if (close) {
+            StreamUtils.closeStream(os);
         }
     }
 

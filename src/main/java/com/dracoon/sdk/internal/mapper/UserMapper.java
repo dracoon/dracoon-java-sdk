@@ -17,7 +17,7 @@ import com.dracoon.sdk.model.UserAccount;
 import com.dracoon.sdk.model.UserInfo;
 import com.dracoon.sdk.model.UserRole;
 
-public class UserMapper {
+public class UserMapper extends BaseMapper {
 
     public static UserInfo fromApiUserInfo(ApiUserInfo apiUserInfo) {
         if (apiUserInfo == null) {
@@ -43,12 +43,12 @@ public class UserMapper {
         userAccount.setLastName(apiUserAccount.lastName);
         userAccount.setEmail(apiUserAccount.email);
 
-        userAccount.setHasEncryptionEnabled(apiUserAccount.isEncryptionEnabled);
-        userAccount.setHasManageableRooms(apiUserAccount.hasManageableRooms);
+        userAccount.setHasEncryptionEnabled(toBoolean(apiUserAccount.isEncryptionEnabled));
+        userAccount.setHasManageableRooms(toBoolean(apiUserAccount.hasManageableRooms));
 
-        userAccount.setNeedsToAcceptEULA(apiUserAccount.needsToAcceptEULA);
-        userAccount.setNeedsToChangeUserName(apiUserAccount.needsToChangeUserName);
-        userAccount.setNeedsToChangePassword(apiUserAccount.needsToChangePassword);
+        userAccount.setNeedsToAcceptEULA(toBoolean(apiUserAccount.needsToAcceptEULA));
+        userAccount.setNeedsToChangeUserName(toBoolean(apiUserAccount.needsToChangeUserName));
+        userAccount.setNeedsToChangePassword(toBoolean(apiUserAccount.needsToChangePassword));
 
         userAccount.setExpireAt(apiUserAccount.expireAt);
 

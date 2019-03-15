@@ -1,39 +1,32 @@
 package com.dracoon.sdk.filter;
 
 /**
- * Filter for restricting API requests by node name.
+ * Filter for restricting API requests by share name.
  */
-public class NodeNameFilter extends Filter<String> {
+public class ShareNameFilter extends Filter<String> {
 
     private static final String NAME = "name";
     private static final Type TYPE = Type.MULTI_VALUE;
 
-    private NodeNameFilter() {
+    private ShareNameFilter() {
         super(NAME, TYPE);
     }
 
     /**
-     * Builder for creating new instances of {@link NodeNameFilter}.
+     * Builder for creating new instances of {@link ShareNameFilter}.
      */
     public static class Builder extends Filter.Builder<String> {
 
-        private NodeNameFilter mFilter;
+        private ShareNameFilter mFilter;
 
         public Builder() {
-            mFilter = new NodeNameFilter();
+            mFilter = new ShareNameFilter();
         }
 
         @Override
         public Concater cn(String value) {
             validateRestrictionValue(value);
             mFilter.addValue(CN, value);
-            return new Concater(mFilter);
-        }
-
-        @Override
-        public Concater eq(String value) {
-            validateRestrictionValue(value);
-            mFilter.addValue(EQ, value);
             return new Concater(mFilter);
         }
 
@@ -44,17 +37,16 @@ public class NodeNameFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private NodeNameFilter mFilter;
+        private ShareNameFilter mFilter;
 
-        Concater(NodeNameFilter filter) {
+        Concater(ShareNameFilter filter) {
             mFilter = filter;
         }
 
         @Override
-        public NodeNameFilter build() {
+        public ShareNameFilter build() {
             return mFilter;
         }
 
     }
-
 }

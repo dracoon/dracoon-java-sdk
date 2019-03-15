@@ -8,7 +8,7 @@ import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.GroupMemberAcceptance;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 
-public class RoomMapper {
+public class RoomMapper extends BaseMapper {
 
     public static ApiCreateRoomRequest toApiCreateRoomRequest(CreateRoomRequest request) {
         ApiCreateRoomRequest apiRequest = new ApiCreateRoomRequest();

@@ -18,6 +18,7 @@ import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
@@ -58,6 +59,10 @@ public interface DracoonService {
     Call<ApiServerGeneralSettings> getServerGeneralSettings(
             @Header(AUTHORIZATION_HEADER) String token);
 
+    @GET(API_PATH + "/config/info/defaults")
+    Call<ApiServerDefaults> getServerDefaults(
+            @Header(AUTHORIZATION_HEADER) String token);
+
     @GET(API_PATH + "/user/ping")
     Call<Void> pingUser(@Header(AUTHORIZATION_HEADER) String token);
 
@@ -81,8 +86,8 @@ public interface DracoonService {
     Call<ApiNodeList> getNodes(@Header(AUTHORIZATION_HEADER) String token,
             @Query("parent_id") Long id,
             @Query("depth_level") Integer depthLevel,
-            @Query(value = "filter", encoded = true) String filter,
-            @Query(value = "sort", encoded = true) String sort,
+            @Query("filter") String filter,
+            @Query("sort") String sort,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
@@ -95,8 +100,8 @@ public interface DracoonService {
             @Query("search_string") String searchString,
             @Query("parent_id") Long id,
             @Query("depth_level") Integer depthLevel,
-            @Query(value = "filter", encoded = true) String filter,
-            @Query(value = "sort", encoded = true) String sort,
+            @Query("filter") String filter,
+            @Query("sort") String sort,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
@@ -185,9 +190,13 @@ public interface DracoonService {
 
     @GET(API_PATH + "/shares/downloads")
     Call<ApiDownloadShareList> getDownloadShares(@Header(AUTHORIZATION_HEADER) String token,
-            @Query(value = "filter", encoded = true) String filter,
+            @Query("filter") String filter,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
+
+    @GET(API_PATH + "/shares/downloads/{share_id}/qr")
+    Call<ApiDownloadShare> getDownloadShareQR(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("share_id") Long shareId);
 
     @DELETE(API_PATH + "/shares/downloads/{share_id}")
     Call<Void> deleteDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
@@ -199,9 +208,13 @@ public interface DracoonService {
 
     @GET(API_PATH + "/shares/uploads")
     Call<ApiUploadShareList> getUploadShares(@Header(AUTHORIZATION_HEADER) String token,
-            @Query(value = "filter", encoded = true) String filter,
+            @Query("filter") String filter,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
+
+    @GET(API_PATH + "/shares/uploads/{share_id}/qr")
+    Call<ApiUploadShare> getUploadShareQR(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("share_id") Long shareId);
 
     @DELETE(API_PATH + "/shares/uploads/{share_id}")
     Call<Void> deleteUploadShare(@Header(AUTHORIZATION_HEADER) String token,

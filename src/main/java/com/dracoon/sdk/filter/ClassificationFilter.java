@@ -28,7 +28,7 @@ public class ClassificationFilter extends Filter<String> {
         }
 
         @Override
-        protected Concater eq(Long value) {
+        public Concater eq(Long value) {
             validateRestrictionValue(value);
             mFilter.addValue(EQ, Long.toString(value));
             return new Concater(mFilter);
@@ -48,7 +48,7 @@ public class ClassificationFilter extends Filter<String> {
         }
 
         @Override
-        protected Builder or() {
+        public Builder or() {
             return new Builder(mFilter);
         }
 

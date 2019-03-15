@@ -5,7 +5,7 @@ import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 
-public class FolderMapper {
+public class FolderMapper extends BaseMapper {
 
     public static ApiCreateFolderRequest toApiCreateFolderRequest(CreateFolderRequest request) {
         ApiCreateFolderRequest apiRequest = new ApiCreateFolderRequest();

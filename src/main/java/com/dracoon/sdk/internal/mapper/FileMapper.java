@@ -9,7 +9,7 @@ import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.UpdateFileRequest;
 
-public class FileMapper {
+public class FileMapper extends BaseMapper {
 
     public static ApiUpdateFileRequest toApiUpdateFileRequest(UpdateFileRequest request) {
         ApiUpdateFileRequest apiRequest = new ApiUpdateFileRequest();

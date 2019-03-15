@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class FileUtils {
+public class StreamUtils {
 
     public static void closeStream(InputStream is) {
         if (is == null) {
