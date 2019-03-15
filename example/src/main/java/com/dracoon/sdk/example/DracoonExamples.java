@@ -76,7 +76,7 @@ public class DracoonExamples {
                 .build();
 
         //getServerData(client);
-        getServerSettings(client);
+        //getServerSettings(client);
         //getServerDefaults(client);
 
         //checkAuth(client);
@@ -109,7 +109,7 @@ public class DracoonExamples {
         //moveNodes(client);
 
         //uploadFile(client);
-        //downloadFile(client);
+        downloadFile(client);
         //uploadFileWithStream(client);
         //downloadFileWithStream(client);
 
