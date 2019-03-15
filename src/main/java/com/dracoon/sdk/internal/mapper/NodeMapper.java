@@ -18,7 +18,7 @@ import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
 
-public class NodeMapper {
+public class NodeMapper extends BaseMapper {
 
     public static NodeList fromApiNodeList(ApiNodeList apiNodeList) {
         if (apiNodeList == null) {
@@ -68,14 +68,14 @@ public class NodeMapper {
         node.setUpdatedAt(apiNode.updatedAt);
         node.setUpdatedBy(UserMapper.fromApiUserInfo(apiNode.updatedBy));
 
-        node.setHasInheritPermissions(apiNode.inheritPermissions);
+        node.setHasInheritPermissions(toBoolean(apiNode.inheritPermissions));
         node.setPermissions(NodePermissionsMapper.fromApiNodePermissions(apiNode.permissions));
 
-        node.setIsFavorite(apiNode.isFavorite);
-        node.setIsEncrypted(apiNode.isEncrypted);
+        node.setIsFavorite(toBoolean(apiNode.isFavorite));
+        node.setIsEncrypted(toBoolean(apiNode.isEncrypted));
         node.setCntChildren(apiNode.cntChildren);
         node.setCntDeletedVersions(apiNode.cntDeletedVersions);
-        node.setHasRecycleBin(apiNode.hasRecycleBin);
+        node.setHasRecycleBin(toBoolean(apiNode.hasRecycleBin));
         node.setRecycleBinRetentionPeriod(apiNode.recycleBinRetentionPeriod);
         node.setCntDownloadShares(apiNode.cntDownloadShares);
         node.setCntUploadShares(apiNode.cntUploadShares);

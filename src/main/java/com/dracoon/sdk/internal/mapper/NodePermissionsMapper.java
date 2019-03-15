@@ -3,7 +3,7 @@ package com.dracoon.sdk.internal.mapper;
 import com.dracoon.sdk.internal.model.ApiNodePermissions;
 import com.dracoon.sdk.model.NodePermissions;
 
-public class NodePermissionsMapper {
+public class NodePermissionsMapper extends BaseMapper {
 
     public static NodePermissions fromApiNodePermissions(ApiNodePermissions apiNodePermissions) {
         if (apiNodePermissions == null) {
@@ -11,16 +11,16 @@ public class NodePermissionsMapper {
         }
 
         NodePermissions nodePermissions = new NodePermissions();
-        nodePermissions.setManage(apiNodePermissions.manage);
-        nodePermissions.setRead(apiNodePermissions.read);
-        nodePermissions.setCreate(apiNodePermissions.create);
-        nodePermissions.setChange(apiNodePermissions.change);
-        nodePermissions.setDelete(apiNodePermissions.delete);
-        nodePermissions.setManageDownloadShare(apiNodePermissions.manageDownloadShare);
-        nodePermissions.setManageUploadShare(apiNodePermissions.manageUploadShare);
-        nodePermissions.setReadRecycleBin(apiNodePermissions.readRecycleBin);
-        nodePermissions.setRestoreRecycleBin(apiNodePermissions.restoreRecycleBin);
-        nodePermissions.setDeleteRecycleBin(apiNodePermissions.deleteRecycleBin);
+        nodePermissions.setManage(toBoolean(apiNodePermissions.manage));
+        nodePermissions.setRead(toBoolean(apiNodePermissions.read));
+        nodePermissions.setCreate(toBoolean(apiNodePermissions.create));
+        nodePermissions.setChange(toBoolean(apiNodePermissions.change));
+        nodePermissions.setDelete(toBoolean(apiNodePermissions.delete));
+        nodePermissions.setManageDownloadShare(toBoolean(apiNodePermissions.manageDownloadShare));
+        nodePermissions.setManageUploadShare(toBoolean(apiNodePermissions.manageUploadShare));
+        nodePermissions.setReadRecycleBin(toBoolean(apiNodePermissions.readRecycleBin));
+        nodePermissions.setRestoreRecycleBin(toBoolean(apiNodePermissions.restoreRecycleBin));
+        nodePermissions.setDeleteRecycleBin(toBoolean(apiNodePermissions.deleteRecycleBin));
         return nodePermissions;
     }
 

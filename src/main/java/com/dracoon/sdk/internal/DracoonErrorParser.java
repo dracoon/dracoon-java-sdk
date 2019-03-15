@@ -7,8 +7,10 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.internal.model.ApiErrorResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+@SuppressWarnings("Duplicates")
 public class DracoonErrorParser {
 
     private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
@@ -437,12 +439,16 @@ public class DracoonErrorParser {
     }
 
     public DracoonApiCode parseFileUploadError(Response response) {
+        int statusCode = response.code();
+        if (HttpStatus.valueOf(statusCode) == HttpStatus.MALICIOUS_FILE_DETECTED) {
+            return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+        }
+
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
 
-        int statusCode = response.code();
         int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
 
         switch (HttpStatus.valueOf(statusCode)) {
@@ -830,24 +836,39 @@ public class DracoonErrorParser {
 
     private ApiErrorResponse getErrorResponse(Response response) {
         if (response.errorBody() == null) {
+            mLog.e(LOG_TAG, "Invalid server API error response!");
+            mLog.e(LOG_TAG, String.format("(Server API HTTP code '%d'.)", response.code()));
+            return null;
+        }
+
+        ResponseBody responseBody = response.errorBody();
+
+        if (responseBody.contentType() == null || responseBody.contentType().subtype() == null) {
+            mLog.e(LOG_TAG, "Invalid server API error response!");
+            mLog.e(LOG_TAG, String.format("(Server API HTTP code '%d'.)", response.code()));
+            try {
+                mLog.d(LOG_TAG, responseBody.string());
+            } catch (IOException e) {
+                // Nothing to do here
+            }
             return null;
         }
 
         Gson gson = sGsonBuilder.create();
         try {
             ApiErrorResponse er = null;
-            switch (response.errorBody().contentType().subtype()) {
+            switch (responseBody.contentType().subtype()) {
                 case "json":
-                    er = gson.fromJson(response.errorBody().string(), ApiErrorResponse.class);
+                    er = gson.fromJson(responseBody.string(), ApiErrorResponse.class);
                     break;
                 case "octet-stream":
-                    er = gson.fromJson(response.errorBody().charStream(), ApiErrorResponse.class);
+                    er = gson.fromJson(responseBody.charStream(), ApiErrorResponse.class);
                     break;
                 default:
             }
 
             if (er != null) {
-                mLog.d(LOG_TAG, "Server REST error:");
+                mLog.d(LOG_TAG, "Server API error response:");
                 mLog.d(LOG_TAG, er.toString());
             }
 
@@ -860,15 +881,17 @@ public class DracoonErrorParser {
     // --- Methods to parse OkHttp error responses ---
 
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
-        int code = response.code();
+        int statusCode = response.code();
 
-        mLog.d(LOG_TAG, "Server HTTP error: " + code);
+        mLog.d(LOG_TAG, "Server HTTP error: " + statusCode);
 
-        switch (HttpStatus.valueOf(code)) {
+        switch (HttpStatus.valueOf(statusCode)) {
             case UNAUTHORIZED:
                 return DracoonApiCode.AUTH_UNAUTHORIZED;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
+            case MALICIOUS_FILE_DETECTED:
+                return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }

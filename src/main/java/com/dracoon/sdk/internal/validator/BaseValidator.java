@@ -72,6 +72,10 @@ public class BaseValidator {
         ValidatorUtils.validatePositiveNumber("Maximum downloads", maxDownloads, false);
     }
 
+    protected static void validateMaxUploads(Integer maxUploads) {
+        ValidatorUtils.validatePositiveNumber("Maximum uploads", maxUploads, false);
+    }
+
     protected static void validateName(String name) {
         ValidatorUtils.validateString("Name", name, false);
     }
@@ -127,6 +131,10 @@ public class BaseValidator {
     public static void validateRange(Long offset, Long limit, boolean nullable) {
         ValidatorUtils.validateNotNegative("offset", limit, nullable);
         ValidatorUtils.validatePositiveNumber("limit", limit, nullable);
+    }
+
+    public static void validateShareId(Long shareId) {
+        ValidatorUtils.validateId("Share ID", shareId);
     }
 
 }

@@ -12,6 +12,7 @@ import com.dracoon.sdk.internal.model.ApiDownloadShareList;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
+import com.dracoon.sdk.internal.util.EncodingUtils;
 import com.dracoon.sdk.internal.util.TextUtils;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -21,7 +22,9 @@ import com.dracoon.sdk.model.DownloadShareList;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
 
-public class ShareMapper {
+public class ShareMapper extends BaseMapper {
+
+    private static final String QR_CODE_PREFIX = "data:image/png;base64,";
 
     public static ApiCreateDownloadShareRequest toApiCreateDownloadShareRequest(
             CreateDownloadShareRequest request, UserKeyPair keyPair, EncryptedFileKey fileKey) {
@@ -73,16 +76,27 @@ public class ShareMapper {
         downloadShare.setNotes(apiDownloadShare.notes);
         downloadShare.setExpireAt(apiDownloadShare.expireAt);
         downloadShare.setAccessKey(apiDownloadShare.accessKey);
-        downloadShare.setShowsCreatorName(apiDownloadShare.showCreatorName);
-        downloadShare.setShowsCreatorUserName(apiDownloadShare.showCreatorUsername);
-        downloadShare.setNotifiesCreator(apiDownloadShare.notifyCreator);
+        downloadShare.setShowsCreatorName(toBoolean(apiDownloadShare.showCreatorName));
+        downloadShare.setShowsCreatorUserName(toBoolean(apiDownloadShare.showCreatorUsername));
+        downloadShare.setNotifiesCreator(toBoolean(apiDownloadShare.notifyCreator));
         downloadShare.setMaxDownloads(apiDownloadShare.maxDownloads);
         downloadShare.setCntDownloads(apiDownloadShare.cntDownloads);
         downloadShare.setCreatedAt(apiDownloadShare.createdAt);
         downloadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiDownloadShare.createdBy));
-        downloadShare.setIsProtected(apiDownloadShare.isProtected);
-        downloadShare.setIsEncrypted(apiDownloadShare.isEncrypted);
+        downloadShare.setIsProtected(toBoolean(apiDownloadShare.isProtected));
+        downloadShare.setIsEncrypted(toBoolean(apiDownloadShare.isEncrypted));
         return downloadShare;
+    }
+
+    public static byte[] fromApiDownloadShareQrCode(ApiDownloadShare apiDownloadShare) {
+        String qrCodeString = apiDownloadShare.dataUrl;
+        if (qrCodeString == null || !qrCodeString.startsWith(QR_CODE_PREFIX)) {
+            return null;
+        }
+
+        String qrCodeStringWithoutPrefix = qrCodeString.substring(QR_CODE_PREFIX.length());
+
+        return EncodingUtils.decodeBase64(qrCodeStringWithoutPrefix);
     }
 
     public static DownloadShareList fromApiDownloadShareList(ApiDownloadShareList apiDownloadShareList) {
@@ -118,6 +132,8 @@ public class ShareMapper {
         apiRequest.filesExpiryPeriod = request.getFilesExpirationPeriod();
         apiRequest.showUploadedFiles = request.showUploadedFiles();
         apiRequest.notifyCreator = request.notifyCreator();
+        apiRequest.maxSlots = request.getMaxUploads();
+        apiRequest.maxSize = request.getMaxQuota();
         apiRequest.password = request.getAccessPassword();
         apiRequest.sendMail = request.sendEmail();
         apiRequest.mailRecipients = TextUtils.join(request.getEmailRecipients());
@@ -141,16 +157,29 @@ public class ShareMapper {
         uploadShare.setNotes(apiUploadShare.notes);
         uploadShare.setExpireAt(apiUploadShare.expireAt);
         uploadShare.setFilesExpirePeriod(apiUploadShare.filesExpiryPeriod);
+        uploadShare.setMaxUploads(apiUploadShare.maxSlots);
+        uploadShare.setMaxQuota(apiUploadShare.maxSize);
         uploadShare.setAccessKey(apiUploadShare.accessKey);
-        uploadShare.setShowsUploadedFiles(apiUploadShare.showUploadedFiles);
-        uploadShare.setNotifiesCreator(apiUploadShare.notifyCreator);
+        uploadShare.setShowsUploadedFiles(toBoolean(apiUploadShare.showUploadedFiles));
+        uploadShare.setNotifiesCreator(toBoolean(apiUploadShare.notifyCreator));
         uploadShare.setCntUploads(apiUploadShare.cntUploads);
         uploadShare.setCntFiles(apiUploadShare.cntFiles);
         uploadShare.setCreatedAt(apiUploadShare.createdAt);
         uploadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiUploadShare.createdBy));
-        uploadShare.setIsProtected(apiUploadShare.isProtected);
-        uploadShare.setIsEncrypted(apiUploadShare.isEncrypted);
+        uploadShare.setIsProtected(toBoolean(apiUploadShare.isProtected));
+        uploadShare.setIsEncrypted(toBoolean(apiUploadShare.isEncrypted));
         return uploadShare;
+    }
+
+    public static byte[] fromApiUploadShareQrCode(ApiUploadShare apiUploadShare) {
+        String qrCodeString = apiUploadShare.dataUrl;
+        if (qrCodeString == null || !qrCodeString.startsWith(QR_CODE_PREFIX)) {
+            return null;
+        }
+
+        String qrCodeStringWithoutPrefix = qrCodeString.substring(QR_CODE_PREFIX.length());
+
+        return EncodingUtils.decodeBase64(qrCodeStringWithoutPrefix);
     }
 
     public static UploadShareList fromApiUploadShareList(ApiUploadShareList apiUploadShareList) {

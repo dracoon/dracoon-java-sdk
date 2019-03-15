@@ -3,13 +3,13 @@ package com.dracoon.sdk.internal;
 @SuppressWarnings("unused")
 public enum HttpStatus {
 
-    // 1xx Informational
+    // --- 1xx Informational ---
 
     CONTINUE(100, "Continue"),
     SWITCHING_PROTOCOLS(101, "Switching Protocols"),
     PROCESSING(102, "Processing"),
 
-    // 2xx Success
+    // --- 2xx Success ---
 
     OK(200, "OK"),
     CREATED(201, "Created"),
@@ -22,7 +22,7 @@ public enum HttpStatus {
     ALREADY_REPORTED(208, "Already Reported"),
     IM_USED(226, "IM Used"),
 
-    // 3xx Redirection
+    // --- 3xx Redirection ---
 
     MULTIPLE_CHOICES(300, "Multiple Choices"),
     MOVED_PERMANENTLY(301, "Moved Permanently"),
@@ -76,7 +76,11 @@ public enum HttpStatus {
     INSUFFICIENT_STORAGE(507, "Insufficient Storage"),
     LOOP_DETECTED(508, "Loop Detected"),
     NOT_EXTENDED(510, "Not Extended"),
-    NETWORK_AUTHENTICATION_REQUIRED(511, "Network Authentication Required");
+    NETWORK_AUTHENTICATION_REQUIRED(511, "Network Authentication Required"),
+
+    // --- 9xx Unofficial Error ---
+
+    MALICIOUS_FILE_DETECTED(901, "Malicious file detected");
 
     private final int mNumber;
     private final String mText;

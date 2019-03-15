@@ -10,7 +10,7 @@ import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiNode;
-import com.dracoon.sdk.internal.util.FileUtils;
+import com.dracoon.sdk.internal.util.StreamUtils;
 import com.dracoon.sdk.model.FileDownloadStream;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -278,7 +278,7 @@ public class StreamDownload extends FileDownloadStream {
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOException(errorText, e);
         } finally {
-            FileUtils.closeStream(is);
+            StreamUtils.closeStream(is);
         }
 
         mLoadChunk = false;

@@ -16,7 +16,7 @@ import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiNode;
-import com.dracoon.sdk.internal.util.FileUtils;
+import com.dracoon.sdk.internal.util.StreamUtils;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -224,8 +224,8 @@ public class FileDownload extends Thread {
                 throw new DracoonNetIOException(errorText, e);
             }
         } finally {
-            FileUtils.closeStream(os);
-            FileUtils.closeStream(is);
+            StreamUtils.closeStream(os);
+            StreamUtils.closeStream(is);
         }
 
         return os.toByteArray();

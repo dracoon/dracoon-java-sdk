@@ -8,10 +8,10 @@ package com.dracoon.sdk.model;
 @SuppressWarnings("unused")
 public class ServerGeneralSettings {
 
-    private boolean mSharePasswordSmsEnabled;
-    private boolean mCryptoEnabled;
-    private boolean mMediaServerEnabled;
-    private boolean mWeakPasswordEnabled;
+    private Boolean mSharePasswordSmsEnabled;
+    private Boolean mCryptoEnabled;
+    private Boolean mMediaServerEnabled;
+    private Boolean mWeakPasswordEnabled;
 
     /**
      * Returns <code>true</code> if share passwords can be send via SMS.
@@ -19,7 +19,7 @@ public class ServerGeneralSettings {
      * @return <code>true</code> if share passwords can be send via SMS; <code>false</code>
      * otherwise
      */
-    public boolean isSharePasswordSmsEnabled() {
+    public Boolean isSharePasswordSmsEnabled() {
         return mSharePasswordSmsEnabled;
     }
 
@@ -29,7 +29,7 @@ public class ServerGeneralSettings {
      * @param sharePasswordSmsEnabled <code>true</code> if share passwords can be send via SMS;
      *                                <code>false</code> otherwise.
      */
-    public void setSharePasswordSmsEnabled(boolean sharePasswordSmsEnabled) {
+    public void setSharePasswordSmsEnabled(Boolean sharePasswordSmsEnabled) {
         mSharePasswordSmsEnabled = sharePasswordSmsEnabled;
     }
 
@@ -39,7 +39,7 @@ public class ServerGeneralSettings {
      * @return <code>true</code> if client-side cryptography is enabled for rooms;
      *         <code>false</code> otherwise
      */
-    public boolean isCryptoEnabled() {
+    public Boolean isCryptoEnabled() {
         return mCryptoEnabled;
     }
 
@@ -49,7 +49,7 @@ public class ServerGeneralSettings {
      * @param cryptoEnabled <code>true</code> if client-side cryptography is enabled for rooms;
      *                      <code>false</code> otherwise.
      */
-    public void setCryptoEnabled(boolean cryptoEnabled) {
+    public void setCryptoEnabled(Boolean cryptoEnabled) {
         mCryptoEnabled = cryptoEnabled;
     }
 
@@ -58,7 +58,7 @@ public class ServerGeneralSettings {
      *
      * @return <code>true</code> if media server is enabled; <code>false</code> otherwise
      */
-    public boolean isMediaServerEnabled() {
+    public Boolean isMediaServerEnabled() {
         return mMediaServerEnabled;
     }
 
@@ -68,7 +68,7 @@ public class ServerGeneralSettings {
      * @param mediaServerEnabled <code>true</code> if media server is enabled; <code>false</code>
      *                           otherwise.
      */
-    public void setMediaServerEnabled(boolean mediaServerEnabled) {
+    public void setMediaServerEnabled(Boolean mediaServerEnabled) {
         mMediaServerEnabled = mediaServerEnabled;
     }
 
@@ -84,7 +84,7 @@ public class ServerGeneralSettings {
      *
      * @return <code>true</code> if weak passwords are allowed; <code>false</code> otherwise
      */
-    public boolean isWeakPasswordEnabled() {
+    public Boolean isWeakPasswordEnabled() {
         return mWeakPasswordEnabled;
     }
 
@@ -94,7 +94,7 @@ public class ServerGeneralSettings {
      * @param weakPasswordEnabled <code>true</code> if weak passwords are allowed;
      *                            <code>false</code> otherwise.
      */
-    public void setWeakPasswordEnabled(boolean weakPasswordEnabled) {
+    public void setWeakPasswordEnabled(Boolean weakPasswordEnabled) {
         mWeakPasswordEnabled = weakPasswordEnabled;
     }
 

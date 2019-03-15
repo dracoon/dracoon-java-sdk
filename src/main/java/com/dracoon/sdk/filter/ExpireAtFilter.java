@@ -32,14 +32,14 @@ public class ExpireAtFilter extends Filter<String> {
         }
 
         @Override
-        protected Concater ge(Date value) {
+        public Concater ge(Date value) {
             validateRestrictionValue(value);
             mFilter.addValue(GE, DateUtils.formatDate(value));
             return new Concater(mFilter);
         }
 
         @Override
-        protected Concater le(Date value) {
+        public Concater le(Date value) {
             validateRestrictionValue(value);
             mFilter.addValue(LE, DateUtils.formatDate(value));
             return new Concater(mFilter);
@@ -59,7 +59,7 @@ public class ExpireAtFilter extends Filter<String> {
         }
 
         @Override
-        protected Builder and() {
+        public Builder and() {
             return new Builder(mFilter);
         }
 
