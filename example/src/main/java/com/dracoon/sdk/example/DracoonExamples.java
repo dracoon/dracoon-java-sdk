@@ -85,8 +85,9 @@ public class DracoonExamples {
         //getCustomerAccount(client);
 
         //setUserKeyPair(client);
-        //checkUserKeyPair(client);
         //deleteUserKeyPair(client);
+        //checkUserKeyPairPassword(client);
+        checkUserKeyPairPassword(client, ENCRYPTION_PASSWORD);
 
         //listNodes(client);
         //listNodesPaged(client);
@@ -109,7 +110,7 @@ public class DracoonExamples {
         //moveNodes(client);
 
         //uploadFile(client);
-        downloadFile(client);
+        //downloadFile(client);
         //uploadFileWithStream(client);
         //downloadFileWithStream(client);
 
@@ -201,13 +202,19 @@ public class DracoonExamples {
         client.account().setUserKeyPair();
     }
 
-    private static void checkUserKeyPair(DracoonClient client) throws DracoonException {
-        boolean validPassword = client.account().checkUserKeyPairPassword();
-        System.out.println("Valid encryption password: " + validPassword);
-    }
-
     private static void deleteUserKeyPair(DracoonClient client) throws DracoonException {
         client.account().deleteUserKeyPair();
+    }
+
+    private static void checkUserKeyPairPassword(DracoonClient client) throws DracoonException {
+        boolean isPasswordValid = client.account().checkUserKeyPairPassword();
+        System.out.println("Valid encryption password: " + isPasswordValid);
+    }
+
+    private static void checkUserKeyPairPassword(DracoonClient client, String password)
+            throws DracoonException {
+        boolean isPasswordValid = client.account().checkUserKeyPairPassword(password);
+        System.out.println("Valid encryption password: " + isPasswordValid);
     }
 
     private static void listNodes(DracoonClient client) throws DracoonException {
