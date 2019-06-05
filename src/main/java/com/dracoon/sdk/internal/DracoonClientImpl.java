@@ -250,7 +250,7 @@ public class DracoonClientImpl extends DracoonClient {
             mApiVersion = mServer.getVersion();
         }
 
-        String[] av = mApiVersion.split("\\.");
+        String[] av = mApiVersion.split("\\-")[0].split("\\.");
         String[] mav = minApiVersion.split("\\.");
 
         for (int i = 0; i < 3; i++) {
