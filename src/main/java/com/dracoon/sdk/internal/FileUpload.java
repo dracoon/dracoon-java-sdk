@@ -207,7 +207,7 @@ public class FileUpload extends Thread {
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadCreateError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadCreateError(response);
             String errorText = String.format("Creation of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -267,7 +267,7 @@ public class FileUpload extends Thread {
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadError(response);
             String errorText = String.format("Upload of '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -288,7 +288,7 @@ public class FileUpload extends Thread {
         Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadCompleteError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadCompleteError(response);
             String errorText = String.format("Completion of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -307,7 +307,9 @@ public class FileUpload extends Thread {
     }
 
     protected void notifyRunning(String id, long bytesSend, long bytesTotal) {
+        System.out.println("r1: " + bytesSend + "/" + bytesTotal);
         for (FileUploadCallback callback : mCallbacks) {
+            System.out.println("r2: " + bytesSend + "/" + bytesTotal);
             callback.onRunning(id, bytesSend, bytesTotal);
         }
     }

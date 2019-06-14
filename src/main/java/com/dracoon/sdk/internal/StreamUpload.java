@@ -177,7 +177,7 @@ public class StreamUpload extends FileUploadStream {
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadCreateError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadCreateError(response);
             String errorText = String.format("Creation of upload stream for file '%s' failed " +
                     "with '%s'!", mFileUploadRequest.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -207,7 +207,7 @@ public class StreamUpload extends FileUploadStream {
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadError(response);
             String errorText = String.format("Upload of file '%s' failed with '%s'!",
                     mFileUploadRequest.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -226,7 +226,7 @@ public class StreamUpload extends FileUploadStream {
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadCompleteError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadCompleteError(response);
             String errorText = String.format("Closing of upload stream for file '%s' failed " +
                     "with '%s'!", mFileUploadRequest.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
