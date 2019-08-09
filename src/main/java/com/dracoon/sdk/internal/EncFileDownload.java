@@ -60,7 +60,7 @@ public class EncFileDownload extends FileDownload {
         String auth = mClient.buildAuthString();
 
         Call<ApiFileKey> call = mRestService.getFileKey(auth, nodeId);
-        Response<ApiFileKey> response = mHttpHelper.executeRequest(call, this);
+        Response<ApiFileKey> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseFileKeyQueryError(response);
@@ -119,7 +119,7 @@ public class EncFileDownload extends FileDownload {
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
         } catch (IOException e) {
-            if (isInterrupted()) {
+            if (mThread.isInterrupted()) {
                 throw new InterruptedException();
             }
             String errorText = "File write failed!";

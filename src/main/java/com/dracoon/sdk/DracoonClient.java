@@ -159,8 +159,16 @@ public abstract class DracoonClient {
                 DracoonApiException;
 
         /**
-         * Checks if the user's encryption key pair can be unlocked with the provided encryption
-         * password.
+         * Deletes the user's encryption key pair.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Checks if the user's encryption key pair can be unlocked with the currently set
+         * encryption password.
          *
          * @return <code>true</code> if key pair could be unlocked; <code>false</code> otherwise
          *
@@ -172,12 +180,19 @@ public abstract class DracoonClient {
                 DracoonApiException;
 
         /**
-         * Deletes the user's encryption key pair.
+         * Checks if the user's encryption key pair can be unlocked with the provided encryption
+         * password.
+         * 
+         * @param encryptionPassword The encryption password.
          *
-         * @throws DracoonNetIOException If a network error occurred.
-         * @throws DracoonApiException   If the API responded with an error.
+         * @return <code>true</code> if key pair could be unlocked; <code>false</code> otherwise
+         *
+         * @throws DracoonCryptoException If a crypto error occurred at the key pair check.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
          */
-        void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException;
+        boolean checkUserKeyPairPassword(String encryptionPassword) throws DracoonCryptoException,
+                DracoonNetIOException, DracoonApiException;
 
     }
 
