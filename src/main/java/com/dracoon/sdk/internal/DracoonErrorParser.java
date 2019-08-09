@@ -15,6 +15,8 @@ public class DracoonErrorParser {
 
     private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
 
+    private static final String HEADER_X_FORBIDDEN = "X-Forbidden";
+
     private static final GsonBuilder sGsonBuilder = new GsonBuilder();
 
     private Log mLog = new NullLog();
@@ -399,7 +401,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseFileUploadCreateError(Response response) {
+    public DracoonApiCode parseUploadCreateError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -438,10 +440,16 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseFileUploadError(Response response) {
+    public DracoonApiCode parseUploadError(Response response) {
         int statusCode = response.code();
+
         if (HttpStatus.valueOf(statusCode) == HttpStatus.MALICIOUS_FILE_DETECTED) {
             return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+        } else if (HttpStatus.valueOf(statusCode) == HttpStatus.FORBIDDEN) {
+            String avHeader = response.headers().get(HEADER_X_FORBIDDEN);
+            if (avHeader != null && avHeader.equals("403")) {
+                return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+            }
         }
 
         ApiErrorResponse errorResponse = getErrorResponse(response);
@@ -468,7 +476,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseFileUploadCompleteError(Response response) {
+    public DracoonApiCode parseUploadCompleteError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
             return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -883,15 +891,22 @@ public class DracoonErrorParser {
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
         int statusCode = response.code();
 
-        mLog.d(LOG_TAG, "Server HTTP error: " + statusCode);
+        if (HttpStatus.valueOf(statusCode) == HttpStatus.MALICIOUS_FILE_DETECTED) {
+            return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+        } else if (HttpStatus.valueOf(statusCode) == HttpStatus.FORBIDDEN) {
+            String avHeader = response.headers().get(HEADER_X_FORBIDDEN);
+            if (avHeader != null && avHeader.equals("403")) {
+                return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+            }
+        }
+
+        mLog.d(LOG_TAG, "Server API error: " + statusCode);
 
         switch (HttpStatus.valueOf(statusCode)) {
             case UNAUTHORIZED:
                 return DracoonApiCode.AUTH_UNAUTHORIZED;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
-            case MALICIOUS_FILE_DETECTED:
-                return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }

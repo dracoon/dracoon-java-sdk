@@ -121,7 +121,7 @@ public class EncFileUpload extends FileUpload {
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
         } catch (IOException e) {
-            if (isInterrupted()) {
+            if (mThread.isInterrupted()) {
                 throw new InterruptedException();
             }
             String errorText = String.format("File read failed at upload '%s'!", mId);
@@ -147,10 +147,10 @@ public class EncFileUpload extends FileUpload {
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
         Call<ApiNode> call = mRestService.completeFileUpload(auth, uploadId, request);
-        Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadCompleteError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadCompleteError(response);
             String errorText = String.format("Completion of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);

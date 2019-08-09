@@ -41,6 +41,8 @@ public class FileDownload extends Thread {
     protected final long mNodeId;
     protected final OutputStream mTrgStream;
 
+    protected Thread mThread;
+
     private long mProgressUpdateTime = System.currentTimeMillis();
 
     private final List<FileDownloadCallback> mCallbacks = new ArrayList<>();
@@ -74,6 +76,7 @@ public class FileDownload extends Thread {
     @Override
     public void run() {
         try {
+            mThread = this;
             download();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
@@ -86,6 +89,7 @@ public class FileDownload extends Thread {
     public void runSync() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
         try {
+            mThread = Thread.currentThread();
             download();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
@@ -112,7 +116,7 @@ public class FileDownload extends Thread {
         String auth = mClient.buildAuthString();
 
         Call<ApiDownloadToken> call = mRestService.getDownloadToken(auth, nodeId);
-        Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, this);
+        Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseDownloadTokenGetError(response);
@@ -148,7 +152,7 @@ public class FileDownload extends Thread {
                 offset = offset + count;
             }
         } catch (IOException e) {
-            if (isInterrupted()) {
+            if (mThread.isInterrupted()) {
                 throw new InterruptedException();
             }
             String errorText = "File write failed!";
@@ -162,7 +166,7 @@ public class FileDownload extends Thread {
         String auth = mClient.buildAuthString();
 
         Call<ApiNode> call = mRestService.getNode(auth, nodeId);
-        Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseNodesQueryError(response);
@@ -187,7 +191,7 @@ public class FileDownload extends Thread {
                 .build();
 
         okhttp3.Call call = mHttpClient.newCall(request);
-        okhttp3.Response response = mHttpHelper.executeRequest(call, this);
+        okhttp3.Response response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseDownloadError(response);
@@ -210,13 +214,13 @@ public class FileDownload extends Thread {
                 bytesReadTotal = bytesReadTotal + bytesRead;
 
                 if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
-                        && !isInterrupted()) {
+                        && !mThread.isInterrupted()) {
                     notifyRunning(mId, offset + bytesReadTotal, length);
                     mProgressUpdateTime = System.currentTimeMillis();
                 }
             }
         } catch (IOException e) {
-            if (isInterrupted()) {
+            if (mThread.isInterrupted()) {
                 throw new InterruptedException();
             } else {
                 String errorText = "Server communication failed!";

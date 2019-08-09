@@ -98,6 +98,8 @@ public class FileUpload extends Thread {
     protected final InputStream mSrcStream;
     protected final long mSrcLength;
 
+    protected Thread mThread;
+
     private long mProgressUpdateTime = System.currentTimeMillis();
 
     private final List<FileUploadCallback> mCallbacks = new ArrayList<>();
@@ -132,6 +134,7 @@ public class FileUpload extends Thread {
     @Override
     public void run() {
         try {
+            mThread = this;
             upload();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
@@ -144,6 +147,7 @@ public class FileUpload extends Thread {
     public Node runSync() throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
         try {
+            mThread = Thread.currentThread();
             return upload();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
@@ -200,10 +204,10 @@ public class FileUpload extends Thread {
         }
 
         Call<ApiFileUpload> call = mRestService.createFileUpload(auth, request);
-        Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, this);
+        Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadCreateError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadCreateError(response);
             String errorText = String.format("Creation of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -226,7 +230,7 @@ public class FileUpload extends Thread {
                 offset = offset + count;
             }
         } catch (IOException e) {
-            if (isInterrupted()) {
+            if (mThread.isInterrupted()) {
                 throw new InterruptedException();
             }
             String errorText = String.format("File read failed at upload '%s'!", mId);
@@ -249,7 +253,7 @@ public class FileUpload extends Thread {
             @Override
             public void onProgress(long send) {
                 if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
-                        && !isInterrupted()) {
+                        && !mThread.isInterrupted()) {
                     notifyRunning(mId, offset + send, length);
                     mProgressUpdateTime = System.currentTimeMillis();
                 }
@@ -260,10 +264,10 @@ public class FileUpload extends Thread {
         String contentRange = "bytes " + offset + "-" + (offset + count) + "/*";
 
         Call<Void> call = mRestService.uploadFile(auth, uploadId, contentRange, body);
-        Response<Void> response = mHttpHelper.executeRequest(call, this);
+        Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadError(response);
             String errorText = String.format("Upload of '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -281,10 +285,10 @@ public class FileUpload extends Thread {
         request.resolutionStrategy = resolutionStrategy.getValue();
 
         Call<ApiNode> call = mRestService.completeFileUpload(auth, uploadId, request);
-        Response<ApiNode> response = mHttpHelper.executeRequest(call, this);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseFileUploadCompleteError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadCompleteError(response);
             String errorText = String.format("Completion of upload '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -303,7 +307,9 @@ public class FileUpload extends Thread {
     }
 
     protected void notifyRunning(String id, long bytesSend, long bytesTotal) {
+        System.out.println("r1: " + bytesSend + "/" + bytesTotal);
         for (FileUploadCallback callback : mCallbacks) {
+            System.out.println("r2: " + bytesSend + "/" + bytesTotal);
             callback.onRunning(id, bytesSend, bytesTotal);
         }
     }

@@ -120,8 +120,9 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public UserKeyPair getAndCheckUserKeyPair() throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
         UserKeyPair userKeyPair = getUserKeyPair();
+        String encryptionPassword = mClient.getEncryptionPassword();
 
-        boolean isValid = checkUserKeyPairPassword(userKeyPair);
+        boolean isValid = checkUserKeyPairPassword(userKeyPair, encryptionPassword);
         if (!isValid) {
             throw new DracoonCryptoException(DracoonCryptoCode.INVALID_PASSWORD_ERROR);
         }
@@ -150,28 +151,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     @Override
-    public boolean checkUserKeyPairPassword() throws DracoonNetIOException, DracoonApiException,
-            DracoonCryptoException {
-        UserKeyPair userKeyPair = getUserKeyPair();
-        return checkUserKeyPairPassword(userKeyPair);
-    }
-
-    private boolean checkUserKeyPairPassword(UserKeyPair userKeyPair)
-            throws DracoonCryptoException {
-        String encryptionPassword = mClient.getEncryptionPassword();
-
-        try {
-            return Crypto.checkUserKeyPair(userKeyPair, encryptionPassword);
-        } catch (CryptoException e) {
-            String errorText = String.format("Check of user key pair failed! '%s'",
-                    e.getMessage());
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
-    }
-
-    @Override
     public void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
@@ -185,6 +164,34 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
+    public boolean checkUserKeyPairPassword() throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
+        UserKeyPair userKeyPair = getUserKeyPair();
+        String encryptionPassword = mClient.getEncryptionPassword();
+        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+    }
+
+    @Override
+    public boolean checkUserKeyPairPassword(String encryptionPassword) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
+        UserKeyPair userKeyPair = getUserKeyPair();
+        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+    }
+
+    private boolean checkUserKeyPairPassword(UserKeyPair userKeyPair, String encryptionPassword)
+            throws DracoonCryptoException {
+        try {
+            return Crypto.checkUserKeyPair(userKeyPair, encryptionPassword);
+        } catch (CryptoException e) {
+            String errorText = String.format("Check of user key pair failed! '%s'",
+                    e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
         }
     }
 
