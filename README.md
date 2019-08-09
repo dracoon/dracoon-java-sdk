@@ -32,13 +32,52 @@ compile 'com.dracoon:dracoon-sdk:1.1.0-beta1'
 
 ##### JAR import
 
-The latest JAR can be found [here](https://github.com/dracoon/sdk-java/releases).
+The latest JAR can be found [here](https://github.com/dracoon/dracoon-java-sdk/releases).
 
 Note that you also need to include the following dependencies:
 1. Bouncy Castle Provider: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
 2. Bouncy Castle PKIX/CMS/...: https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
 3. Dracoon Crypto SDK: https://mvnrepository.com/artifact/com.dracoon/dracoon-crypto-sdk
 4. Google Gson: https://mvnrepository.com/artifact/com.google.code.gson/gson
+5. Square OkHttp: https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+6. Square OkIo: https://mvnrepository.com/artifact/com.squareup.okio/okio
+7. Square Retrofit: https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
+8. Square Retrofit Gson Converter: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-gson
+
+#### Download for Android
+
+The Android platform unfortunately ships with a cut-down version of Bouncy Castle. This makes it
+difficult to use libraries that have an updated version of Bouncy Castle as a dependency.
+
+To solve this issue, there is a second version of the SDK which uses Spongy Castle.
+
+##### Maven
+
+Add this dependency to your pom.xml:
+```xml
+<dependency>
+    <groupId>com.dracoon</groupId>
+    <artifactId>dracoon-android-sdk</artifactId>
+    <version>1.1.0-beta1</version>
+</dependency>
+```
+
+##### Gradle
+
+Add this dependency to your build.gradle:
+```groovy
+compile 'com.dracoon:dracoon-android-sdk:1.1.0-beta1'
+```
+
+##### JAR import
+
+The latest JAR can be found [here](https://github.com/dracoon/dracoon-java-sdk/releases).
+
+Note that you also need to include the following dependencies:
+1. Dracoon Crypto SDK: https://mvnrepository.com/artifact/com.dracoon/dracoon-android-crypto-sdk
+2. Google Gson: https://mvnrepository.com/artifact/com.google.code.gson/gson
+3. Spongy Castle PKIX/CMS/...: https://mvnrepository.com/artifact/com.madgag.spongycastle/pkix
+4. Spongy Castle Provider: https://mvnrepository.com/artifact/com.madgag.spongycastle/prov
 5. Square OkHttp: https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
 6. Square OkIo: https://mvnrepository.com/artifact/com.squareup.okio/okio
 7. Square Retrofit: https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
@@ -82,6 +121,14 @@ for (Node node : nodeList.getItems()) {
 ## Documentation
 
 The documentation of the Dracoon SDK can be found [here](doc/main.md).
+
+## Contribution
+
+If you would like to contribute code, fork the repository and send a pull request. We don't use the
+GitHub Flow, so please create a feature branch of the develop branch and make your changes there.
+
+When submitting code, please make every effort to follow existing conventions and style in order to
+keep the code as readable as possible.
 
 ## Copyright and License
 
