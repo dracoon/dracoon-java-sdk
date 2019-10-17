@@ -559,17 +559,22 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public FileUploadStream createFileUploadStream(FileUploadRequest request)
-            throws DracoonNetIOException, DracoonApiException {
+            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
         FileValidator.validateUploadRequest(request);
 
-        boolean isEncryptedDownload = isNodeEncrypted(request.getParentId());
-        if (isEncryptedDownload) {
-            throw new UnsupportedOperationException("Encrypted files aren't supported.");
+        boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
+
+        UserPublicKey userPublicKey = null;
+        PlainFileKey plainFileKey = null;
+        if (isEncryptedUpload) {
+            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
+            userPublicKey = userKeyPair.getUserPublicKey();
+            plainFileKey = createFileKey(userPublicKey.getVersion());
         }
 
-        return new StreamUpload(mClient, request);
+        return new StreamUpload(mClient, request, userPublicKey, plainFileKey);
     }
 
     // --- File download methods ---
@@ -718,15 +723,22 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
-            DracoonApiException {
+            DracoonApiException, DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
+
+        PlainFileKey plainFileKey = null;
         if (isEncryptedDownload) {
-            throw new UnsupportedOperationException("Encrypted files aren't supported.");
+            String userPrivateKeyPassword = mClient.getEncryptionPassword();
+            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
+            UserPrivateKey userPrivateKey = userKeyPair.getUserPrivateKey();
+            EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
+            plainFileKey = decryptFileKey(nodeId, encryptedFileKey, userPrivateKey,
+                    userPrivateKeyPassword);
         }
 
-        return new StreamDownload(mClient, nodeId);
+        return new StreamDownload(mClient, nodeId, plainFileKey);
     }
 
     // --- Search methods ---

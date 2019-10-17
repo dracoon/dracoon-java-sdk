@@ -1,23 +1,40 @@
 package com.dracoon.sdk.internal;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.crypto.Crypto;
+import com.dracoon.sdk.crypto.CryptoException;
+import com.dracoon.sdk.crypto.CryptoSystemException;
+import com.dracoon.sdk.crypto.CryptoUtils;
+import com.dracoon.sdk.crypto.FileEncryptionCipher;
+import com.dracoon.sdk.crypto.model.EncryptedDataContainer;
+import com.dracoon.sdk.crypto.model.EncryptedFileKey;
+import com.dracoon.sdk.crypto.model.PlainDataContainer;
+import com.dracoon.sdk.crypto.model.PlainFileKey;
+import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoCode;
+import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiFileUpload;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.internal.util.StreamUtils;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okio.Buffer;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -33,17 +50,24 @@ public class StreamUpload extends FileUploadStream {
     private final DracoonErrorParser mErrorParser;
 
     private final FileUploadRequest mFileUploadRequest;
+    private final UserPublicKey mUserPublicKey;
+    private final PlainFileKey mFileKey;
+
+    private FileEncryptionCipher mEncryptionCipher;
 
     private String mUploadId;
+    private long mUploadOffset = 0L;
 
-    private byte[] mChunk;
+    private Buffer mUploadBuffer = new Buffer();
+
     private long mChunkNum = 0L;
-    private int mChunkOffset = 0;
+
     private boolean mIsCompleted = false;
     private boolean mIsClosed = false;
 
-    StreamUpload(DracoonClientImpl client, FileUploadRequest request) throws DracoonNetIOException,
-            DracoonApiException {
+    StreamUpload(DracoonClientImpl client, FileUploadRequest request, UserPublicKey userPublicKey,
+            PlainFileKey fileKey) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
         mClient = client;
         mLog = client.getLog();
         mRestService = client.getDracoonService();
@@ -52,14 +76,22 @@ public class StreamUpload extends FileUploadStream {
         mErrorParser = client.getDracoonErrorParser();
 
         mFileUploadRequest = request;
-
-        mChunk = new byte[mChunkSize];
+        mUserPublicKey = userPublicKey;
+        mFileKey = fileKey;
 
         init();
     }
 
-    private void init() throws DracoonNetIOException, DracoonApiException {
+    private void init() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        if (isEncryptedUpload()) {
+            mEncryptionCipher = createEncryptionCipher();
+        }
+
         mUploadId = createUpload();
+    }
+
+    private boolean isEncryptedUpload() {
+        return mFileKey != null;
     }
 
     @Override
@@ -70,7 +102,7 @@ public class StreamUpload extends FileUploadStream {
     }
 
     @Override
-    public void write(byte b[], int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
         assertNotCompleted();
         assertNotClosed();
 
@@ -84,40 +116,13 @@ public class StreamUpload extends FileUploadStream {
             return;
         }
 
-        // Read while maximum number of bytes is reached
-        int read = 0;
-        while (read < len) {
-            // Calculate current total offset and total remaining bytes
-            long totalOffset = mChunkNum * mChunkSize + mChunkOffset;
-
-            // Calculate number of bytes which should be copied
-            int count = len - read;
-            if (count > mChunkSize - mChunkOffset) {
-                count = mChunkSize - mChunkOffset;
-            }
-
-            mLog.d(LOG_TAG, String.format("Loading: %d: %d-%d (%d-%d)", mChunkNum,
-                    mChunkOffset, mChunkOffset + count, totalOffset, totalOffset + count));
-
-            // Copy bytes
-            System.arraycopy(b, off + read, mChunk, mChunkOffset, count);
-
-            // Update chunk offset
-            mChunkOffset = mChunkOffset + count;
-
-            // If end of current chunk was reached: Load next chunk
-            if (mChunkOffset == mChunkSize) {
-                try {
-                    loadNextChunk();
-                } catch (DracoonException e) {
-                    throw new IOException("Could not write to upload stream.", e);
-                }
-                mChunkNum++;
-                mChunkOffset = 0;
-            }
-
-            // Update read count
-            read = read + count;
+        // Write to buffer
+        mUploadBuffer.write(b, off, len);
+        // Try to upload data
+        try {
+            uploadData(true);
+        } catch (DracoonException e) {
+            throw new IOException("Could not write to upload stream.", e);
         }
     }
 
@@ -127,13 +132,23 @@ public class StreamUpload extends FileUploadStream {
         assertNotClosed();
 
         try {
-            loadNextChunk();
+            uploadData(false);
         } catch (DracoonException e) {
             throw new IOException("Could not write to upload stream.", e);
         }
 
+        EncryptedFileKey encryptedFileKey = null;
         try {
-            completeUpload();
+            if (isEncryptedUpload()) {
+                encryptedFileKey = mClient.getNodesImpl().encryptFileKey(null, mFileKey,
+                        mUserPublicKey);
+            }
+        } catch (DracoonException e) {
+            throw new IOException("Could not complete upload.", e);
+        }
+
+        try {
+            completeUpload(encryptedFileKey);
         } catch (DracoonException e) {
             throw new IOException("Could not close upload stream.", e);
         }
@@ -144,11 +159,22 @@ public class StreamUpload extends FileUploadStream {
     @Override
     public void close() throws IOException {
         assertNotClosed();
-        mChunk = null;
         mIsClosed = true;
     }
 
     // --- Helper methods ---
+
+    private FileEncryptionCipher createEncryptionCipher() throws DracoonCryptoException {
+        try {
+            return Crypto.createFileEncryptionCipher(mFileKey);
+        } catch (CryptoException e) {
+            String errorText = String.format("Encryption failed at upload of file '%s'! %s",
+                    mFileUploadRequest.getName(), e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
+        }
+    }
 
     private String createUpload() throws DracoonNetIOException, DracoonApiException {
         String auth = mClient.buildAuthString();
@@ -187,21 +213,81 @@ public class StreamUpload extends FileUploadStream {
         return response.body().uploadId;
     }
 
-    private void loadNextChunk() throws DracoonNetIOException, DracoonApiException {
-        if (mChunkOffset <= 0) {
-            return;
+    private void uploadData(boolean more) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException, DracoonFileIOException {
+        // Upload till buffer is exhausted
+        while ((more && mUploadBuffer.size() > mChunkSize) || (!more && mUploadBuffer.size() > 0)) {
+            long remaining = mUploadBuffer.size();
+            long count = remaining > mChunkSize ? mChunkSize : remaining;
+
+            byte[] bytes;
+            try {
+                bytes = mUploadBuffer.readByteArray(count);
+            } catch (IOException e) {
+                String errorText = "Buffer read failed!";
+                mLog.d(LOG_TAG, errorText);
+                throw new DracoonFileIOException(errorText, e);
+            }
+
+            if (isEncryptedUpload()) {
+                boolean isLast = !more && mUploadBuffer.size() == 0;
+                bytes = encryptBytes(bytes, isLast);
+            }
+
+            uploadChunk(mUploadOffset, bytes);
+            count = bytes.length;
+
+            mLog.d(LOG_TAG, String.format("Loading: %d: %d-%d", mChunkNum, mUploadOffset,
+                    mUploadOffset + count));
+
+            mUploadOffset = mUploadOffset + bytes.length;
+            mChunkNum++;
+        }
+    }
+
+    private byte[] encryptBytes(byte[] bytes, boolean isLast) throws DracoonFileIOException,
+            DracoonCryptoException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        try {
+            PlainDataContainer plainData = new PlainDataContainer(bytes);
+            EncryptedDataContainer encData = mEncryptionCipher.processBytes(plainData);
+            os.write(encData.getContent());
+
+            if (isLast) {
+                encData = mEncryptionCipher.doFinal();
+                os.write(encData.getContent());
+
+                String encTag = CryptoUtils.byteArrayToString(encData.getTag());
+                mFileKey.setTag(encTag);
+            }
+        } catch (IllegalArgumentException | IllegalStateException | CryptoSystemException e) {
+            String errorText = String.format("Encryption failed at upload of file '%s'! %s",
+                    mFileUploadRequest.getName(), e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
+        } catch (IOException e) {
+            String errorText = "Buffer write failed!";
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonFileIOException(errorText, e);
+        } finally {
+            StreamUtils.closeStream(os);
         }
 
-        long offset = mChunkNum * mChunkSize;
+        return os.toByteArray();
+    }
 
+    private void uploadChunk(long offset, byte[] chunk)
+            throws DracoonNetIOException, DracoonApiException {
         String auth = mClient.buildAuthString();
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/octet-stream"),
-                mChunk, 0, mChunkOffset);
+                chunk, 0, chunk.length);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file",
                 mFileUploadRequest.getName(), requestBody);
 
-        String contentRange = "bytes " + offset + "-" + (offset + mChunkOffset) + "/*";
+        String contentRange = "bytes " + offset + "-" + (offset + chunk.length) + "/*";
 
         Call<Void> call = mRestService.uploadFile(auth, mUploadId, contentRange, body);
         Response<Void> response = mHttpHelper.executeRequest(call);
@@ -215,20 +301,22 @@ public class StreamUpload extends FileUploadStream {
         }
     }
 
-    private void completeUpload() throws DracoonNetIOException, DracoonApiException {
+    private void completeUpload(EncryptedFileKey encryptedFileKey) throws DracoonNetIOException,
+            DracoonApiException {
         String auth = mClient.buildAuthString();
 
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();
         request.fileName = mFileUploadRequest.getName();
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
+        request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
         Call<ApiNode> call = mRestService.completeFileUpload(auth, mUploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUploadCompleteError(response);
-            String errorText = String.format("Closing of upload stream for file '%s' failed " +
-                    "with '%s'!", mFileUploadRequest.getName(), errorCode.name());
+            String errorText = String.format("Completion of upload for file '%s' failed with '%s'!",
+                    mFileUploadRequest.getName(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }

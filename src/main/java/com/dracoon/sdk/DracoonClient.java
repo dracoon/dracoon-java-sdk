@@ -499,11 +499,12 @@ public abstract class DracoonClient {
          *
          * @return output stream for upload
          *
-         * @throws DracoonNetIOException If a network error occurred.
-         * @throws DracoonApiException   If the API responded with an error.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If the encryption failed.
          */
         FileUploadStream createFileUploadStream(FileUploadRequest request)
-                throws DracoonNetIOException, DracoonApiException;
+                throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
 
         /**
          * Downloads a file.
@@ -592,11 +593,12 @@ public abstract class DracoonClient {
          *
          * @return input stream for download
          *
-         * @throws DracoonNetIOException If a network error occurred.
-         * @throws DracoonApiException   If the API responded with an error.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         * @throws DracoonCryptoException If the decryption failed.
          */
         FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
-                DracoonApiException;
+                DracoonApiException, DracoonCryptoException;
 
         /**
          * Searches child nodes of a node by their name.<br>

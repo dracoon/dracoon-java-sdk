@@ -87,7 +87,7 @@ public class DracoonExamples {
         //setUserKeyPair(client);
         //deleteUserKeyPair(client);
         //checkUserKeyPairPassword(client);
-        checkUserKeyPairPassword(client, ENCRYPTION_PASSWORD);
+        //checkUserKeyPairPassword(client, ENCRYPTION_PASSWORD);
 
         //listNodes(client);
         //listNodesPaged(client);
@@ -112,7 +112,7 @@ public class DracoonExamples {
         //uploadFile(client);
         //downloadFile(client);
         //uploadFileWithStream(client);
-        //downloadFileWithStream(client);
+        downloadFileWithStream(client);
 
         //searchNodes(client);
         //searchNodesPaged(client);
