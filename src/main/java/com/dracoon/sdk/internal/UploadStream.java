@@ -44,9 +44,9 @@ import okio.BufferedSink;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class StreamUpload extends FileUploadStream {
+public class UploadStream extends FileUploadStream {
 
-    private static final String LOG_TAG = StreamUpload.class.getSimpleName();
+    private static final String LOG_TAG = UploadStream.class.getSimpleName();
 
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
@@ -130,7 +130,7 @@ public class StreamUpload extends FileUploadStream {
 
     private final List<FileUploadCallback> mCallbacks = new ArrayList<>();
 
-    StreamUpload(DracoonClientImpl client, String id, FileUploadRequest request, long length,
+    UploadStream(DracoonClientImpl client, String id, FileUploadRequest request, long length,
             UserPublicKey userPublicKey, PlainFileKey fileKey) {
         mClient = client;
         mLog = client.getLog();
@@ -144,11 +144,11 @@ public class StreamUpload extends FileUploadStream {
         mUploadLength = length;
         mUserPublicKey = userPublicKey;
         mFileKey = fileKey;
-
-        mThread = Thread.currentThread();
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        mThread = Thread.currentThread();
+
         try {
             notifyStarted(mId);
 
@@ -219,7 +219,7 @@ public class StreamUpload extends FileUploadStream {
     }
 
     @Override
-    public void complete() throws IOException {
+    public Node complete() throws IOException {
         assertNotCompleted();
         assertNotClosed();
 
@@ -227,7 +227,7 @@ public class StreamUpload extends FileUploadStream {
             uploadData(false);
         } catch (InterruptedException e) {
             notifyCanceled(mId);
-            return;
+            return null;
         } catch (DracoonException e) {
             notifyFailed(mId, e);
             throw new IOException("Could not write to upload stream.", e);
@@ -249,7 +249,7 @@ public class StreamUpload extends FileUploadStream {
             node = completeUpload(encryptedFileKey);
         } catch (InterruptedException e) {
             notifyCanceled(mId);
-            return;
+            return null;
         } catch (DracoonException e) {
             notifyFailed(mId, e);
             throw new IOException("Could not close upload stream.", e);
@@ -258,6 +258,8 @@ public class StreamUpload extends FileUploadStream {
         notifyFinished(mId, node);
 
         mIsCompleted = true;
+
+        return node;
     }
 
     @Override

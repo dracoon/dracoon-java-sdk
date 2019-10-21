@@ -85,8 +85,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private static final String MEDIA_URL_TEMPLATE = "%s/mediaserver/image/%s/%dx%d";
 
-    private Map<String, FileUpload> mUploads = new HashMap<>();
-    private Map<String, FileDownload> mDownloads = new HashMap<>();
+    private Map<String, UploadThread> mUploads = new HashMap<>();
+    private Map<String, DownloadThread> mDownloads = new HashMap<>();
 
     DracoonNodesImpl(DracoonClientImpl client) {
         super(client);
@@ -438,24 +438,22 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             long length, boolean close, FileUploadCallback callback) throws DracoonFileIOException,
             DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
+
         UserPublicKey userPublicKey = null;
+        PlainFileKey plainFileKey = null;
         if (isEncryptedUpload) {
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
             userPublicKey = userKeyPair.getUserPublicKey();
+            plainFileKey = createFileKey(userPublicKey.getVersion());
         }
 
-        FileUpload upload;
-        if (isEncryptedUpload) {
-            upload = new EncFileUpload(mClient, id, request, is, length, userPublicKey);
-        } else {
-            upload = new FileUpload(mClient, id, request, is, length);
-        }
-
-        upload.addCallback(callback);
+        UploadThread uploadThread = new UploadThread(mClient, id, request, length, userPublicKey,
+                plainFileKey, is);
+        uploadThread.addCallback(callback);
 
         Node node;
         try {
-            node = upload.runSync();
+            node = uploadThread.runSync();
         } finally {
             closeStream(is, close);
         }
@@ -493,10 +491,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
+
         UserPublicKey userPublicKey = null;
+        PlainFileKey plainFileKey = null;
         if (isEncryptedUpload) {
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
             userPublicKey = userKeyPair.getUserPublicKey();
+            plainFileKey = createFileKey(userPublicKey.getVersion());
         }
 
         FileUploadCallback internalCallback = new FileUploadCallback() {
@@ -529,30 +530,25 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             }
         };
 
-        FileUpload upload;
-        if (isEncryptedUpload) {
-            upload = new EncFileUpload(mClient, id, request, is, length, userPublicKey);
-        } else {
-            upload = new FileUpload(mClient, id, request, is, length);
-        }
+        UploadThread uploadThread = new UploadThread(mClient, id, request, length, userPublicKey,
+                plainFileKey, is);
+        uploadThread.addCallback(callback);
+        uploadThread.addCallback(internalCallback);
 
-        upload.addCallback(callback);
-        upload.addCallback(internalCallback);
+        mUploads.put(id, uploadThread);
 
-        mUploads.put(id, upload);
-
-        upload.start();
+        uploadThread.start();
     }
 
     @Override
     public void cancelUploadFileAsync(String id) {
-        FileUpload upload = mUploads.get(id);
-        if (upload == null) {
+        UploadThread uploadThread = mUploads.get(id);
+        if (uploadThread == null) {
             return;
         }
 
-        if (upload.isAlive()) {
-            upload.interrupt();
+        if (uploadThread.isAlive()) {
+            uploadThread.interrupt();
         }
         mUploads.remove(id);
     }
@@ -575,16 +571,16 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             plainFileKey = createFileKey(userPublicKey.getVersion());
         }
 
-        StreamUpload streamUpload = new StreamUpload(mClient, id, request, length, userPublicKey,
+        UploadStream uploadStream = new UploadStream(mClient, id, request, length, userPublicKey,
                 plainFileKey);
 
         if (callback != null) {
-            streamUpload.addCallback(callback);
+            uploadStream.addCallback(callback);
         }
 
-        streamUpload.start();
+        uploadStream.start();
 
-        return streamUpload;
+        return uploadStream;
     }
 
     // --- File download methods ---
@@ -617,23 +613,24 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException, DracoonFileIOException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
-        UserPrivateKey userPrivateKey = null;
+
+        PlainFileKey plainFileKey = null;
         if (isEncryptedDownload) {
+            String userPrivateKeyPassword = mClient.getEncryptionPassword();
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
-            userPrivateKey = userKeyPair.getUserPrivateKey();
+            UserPrivateKey userPrivateKey = userKeyPair.getUserPrivateKey();
+            EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
+            plainFileKey = decryptFileKey(nodeId, encryptedFileKey, userPrivateKey,
+                    userPrivateKeyPassword);
         }
 
-        FileDownload download;
-        if (isEncryptedDownload) {
-            download = new EncFileDownload(mClient, id, nodeId, os, userPrivateKey);
-        } else {
-            download = new FileDownload(mClient, id, nodeId, os);
+        DownloadThread downloadThread = new DownloadThread(mClient, id, nodeId, plainFileKey, os);
+        if (callback != null) {
+            downloadThread.addCallback(callback);
         }
-
-        download.addCallback(callback);
 
         try {
-            download.runSync();
+            downloadThread.runSync();
         } finally {
             closeStream(os, close);
         }
@@ -667,10 +664,15 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             final boolean close, FileDownloadCallback callback) throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
-        UserPrivateKey userPrivateKey = null;
+
+        PlainFileKey plainFileKey = null;
         if (isEncryptedDownload) {
+            String userPrivateKeyPassword = mClient.getEncryptionPassword();
             UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
-            userPrivateKey = userKeyPair.getUserPrivateKey();
+            UserPrivateKey userPrivateKey = userKeyPair.getUserPrivateKey();
+            EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
+            plainFileKey = decryptFileKey(nodeId, encryptedFileKey, userPrivateKey,
+                    userPrivateKeyPassword);
         }
 
         FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
@@ -703,30 +705,26 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             }
         };
 
-        FileDownload download;
-        if (isEncryptedDownload) {
-            download = new EncFileDownload(mClient, id, nodeId, os, userPrivateKey);
-        } else {
-            download = new FileDownload(mClient, id, nodeId, os);
+        DownloadThread downloadThread = new DownloadThread(mClient, id, nodeId, plainFileKey, os);
+        downloadThread.addCallback(stoppedCallback);
+        if (callback != null) {
+            downloadThread.addCallback(callback);
         }
 
-        download.addCallback(callback);
-        download.addCallback(stoppedCallback);
+        mDownloads.put(id, downloadThread);
 
-        mDownloads.put(id, download);
-
-        download.start();
+        downloadThread.start();
     }
 
     @Override
     public void cancelDownloadFileAsync(String id) {
-        FileDownload download = mDownloads.get(id);
-        if (download == null) {
+        DownloadThread downloadThread = mDownloads.get(id);
+        if (downloadThread == null) {
             return;
         }
 
-        if (download.isAlive()) {
-            download.interrupt();
+        if (downloadThread.isAlive()) {
+            downloadThread.interrupt();
         }
         mDownloads.remove(id);
     }
@@ -749,15 +747,15 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                     userPrivateKeyPassword);
         }
 
-        StreamDownload streamDownload = new StreamDownload(mClient, id, nodeId, plainFileKey);
+        DownloadStream downloadStream = new DownloadStream(mClient, id, nodeId, plainFileKey);
 
         if (callback != null) {
-            streamDownload.addCallback(callback);
+            downloadStream.addCallback(callback);
         }
 
-        streamDownload.start();
+        downloadStream.start();
 
-        return streamDownload;
+        return downloadStream;
     }
 
     // --- Search methods ---

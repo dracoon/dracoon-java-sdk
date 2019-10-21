@@ -34,9 +34,9 @@ import okio.Buffer;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class StreamDownload extends FileDownloadStream {
+public class DownloadStream extends FileDownloadStream {
 
-    private static final String LOG_TAG = StreamDownload.class.getSimpleName();
+    private static final String LOG_TAG = DownloadStream.class.getSimpleName();
 
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
     private static final int PROGRESS_UPDATE_INTERVAL = 100;
@@ -74,7 +74,7 @@ public class StreamDownload extends FileDownloadStream {
 
     private final List<FileDownloadCallback> mCallbacks = new ArrayList<>();
 
-    StreamDownload(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey) {
+    DownloadStream(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey) {
         mClient = client;
         mLog = client.getLog();
         mRestService = client.getDracoonService();
@@ -86,11 +86,11 @@ public class StreamDownload extends FileDownloadStream {
         mId = id;
         mNodeId = nodeId;
         mFileKey = fileKey;
-
-        mThread = Thread.currentThread();
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        mThread = Thread.currentThread();
+
         try {
             notifyStarted(mId);
 

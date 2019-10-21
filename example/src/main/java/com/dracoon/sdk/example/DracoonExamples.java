@@ -110,9 +110,9 @@ public class DracoonExamples {
         //moveNodes(client);
 
         //uploadFile(client);
-        //downloadFile(client);
+        downloadFile(client);
         //uploadFileWithStream(client);
-        downloadFileWithStream(client);
+        //downloadFileWithStream(client);
 
         //searchNodes(client);
         //searchNodesPaged(client);
