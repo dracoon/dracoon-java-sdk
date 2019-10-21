@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.crypto.BadFileException;
@@ -25,6 +27,7 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.util.StreamUtils;
+import com.dracoon.sdk.model.FileDownloadCallback;
 import com.dracoon.sdk.model.FileDownloadStream;
 import okhttp3.OkHttpClient;
 import okio.Buffer;
@@ -36,6 +39,7 @@ public class StreamDownload extends FileDownloadStream {
     private static final String LOG_TAG = StreamDownload.class.getSimpleName();
 
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
+    private static final int PROGRESS_UPDATE_INTERVAL = 100;
 
     private final DracoonClientImpl mClient;
     private final Log mLog;
@@ -45,6 +49,7 @@ public class StreamDownload extends FileDownloadStream {
     private final int mChunkSize;
     private final DracoonErrorParser mErrorParser;
 
+    private final String mId;
     private final long mNodeId;
     private final PlainFileKey mFileKey;
 
@@ -63,8 +68,13 @@ public class StreamDownload extends FileDownloadStream {
 
     private boolean mIsClosed = false;
 
-    StreamDownload(DracoonClientImpl client, long nodeId, PlainFileKey fileKey)
-            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+    private Thread mThread;
+
+    private long mProgressUpdateTime = System.currentTimeMillis();
+
+    private final List<FileDownloadCallback> mCallbacks = new ArrayList<>();
+
+    StreamDownload(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey) {
         mClient = client;
         mLog = client.getLog();
         mRestService = client.getDracoonService();
@@ -73,23 +83,45 @@ public class StreamDownload extends FileDownloadStream {
         mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
         mErrorParser = client.getDracoonErrorParser();
 
+        mId = id;
         mNodeId = nodeId;
         mFileKey = fileKey;
 
-        init();
+        mThread = Thread.currentThread();
     }
 
-    private void init() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        if (isEncryptedDownload()) {
-            mDecryptionCipher = createDecryptionCipher();
-        }
+    void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        try {
+            notifyStarted(mId);
 
-        mDownloadUrl = createDownload();
-        mDownloadLength = getFileSize();
+            if (isEncryptedDownload()) {
+                mDecryptionCipher = createDecryptionCipher();
+            }
+
+            mDownloadUrl = createDownload();
+            mDownloadLength = getFileSize();
+        } catch (InterruptedException e) {
+            notifyCanceled(mId);
+        } catch (DracoonException e) {
+            notifyFailed(mId, e);
+            throw e;
+        }
     }
 
     private boolean isEncryptedDownload() {
         return mFileKey != null;
+    }
+
+    public void addCallback(FileDownloadCallback callback) {
+        if (callback != null) {
+            mCallbacks.add(callback);
+        }
+    }
+
+    public void removeCallback(FileDownloadCallback callback) {
+        if (callback != null) {
+            mCallbacks.remove(callback);
+        }
     }
 
     // --- Stream methods ---
@@ -129,7 +161,11 @@ public class StreamDownload extends FileDownloadStream {
                 boolean more;
                 try {
                     more = downloadData();
+                } catch (InterruptedException e) {
+                    notifyCanceled(mId);
+                    return -1;
                 } catch (DracoonException e) {
+                    notifyFailed(mId, e);
                     throw new IOException("Could not read from download stream.", e);
                 }
                 // If more data is available: Continue
@@ -143,6 +179,10 @@ public class StreamDownload extends FileDownloadStream {
             bOff = bOff + bRead;
             bLen = bLen - bRead;
             read = read >= 0 ? read + bRead : bRead;
+        }
+
+        if (read == -1) {
+            notifyFinished(mId);
         }
 
         return read;
@@ -182,24 +222,25 @@ public class StreamDownload extends FileDownloadStream {
         try {
             return Crypto.createFileDecryptionCipher(mFileKey);
         } catch (CryptoException e) {
-            String errorText = String.format("Decryption failed at download of file '%d'! %s",
-                    mNodeId, e.getMessage());
+            String errorText = String.format("Decryption failed at download of '%s'! %s", mId,
+                    e.getMessage());
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
         }
     }
 
-    private long getFileSize() throws DracoonNetIOException, DracoonApiException {
+    private long getFileSize() throws DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         String auth = mClient.buildAuthString();
 
         Call<ApiNode> call = mRestService.getNode(auth, mNodeId);
-        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseNodesQueryError(response);
-            String errorText = String.format("Creation of download stream for file '%d' failed " +
-                    "with '%s'!", mNodeId, errorCode.name());
+            String errorText = String.format("Creation of download stream for '%s' failed with " +
+                    "'%s'!", mId, errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -209,16 +250,17 @@ public class StreamDownload extends FileDownloadStream {
         return node.size;
     }
 
-    private String createDownload() throws DracoonNetIOException, DracoonApiException {
+    private String createDownload() throws DracoonNetIOException, DracoonApiException,
+            InterruptedException {
         String auth = mClient.buildAuthString();
 
         Call<ApiDownloadToken> call = mRestService.getDownloadToken(auth, mNodeId);
-        Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call);
+        Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseDownloadTokenGetError(response);
-            String errorText = String.format("Creation of download stream for file '%d' failed " +
-                    "with '%s'!", mNodeId, errorCode.name());
+            String errorText = String.format("Creation of download stream for '%s' failed with " +
+                    "'%s'!", mId, errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -233,7 +275,7 @@ public class StreamDownload extends FileDownloadStream {
     }
 
     private boolean downloadData() throws DracoonNetIOException, DracoonApiException,
-            DracoonCryptoException, DracoonFileIOException {
+            DracoonCryptoException, DracoonFileIOException, InterruptedException {
         if (mDownloadOffset == mDownloadLength) {
             return false;
         }
@@ -255,8 +297,8 @@ public class StreamDownload extends FileDownloadStream {
             return true;
         }
 
-        mLog.d(LOG_TAG, String.format("Loading: %d: %d-%d=%d (%d-%d/%d)", mChunkNum,
-                mChunkOffset, mChunkOffset + count - 1, count,
+        mLog.d(LOG_TAG, String.format("Loading: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)", mId,
+                mChunkNum, mChunkOffset, mChunkOffset + count - 1, count,
                 mDownloadOffset, mDownloadOffset + count - 1, mDownloadLength));
 
         mDownloadOffset = mDownloadOffset + count;
@@ -273,7 +315,7 @@ public class StreamDownload extends FileDownloadStream {
     }
 
     private InputStream requestNextChunk(long offset, long count) throws DracoonNetIOException,
-            DracoonApiException {
+            DracoonApiException, InterruptedException {
         String range = "bytes=" + offset + "-" + (offset + count - 1);
 
         okhttp3.Request request = new okhttp3.Request.Builder()
@@ -282,11 +324,11 @@ public class StreamDownload extends FileDownloadStream {
                 .build();
 
         okhttp3.Call call = mHttpClient.newCall(request);
-        okhttp3.Response response = mHttpHelper.executeRequest(call);
+        okhttp3.Response response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseDownloadError(response);
-            String errorText = String.format("Download of file '%d' failed with '%s'!", mNodeId,
+            String errorText = String.format("Download of '%s' failed with '%s'!", mId,
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
@@ -295,7 +337,8 @@ public class StreamDownload extends FileDownloadStream {
         return new BufferedInputStream(response.body().byteStream());
     }
 
-    private byte[] downloadBytes(InputStream is, int length) throws DracoonNetIOException {
+    private byte[] downloadBytes(InputStream is, int length) throws DracoonNetIOException,
+            InterruptedException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         byte[] buffer = new byte[length];
@@ -306,10 +349,20 @@ public class StreamDownload extends FileDownloadStream {
                 if (count < 0) {
                     break;
                 }
+
                 os.write(buffer, 0, count);
                 read = read + count;
+
+                if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
+                        && !mThread.isInterrupted()) {
+                    notifyRunning(mId, mDownloadOffset + read, mDownloadLength);
+                    mProgressUpdateTime = System.currentTimeMillis();
+                }
             }
         } catch (IOException e) {
+            if (mThread.isInterrupted()) {
+                throw new InterruptedException();
+            }
             String errorText = "Server communication failed!";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOException(errorText, e);
@@ -321,7 +374,7 @@ public class StreamDownload extends FileDownloadStream {
     }
 
     private byte[] decryptBytes(byte[] bytes, boolean isLast) throws DracoonFileIOException,
-            DracoonCryptoException {
+            DracoonCryptoException, InterruptedException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         EncryptedDataContainer encData;
@@ -339,12 +392,15 @@ public class StreamDownload extends FileDownloadStream {
             }
         } catch (BadFileException | IllegalArgumentException | IllegalStateException |
                 CryptoSystemException e) {
-            String errorText = String.format("Decryption failed at download of file '%d'! %s",
-                    mNodeId, e.getMessage());
+            String errorText = String.format("Decryption failed at download of '%s'! %s", mId,
+                    e.getMessage());
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
         } catch (IOException e) {
+            if (mThread.isInterrupted()) {
+                throw new InterruptedException();
+            }
             String errorText = "Buffer write failed!";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonFileIOException(errorText, e);
@@ -358,6 +414,38 @@ public class StreamDownload extends FileDownloadStream {
     private void assertNotClosed() throws IOException {
         if (mIsClosed) {
             throw new IOException("Download stream was already closed.");
+        }
+    }
+
+    // --- Callback helper methods ---
+
+    private void notifyStarted(String id) {
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onStarted(id);
+        }
+    }
+
+    private void notifyRunning(String id, long bytesRead, long bytesTotal) {
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onRunning(id, bytesRead, bytesTotal);
+        }
+    }
+
+    private void notifyFinished(String id) {
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onFinished(id);
+        }
+    }
+
+    private void notifyCanceled(String id) {
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onCanceled(id);
+        }
+    }
+
+    private void notifyFailed(String id, DracoonException e) {
+        for (FileDownloadCallback callback : mCallbacks) {
+            callback.onFailed(id, e);
         }
     }
 

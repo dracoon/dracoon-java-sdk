@@ -558,8 +558,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
-    public FileUploadStream createFileUploadStream(FileUploadRequest request)
-            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+    public FileUploadStream createFileUploadStream(String id, FileUploadRequest request, long length,
+            FileUploadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
         FileValidator.validateUploadRequest(request);
@@ -574,7 +575,16 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             plainFileKey = createFileKey(userPublicKey.getVersion());
         }
 
-        return new StreamUpload(mClient, request, userPublicKey, plainFileKey);
+        StreamUpload streamUpload = new StreamUpload(mClient, id, request, length, userPublicKey,
+                plainFileKey);
+
+        if (callback != null) {
+            streamUpload.addCallback(callback);
+        }
+
+        streamUpload.start();
+
+        return streamUpload;
     }
 
     // --- File download methods ---
@@ -722,8 +732,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
-    public FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
-            DracoonApiException, DracoonCryptoException {
+    public FileDownloadStream createFileDownloadStream(String id, long nodeId,
+            FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
@@ -738,7 +749,15 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                     userPrivateKeyPassword);
         }
 
-        return new StreamDownload(mClient, nodeId, plainFileKey);
+        StreamDownload streamDownload = new StreamDownload(mClient, id, nodeId, plainFileKey);
+
+        if (callback != null) {
+            streamDownload.addCallback(callback);
+        }
+
+        streamDownload.start();
+
+        return streamDownload;
     }
 
     // --- Search methods ---

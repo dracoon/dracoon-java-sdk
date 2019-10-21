@@ -423,7 +423,8 @@ public class DracoonExamples {
                 .build();
 
         FileInputStream is = new FileInputStream(file);
-        FileUploadStream us = client.nodes().createFileUploadStream(request);
+        FileUploadStream us = client.nodes().createFileUploadStream("1", request, file.length(),
+                null);
 
         byte[] buffer = new byte[1024];
         int bytesRead;
@@ -480,7 +481,7 @@ public class DracoonExamples {
 
         File file = new File("C:\\temp\\test.txt");
 
-        FileDownloadStream ds = client.nodes().createFileDownloadStream(nodeId);
+        FileDownloadStream ds = client.nodes().createFileDownloadStream("1", nodeId, null);
         FileOutputStream os = new FileOutputStream(file);
 
         byte[] buffer = new byte[1024];

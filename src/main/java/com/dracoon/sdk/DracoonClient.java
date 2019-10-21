@@ -409,7 +409,7 @@ public abstract class DracoonClient {
         /**
          * Uploads a file.
          *
-         * @param id       A ID for the upload. (This ID can be used to keep a reference.)
+         * @param id       The ID for the upload. (This ID can be used to keep a reference.)
          * @param request  The request with information about the file.
          * @param file     The source file.
          * @param callback A callback which get called when the upload was started, finished and
@@ -429,10 +429,10 @@ public abstract class DracoonClient {
         /**
          * Uploads a file.
          *
-         * @param id       A ID for the upload. (This ID can be used to keep a reference.)
+         * @param id       The ID for the upload. (This ID can be used to keep a reference.)
          * @param request  The request with information about the file.
          * @param is       The source stream.
-         * @param length   The length of the source stream.
+         * @param length   The length of the upload. (<code>0</code> if not known.)
          * @param callback A callback which get called when the upload was started, finished and
          *                 so on. (<code>null</code>, if not needed.)
          *
@@ -450,7 +450,7 @@ public abstract class DracoonClient {
         /**
          * Starts an asynchronous file upload.
          *
-         * @param id       ID for the upload. (This ID can be used to keep a reference.)
+         * @param id       The ID for the upload. (This ID can be used to keep a reference.)
          * @param request  The request with information about the file.
          * @param file     The source file.
          * @param callback A callback which get called when the upload was started, finished and
@@ -468,10 +468,10 @@ public abstract class DracoonClient {
         /**
          * Starts an asynchronous file upload.
          *
-         * @param id       ID for the upload. (This ID can be used to keep a reference.)
+         * @param id       The ID for the upload. (This ID can be used to keep a reference.)
          * @param request  The request with information about the file.
          * @param is       The source stream.
-         * @param length   The length of the source stream.
+         * @param length   The length of the upload. (<code>0</code> if not known.)
          * @param callback A callback which get called when the upload was started, finished and
          *                 so on. (<code>null</code>, if not needed.)
          *
@@ -493,9 +493,11 @@ public abstract class DracoonClient {
         /**
          * Creates a file upload stream.
          *
-         * (Encrypted files are currently not supported.)
-         *
-         * @param request The request with information about the file.
+         * @param id       The ID for the download. (This ID can be used to keep a reference.)
+         * @param request  The request with information about the file.
+         * @param length   The length of the upload. (<code>0</code> if not known.)
+         * @param callback A callback which get called when the upload was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
          *
          * @return output stream for upload
          *
@@ -503,13 +505,14 @@ public abstract class DracoonClient {
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If the encryption failed.
          */
-        FileUploadStream createFileUploadStream(FileUploadRequest request)
-                throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
+        FileUploadStream createFileUploadStream(String id, FileUploadRequest request, long length,
+                FileUploadCallback callback) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
 
         /**
          * Downloads a file.
          *
-         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param id       The ID for the download. (This ID can be used to keep a reference.)
          * @param nodeId   The ID of the node.
          * @param file     The target file.
          * @param callback A callback which get called when the download was started, finished and
@@ -527,7 +530,7 @@ public abstract class DracoonClient {
         /**
          * Downloads a file.
          *
-         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param id       The ID for the download. (This ID can be used to keep a reference.)
          * @param nodeId   The ID of the node.
          * @param os       The target stream.
          * @param callback A callback which get called when the download was started, finished and
@@ -545,7 +548,7 @@ public abstract class DracoonClient {
         /**
          * Starts an asynchronous file download.
          *
-         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param id       The ID for the download. (This ID can be used to keep a reference.)
          * @param nodeId   The ID of the node.
          * @param file     The target file.
          * @param callback A callback which get called when the download was started, finished and
@@ -563,7 +566,7 @@ public abstract class DracoonClient {
         /**
          * Starts an asynchronous file download.
          *
-         * @param id       ID for the download. (This ID can be used to keep a reference.)
+         * @param id       The ID for the download. (This ID can be used to keep a reference.)
          * @param nodeId   The ID of the node.
          * @param os       The target stream.
          * @param callback A callback which get called when the download was started, finished and
@@ -587,9 +590,10 @@ public abstract class DracoonClient {
         /**
          * Creates a file download stream.
          *
-         * (Encrypted files are currently not supported.)
-         *
-         * @param nodeId The ID of the node.
+         * @param id       The ID for the download. (This ID can be used to keep a reference.)
+         * @param nodeId   The ID of the node.
+         * @param callback A callback which get called when the download was started, finished and
+         *                 so on. (<code>null</code>, if not needed.)
          *
          * @return input stream for download
          *
@@ -597,8 +601,9 @@ public abstract class DracoonClient {
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If the decryption failed.
          */
-        FileDownloadStream createFileDownloadStream(long nodeId) throws DracoonNetIOException,
-                DracoonApiException, DracoonCryptoException;
+        FileDownloadStream createFileDownloadStream(String id, long nodeId,
+                FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
 
         /**
          * Searches child nodes of a node by their name.<br>
