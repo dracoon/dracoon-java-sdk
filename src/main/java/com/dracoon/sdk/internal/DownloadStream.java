@@ -39,14 +39,13 @@ public class DownloadStream extends FileDownloadStream {
     private static final String LOG_TAG = DownloadStream.class.getSimpleName();
 
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
-    private static final int PROGRESS_UPDATE_INTERVAL = 100;
+    private static final long PROGRESS_UPDATE_INTERVAL = 100;
 
     private final DracoonClientImpl mClient;
     private final Log mLog;
     private final DracoonService mRestService;
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
-    private final int mChunkSize;
     private final DracoonErrorParser mErrorParser;
 
     private final String mId;
@@ -62,9 +61,10 @@ public class DownloadStream extends FileDownloadStream {
     private Buffer mDownloadBuffer = new Buffer();
     private InputStream mDownloadInputStream = null;
 
-    private boolean mRequestNextChunk = true;
-    private long mChunkNum = 0L;
+    private int mChunkSize;
+    private int mChunkNum = 0;
     private int mChunkOffset = 0;
+    private boolean mRequestNextChunk = true;
 
     private boolean mIsClosed = false;
 
@@ -283,8 +283,8 @@ public class DownloadStream extends FileDownloadStream {
         if (mRequestNextChunk) {
             long offset = mDownloadOffset;
             long remaining = mDownloadLength - mDownloadOffset;
-            long count = remaining > mChunkSize ? mChunkSize : remaining;
-            mDownloadInputStream = requestNextChunk(offset, count);
+            long size = remaining > mChunkSize ? mChunkSize : remaining;
+            mDownloadInputStream = requestNextChunk(offset, size);
             mRequestNextChunk = false;
             mChunkNum++;
             mChunkOffset = 0;
@@ -314,9 +314,9 @@ public class DownloadStream extends FileDownloadStream {
         return true;
     }
 
-    private InputStream requestNextChunk(long offset, long count) throws DracoonNetIOException,
+    private InputStream requestNextChunk(long offset, long size) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
-        String range = "bytes=" + offset + "-" + (offset + count - 1);
+        String range = "bytes=" + offset + "-" + (offset + size - 1);
 
         okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(mDownloadUrl)
