@@ -7,4 +7,5 @@ public class ApiCreateFileUploadRequest {
     public Integer classification;
     public String notes;
     public ApiExpiration expiration;
+    public Boolean directS3Upload;
 }
