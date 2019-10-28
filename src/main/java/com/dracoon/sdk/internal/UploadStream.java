@@ -356,7 +356,9 @@ public class UploadStream extends FileUploadStream {
             apiExpiration.expireAt = mFileUploadRequest.getExpirationDate();
             request.expiration = apiExpiration;
         }
-        request.directS3Upload = mIsS3Upload;
+        if (mIsS3Upload) {
+            request.directS3Upload = mIsS3Upload;
+        }
 
         Call<ApiFileUpload> call = mRestService.createFileUpload(auth, request);
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, mThread);
