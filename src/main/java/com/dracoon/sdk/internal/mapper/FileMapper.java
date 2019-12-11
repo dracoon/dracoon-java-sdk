@@ -30,6 +30,10 @@ public class FileMapper extends BaseMapper {
     }
 
     public static ApiFileKey toApiFileKey(EncryptedFileKey encryptedFileKey) {
+        if (encryptedFileKey == null) {
+            return null;
+        }
+
         ApiFileKey apiFileKey = new ApiFileKey();
         apiFileKey.key = encryptedFileKey.getKey();
         apiFileKey.iv = encryptedFileKey.getIv();
@@ -39,6 +43,10 @@ public class FileMapper extends BaseMapper {
     }
 
     public static EncryptedFileKey fromApiFileKey(ApiFileKey apiFileKey) {
+        if (apiFileKey == null) {
+            return null;
+        }
+
         EncryptedFileKey encryptedFileKey = new EncryptedFileKey();
         encryptedFileKey.setKey(apiFileKey.key);
         encryptedFileKey.setIv(apiFileKey.iv);

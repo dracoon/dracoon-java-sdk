@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
+import com.dracoon.sdk.internal.model.ApiCompleteS3FileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
@@ -18,6 +19,9 @@ import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiS3FileUploadStatus;
+import com.dracoon.sdk.internal.model.ApiS3FileUploadUrlList;
+import com.dracoon.sdk.internal.model.ApiGetS3FileUploadUrlsRequest;
 import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
 import com.dracoon.sdk.internal.model.ApiServerTime;
@@ -157,6 +161,20 @@ public interface DracoonService {
     Call<ApiNode> completeFileUpload(@Header(AUTHORIZATION_HEADER) String token,
             @Path("upload_id") String uploadId,
             @Body ApiCompleteFileUploadRequest request);
+
+    @POST(API_PATH + "/nodes/files/uploads/{upload_id}/s3_urls")
+    Call<ApiS3FileUploadUrlList> getS3FileUploadUrls(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("upload_id") String uploadId,
+            @Body ApiGetS3FileUploadUrlsRequest request);
+
+    @PUT(API_PATH + "/nodes/files/uploads/{upload_id}/s3")
+    Call<Void> completeS3FileUpload(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("upload_id") String uploadId,
+            @Body ApiCompleteS3FileUploadRequest request);
+
+    @GET(API_PATH + "/nodes/files/uploads/{upload_id}")
+    Call<ApiS3FileUploadStatus> getS3FileUploadStatus(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("upload_id") String uploadId);
 
     @POST(API_PATH + "/nodes/files/{file_id}/downloads")
     Call<ApiDownloadToken> getDownloadToken(@Header(AUTHORIZATION_HEADER) String token,

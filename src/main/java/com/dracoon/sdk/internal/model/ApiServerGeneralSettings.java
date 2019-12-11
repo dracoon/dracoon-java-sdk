@@ -5,4 +5,5 @@ public class ApiServerGeneralSettings {
     public Boolean cryptoEnabled;
     public Boolean mediaServerEnabled;
     public Boolean weakPasswordEnabled;
+    public Boolean useS3Storage;
 }

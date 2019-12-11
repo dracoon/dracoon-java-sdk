@@ -89,6 +89,10 @@ public class ShareMapper extends BaseMapper {
     }
 
     public static byte[] fromApiDownloadShareQrCode(ApiDownloadShare apiDownloadShare) {
+        if (apiDownloadShare == null) {
+            return null;
+        }
+
         String qrCodeString = apiDownloadShare.dataUrl;
         if (qrCodeString == null || !qrCodeString.startsWith(QR_CODE_PREFIX)) {
             return null;
@@ -172,6 +176,10 @@ public class ShareMapper extends BaseMapper {
     }
 
     public static byte[] fromApiUploadShareQrCode(ApiUploadShare apiUploadShare) {
+        if (apiUploadShare == null) {
+            return null;
+        }
+
         String qrCodeString = apiUploadShare.dataUrl;
         if (qrCodeString == null || !qrCodeString.startsWith(QR_CODE_PREFIX)) {
             return null;
