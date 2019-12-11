@@ -426,6 +426,11 @@ public class DracoonErrorParser {
                 return DracoonApiCode.PERMISSION_CREATE_ERROR;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+            case GATEWAY_TIMEOUT:
+                if (errorCode == -90027)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case INSUFFICIENT_STORAGE:
                 if (errorCode == -40200)
                     return DracoonApiCode.SERVER_INSUFFICIENT_ROOM_QUOTA;
@@ -462,6 +467,11 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case INSUFFICIENT_STORAGE:
                 if (errorCode == -40200)
                     return DracoonApiCode.SERVER_INSUFFICIENT_ROOM_QUOTA;
@@ -488,11 +498,110 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
                 if (errorCode == -40010)
                     return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
                 else
                     return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseS3UploadGetUrlsError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -20501 || errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                else if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case GATEWAY_TIMEOUT:
+                if (errorCode == -90027)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case INSUFFICIENT_STORAGE:
+                if (errorCode == -40200)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_ROOM_QUOTA;
+                else if (errorCode == -90200)
+                    return DracoonApiCode.SERVER_INSUFFICIENT_CUSTOMER_QUOTA;
+                else
+                    return DracoonApiCode.SERVER_INSUFFICIENT_STORAGE;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseS3UploadCompleteError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -20501 || errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                else if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case CONFLICT:
+                if (errorCode == -40010)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
+                else
+                    return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+            case GATEWAY_TIMEOUT:
+                if (errorCode == -90027)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseS3UploadStatusError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -20501 || errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                else if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -888,6 +997,14 @@ public class DracoonErrorParser {
 
     // --- Methods to parse OkHttp error responses ---
 
+    public DracoonApiCode parseS3UploadError(okhttp3.Response response) {
+        int statusCode = response.code();
+
+        mLog.d(LOG_TAG, "S3 error: " + statusCode);
+
+        return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+    }
+
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
         int statusCode = response.code();
 
@@ -909,6 +1026,39 @@ public class DracoonErrorParser {
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+    }
+
+    // --- Methods to parse error response ---
+
+    public DracoonApiCode parseS3UploadStatusError(ApiErrorResponse errorResponse) {
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = errorResponse.code != null ? errorResponse.code : 0;
+        int errorCode = errorResponse.errorCode != null ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                return parseValidationError(errorCode);
+            case NOT_FOUND:
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            case CONFLICT:
+                if (errorCode == -40010)
+                    return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
+                else
+                    return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+            case GATEWAY_TIMEOUT:
+                if (errorCode == -90027)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
         }
     }
 

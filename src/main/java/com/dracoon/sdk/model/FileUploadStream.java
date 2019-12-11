@@ -9,11 +9,13 @@ import java.io.OutputStream;
 public abstract class FileUploadStream extends OutputStream {
 
     /**
-     * Marks the upload as completed. A completed upload stream cannot perform write operations and
-     * cannot be reopened.
+     * Completes an upload. A completed upload stream cannot perform write operations and cannot be
+     * reopened.
+     *
+     * @return the new node, or <code>null</code> if the completion was interrupted
      *
      * @throws IOException if an I/O error occurs.
      */
-    public abstract void complete() throws IOException;
+    public abstract Node complete() throws IOException;
 
 }

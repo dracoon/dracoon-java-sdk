@@ -41,17 +41,48 @@ public class OAuthHelper {
      * @return the authorization URL
      */
     public static String createAuthorizationUrl(URL serverUrl, String clientId, String state) {
+        return createAuthorizationUrlInternally(serverUrl, clientId, state, null);
+    }
+
+    /**
+     * Creates the authorization URL which must be open in the user's browser.
+     *
+     * @param serverUrl     The URL of the Dracoon server.
+     * @param clientId      The ID of the OAuth client.
+     * @param state         The state identifier which is used to track running authorizations.
+     * @param userAgentInfo The information about the application or device.
+     *
+     * @return the authorization URL
+     */
+    public static String createAuthorizationUrl(URL serverUrl, String clientId, String state,
+            String userAgentInfo) {
+        ValidatorUtils.validateString("User Agent Info", userAgentInfo, false);
+        return createAuthorizationUrlInternally(serverUrl, clientId, state, userAgentInfo);
+    }
+
+    private static String createAuthorizationUrlInternally(URL serverUrl, String clientId,
+            String state, String userAgentInfo) {
         ValidatorUtils.validateServerURL(serverUrl);
         ValidatorUtils.validateString("Client ID", clientId, false);
         ValidatorUtils.validateString("State", state, false);
 
-        String base = serverUrl + OAuthConstants.OAUTH_PATH + OAuthConstants.OAUTH_AUTHORIZE_PATH;
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(serverUrl)
+                .append(OAuthConstants.OAUTH_PATH)
+                .append(OAuthConstants.OAUTH_AUTHORIZE_PATH);
+        urlBuilder.append("?");
+        urlBuilder.append("response_type=")
+                .append(OAuthConstants.OAUTH_FLOW);
+        urlBuilder.append("&client_id=")
+                .append(clientId);
+        urlBuilder.append("&state=")
+                .append(state);
+        if (userAgentInfo != null) {
+            urlBuilder.append("&user_agent_info=")
+                    .append(userAgentInfo);
+        }
 
-        String query = "response_type=" + OAuthConstants.OAUTH_FLOW + "&"
-                + "client_id=" + clientId + "&"
-                + "state=" + state;
-
-        return base + "?" + query;
+        return urlBuilder.toString();
     }
 
     /**

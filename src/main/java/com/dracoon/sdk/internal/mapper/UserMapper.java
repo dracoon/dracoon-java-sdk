@@ -77,6 +77,10 @@ public class UserMapper extends BaseMapper {
     }
 
     public static ApiUserKeyPair toApiUserKeyPair(UserKeyPair userKeyPair) {
+        if (userKeyPair == null) {
+            return null;
+        }
+
         ApiUserKeyPair apiUserKeyPair = new ApiUserKeyPair();
         apiUserKeyPair.privateKeyContainer = toApiUserPrivateKey(userKeyPair.getUserPrivateKey());
         apiUserKeyPair.publicKeyContainer = toApiUserPublicKey(userKeyPair.getUserPublicKey());
@@ -84,6 +88,10 @@ public class UserMapper extends BaseMapper {
     }
 
     private static ApiUserPrivateKey toApiUserPrivateKey(UserPrivateKey userPrivateKey) {
+        if (userPrivateKey == null) {
+            return null;
+        }
+
         ApiUserPrivateKey apiUserPrivateKey = new ApiUserPrivateKey();
         apiUserPrivateKey.version = userPrivateKey.getVersion();
         apiUserPrivateKey.privateKey = userPrivateKey.getPrivateKey();
@@ -91,6 +99,10 @@ public class UserMapper extends BaseMapper {
     }
 
     private static ApiUserPublicKey toApiUserPublicKey(UserPublicKey userPublicKey) {
+        if (userPublicKey == null) {
+            return null;
+        }
+
         ApiUserPublicKey apiUserPublicKey = new ApiUserPublicKey();
         apiUserPublicKey.version = userPublicKey.getVersion();
         apiUserPublicKey.publicKey = userPublicKey.getPublicKey();
