@@ -96,7 +96,7 @@ The Unlimited Strength Jurisdiction Policy Files can be found here:
 - Java 7: https://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
 - Java 8: https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
 
-For Java 9, the Unlimited Strength Jurisdiction Policy Files are no longer needed.
+For Java 9 and above, the Unlimited Strength Jurisdiction Policy Files are no longer needed.
 (For more information see: https://stackoverflow.com/questions/1179672)
 
 ## Example
