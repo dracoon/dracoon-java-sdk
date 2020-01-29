@@ -12,8 +12,7 @@ public interface DracoonConstants {
     long DAY = 24 * HOUR;
 
     String API_PATH = "/api/v4";
-    String API_MIN_VERSION = "4.6.0";
-    String API_MIN_VERSION_DEFAULT_CLASSIFICATION = "4.9.0";
+    String API_MIN_VERSION = "4.12.0";
     String API_MIN_S3_DIRECT_UPLOAD = "4.15.0";
 
     String API_TIME_ZONE = "UTC";
