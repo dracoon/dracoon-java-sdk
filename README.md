@@ -19,7 +19,7 @@ Add this dependency to your pom.xml:
 <dependency>
     <groupId>com.dracoon</groupId>
     <artifactId>dracoon-sdk</artifactId>
-    <version>1.1.0-beta1</version>
+    <version>1.6.0-beta1</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@ Add this dependency to your pom.xml:
 
 Add this dependency to your build.gradle:
 ```groovy
-compile 'com.dracoon:dracoon-sdk:1.1.0-beta1'
+compile 'com.dracoon:dracoon-sdk:1.6.0-beta1'
 ```
 
 ##### JAR import
@@ -58,7 +58,7 @@ Add this dependency to your pom.xml:
 <dependency>
     <groupId>com.dracoon</groupId>
     <artifactId>dracoon-android-sdk</artifactId>
-    <version>1.1.0-beta1</version>
+    <version>1.6.0-beta1</version>
 </dependency>
 ```
 
@@ -66,7 +66,7 @@ Add this dependency to your pom.xml:
 
 Add this dependency to your build.gradle:
 ```groovy
-compile 'com.dracoon:dracoon-android-sdk:1.1.0-beta1'
+compile 'com.dracoon:dracoon-android-sdk:1.6.0-beta1'
 ```
 
 ##### JAR import
@@ -96,7 +96,7 @@ The Unlimited Strength Jurisdiction Policy Files can be found here:
 - Java 7: https://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
 - Java 8: https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
 
-For Java 9, the Unlimited Strength Jurisdiction Policy Files are no longer needed.
+For Java 9 and above, the Unlimited Strength Jurisdiction Policy Files are no longer needed.
 (For more information see: https://stackoverflow.com/questions/1179672)
 
 ## Example

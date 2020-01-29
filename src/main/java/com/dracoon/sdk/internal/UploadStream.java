@@ -340,11 +340,6 @@ public class UploadStream extends FileUploadStream {
         Integer classification = mFileUploadRequest.getClassification() != null ?
                 mFileUploadRequest.getClassification().getValue() : null;
 
-        if (classification == null && !mClient.isApiVersionGreaterEqual(
-                DracoonConstants.API_MIN_VERSION_DEFAULT_CLASSIFICATION)) {
-            classification = Classification.PUBLIC.getValue();
-        }
-
         ApiCreateFileUploadRequest request = new ApiCreateFileUploadRequest();
         request.parentId = mFileUploadRequest.getParentId();
         request.name = mFileUploadRequest.getName();
