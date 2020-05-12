@@ -34,6 +34,8 @@ public class DracoonClientImpl extends DracoonClient {
 
     private static final String LOG_TAG = DracoonClientImpl.class.getSimpleName();
 
+    private static final int HTTP_SOCKET_BUFFER_SIZE = 16 * DracoonConstants.KIB;
+
     private static final long AUTH_EXPIRE_TOLERANCE = 5 * DracoonConstants.SECOND;
 
     private static class UserAgentInterceptor implements Interceptor {
@@ -169,6 +171,7 @@ public class DracoonClientImpl extends DracoonClient {
         builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
         builder.writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS);
         builder.retryOnConnectionFailure(true);
+        builder.socketFactory(new BufferedSocketFactory(HTTP_SOCKET_BUFFER_SIZE));
         if (mHttpConfig.isProxyEnabled()) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
                     mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
