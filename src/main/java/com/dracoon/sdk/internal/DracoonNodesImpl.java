@@ -15,7 +15,7 @@ import java.util.Map;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.Crypto;
-import com.dracoon.sdk.crypto.CryptoException;
+import com.dracoon.sdk.crypto.error.CryptoException;
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserKeyPair;

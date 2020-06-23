@@ -47,11 +47,9 @@ public class FileMapper extends BaseMapper {
             return null;
         }
 
-        EncryptedFileKey encryptedFileKey = new EncryptedFileKey();
-        encryptedFileKey.setKey(apiFileKey.key);
-        encryptedFileKey.setIv(apiFileKey.iv);
+        EncryptedFileKey encryptedFileKey = new EncryptedFileKey(apiFileKey.version, apiFileKey.key,
+                apiFileKey.iv);
         encryptedFileKey.setTag(apiFileKey.tag);
-        encryptedFileKey.setVersion(apiFileKey.version);
         return encryptedFileKey;
     }
 

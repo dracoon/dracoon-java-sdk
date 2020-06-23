@@ -2,7 +2,7 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.Crypto;
-import com.dracoon.sdk.crypto.CryptoException;
+import com.dracoon.sdk.crypto.error.CryptoException;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;

@@ -7,8 +7,8 @@ import java.util.List;
 
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.crypto.Crypto;
-import com.dracoon.sdk.crypto.CryptoException;
-import com.dracoon.sdk.crypto.CryptoSystemException;
+import com.dracoon.sdk.crypto.error.CryptoException;
+import com.dracoon.sdk.crypto.error.CryptoSystemException;
 import com.dracoon.sdk.crypto.CryptoUtils;
 import com.dracoon.sdk.crypto.FileEncryptionCipher;
 import com.dracoon.sdk.crypto.model.EncryptedDataContainer;

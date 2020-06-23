@@ -1,10 +1,10 @@
 package com.dracoon.sdk.internal;
 
-import com.dracoon.sdk.crypto.BadFileException;
-import com.dracoon.sdk.crypto.CryptoSystemException;
-import com.dracoon.sdk.crypto.InvalidFileKeyException;
-import com.dracoon.sdk.crypto.InvalidKeyPairException;
-import com.dracoon.sdk.crypto.InvalidPasswordException;
+import com.dracoon.sdk.crypto.error.BadFileException;
+import com.dracoon.sdk.crypto.error.CryptoSystemException;
+import com.dracoon.sdk.crypto.error.InvalidFileKeyException;
+import com.dracoon.sdk.crypto.error.InvalidKeyPairException;
+import com.dracoon.sdk.crypto.error.InvalidPasswordException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 
 public class CryptoErrorParser {
