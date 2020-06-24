@@ -64,8 +64,7 @@ public interface DracoonService {
             @Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/config/info/defaults")
-    Call<ApiServerDefaults> getServerDefaults(
-            @Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiServerDefaults> getServerDefaults(@Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/user/ping")
     Call<Void> pingUser(@Header(AUTHORIZATION_HEADER) String token);
@@ -76,15 +75,20 @@ public interface DracoonService {
     @GET(API_PATH + "/user/account/customer")
     Call<ApiCustomerAccount> getCustomerAccount(@Header(AUTHORIZATION_HEADER) String token);
 
+    @GET(API_PATH + "/user/account/keypair")
+    Call<ApiUserKeyPair[]> getUserKeyPairs(@Header(AUTHORIZATION_HEADER) String token);
+
     @POST(API_PATH + "/user/account/keypair")
     Call<Void> setUserKeyPair(@Header(AUTHORIZATION_HEADER) String token,
             @Body ApiUserKeyPair request);
 
     @GET(API_PATH + "/user/account/keypair")
-    Call<ApiUserKeyPair> getUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiUserKeyPair> getUserKeyPair(@Header(AUTHORIZATION_HEADER) String token,
+            @Query("version") String version);
 
     @DELETE(API_PATH + "/user/account/keypair")
-    Call<Void> deleteUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
+    Call<Void> deleteUserKeyPair(@Header(AUTHORIZATION_HEADER) String token,
+            @Query("version") String version);
 
     @GET(API_PATH + "/nodes")
     Call<ApiNodeList> getNodes(@Header(AUTHORIZATION_HEADER) String token,

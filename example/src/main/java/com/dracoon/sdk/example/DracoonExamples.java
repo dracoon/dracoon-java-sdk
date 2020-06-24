@@ -29,6 +29,7 @@ import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
+import com.dracoon.sdk.model.CryptoAlgorithm;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.DownloadShare;
@@ -64,6 +65,8 @@ public class DracoonExamples {
 
     private static final String SERVER_URL = "https://dracoon.team";
     private static final String ACCESS_TOKEN = "access-token";
+
+    private static final String ENCRYPTION_VERSION = DracoonClient.CryptoVersions.A;
     private static final String ENCRYPTION_PASSWORD = "encryption-password";
 
     public static void main(String[] args) throws Exception {
@@ -78,16 +81,18 @@ public class DracoonExamples {
         //getServerData(client);
         //getServerSettings(client);
         //getServerDefaults(client);
+        //getServerAvailableCryptoAlgorithms(client);
 
         //checkAuth(client);
 
         //getUserAccount(client);
         //getCustomerAccount(client);
 
-        //setUserKeyPair(client);
-        //deleteUserKeyPair(client);
-        //checkUserKeyPairPassword(client);
-        //checkUserKeyPairPassword(client, ENCRYPTION_PASSWORD);
+        //getUserKeyPairCryptoVersions(client);
+        //setUserKeyPair(client, ENCRYPTION_VERSION);
+        //deleteUserKeyPair(client, ENCRYPTION_VERSION);
+        //checkUserKeyPairPassword(client, ENCRYPTION_VERSION);
+        //checkUserKeyPairPassword(client, ENCRYPTION_VERSION, ENCRYPTION_PASSWORD);
 
         //listNodes(client);
         //listNodesPaged(client);
@@ -110,7 +115,7 @@ public class DracoonExamples {
         //moveNodes(client);
 
         //uploadFile(client);
-        downloadFile(client);
+        //downloadFile(client);
         //uploadFileWithStream(client);
         //downloadFileWithStream(client);
 
@@ -136,8 +141,8 @@ public class DracoonExamples {
         //getUploadShareQrCode(client);
         //deleteUploadShare(client);
 
-        //generateMissingFileKeys(client);
-        //generateMissingFileKeysForOneNode(client);
+        //generateMissingFileKeys(client, ENCRYPTION_VERSION);
+        //generateMissingFileKeysForOneNode(client, ENCRYPTION_VERSION);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -169,6 +174,15 @@ public class DracoonExamples {
                 defaults.getFileExpirationPeriod());
     }
 
+    private static void getServerAvailableCryptoAlgorithms(DracoonClient client)
+            throws DracoonException {
+        List<CryptoAlgorithm> cryptoAlgorithms = client.server().settings()
+                .getAvailableCryptoAlgorithms();
+        System.out.println("Available crypto algorithms:");
+        cryptoAlgorithms.forEach(a -> System.out.printf("- %s (%s)", a.getVersion(),
+                a.getState().getValue()));
+    }
+
     private static void checkAuth(DracoonClient client) throws DracoonException {
         boolean isAuthValid = client.checkAuth();
         if (isAuthValid) {
@@ -198,22 +212,31 @@ public class DracoonExamples {
                 customerAccount.getSpaceLimit());
     }
 
-    private static void setUserKeyPair(DracoonClient client) throws DracoonException {
-        client.account().setUserKeyPair();
+    private static void getUserKeyPairCryptoVersions(DracoonClient client) throws DracoonException {
+        List<String> cryptoVersion = client.account().getUserKeyPairCryptoVersions();
+        System.out.println("User has key pairs for following crypto versions:");
+        cryptoVersion.forEach(v -> System.out.printf("- %s", v));
     }
 
-    private static void deleteUserKeyPair(DracoonClient client) throws DracoonException {
-        client.account().deleteUserKeyPair();
+    private static void setUserKeyPair(DracoonClient client, String cryptoVersion)
+            throws DracoonException {
+        client.account().setUserKeyPair(cryptoVersion);
     }
 
-    private static void checkUserKeyPairPassword(DracoonClient client) throws DracoonException {
-        boolean isPasswordValid = client.account().checkUserKeyPairPassword();
+    private static void deleteUserKeyPair(DracoonClient client, String cryptoVersion)
+            throws DracoonException {
+        client.account().deleteUserKeyPair(cryptoVersion);
+    }
+
+    private static void checkUserKeyPairPassword(DracoonClient client, String cryptoVersion)
+            throws DracoonException {
+        boolean isPasswordValid = client.account().checkUserKeyPairPassword(cryptoVersion);
         System.out.println("Valid encryption password: " + isPasswordValid);
     }
 
-    private static void checkUserKeyPairPassword(DracoonClient client, String password)
-            throws DracoonException {
-        boolean isPasswordValid = client.account().checkUserKeyPairPassword(password);
+    private static void checkUserKeyPairPassword(DracoonClient client, String cryptoVersion,
+            String password) throws DracoonException {
+        boolean isPasswordValid = client.account().checkUserKeyPairPassword(cryptoVersion, password);
         System.out.println("Valid encryption password: " + isPasswordValid);
     }
 
@@ -699,15 +722,16 @@ public class DracoonExamples {
         client.shares().deleteUploadShare(shareId);
     }
 
-    private static void generateMissingFileKeys(DracoonClient client) throws DracoonException {
-        client.nodes().generateMissingFileKeys(10);
+    private static void generateMissingFileKeys(DracoonClient client, String cryptoVersion)
+            throws DracoonException {
+        client.nodes().generateMissingFileKeys(cryptoVersion);
     }
 
-    private static void generateMissingFileKeysForOneNode(DracoonClient client)
+    private static void generateMissingFileKeysForOneNode(DracoonClient client, String cryptoVersion)
             throws DracoonException {
         long nodeId = 1L;
 
-        client.nodes().generateMissingFileKeys(nodeId, 10);
+        client.nodes().generateMissingFileKeys(cryptoVersion, nodeId, 10);
     }
 
 }

@@ -1,7 +1,11 @@
 package com.dracoon.sdk.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.Crypto;
+import com.dracoon.sdk.crypto.CryptoConstants;
 import com.dracoon.sdk.crypto.error.CryptoException;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
@@ -82,25 +86,36 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return CustomerMapper.fromApiCustomerAccount(data);
     }
 
-    public UserKeyPair generateUserKeyPair(String password) throws DracoonCryptoException {
-        try {
-            return Crypto.generateUserKeyPair(password);
-        } catch (CryptoException e) {
-            String errorText = String.format("Generation of user key pair failed! '%s'",
-                    e.getMessage());
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
-    }
-
     @Override
-    public void setUserKeyPair() throws DracoonCryptoException, DracoonNetIOException,
+    public List<String> getUserKeyPairCryptoVersions() throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String encryptionPassword = mClient.getEncryptionPassword();
-        UserKeyPair userKeyPair = generateUserKeyPair(encryptionPassword);
+        List<UserKeyPair> userKeyPairs = getUserKeyPairs();
+
+        ArrayList<String> cryptoVersions = new ArrayList<>();
+        for (UserKeyPair userKeyPair : userKeyPairs) {
+            switch (userKeyPair.getUserPrivateKey().getVersion()) {
+                case CryptoConstants.KeyPairVersions.A:
+                    cryptoVersions.add(DracoonClient.CryptoVersions.A);
+                    break;
+                case CryptoConstants.KeyPairVersions.RSA4096:
+                    cryptoVersions.add(DracoonClient.CryptoVersions.RSA4096_AES256GCM);
+                    break;
+                default:
+            }
+        }
+        return cryptoVersions;
+    }
+
+    @Override
+    public void setUserKeyPair(String cryptoVersion) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+        mClient.assertCryptoVersionSupported(cryptoVersion);
+
+        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        UserKeyPair userKeyPair = generateUserKeyPair(cryptoVersion, encryptionPassword);
 
         ApiUserKeyPair apiUserKeyPair = UserMapper.toApiUserKeyPair(userKeyPair);
 
@@ -117,11 +132,25 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    public UserKeyPair getAndCheckUserKeyPair() throws DracoonNetIOException, DracoonApiException,
-            DracoonCryptoException {
-        UserKeyPair userKeyPair = getUserKeyPair();
-        String encryptionPassword = mClient.getEncryptionPassword();
+    public UserKeyPair generateUserKeyPair(String cryptoVersion, String password)
+            throws DracoonCryptoException {
+        String keyPairVersion = mClient.getUserKeyPairVersion(cryptoVersion);
 
+        try {
+            return Crypto.generateUserKeyPair(keyPairVersion, password);
+        } catch (CryptoException e) {
+            String errorText = String.format("Generation of user key pair failed! '%s'",
+                    e.getMessage());
+            mLog.d(LOG_TAG, errorText);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
+        }
+    }
+
+    public UserKeyPair getAndCheckUserKeyPair(String cryptoVersion) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
+        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        UserKeyPair userKeyPair = getUserKeyPair(cryptoVersion);
         boolean isValid = checkUserKeyPairPassword(userKeyPair, encryptionPassword);
         if (!isValid) {
             throw new DracoonCryptoException(DracoonCryptoCode.INVALID_PASSWORD_ERROR);
@@ -130,11 +159,90 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return userKeyPair;
     }
 
-    private UserKeyPair getUserKeyPair() throws DracoonNetIOException, DracoonApiException {
+    @Override
+    public void deleteUserKeyPair(String cryptoVersion) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+        mClient.assertCryptoVersionSupported(cryptoVersion);
+
+        String keyPairVersion = mClient.getUserKeyPairVersion(cryptoVersion);
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.deleteUserKeyPair(auth, keyPairVersion);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairDeleteError(response);
+            String errorText = String.format("Deleting user key pair failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
+    public boolean checkUserKeyPairPassword(String cryptoVersion) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
+        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        UserKeyPair userKeyPair = getUserKeyPair(cryptoVersion);
+        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+    }
+
+    @Override
+    public boolean checkUserKeyPairPassword(String cryptoVersion, String encryptionPassword)
+            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        UserKeyPair userKeyPair = getUserKeyPair(cryptoVersion);
+        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+    }
+
+    private List<UserKeyPair> getUserKeyPairs() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
-        Call<ApiUserKeyPair> call = mService.getUserKeyPair(auth);
+
+        ApiUserKeyPair[] data = new ApiUserKeyPair[]{};
+        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
+            Call<ApiUserKeyPair> call = mService.getUserKeyPair(auth, null);
+            Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
+
+            if (!response.isSuccessful() && response.code() != HttpStatus.NOT_FOUND.getNumber()) {
+                DracoonApiCode errorCode = mErrorParser.parseUserKeyPairsQueryError(response);
+                String errorText = String.format("Query of user key pairs failed with '%s'!",
+                        errorCode.name());
+                mLog.d(LOG_TAG, errorText);
+                throw new DracoonApiException(errorCode);
+            }
+
+            if (response.isSuccessful()) {
+                data = new ApiUserKeyPair[]{response.body()};
+            }
+        } else {
+            Call<ApiUserKeyPair[]> call = mService.getUserKeyPairs(auth);
+            Response<ApiUserKeyPair[]> response = mHttpHelper.executeRequest(call);
+
+            if (!response.isSuccessful()) {
+                DracoonApiCode errorCode = mErrorParser.parseUserKeyPairsQueryError(response);
+                String errorText = String.format("Query of user key pairs failed with '%s'!",
+                        errorCode.name());
+                mLog.d(LOG_TAG, errorText);
+                throw new DracoonApiException(errorCode);
+            }
+
+            data = response.body();
+        }
+
+        return UserMapper.fromApiUserKeyPairs(data);
+    }
+
+    private UserKeyPair getUserKeyPair(String cryptoVersion) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+        mClient.assertCryptoVersionSupported(cryptoVersion);
+
+        String keyPairVersion = mClient.getUserKeyPairVersion(cryptoVersion);
+
+        String auth = mClient.buildAuthString();
+        Call<ApiUserKeyPair> call = mService.getUserKeyPair(auth, keyPairVersion);
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -148,38 +256,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         ApiUserKeyPair data = response.body();
 
         return UserMapper.fromApiUserKeyPair(data);
-    }
-
-    @Override
-    public void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.deleteUserKeyPair(auth);
-        Response<Void> response = mHttpHelper.executeRequest(call);
-
-        if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairDeleteError(response);
-            String errorText = String.format("Deleting user key pair failed with '%s'!",
-                    errorCode.name());
-            mLog.d(LOG_TAG, errorText);
-            throw new DracoonApiException(errorCode);
-        }
-    }
-
-    @Override
-    public boolean checkUserKeyPairPassword() throws DracoonNetIOException, DracoonApiException,
-            DracoonCryptoException {
-        UserKeyPair userKeyPair = getUserKeyPair();
-        String encryptionPassword = mClient.getEncryptionPassword();
-        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
-    }
-
-    @Override
-    public boolean checkUserKeyPairPassword(String encryptionPassword) throws DracoonNetIOException,
-            DracoonApiException, DracoonCryptoException {
-        UserKeyPair userKeyPair = getUserKeyPair();
-        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
     }
 
     private boolean checkUserKeyPairPassword(UserKeyPair userKeyPair, String encryptionPassword)

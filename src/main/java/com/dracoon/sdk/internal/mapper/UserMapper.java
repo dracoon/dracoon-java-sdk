@@ -109,6 +109,18 @@ public class UserMapper extends BaseMapper {
         return apiUserPublicKey;
     }
 
+    public static List<UserKeyPair> fromApiUserKeyPairs(ApiUserKeyPair[] apiUserKeyPairs) {
+        if (apiUserKeyPairs == null) {
+            return null;
+        }
+
+        ArrayList<UserKeyPair> userKeyPairs = new ArrayList<>();
+        for (ApiUserKeyPair apiUserKeyPair : apiUserKeyPairs) {
+            userKeyPairs.add(fromApiUserKeyPair(apiUserKeyPair));
+        }
+        return userKeyPairs;
+    }
+
     public static UserKeyPair fromApiUserKeyPair(ApiUserKeyPair apiUserKeyPair) {
         if (apiUserKeyPair == null) {
             return null;

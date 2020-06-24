@@ -48,17 +48,18 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         UserKeyPair userKeyPair = null;
         EncryptedFileKey userEncFileKey = null;
         if (isEncrypted) {
+            // TODO!!!: Get correct crypto version
             long nodeId = request.getNodeId();
 
-            UserKeyPair creatorKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair();
-            String creatorEncPw = mClient.getEncryptionPassword();
+            UserKeyPair creatorKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
+            String creatorEncPw = mClient.getEncryptionPasswordOrAbort();
             EncryptedFileKey creatorEncFileKey = mClient.getNodesImpl().getFileKey(nodeId);
 
             PlainFileKey plainFileKey = mClient.getNodesImpl().decryptFileKey(nodeId,
                     creatorEncFileKey, creatorKeyPair.getUserPrivateKey(), creatorEncPw);
 
             String userEncPw = request.getEncryptionPassword();
-            userKeyPair = mClient.getAccountImpl().generateUserKeyPair(userEncPw);
+            userKeyPair = mClient.getAccountImpl().generateUserKeyPair("A", userEncPw);
             userEncFileKey = mClient.getNodesImpl().encryptFileKey(nodeId, plainFileKey,
                     userKeyPair.getUserPublicKey());
         }

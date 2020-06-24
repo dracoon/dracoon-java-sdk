@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -12,12 +13,16 @@ import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.crypto.CryptoConstants;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoCode;
+import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.dracoon.sdk.internal.util.DateUtils;
+import com.dracoon.sdk.model.CryptoAlgorithm;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -94,6 +99,14 @@ public class DracoonClientImpl extends DracoonClient {
 
     public String getEncryptionPassword() {
         return mEncryptionPassword;
+    }
+
+    public String getEncryptionPasswordOrAbort() throws DracoonCryptoException {
+        String encryptionPassword = getEncryptionPassword();
+        if (encryptionPassword == null) {
+            throw new DracoonCryptoException(DracoonCryptoCode.MISSING_PASSWORD_ERROR);
+        }
+        return encryptionPassword;
     }
 
     public void setEncryptionPassword(String encryptionPassword) {
@@ -245,6 +258,53 @@ public class DracoonClientImpl extends DracoonClient {
         }
 
         mApiVersion = apiVersion;
+    }
+
+    public void assertCryptoVersionSupported(final String version) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
+        if (version == null) {
+            throw new IllegalArgumentException("Version can't be null.");
+        }
+
+        if (!version.equals(CryptoVersions.A) && !version.equals(CryptoVersions.RSA4096_AES256GCM)) {
+            throw new DracoonCryptoException(DracoonCryptoCode.UNSUPPORTED_VERSION_ERROR);
+        }
+
+        if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
+            if (!version.equals(CryptoVersions.A)) {
+                throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
+            }
+            return;
+        }
+
+        List<CryptoAlgorithm> apiCryptoVersions = mServer.settings().getAvailableCryptoAlgorithms();
+        boolean apiSupportsVersion = apiCryptoVersions.stream().anyMatch(v -> v.getVersion().equals(
+                version));
+        if (!apiSupportsVersion) {
+            throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
+        }
+    }
+
+    public String getUserKeyPairVersion(String cryptoVersion) {
+        switch (cryptoVersion) {
+            case CryptoVersions.A:
+                return CryptoConstants.KeyPairVersions.A;
+            case CryptoVersions.RSA4096_AES256GCM:
+                return CryptoConstants.KeyPairVersions.RSA4096;
+            default:
+                return "";
+        }
+    }
+
+    public String getFileKeyVersion(String cryptoVersion) {
+        switch (cryptoVersion) {
+            case CryptoVersions.A:
+                return CryptoConstants.FileKeyVersions.A;
+            case CryptoVersions.RSA4096_AES256GCM:
+                return CryptoConstants.FileKeyVersions.RSA4096_AES256GCM;
+            default:
+                return "";
+        }
     }
 
     public boolean isApiVersionGreaterEqual(String minApiVersion)

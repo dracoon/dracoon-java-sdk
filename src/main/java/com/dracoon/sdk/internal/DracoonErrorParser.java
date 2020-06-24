@@ -76,6 +76,18 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseUserKeyPairsQueryError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        return parseStandardError(statusCode, errorCode);
+    }
+
     public DracoonApiCode parseUserKeyPairQueryError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
