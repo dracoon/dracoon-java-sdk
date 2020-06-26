@@ -717,43 +717,21 @@ public abstract class DracoonClient {
                 long offset, long limit) throws DracoonNetIOException, DracoonApiException;
 
         /**
-         * Generates file keys for files with missing file keys.
-         *
-         * @param cryptoVersion The crypto version for which to generates file keys.
-         *
-         * @throws DracoonNetIOException  If a network error occurred.
-         * @throws DracoonApiException    If the API responded with an error.
-         * @throws DracoonCryptoException If a encryption/decryption failed.
-         */
-        void generateMissingFileKeys(String cryptoVersion) throws DracoonNetIOException,
-                DracoonApiException, DracoonCryptoException;
-
-        /**
          * Generates file keys for files with missing file keys. The argument {@code limit}
          * restricts the generation to a certain number.
          *
          * @param cryptoVersion The crypto version for which to generates file keys.
          * @param limit         The number limit. (Number of records; must be positive.)
          *
-         * @throws DracoonNetIOException  If a network error occurred.
-         * @throws DracoonApiException    If the API responded with an error.
-         * @throws DracoonCryptoException If a encryption/decryption failed.
-         */
-        void generateMissingFileKeys(String cryptoVersion, int limit) throws DracoonNetIOException,
-                DracoonApiException, DracoonCryptoException;
-
-        /**
-         * Generates file keys for a file with missing file keys.
-         *
-         * @param cryptoVersion The crypto version for which to generates file keys.
-         * @param nodeId        The node ID of the file.
+         * @return <code>true</code> if all file keys have been generated and no file keys are
+         *         missing anymore; <code>false</code> otherwise
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If a encryption/decryption failed.
          */
-        void generateMissingFileKeys(String cryptoVersion, long nodeId) throws DracoonNetIOException,
-                DracoonApiException, DracoonCryptoException;
+        boolean generateMissingFileKeys(String cryptoVersion, int limit)
+                throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
 
         /**
          * Generates file keys for files with missing file keys. The argument {@code limit}
@@ -763,11 +741,14 @@ public abstract class DracoonClient {
          * @param nodeId        The node ID of the file.
          * @param limit         The number limit. (Number of records; must be positive.)
          *
+         * @return <code>true</code> if all file keys have been generated and no file keys are
+         *         missing anymore; <code>false</code> otherwise
+         *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If a encryption/decryption failed.
          */
-        void generateMissingFileKeys(String cryptoVersion, long nodeId, int limit)
+        boolean generateMissingFileKeys(String cryptoVersion, long nodeId, int limit)
                 throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
 
         /**

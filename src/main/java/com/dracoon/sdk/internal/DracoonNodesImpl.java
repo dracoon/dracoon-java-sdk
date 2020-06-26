@@ -800,31 +800,19 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     // --- File key generation methods ---
 
     @Override
-    public void generateMissingFileKeys(String cryptoVersion) throws DracoonNetIOException,
-            DracoonApiException, DracoonCryptoException {
-        generateMissingFileKeysInternally(cryptoVersion, null, null);
-    }
-
-    @Override
-    public void generateMissingFileKeys(String cryptoVersion, int limit) throws DracoonNetIOException,
-            DracoonApiException, DracoonCryptoException {
-        generateMissingFileKeysInternally(cryptoVersion, null, limit);
-    }
-
-    @Override
-    public void generateMissingFileKeys(String cryptoVersion, long nodeId) throws DracoonNetIOException,
-            DracoonApiException, DracoonCryptoException {
-        generateMissingFileKeysInternally(cryptoVersion, nodeId, null);
-    }
-
-    @Override
-    public void generateMissingFileKeys(String cryptoVersion, long nodeId, int limit)
+    public boolean generateMissingFileKeys(String cryptoVersion, int limit)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        generateMissingFileKeysInternally(cryptoVersion, nodeId, limit);
+        return generateMissingFileKeysInternally(cryptoVersion, null, limit);
     }
 
-    private void generateMissingFileKeysInternally(String cryptoVersion, Long nodeId, Integer limit)
+    @Override
+    public boolean generateMissingFileKeys(String cryptoVersion, long nodeId, int limit)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        return generateMissingFileKeysInternally(cryptoVersion, nodeId, limit);
+    }
+
+    private boolean generateMissingFileKeysInternally(String cryptoVersion, Long nodeId,
+            Integer limit) throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         mClient.assertApiVersionSupported();
         mClient.assertCryptoVersionSupported(cryptoVersion);
 
@@ -843,14 +831,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                 break;
             }
         }
+        return isFinished;
     }
 
     private boolean generateMissingFileKeysBatch(String cryptoVersion, Long nodeId, Long offset,
             Long limit, UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        // TODO!!!: Rework logic to generate file keys only for provided crypto version
-
-        ApiMissingFileKeys apiMissingFileKeys = getMissingFileKeysBatch(nodeId, offset, limit);
+        ApiMissingFileKeys apiMissingFileKeys = getMissingFileKeysBatch(cryptoVersion, nodeId,
+                offset, limit);
         if (apiMissingFileKeys.items.isEmpty()) {
             return true;
         }
@@ -885,11 +873,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return false;
     }
 
-    private ApiMissingFileKeys getMissingFileKeysBatch(Long nodeId, Long offset, Long limit)
-            throws DracoonNetIOException, DracoonApiException {
+    private ApiMissingFileKeys getMissingFileKeysBatch(String cryptoVersion, Long nodeId,
+            Long offset, Long limit) throws DracoonNetIOException, DracoonApiException {
+        String fileKeyVersion = mClient.getFileKeyVersion(cryptoVersion);
+
         String auth = mClient.buildAuthString();
-        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(auth, nodeId, offset,
-                limit);
+        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(auth, fileKeyVersion, nodeId,
+                offset, limit);
         Response<ApiMissingFileKeys> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

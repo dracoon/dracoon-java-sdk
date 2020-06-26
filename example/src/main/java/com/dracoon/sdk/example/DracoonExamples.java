@@ -724,14 +724,16 @@ public class DracoonExamples {
 
     private static void generateMissingFileKeys(DracoonClient client, String cryptoVersion)
             throws DracoonException {
-        client.nodes().generateMissingFileKeys(cryptoVersion);
+        boolean finished = client.nodes().generateMissingFileKeys(cryptoVersion, 10);
+        System.out.println("All missing file keys have been created: " + finished);
     }
 
     private static void generateMissingFileKeysForOneNode(DracoonClient client, String cryptoVersion)
             throws DracoonException {
         long nodeId = 1L;
 
-        client.nodes().generateMissingFileKeys(cryptoVersion, nodeId, 10);
+        boolean finished = client.nodes().generateMissingFileKeys(cryptoVersion, nodeId, 10);
+        System.out.println("All missing file keys have been created: " + finished);
     }
 
 }
