@@ -41,39 +41,35 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
-        boolean isEncrypted = mClient.getNodesImpl().isNodeEncrypted(request.getNodeId());
+        long nodeId = request.getNodeId();
+
+        boolean isEncrypted = mClient.getNodesImpl().isNodeEncrypted(nodeId);
 
         ShareValidator.validateCreateDownloadRequest(request, isEncrypted);
 
         UserKeyPair userKeyPair = null;
-        EncryptedFileKey userEncFileKey = null;
+        EncryptedFileKey encryptedFileKey = null;
         if (isEncrypted) {
-            // TODO!!!: Get correct crypto version
-            long nodeId = request.getNodeId();
+            PlainFileKey plainFileKey = getDownloadSharePlainFileKey(nodeId);
 
-            UserKeyPair creatorKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
-            String creatorEncPw = mClient.getEncryptionPasswordOrAbort();
-            EncryptedFileKey creatorEncFileKey = mClient.getNodesImpl().getFileKey(nodeId);
-
-            PlainFileKey plainFileKey = mClient.getNodesImpl().decryptFileKey(nodeId,
-                    creatorEncFileKey, creatorKeyPair.getUserPrivateKey(), creatorEncPw);
+            String cryptoVersion = mClient.getNodesImpl().getFileKeyCryptoVersion(plainFileKey);
 
             String userEncPw = request.getEncryptionPassword();
-            userKeyPair = mClient.getAccountImpl().generateUserKeyPair("A", userEncPw);
-            userEncFileKey = mClient.getNodesImpl().encryptFileKey(nodeId, plainFileKey,
+            userKeyPair = mClient.getAccountImpl().generateUserKeyPair(cryptoVersion, userEncPw);
+            encryptedFileKey = mClient.getNodesImpl().encryptFileKey(nodeId, plainFileKey,
                     userKeyPair.getUserPublicKey());
         }
 
         String auth = mClient.buildAuthString();
         ApiCreateDownloadShareRequest apiRequest = ShareMapper.toApiCreateDownloadShareRequest(
-                request, userKeyPair, userEncFileKey);
+                request, userKeyPair, encryptedFileKey);
         Call<ApiDownloadShare> call = mService.createDownloadShare(auth, apiRequest);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseDownloadShareCreateError(response);
             String errorText = String.format("Creation of download share for node '%d' failed " +
-                    "with '%s'!", request.getNodeId(), errorCode.name());
+                    "with '%s'!", nodeId, errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -81,6 +77,19 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         ApiDownloadShare data = response.body();
 
         return ShareMapper.fromApiDownloadShare(data);
+    }
+
+    private PlainFileKey getDownloadSharePlainFileKey(long nodeId) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
+        String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
+
+        EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().getFileKey(nodeId);
+
+        String version = mClient.getNodesImpl().getFileKeyCryptoVersion(encryptedFileKey);
+
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(version);
+        return mClient.getNodesImpl().decryptFileKey(nodeId, encryptedFileKey,
+                userKeyPair.getUserPrivateKey(),  userPrivateKeyPassword);
     }
 
     @Override

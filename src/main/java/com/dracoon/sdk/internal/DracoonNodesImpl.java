@@ -437,16 +437,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     private Node uploadFileInternally(String id, FileUploadRequest request, InputStream is,
             long length, boolean close, FileUploadCallback callback) throws DracoonFileIOException,
             DracoonCryptoException, DracoonNetIOException, DracoonApiException {
-        boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
-
-        UserPublicKey userPublicKey = null;
-        PlainFileKey plainFileKey = null;
-        if (isEncryptedUpload) {
-            // TODO!!!: Get correct crypto version
-            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
-            userPublicKey = userKeyPair.getUserPublicKey();
-            plainFileKey = createFileKey(userPublicKey.getVersion());
-        }
+        UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
+        PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
         UploadThread uploadThread = new UploadThread(mClient, id, request, length, userPublicKey,
                 plainFileKey, is);
@@ -491,16 +483,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             final InputStream is, long length, final boolean close, FileUploadCallback callback)
             throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
-
-        UserPublicKey userPublicKey = null;
-        PlainFileKey plainFileKey = null;
-        if (isEncryptedUpload) {
-            // TODO!!!: Get correct crypto version
-            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
-            userPublicKey = userKeyPair.getUserPublicKey();
-            plainFileKey = createFileKey(userPublicKey.getVersion());
-        }
+        UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
+        PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
         FileUploadCallback internalCallback = new FileUploadCallback() {
             @Override
@@ -563,16 +547,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateUploadRequest(request);
 
-        boolean isEncryptedUpload = isNodeEncrypted(request.getParentId());
-
-        UserPublicKey userPublicKey = null;
-        PlainFileKey plainFileKey = null;
-        if (isEncryptedUpload) {
-            // TODO!!!: Get correct crypto version
-            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
-            userPublicKey = userKeyPair.getUserPublicKey();
-            plainFileKey = createFileKey(userPublicKey.getVersion());
-        }
+        UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
+        PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
         UploadStream uploadStream = new UploadStream(mClient, id, request, length, userPublicKey,
                 plainFileKey);
@@ -584,6 +560,25 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         uploadStream.start();
 
         return uploadStream;
+    }
+
+    private UserPublicKey getUploadUserPublicKey(long parentNodeId) throws DracoonNetIOException,
+            DracoonApiException{
+        boolean isEncryptedUpload = isNodeEncrypted(parentNodeId);
+        if (!isEncryptedUpload) {
+            return null;
+        }
+
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getPreferredUserKeyPair();
+        return userKeyPair.getUserPublicKey();
+    }
+
+    private PlainFileKey createUploadFileKey(UserPublicKey userPublicKey)
+            throws DracoonCryptoException {
+        if (userPublicKey == null) {
+            return null;
+        }
+        return createFileKey(userPublicKey.getVersion());
     }
 
     // --- File download methods ---
@@ -615,18 +610,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     private void downloadFileInternally(String id, long nodeId, OutputStream os, boolean close,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException, DracoonFileIOException {
-        boolean isEncryptedDownload = isNodeEncrypted(nodeId);
-
-        PlainFileKey plainFileKey = null;
-        if (isEncryptedDownload) {
-            // TODO!!!: Get correct crypto version
-            String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
-            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
-            UserPrivateKey userPrivateKey = userKeyPair.getUserPrivateKey();
-            EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
-            plainFileKey = decryptFileKey(nodeId, encryptedFileKey, userPrivateKey,
-                    userPrivateKeyPassword);
-        }
+        PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
         DownloadThread downloadThread = new DownloadThread(mClient, id, nodeId, plainFileKey, os);
         if (callback != null) {
@@ -667,18 +651,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     private void startDownloadFileAsyncInternally(String id, long nodeId, final OutputStream os,
             final boolean close, FileDownloadCallback callback) throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
-        boolean isEncryptedDownload = isNodeEncrypted(nodeId);
-
-        PlainFileKey plainFileKey = null;
-        if (isEncryptedDownload) {
-            // TODO!!!: Get correct crypto version
-            String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
-            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
-            UserPrivateKey userPrivateKey = userKeyPair.getUserPrivateKey();
-            EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
-            plainFileKey = decryptFileKey(nodeId, encryptedFileKey, userPrivateKey,
-                    userPrivateKeyPassword);
-        }
+        PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
         FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
             @Override
@@ -740,18 +713,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
-        boolean isEncryptedDownload = isNodeEncrypted(nodeId);
-
-        PlainFileKey plainFileKey = null;
-        if (isEncryptedDownload) {
-            // TODO!!!: Get correct crypto version
-            String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
-            UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair("A");
-            UserPrivateKey userPrivateKey = userKeyPair.getUserPrivateKey();
-            EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
-            plainFileKey = decryptFileKey(nodeId, encryptedFileKey, userPrivateKey,
-                    userPrivateKeyPassword);
-        }
+        PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
         DownloadStream downloadStream = new DownloadStream(mClient, id, nodeId, plainFileKey);
 
@@ -762,6 +724,24 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         downloadStream.start();
 
         return downloadStream;
+    }
+
+    private PlainFileKey getDownloadFileKey(long nodeId) throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException{
+        boolean isEncryptedDownload = isNodeEncrypted(nodeId);
+        if (!isEncryptedDownload) {
+            return null;
+        }
+
+        String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
+
+        EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
+
+        String cryptoVersion = getFileKeyCryptoVersion(encryptedFileKey);
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(cryptoVersion);
+
+        return decryptFileKey(nodeId, encryptedFileKey, userKeyPair.getUserPrivateKey(),
+                userPrivateKeyPassword);
     }
 
     // --- Search methods ---
@@ -1005,6 +985,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         ApiFileKey data = response.body();
 
         return FileMapper.fromApiFileKey(data);
+    }
+
+    public String getFileKeyCryptoVersion(PlainFileKey plainFileKey) {
+        return plainFileKey.getVersion();
+    }
+
+    public String getFileKeyCryptoVersion(EncryptedFileKey encryptedFileKey) {
+        return encryptedFileKey.getVersion();
     }
 
     public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encryptedFileKeyFileKey,
