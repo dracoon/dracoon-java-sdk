@@ -1,6 +1,6 @@
 package com.dracoon.sdk.internal;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,8 +9,10 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.mapper.ServerMapper;
+import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
+import com.dracoon.sdk.internal.model.ApiUserKeyPairAlgorithm;
 import com.dracoon.sdk.model.CryptoAlgorithm;
 import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
@@ -81,16 +83,36 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             return Collections.singletonList(cryptoAlgorithm);
         }
 
-        // TODO!!!: Replace when an API is available
-        // TODO!!!: Ensure this list is sorted
-        CryptoAlgorithm cryptoAlgorithm1 = new CryptoAlgorithm();
-        cryptoAlgorithm1.setVersion(DracoonClient.CryptoVersions.RSA4096_AES256GCM);
-        cryptoAlgorithm1.setState(CryptoAlgorithm.State.REQUIRED);
-        CryptoAlgorithm cryptoAlgorithm2 = new CryptoAlgorithm();
-        cryptoAlgorithm2.setVersion(DracoonClient.CryptoVersions.A);
-        cryptoAlgorithm2.setState(CryptoAlgorithm.State.DISCOURAGED);
-        List<CryptoAlgorithm> cryptoAlgorithms = Arrays.asList(cryptoAlgorithm1, cryptoAlgorithm2);
+        String auth = mClient.buildAuthString();
+        Call<ApiServerCryptoAlgorithms> call = mService.getServerCryptoAlgorithms(auth);
+        Response<ApiServerCryptoAlgorithms> response = mHttpHelper.executeRequest(call);
 
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            String errorText = String.format("Query of server crypto algorithms failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiServerCryptoAlgorithms apiCryptoAlgorithms = response.body();
+        if (apiCryptoAlgorithms == null || apiCryptoAlgorithms.keyPairAlgorithms == null) {
+            return new ArrayList<>();
+        }
+
+        List<CryptoAlgorithm> cryptoAlgorithms = new ArrayList<>();
+        for (ApiUserKeyPairAlgorithm apiUserKeyPairAlgorithm : apiCryptoAlgorithms.keyPairAlgorithms) {
+            String version = apiUserKeyPairAlgorithm.version;
+            CryptoAlgorithm.State state = CryptoAlgorithm.State.getByValue(
+                    apiUserKeyPairAlgorithm.status);
+            if (state == null) {
+                state = CryptoAlgorithm.State.DISCOURAGED;
+            }
+            CryptoAlgorithm cryptoAlgorithm = new CryptoAlgorithm();
+            cryptoAlgorithm.setVersion(version);
+            cryptoAlgorithm.setState(state);
+            cryptoAlgorithms.add(cryptoAlgorithm);
+        }
         return cryptoAlgorithms;
     }
 

@@ -8,6 +8,7 @@ import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
+import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadShare;
@@ -65,6 +66,10 @@ public interface DracoonService {
 
     @GET(API_PATH + "/config/info/defaults")
     Call<ApiServerDefaults> getServerDefaults(@Header(AUTHORIZATION_HEADER) String token);
+
+    @GET(API_PATH + "/config/info/policies/algorithms")
+    Call<ApiServerCryptoAlgorithms> getServerCryptoAlgorithms(
+            @Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/user/ping")
     Call<Void> pingUser(@Header(AUTHORIZATION_HEADER) String token);
