@@ -13,7 +13,9 @@ import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.crypto.CryptoConstants;
+import com.dracoon.sdk.crypto.model.EncryptedFileKey;
+import com.dracoon.sdk.crypto.model.PlainFileKey;
+import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
@@ -22,7 +24,7 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.dracoon.sdk.internal.util.DateUtils;
-import com.dracoon.sdk.model.CryptoAlgorithm;
+import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -260,50 +262,82 @@ public class DracoonClientImpl extends DracoonClient {
         mApiVersion = apiVersion;
     }
 
-    public void assertCryptoVersionSupported(final String version) throws DracoonCryptoException,
-            DracoonNetIOException, DracoonApiException {
+    public void assertUserKeyPairVersionSupported(UserKeyPair.Version version)
+            throws DracoonNetIOException, DracoonApiException {
         if (version == null) {
             throw new IllegalArgumentException("Version can't be null.");
         }
 
-        if (!version.equals(CryptoVersions.A) && !version.equals(CryptoVersions.RSA4096_AES256GCM)) {
-            throw new DracoonCryptoException(DracoonCryptoCode.UNSUPPORTED_VERSION_ERROR);
-        }
-
         if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            if (!version.equals(CryptoVersions.A)) {
+            if (version != UserKeyPair.Version.RSA2048) {
                 throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
             }
             return;
         }
 
-        List<CryptoAlgorithm> apiCryptoVersions = mServer.settings().getAvailableCryptoAlgorithms();
-        boolean apiSupportsVersion = apiCryptoVersions.stream().anyMatch(v -> v.getVersion().equals(
-                version));
+        List<UserKeyPair.Version> versions = getServerSettingsImpl().getAvailableUserKeyPairVersions();
+        boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
         if (!apiSupportsVersion) {
             throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
         }
     }
 
-    public String getUserKeyPairVersion(String cryptoVersion) {
-        switch (cryptoVersion) {
-            case CryptoVersions.A:
-                return CryptoConstants.KeyPairVersions.A;
-            case CryptoVersions.RSA4096_AES256GCM:
-                return CryptoConstants.KeyPairVersions.RSA4096;
+    public static UserKeyPair.Version toUserKeyPairVersion(UserKeyPairAlgorithm.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+                return UserKeyPair.Version.RSA2048;
+            case RSA4096:
+                return UserKeyPair.Version.RSA4096;
             default:
-                return "";
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
         }
     }
 
-    public String getFileKeyVersion(String cryptoVersion) {
-        switch (cryptoVersion) {
-            case CryptoVersions.A:
-                return CryptoConstants.FileKeyVersions.A;
-            case CryptoVersions.RSA4096_AES256GCM:
-                return CryptoConstants.FileKeyVersions.RSA4096_AES256GCM;
+    public static UserKeyPairAlgorithm.Version fromUserKeyPairVersion(UserKeyPair.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+                return UserKeyPairAlgorithm.Version.RSA2048;
+            case RSA4096:
+                return UserKeyPairAlgorithm.Version.RSA4096;
             default:
-                return "";
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
+    public static UserKeyPair.Version determineUserKeyPairVersion(EncryptedFileKey.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048_AES256GCM:
+                return UserKeyPair.Version.RSA2048;
+            case RSA4096_AES256GCM:
+                return UserKeyPair.Version.RSA4096;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
+    public static EncryptedFileKey.Version determineEncryptedFileKeyVersion(
+            UserKeyPair.Version version) throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+                return EncryptedFileKey.Version.RSA2048_AES256GCM;
+            case RSA4096:
+                return EncryptedFileKey.Version.RSA4096_AES256GCM;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
+    public static PlainFileKey.Version determinePlainFileKeyVersion(UserKeyPair.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+            case RSA4096:
+                return PlainFileKey.Version.AES256GCM;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
         }
     }
 
@@ -388,6 +422,10 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonServerImpl getServerImpl() {
         return mServer;
+    }
+
+    public DracoonServerSettingsImpl getServerSettingsImpl() {
+        return mServer.getServerSettingsImpl();
     }
 
     public DracoonAccountImpl getAccountImpl() {

@@ -6,13 +6,15 @@ package com.dracoon.sdk.error;
 @SuppressWarnings("unused")
 public enum DracoonCryptoCode {
 
-    UNSUPPORTED_VERSION_ERROR(-1, "The provided crypto version is not supported."),
-    MISSING_PASSWORD_ERROR(-2, "No password has been provided."),
-    INVALID_PASSWORD_ERROR(-3, "The provided password is invalid."),
-    BAD_FILE_ERROR(-4, "The file integrity check failed. It may have been modified."),
+    MISSING_PASSWORD_ERROR(-1, "No password has been provided."),
+    INVALID_PASSWORD_ERROR(-2, "The provided password is invalid."),
+    BAD_FILE_ERROR(-3, "The file integrity check failed. It may have been modified."),
 
-    INTERNAL_ERROR(-5, "A internal error occurred."),
-    SYSTEM_ERROR(-6, "A system error occurred."),
+    UNKNOWN_ALGORITHM_VERSION_ERROR(-4, "The crypto algorithm version of a user key pair or a " +
+            "file key is unknown."),
+    INVALID_KEY_ERROR(-5, "A user key pair or a file key is invalid."),
+
+    INTERNAL_ERROR(-6, "A internal error occurred."),
     UNKNOWN_ERROR(-7, "A unknown error occurred.");
 
     private final int mNumber;

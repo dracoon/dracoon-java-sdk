@@ -47,22 +47,25 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ShareValidator.validateCreateDownloadRequest(request, isEncrypted);
 
-        UserKeyPair userKeyPair = null;
-        EncryptedFileKey encryptedFileKey = null;
+        UserKeyPair shareUserKeyPair = null;
+        EncryptedFileKey shareEncryptedFileKey = null;
         if (isEncrypted) {
             PlainFileKey plainFileKey = getDownloadSharePlainFileKey(nodeId);
 
-            String cryptoVersion = mClient.getNodesImpl().getFileKeyCryptoVersion(plainFileKey);
+            UserKeyPair.Version userKeyPairVersion = mClient.getServerSettingsImpl()
+                    .getPreferredUserKeyPairVersion();
 
             String userEncPw = request.getEncryptionPassword();
-            userKeyPair = mClient.getAccountImpl().generateUserKeyPair(cryptoVersion, userEncPw);
-            encryptedFileKey = mClient.getNodesImpl().encryptFileKey(nodeId, plainFileKey,
-                    userKeyPair.getUserPublicKey());
+            shareUserKeyPair = mClient.getAccountImpl().generateUserKeyPair(userKeyPairVersion,
+                    userEncPw);
+
+            shareEncryptedFileKey = mClient.getNodesImpl().encryptFileKey(nodeId, plainFileKey,
+                    shareUserKeyPair.getUserPublicKey());
         }
 
         String auth = mClient.buildAuthString();
         ApiCreateDownloadShareRequest apiRequest = ShareMapper.toApiCreateDownloadShareRequest(
-                request, userKeyPair, encryptedFileKey);
+                request, shareUserKeyPair, shareEncryptedFileKey);
         Call<ApiDownloadShare> call = mService.createDownloadShare(auth, apiRequest);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
@@ -79,15 +82,16 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         return ShareMapper.fromApiDownloadShare(data);
     }
 
-    private PlainFileKey getDownloadSharePlainFileKey(long nodeId) throws DracoonNetIOException,
-            DracoonApiException, DracoonCryptoException {
+    private PlainFileKey getDownloadSharePlainFileKey(long nodeId) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
         String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
         EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().getFileKey(nodeId);
 
-        String version = mClient.getNodesImpl().getFileKeyCryptoVersion(encryptedFileKey);
+        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
+                encryptedFileKey.getVersion());
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(userKeyPairVersion);
 
-        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(version);
         return mClient.getNodesImpl().decryptFileKey(nodeId, encryptedFileKey,
                 userKeyPair.getUserPrivateKey(),  userPrivateKeyPassword);
     }

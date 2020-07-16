@@ -3,6 +3,7 @@ package com.dracoon.sdk.internal.mapper;
 import java.util.Date;
 
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
+import com.dracoon.sdk.crypto.error.UnknownVersionException;
 import com.dracoon.sdk.internal.model.ApiExpiration;
 import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
@@ -38,16 +39,19 @@ public class FileMapper extends BaseMapper {
         apiFileKey.key = encryptedFileKey.getKey();
         apiFileKey.iv = encryptedFileKey.getIv();
         apiFileKey.tag = encryptedFileKey.getTag();
-        apiFileKey.version = encryptedFileKey.getVersion();
+        apiFileKey.version = encryptedFileKey.getVersion().getValue();
         return apiFileKey;
     }
 
-    public static EncryptedFileKey fromApiFileKey(ApiFileKey apiFileKey) {
+    public static EncryptedFileKey fromApiFileKey(ApiFileKey apiFileKey)
+            throws UnknownVersionException {
         if (apiFileKey == null) {
             return null;
         }
 
-        EncryptedFileKey encryptedFileKey = new EncryptedFileKey(apiFileKey.version, apiFileKey.key,
+        EncryptedFileKey.Version version = EncryptedFileKey.Version.getByValue(apiFileKey.version);
+
+        EncryptedFileKey encryptedFileKey = new EncryptedFileKey(version, apiFileKey.key,
                 apiFileKey.iv);
         encryptedFileKey.setTag(apiFileKey.tag);
         return encryptedFileKey;

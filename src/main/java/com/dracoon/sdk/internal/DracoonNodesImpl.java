@@ -16,6 +16,7 @@ import java.util.Map;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.error.CryptoException;
+import com.dracoon.sdk.crypto.error.UnknownVersionException;
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
@@ -76,6 +77,7 @@ import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
+import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -481,8 +483,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private void startUploadFileAsyncInternally(String id, FileUploadRequest request,
             final InputStream is, long length, final boolean close, FileUploadCallback callback)
-            throws DracoonCryptoException,
-            DracoonNetIOException, DracoonApiException {
+            throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
         PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
@@ -563,7 +564,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     private UserPublicKey getUploadUserPublicKey(long parentNodeId) throws DracoonNetIOException,
-            DracoonApiException{
+            DracoonApiException {
         boolean isEncryptedUpload = isNodeEncrypted(parentNodeId);
         if (!isEncryptedUpload) {
             return null;
@@ -578,7 +579,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         if (userPublicKey == null) {
             return null;
         }
-        return createFileKey(userPublicKey.getVersion());
+        PlainFileKey.Version version = DracoonClientImpl.determinePlainFileKeyVersion(
+                userPublicKey.getVersion());
+        return Crypto.generateFileKey(version);
     }
 
     // --- File download methods ---
@@ -726,8 +729,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return downloadStream;
     }
 
-    private PlainFileKey getDownloadFileKey(long nodeId) throws DracoonNetIOException,
-            DracoonApiException, DracoonCryptoException{
+    private PlainFileKey getDownloadFileKey(long nodeId) throws DracoonCryptoException,
+            DracoonNetIOException, DracoonApiException {
         boolean isEncryptedDownload = isNodeEncrypted(nodeId);
         if (!isEncryptedDownload) {
             return null;
@@ -737,8 +740,10 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
 
-        String cryptoVersion = getFileKeyCryptoVersion(encryptedFileKey);
-        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(cryptoVersion);
+        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
+                encryptedFileKey.getVersion());
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(
+                userKeyPairVersion);
 
         return decryptFileKey(nodeId, encryptedFileKey, userKeyPair.getUserPrivateKey(),
                 userPrivateKeyPassword);
@@ -800,32 +805,33 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     // --- File key generation methods ---
 
     @Override
-    public boolean generateMissingFileKeys(String cryptoVersion, int limit)
+    public boolean generateMissingFileKeys(UserKeyPairAlgorithm.Version version, int limit)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        return generateMissingFileKeysInternally(cryptoVersion, null, limit);
+        return generateMissingFileKeysInternally(version, null, limit);
     }
 
     @Override
-    public boolean generateMissingFileKeys(String cryptoVersion, long nodeId, int limit)
-            throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        return generateMissingFileKeysInternally(cryptoVersion, nodeId, limit);
+    public boolean generateMissingFileKeys(UserKeyPairAlgorithm.Version version, long nodeId,
+            int limit) throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+        return generateMissingFileKeysInternally(version, nodeId, limit);
     }
 
-    private boolean generateMissingFileKeysInternally(String cryptoVersion, Long nodeId,
-            Integer limit) throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
+    private boolean generateMissingFileKeysInternally(UserKeyPairAlgorithm.Version version,
+            Long nodeId, Integer limit) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException {
         mClient.assertApiVersionSupported();
-        mClient.assertCryptoVersionSupported(cryptoVersion);
 
         Long batchOffset = 0L;
         Long batchLimit = 10L;
 
-        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(cryptoVersion);
+        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.toUserKeyPairVersion(version);
+        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(userKeyPairVersion);
         String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
         boolean isFinished = false;
         while (!isFinished) {
-            isFinished = generateMissingFileKeysBatch(cryptoVersion, nodeId, batchOffset, batchLimit,
-                    userKeyPair.getUserPrivateKey(), userPrivateKeyPassword);
+            isFinished = generateMissingFileKeysBatch(userKeyPair.getUserPrivateKey(),
+                    userPrivateKeyPassword, nodeId, batchOffset, batchLimit);
             batchOffset = batchOffset + batchLimit;
             if (limit != null && batchOffset > limit) {
                 break;
@@ -834,10 +840,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return isFinished;
     }
 
-    private boolean generateMissingFileKeysBatch(String cryptoVersion, Long nodeId, Long offset,
-            Long limit, UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
+    private boolean generateMissingFileKeysBatch(UserPrivateKey userPrivateKey,
+            String userPrivateKeyPassword, Long nodeId, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        ApiMissingFileKeys apiMissingFileKeys = getMissingFileKeysBatch(cryptoVersion, nodeId,
+        EncryptedFileKey.Version fileKeyVersion = DracoonClientImpl.determineEncryptedFileKeyVersion(
+                userPrivateKey.getVersion());
+
+        ApiMissingFileKeys apiMissingFileKeys = getMissingFileKeysBatch(fileKeyVersion, nodeId,
                 offset, limit);
         if (apiMissingFileKeys.items.isEmpty()) {
             return true;
@@ -854,6 +863,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         for (ApiUserIdFileId apiUserIdFileId : apiUserIdFileIds) {
             UserPublicKey userPublicKey = userPublicKeys.get(apiUserIdFileId.userId);
             PlainFileKey plainFileKey = plainFileKeys.get(apiUserIdFileId.fileId);
+            if (userPublicKey == null || plainFileKey == null) {
+                continue;
+            }
 
             EncryptedFileKey encryptedFileKey = encryptFileKey(apiUserIdFileId.fileId, plainFileKey,
                     userPublicKey);
@@ -873,13 +885,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return false;
     }
 
-    private ApiMissingFileKeys getMissingFileKeysBatch(String cryptoVersion, Long nodeId,
-            Long offset, Long limit) throws DracoonNetIOException, DracoonApiException {
-        String fileKeyVersion = mClient.getFileKeyVersion(cryptoVersion);
-
+    private ApiMissingFileKeys getMissingFileKeysBatch(EncryptedFileKey.Version fileKeyVersion,
+            Long nodeId, Long offset, Long limit) throws DracoonNetIOException, DracoonApiException {
         String auth = mClient.buildAuthString();
-        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(auth, fileKeyVersion, nodeId,
-                offset, limit);
+        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(auth, fileKeyVersion.getValue(),
+                nodeId, offset, limit);
         Response<ApiMissingFileKeys> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -897,9 +907,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             List<ApiUserIdUserPublicKey> apiUserIdUserPublicKeys) {
         Map<Long, UserPublicKey> userPublicKeys = new HashMap<>();
         for (ApiUserIdUserPublicKey apiUserIdUserPublicKey : apiUserIdUserPublicKeys) {
-            UserPublicKey userPublicKey = UserMapper.fromApiUserPublicKey(
-                    apiUserIdUserPublicKey.publicKeyContainer);
-            userPublicKeys.put(apiUserIdUserPublicKey.id, userPublicKey);
+            try {
+                UserPublicKey userPublicKey = UserMapper.fromApiUserPublicKey(
+                        apiUserIdUserPublicKey.publicKeyContainer);
+                userPublicKeys.put(apiUserIdUserPublicKey.id, userPublicKey);
+            } catch (UnknownVersionException e) {
+                // Not supported public keys are ignored
+            }
         }
         return userPublicKeys;
     }
@@ -907,9 +921,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     private Map<Long, EncryptedFileKey> convertFileKeys(List<ApiFileIdFileKey> apiFileIdFileKeys) {
         Map<Long, EncryptedFileKey> encryptedFileKeys = new HashMap<>();
         for (ApiFileIdFileKey apiFileIdFileKey : apiFileIdFileKeys) {
-            EncryptedFileKey encryptedFileKey = FileMapper.fromApiFileKey(
-                    apiFileIdFileKey.fileKeyContainer);
-            encryptedFileKeys.put(apiFileIdFileKey.id, encryptedFileKey);
+            try {
+                EncryptedFileKey encryptedFileKey = FileMapper.fromApiFileKey(
+                        apiFileIdFileKey.fileKeyContainer);
+                encryptedFileKeys.put(apiFileIdFileKey.id, encryptedFileKey);
+            } catch (UnknownVersionException e) {
+                // Not supported public keys are ignored
+            }
         }
         return encryptedFileKeys;
     }
@@ -945,19 +963,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- File key methods ---
 
-    public PlainFileKey createFileKey(String version) throws DracoonCryptoException {
-        try {
-            return Crypto.generateFileKey(version);
-        } catch (CryptoException e) {
-            String errorText = String.format("Creation of file key failed! %s", e.getMessage());
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
-    }
-
     public EncryptedFileKey getFileKey(long nodeId) throws DracoonNetIOException,
-            DracoonApiException {
+            DracoonApiException, DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
         String auth = mClient.buildAuthString();
@@ -974,15 +981,15 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         ApiFileKey data = response.body();
 
-        return FileMapper.fromApiFileKey(data);
-    }
-
-    public String getFileKeyCryptoVersion(PlainFileKey plainFileKey) {
-        return plainFileKey.getVersion();
-    }
-
-    public String getFileKeyCryptoVersion(EncryptedFileKey encryptedFileKey) {
-        return encryptedFileKey.getVersion();
+        try {
+            return FileMapper.fromApiFileKey(data);
+        } catch (UnknownVersionException e) {
+            String errorText = String.format("Query of file key for node '%d' failed! File key " +
+                    "version is unknown!", nodeId);
+            mLog.d(LOG_TAG, errorText);
+            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
+            throw new DracoonCryptoException(errorCode, e);
+        }
     }
 
     public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encryptedFileKeyFileKey,

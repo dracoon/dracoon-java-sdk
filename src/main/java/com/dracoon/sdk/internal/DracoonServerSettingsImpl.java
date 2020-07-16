@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.crypto.error.UnknownVersionException;
+import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
@@ -13,9 +15,9 @@ import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
 import com.dracoon.sdk.internal.model.ApiUserKeyPairAlgorithm;
-import com.dracoon.sdk.model.CryptoAlgorithm;
 import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
+import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -23,6 +25,17 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
         implements DracoonClient.ServerSettings {
 
     private static final String LOG_TAG = DracoonServerSettingsImpl.class.getSimpleName();
+
+    private static final UserKeyPair.Version FALLBACK_USER_KEY_PAIR_VERSION =
+            UserKeyPair.Version.RSA2048;
+
+    private static final UserKeyPairAlgorithm sFallbackUserKeyPairAlgorithm;
+
+    static {
+        sFallbackUserKeyPairAlgorithm = new UserKeyPairAlgorithm();
+        sFallbackUserKeyPairAlgorithm.setVersion(UserKeyPairAlgorithm.Version.RSA2048);
+        sFallbackUserKeyPairAlgorithm.setState(UserKeyPairAlgorithm.State.REQUIRED);
+    }
 
     DracoonServerSettingsImpl(DracoonClientImpl client) {
         super(client);
@@ -72,17 +85,72 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
     }
 
     @Override
-    public List<CryptoAlgorithm> getAvailableCryptoAlgorithms() throws DracoonNetIOException,
+    public List<UserKeyPairAlgorithm> getAvailableUserKeyPairAlgorithms() throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
         if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            CryptoAlgorithm cryptoAlgorithm = new CryptoAlgorithm();
-            cryptoAlgorithm.setVersion(DracoonClient.CryptoVersions.A);
-            cryptoAlgorithm.setState(CryptoAlgorithm.State.REQUIRED);
-            return Collections.singletonList(cryptoAlgorithm);
+            return Collections.singletonList(sFallbackUserKeyPairAlgorithm);
         }
 
+        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
+
+        List<UserKeyPairAlgorithm> algorithms = new ArrayList<>();
+        for (ApiUserKeyPairAlgorithm apiUserKeyPairAlgorithm : apiUserKeyPairAlgorithms) {
+            UserKeyPairAlgorithm.Version version = UserKeyPairAlgorithm.Version.getByValue(
+                    apiUserKeyPairAlgorithm.version);
+            UserKeyPairAlgorithm.State state = UserKeyPairAlgorithm.State.getByValue(
+                    apiUserKeyPairAlgorithm.status);
+            if (version != null && state != null) {
+                UserKeyPairAlgorithm algorithm = new UserKeyPairAlgorithm();
+                algorithm.setVersion(version);
+                algorithm.setState(state);
+                algorithms.add(algorithm);
+            }
+        }
+        return algorithms;
+    }
+
+    public List<UserKeyPair.Version> getAvailableUserKeyPairVersions() throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
+            return Collections.singletonList(FALLBACK_USER_KEY_PAIR_VERSION);
+        }
+
+        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
+
+        List<UserKeyPair.Version> versions = new ArrayList<>();
+        for (ApiUserKeyPairAlgorithm apiUserKeyPairAlgorithm : apiUserKeyPairAlgorithms) {
+            try {
+                versions.add(UserKeyPair.Version.getByValue(apiUserKeyPairAlgorithm.version));
+            } catch (UnknownVersionException e) {
+                // Not supported key pair versions are ignored
+            }
+        }
+        return versions;
+    }
+
+    public UserKeyPair.Version getPreferredUserKeyPairVersion() throws DracoonNetIOException,
+            DracoonApiException {
+        List<UserKeyPair.Version> versions = getAvailableUserKeyPairVersions();
+        return !versions.isEmpty() ? versions.get(0) : FALLBACK_USER_KEY_PAIR_VERSION;
+    }
+
+    private ApiUserKeyPairAlgorithm[] getUserKeyPairAlgorithms()  throws DracoonNetIOException,
+            DracoonApiException {
+        ApiServerCryptoAlgorithms apiCryptoAlgorithms = getCryptoAlgorithms();
+
+        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = new ApiUserKeyPairAlgorithm[]{};
+        if (apiCryptoAlgorithms != null && apiCryptoAlgorithms.keyPairAlgorithms != null) {
+            apiUserKeyPairAlgorithms = apiCryptoAlgorithms.keyPairAlgorithms;
+        }
+        return apiUserKeyPairAlgorithms;
+    }
+
+    private ApiServerCryptoAlgorithms getCryptoAlgorithms() throws DracoonNetIOException,
+            DracoonApiException {
         String auth = mClient.buildAuthString();
         Call<ApiServerCryptoAlgorithms> call = mService.getServerCryptoAlgorithms(auth);
         Response<ApiServerCryptoAlgorithms> response = mHttpHelper.executeRequest(call);
@@ -95,25 +163,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             throw new DracoonApiException(errorCode);
         }
 
-        ApiServerCryptoAlgorithms apiCryptoAlgorithms = response.body();
-        if (apiCryptoAlgorithms == null || apiCryptoAlgorithms.keyPairAlgorithms == null) {
-            return new ArrayList<>();
-        }
-
-        List<CryptoAlgorithm> cryptoAlgorithms = new ArrayList<>();
-        for (ApiUserKeyPairAlgorithm apiUserKeyPairAlgorithm : apiCryptoAlgorithms.keyPairAlgorithms) {
-            String version = apiUserKeyPairAlgorithm.version;
-            CryptoAlgorithm.State state = CryptoAlgorithm.State.getByValue(
-                    apiUserKeyPairAlgorithm.status);
-            if (state == null) {
-                state = CryptoAlgorithm.State.DISCOURAGED;
-            }
-            CryptoAlgorithm cryptoAlgorithm = new CryptoAlgorithm();
-            cryptoAlgorithm.setVersion(version);
-            cryptoAlgorithm.setState(state);
-            cryptoAlgorithms.add(cryptoAlgorithm);
-        }
-        return cryptoAlgorithms;
+        return response.body();
     }
 
 }
