@@ -142,8 +142,8 @@ public class DracoonExamples {
         //getUploadShareQrCode(client);
         //deleteUploadShare(client);
 
-        //generateMissingFileKeys(client, ENCRYPTION_VERSION);
-        //generateMissingFileKeysForOneNode(client, ENCRYPTION_VERSION);
+        //generateMissingFileKeys(client);
+        //generateMissingFileKeysForOneNode(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -723,17 +723,16 @@ public class DracoonExamples {
         client.shares().deleteUploadShare(shareId);
     }
 
-    private static void generateMissingFileKeys(DracoonClient client,
-            UserKeyPairAlgorithm.Version version) throws DracoonException {
-        boolean finished = client.nodes().generateMissingFileKeys(version, 10);
+    private static void generateMissingFileKeys(DracoonClient client) throws DracoonException {
+        boolean finished = client.nodes().generateMissingFileKeys(10);
         System.out.println("All missing file keys have been created: " + finished);
     }
 
-    private static void generateMissingFileKeysForOneNode(DracoonClient client,
-            UserKeyPairAlgorithm.Version version) throws DracoonException {
+    private static void generateMissingFileKeysForOneNode(DracoonClient client)
+            throws DracoonException {
         long nodeId = 1L;
 
-        boolean finished = client.nodes().generateMissingFileKeys(version, nodeId, 10);
+        boolean finished = client.nodes().generateMissingFileKeys(nodeId, 10);
         System.out.println("All missing file keys have been created: " + finished);
     }
 

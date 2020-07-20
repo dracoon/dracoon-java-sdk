@@ -195,7 +195,6 @@ public interface DracoonService {
 
     @GET(API_PATH + "/nodes/missingFileKeys")
     Call<ApiMissingFileKeys> getMissingFileKeys(@Header(AUTHORIZATION_HEADER) String token,
-            @Query("version") String version,
             @Query("file_id") Long fileId,
             @Query("offset") Long offset,
             @Query("limit") Long limit);

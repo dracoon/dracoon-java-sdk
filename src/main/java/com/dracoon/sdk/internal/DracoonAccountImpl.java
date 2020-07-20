@@ -250,16 +250,30 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         throw new DracoonApiException(DracoonApiCode.SERVER_USER_KEY_PAIR_NOT_FOUND);
     }
 
+    public List<UserKeyPair> getAndCheckUserKeyPairs() throws DracoonNetIOException,
+            DracoonApiException, DracoonCryptoException {
+        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        List<UserKeyPair> userKeyPairs = getUserKeyPairs();
+        for (UserKeyPair userKeyPair : userKeyPairs) {
+            checkUserKeyPair(userKeyPair, encryptionPassword);
+        }
+        return userKeyPairs;
+    }
+
     public UserKeyPair getAndCheckUserKeyPair(UserKeyPair.Version userKeyPairVersion)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
         UserKeyPair userKeyPair = getUserKeyPair(userKeyPairVersion);
+        checkUserKeyPair(userKeyPair, encryptionPassword);
+        return userKeyPair;
+    }
+
+    private void checkUserKeyPair(UserKeyPair userKeyPair, String encryptionPassword)
+            throws DracoonCryptoException {
         boolean isValid = checkUserKeyPairPassword(userKeyPair, encryptionPassword);
         if (!isValid) {
             throw new DracoonCryptoException(DracoonCryptoCode.INVALID_PASSWORD_ERROR);
         }
-
-        return userKeyPair;
     }
 
     @Override

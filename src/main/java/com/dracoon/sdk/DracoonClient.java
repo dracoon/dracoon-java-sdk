@@ -713,7 +713,6 @@ public abstract class DracoonClient {
          * Generates file keys for files with missing file keys. The argument {@code limit}
          * restricts the generation to a certain number.
          *
-         * @param version The key pair version for which to generates file keys.
          * @param limit   The number limit. (Number of records; must be positive.)
          *
          * @return <code>true</code> if all file keys have been generated and no file keys are
@@ -723,14 +722,13 @@ public abstract class DracoonClient {
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If a encryption/decryption failed.
          */
-        boolean generateMissingFileKeys(UserKeyPairAlgorithm.Version version, int limit)
-                throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
+        boolean generateMissingFileKeys(int limit) throws DracoonNetIOException, DracoonApiException,
+                DracoonCryptoException;
 
         /**
          * Generates file keys for files with missing file keys. The argument {@code limit}
          * restricts the generation to a certain number.
          *
-         * @param version The key pair version for which to generates file keys.
          * @param nodeId  The node ID of the file.
          * @param limit   The number limit. (Number of records; must be positive.)
          *
@@ -741,8 +739,8 @@ public abstract class DracoonClient {
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If a encryption/decryption failed.
          */
-        boolean generateMissingFileKeys(UserKeyPairAlgorithm.Version version, long nodeId, int limit)
-                throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
+        boolean generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
+                DracoonApiException, DracoonCryptoException;
 
         /**
          * Marks a node as a favorite.
