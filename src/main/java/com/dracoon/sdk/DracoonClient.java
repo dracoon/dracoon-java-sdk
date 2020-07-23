@@ -194,6 +194,36 @@ public abstract class DracoonClient {
         boolean checkUserKeyPairPassword(String encryptionPassword) throws DracoonCryptoException,
                 DracoonNetIOException, DracoonApiException;
 
+        /**
+         * Sets/resets the value of a user profile attribute.<br>
+         * <br>
+         * Use <code>null</code> to reset the profile attribute.
+         *
+         * @param key   The key of the profile attribute. (Key must not be empty, must not be longer
+         *              than 255 characters and contain only characters [a-zA-Z0-9_-].)
+         * @param value The value of the profile attribute. (Value must not be empty and must not be
+         *              longer than 4096 characters.)
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void setUserProfileAttribute(String key, String value) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves the value of a user profile attribute.
+         *
+         * @param key The key of the profile attribute. (Key must not be empty, must not be longer
+         *            than 255 characters and contain only characters [a-zA-Z0-9_-].)
+         *
+         * @return value of the profile attribute, or <code>null</code> if there is no profile
+         *         attribute with this key
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        String getUserProfileAttribute(String key) throws DracoonNetIOException, DracoonApiException;
+
     }
 
     /**
