@@ -10,6 +10,9 @@ public class ApiUserAccount {
     public String lastName;
     public String email;
 
+    public String login;
+    public String userName;
+
     public Boolean isEncryptionEnabled;
     public Boolean hasManageableRooms;
 

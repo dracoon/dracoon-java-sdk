@@ -18,6 +18,8 @@ public class UserAccount {
     private String mLastName;
     private String mEmail;
 
+    private String mUsername;
+
     private Boolean mHasEncryptionEnabled;
     private Boolean mHasManageableRooms;
 
@@ -140,6 +142,24 @@ public class UserAccount {
      */
     public void setEmail(String email) {
         mEmail = email;
+    }
+
+    /**
+     * Returns the username of the user.
+     *
+     * @return the username
+     */
+    public String getUsername() {
+        return mUsername;
+    }
+
+    /**
+     * Sets the username of the user.
+     *
+     * @param username The username.
+     */
+    public void setUsername(String username) {
+        mUsername = username;
     }
 
     /**
