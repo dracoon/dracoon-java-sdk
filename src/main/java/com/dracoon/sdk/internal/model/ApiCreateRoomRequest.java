@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal.model;
 
+import java.util.List;
+
 public class ApiCreateRoomRequest {
     public Long parentId;
     public String name;
@@ -10,7 +12,7 @@ public class ApiCreateRoomRequest {
     public Integer recycleBinRetentionPeriod;
 
     public Boolean inheritPermissions;
-    public Long[] adminIds;
-    public Long[] adminGroupIds;
+    public List<Long> adminIds;
+    public List<Long> adminGroupIds;
     public String newGroupMemberAcceptance;
 }

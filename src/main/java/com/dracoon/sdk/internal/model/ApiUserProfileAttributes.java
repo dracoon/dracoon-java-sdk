@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal.model;
 
+import java.util.List;
+
 public class ApiUserProfileAttributes {
 
     public static class Item {
@@ -7,6 +9,6 @@ public class ApiUserProfileAttributes {
         public String value;
     }
 
-    public Item[] items;
+    public List<Item> items;
 
 }

@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import com.dracoon.sdk.DracoonClient;
@@ -210,7 +211,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             profileAttribute.value = value;
 
             ApiUserProfileAttributes profileAttributes = new ApiUserProfileAttributes();
-            profileAttributes.items = new ApiUserProfileAttributes.Item[]{profileAttribute};
+            profileAttributes.items = Collections.singletonList(profileAttribute);
 
             setUserProfileAttributes(profileAttributes);
         } else {

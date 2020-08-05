@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal.model;
 
 import java.util.Date;
+import java.util.List;
 
 public class ApiNode {
     public Long id;
@@ -39,5 +40,5 @@ public class ApiNode {
 
     public String mediaToken;
 
-    public ApiNode[] children;
+    public List<ApiNode> children;
 }
