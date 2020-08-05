@@ -33,6 +33,7 @@ import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
+import com.dracoon.sdk.model.PasswordPolicies;
 import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
@@ -93,6 +94,13 @@ public abstract class DracoonClient {
          */
         ServerSettings settings();
 
+        /**
+         * Get ServerPolicies handler.
+         *
+         * @return ServerPolicies handler
+         */
+        ServerPolicies policies();
+
     }
 
     /**
@@ -120,6 +128,35 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         ServerDefaults getDefaults() throws DracoonNetIOException, DracoonApiException;
+
+    }
+
+    /**
+     * Handler to query server policies information.
+     */
+    public interface ServerPolicies {
+
+        /**
+         * Retrieves the password policies for encryption passwords.
+         *
+         * @return encryption password policies
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        PasswordPolicies getEncryptionPasswordPolicies() throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves the password policies for share password.
+         *
+         * @return shares password policies
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        PasswordPolicies getSharesPasswordPolicies() throws DracoonNetIOException,
+                DracoonApiException;
 
     }
 

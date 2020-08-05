@@ -24,6 +24,7 @@ import com.dracoon.sdk.internal.model.ApiS3FileUploadUrlList;
 import com.dracoon.sdk.internal.model.ApiGetS3FileUploadUrlsRequest;
 import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
+import com.dracoon.sdk.internal.model.ApiServerPasswordPolicies;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
@@ -66,6 +67,10 @@ public interface DracoonService {
 
     @GET(API_PATH + "/config/info/defaults")
     Call<ApiServerDefaults> getServerDefaults(
+            @Header(AUTHORIZATION_HEADER) String token);
+
+    @GET(API_PATH + "/config/info/policies/passwords")
+    Call<ApiServerPasswordPolicies> getServerPasswordPolicies(
             @Header(AUTHORIZATION_HEADER) String token);
 
     @GET(API_PATH + "/user/ping")
