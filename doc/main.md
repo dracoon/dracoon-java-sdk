@@ -12,12 +12,12 @@ The Dracoon SDK uses OAuth 2.0 for client authorization.
 (For a detailed description see: https://tools.ietf.org/html/rfc6749)
 
 To use the Dracoon API, you first need to register a new OAuth client. Currently, OAuth clients
-can only be created, changed and deleted via the Dracoon API. Click
-[here](https://support.dracoon.com/hc/en-us/articles/115003832605-OAuth-2-0-Client-Registration) for
-more details.
+can only be created, changed and deleted via the Dracoon API. See
+[support article](https://support.dracoon.com/hc/en-us/articles/115003832605-OAuth-2-0-Client-Registration)
+for more details.
 
-Because OAuth implementation might be a bit tricky beginners, the Dracoon SDK provides 
-helper classes to handle the OAuth authorization steps to obtain and refresh tokens. The 
+Because implementing OAuth authorization might be a bit tricky for beginners, the Dracoon SDK
+provides helper classes to handle the OAuth authorization steps to obtain and refresh tokens. The 
 class `DracoonAuth` is used to configure which steps of the OAuth authorization are made by the
 Dracoon SDK.
 

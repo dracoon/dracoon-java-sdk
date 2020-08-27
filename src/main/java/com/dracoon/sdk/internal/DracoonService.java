@@ -24,6 +24,7 @@ import com.dracoon.sdk.internal.model.ApiS3FileUploadUrlList;
 import com.dracoon.sdk.internal.model.ApiGetS3FileUploadUrlsRequest;
 import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
+import com.dracoon.sdk.internal.model.ApiServerPasswordPolicies;
 import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiServerVersion;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
@@ -34,6 +35,7 @@ import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
+import com.dracoon.sdk.internal.model.ApiUserProfileAttributes;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -67,6 +69,10 @@ public interface DracoonService {
     Call<ApiServerDefaults> getServerDefaults(
             @Header(AUTHORIZATION_HEADER) String token);
 
+    @GET(API_PATH + "/config/info/policies/passwords")
+    Call<ApiServerPasswordPolicies> getServerPasswordPolicies(
+            @Header(AUTHORIZATION_HEADER) String token);
+
     @GET(API_PATH + "/user/ping")
     Call<Void> pingUser(@Header(AUTHORIZATION_HEADER) String token);
 
@@ -85,6 +91,18 @@ public interface DracoonService {
 
     @DELETE(API_PATH + "/user/account/keypair")
     Call<Void> deleteUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
+
+    @PUT(API_PATH + "/user/profileAttributes")
+    Call<Void> setUserProfileAttributes(@Header(AUTHORIZATION_HEADER) String token,
+            @Body ApiUserProfileAttributes request);
+
+    @GET(API_PATH + "/user/profileAttributes")
+    Call<ApiUserProfileAttributes> getUserProfileAttributes(
+            @Header(AUTHORIZATION_HEADER) String token);
+
+    @DELETE(API_PATH + "/user/profileAttributes/{key}")
+    Call<Void> deleteUserProfileAttribute(@Header(AUTHORIZATION_HEADER) String token,
+            @Path("key") String key);
 
     @GET(API_PATH + "/nodes")
     Call<ApiNodeList> getNodes(@Header(AUTHORIZATION_HEADER) String token,
