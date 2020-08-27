@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal.model;
 
+import java.util.List;
+
 public class ApiFileKeyList {
-    public ApiFileKey[] items;
+    public List<ApiFileKey> items;
 }

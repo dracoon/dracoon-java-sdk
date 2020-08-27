@@ -1,18 +1,20 @@
 package com.dracoon.sdk.internal.model;
 
+import java.util.List;
+
 public class ApiErrorInfos {
 
-    public ApiConflictNode[] conflictNodes;
+    public List<ApiConflictNode> conflictNodes;
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("ErrorInfos{conclictNodes=");
-        if (conflictNodes != null && conflictNodes.length != 0) {
+        if (conflictNodes != null && conflictNodes.size() != 0) {
             sb.append("[");
-            for (int i = 0; i < conflictNodes.length; i++) {
-                sb.append(conflictNodes[i]);
-                if (i < conflictNodes.length - 1) {
+            for (int i = 0; i < conflictNodes.size(); i++) {
+                sb.append(conflictNodes.get(i));
+                if (i < conflictNodes.size() - 1) {
                     sb.append(", ");
                 }
             }

@@ -42,6 +42,7 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
+import com.dracoon.sdk.model.PasswordPolicies;
 import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
@@ -78,6 +79,7 @@ public class DracoonExamples {
         //getServerData(client);
         //getServerSettings(client);
         //getServerDefaults(client);
+        //getServerPasswordPolicies(client);
 
         //checkAuth(client);
 
@@ -110,7 +112,7 @@ public class DracoonExamples {
         //moveNodes(client);
 
         //uploadFile(client);
-        downloadFile(client);
+        //downloadFile(client);
         //uploadFileWithStream(client);
         //downloadFileWithStream(client);
 
@@ -167,6 +169,32 @@ public class DracoonExamples {
                 defaults.getUploadShareExpirationPeriod());
         System.out.printf("fileExpirationPeriod: %s\n",
                 defaults.getFileExpirationPeriod());
+    }
+
+    private static void getServerPasswordPolicies(DracoonClient client) throws DracoonException {
+        PasswordPolicies encryptionPasswordPolicies = client.server().policies()
+                .getEncryptionPasswordPolicies();
+        System.out.println("Encryption password policies:");
+        System.out.printf("minLength: %d\n", encryptionPasswordPolicies.getMinLength());
+        System.out.printf("characterTypes: %s\n", encryptionPasswordPolicies.getCharacterTypes()
+                .toArray());
+        System.out.println("rejectUserInfo: " + encryptionPasswordPolicies.getRejectUserInfo());
+        System.out.println("rejectKeyboardPatterns: " + encryptionPasswordPolicies
+                .getRejectKeyboardPatterns());
+        System.out.println("rejectDictionaryWords: " + encryptionPasswordPolicies
+                .getRejectDictionaryWords());
+
+        PasswordPolicies sharesPasswordPolicies = client.server().policies()
+                .getSharesPasswordPolicies();
+        System.out.println("Share password policies:");
+        System.out.printf("minLength: %d\n", sharesPasswordPolicies.getMinLength());
+        System.out.printf("characterTypes: %s\n", sharesPasswordPolicies.getCharacterTypes()
+                .toArray());
+        System.out.println("rejectUserInfo: " + sharesPasswordPolicies.getRejectUserInfo());
+        System.out.println("rejectKeyboardPatterns: " + sharesPasswordPolicies
+                .getRejectKeyboardPatterns());
+        System.out.println("rejectDictionaryWords: " + sharesPasswordPolicies
+                .getRejectDictionaryWords());
     }
 
     private static void checkAuth(DracoonClient client) throws DracoonException {

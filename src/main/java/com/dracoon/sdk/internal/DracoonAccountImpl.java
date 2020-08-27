@@ -1,5 +1,8 @@
 package com.dracoon.sdk.internal;
 
+import java.util.Collections;
+import java.util.Objects;
+
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.CryptoException;
@@ -14,6 +17,8 @@ import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
+import com.dracoon.sdk.internal.model.ApiUserProfileAttributes;
+import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.UserAccount;
 import retrofit2.Call;
@@ -192,6 +197,100 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
+        }
+    }
+
+    @Override
+    public void setUserProfileAttribute(String key, String value) throws DracoonNetIOException,
+            DracoonApiException {
+        ValidatorUtils.validateString("key", key, false);
+
+        if (value != null) {
+            ApiUserProfileAttributes.Item profileAttribute = new ApiUserProfileAttributes.Item();
+            profileAttribute.key = key;
+            profileAttribute.value = value;
+
+            ApiUserProfileAttributes profileAttributes = new ApiUserProfileAttributes();
+            profileAttributes.items = Collections.singletonList(profileAttribute);
+
+            setUserProfileAttributes(profileAttributes);
+        } else {
+            deleteUserProfileAttribute(key);
+        }
+    }
+
+    @Override
+    public String getUserProfileAttribute(String key) throws DracoonNetIOException,
+            DracoonApiException {
+        ValidatorUtils.validateString("key", key, false);
+
+        ApiUserProfileAttributes profileAttributes = getUserProfileAttributes();
+        if (profileAttributes.items == null) {
+            return null;
+        }
+
+        for (ApiUserProfileAttributes.Item profileAttribute : profileAttributes.items) {
+            if (Objects.equals(profileAttribute.key, key)) {
+                return profileAttribute.value;
+            }
+        }
+        return null;
+    }
+
+    private void setUserProfileAttributes(ApiUserProfileAttributes profileAttributes)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.setUserProfileAttributes(auth, profileAttributes);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserProfileAttributesSetError(response);
+            String errorText = String.format("Setting user profile attributes failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    private ApiUserProfileAttributes getUserProfileAttributes() throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        String auth = mClient.buildAuthString();
+        Call<ApiUserProfileAttributes> call = mService.getUserProfileAttributes(auth);
+        Response<ApiUserProfileAttributes> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserProfileAttributesQueryError(response);
+            String errorText = String.format("Query of user profile attributes failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        return response.body();
+    }
+
+    private void deleteUserProfileAttribute(String key) throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        String auth = mClient.buildAuthString();
+        Call<Void> call = mService.deleteUserProfileAttribute(auth, key);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            if (response.code() == HttpStatus.NOT_FOUND.getNumber()) {
+                return;
+            }
+
+            DracoonApiCode errorCode = mErrorParser.parseUserProfileAttributeDeleteError(response);
+            String errorText = String.format("Deleting user profile attribute failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
         }
     }
 
