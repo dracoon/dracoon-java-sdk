@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -142,11 +143,28 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             DracoonApiException {
         ApiServerCryptoAlgorithms apiCryptoAlgorithms = getCryptoAlgorithms();
 
-        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = new ApiUserKeyPairAlgorithm[]{};
-        if (apiCryptoAlgorithms != null && apiCryptoAlgorithms.keyPairAlgorithms != null) {
-            apiUserKeyPairAlgorithms = apiCryptoAlgorithms.keyPairAlgorithms;
+        if (apiCryptoAlgorithms == null || apiCryptoAlgorithms.keyPairAlgorithms == null) {
+            return new ApiUserKeyPairAlgorithm[]{};
         }
+
+        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = apiCryptoAlgorithms.keyPairAlgorithms;
+        sortUserKeyPairAlgorithms(apiUserKeyPairAlgorithms);
         return apiUserKeyPairAlgorithms;
+    }
+
+    private static void sortUserKeyPairAlgorithms(ApiUserKeyPairAlgorithm[] userKeyPairAlgorithms) {
+        String statusRequired = UserKeyPairAlgorithm.State.REQUIRED.getValue();
+        Arrays.sort(userKeyPairAlgorithms, (alg1, alg2) -> {
+            boolean isStatus1Required = alg1.status != null && alg1.status.equals(statusRequired);
+            boolean isStatus2Required = alg2.status != null && alg2.status.equals(statusRequired);
+            if (isStatus1Required && !isStatus2Required) {
+                return 1;
+            } else if (!isStatus1Required && isStatus2Required) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
     }
 
     private ApiServerCryptoAlgorithms getCryptoAlgorithms() throws DracoonNetIOException,
