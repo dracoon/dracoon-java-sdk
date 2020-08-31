@@ -171,15 +171,16 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         Call<ApiUserKeyPair> call = mService.getUserKeyPair(auth, null);
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
 
-        if (!response.isSuccessful() && response.code() != HttpStatus.NOT_FOUND.getNumber()) {
+        if (existsNoUserKeyPair(response)) {
+            return new ApiUserKeyPair[]{};
+        }
+
+        if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUserKeyPairsQueryError(response);
             String errorText = String.format("Query of user key pairs failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
-        }
-        if (!response.isSuccessful()) {
-            return new ApiUserKeyPair[]{};
         }
 
         return new ApiUserKeyPair[]{response.body()};
@@ -191,6 +192,10 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         Call<ApiUserKeyPair[]> call = mService.getUserKeyPairs(auth);
         Response<ApiUserKeyPair[]> response = mHttpHelper.executeRequest(call);
 
+        if (existsNoUserKeyPair(response)) {
+            return new ApiUserKeyPair[]{};
+        }
+
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUserKeyPairsQueryError(response);
             String errorText = String.format("Query of user key pairs failed with '%s'!",
@@ -200,6 +205,10 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
 
         return response.body();
+    }
+
+    private static boolean existsNoUserKeyPair(Response response) {
+        return !response.isSuccessful() && response.code() == HttpStatus.NOT_FOUND.getNumber();
     }
 
     private UserKeyPair getUserKeyPair(UserKeyPair.Version userKeyPairVersion)
