@@ -1,7 +1,6 @@
 package com.dracoon.sdk.internal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -94,7 +93,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             return Collections.singletonList(sFallbackUserKeyPairAlgorithm);
         }
 
-        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
+        List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
 
         List<UserKeyPairAlgorithm> algorithms = new ArrayList<>();
         for (ApiUserKeyPairAlgorithm apiUserKeyPairAlgorithm : apiUserKeyPairAlgorithms) {
@@ -120,7 +119,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             return Collections.singletonList(FALLBACK_USER_KEY_PAIR_VERSION);
         }
 
-        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
+        List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
 
         List<UserKeyPair.Version> versions = new ArrayList<>();
         for (ApiUserKeyPairAlgorithm apiUserKeyPairAlgorithm : apiUserKeyPairAlgorithms) {
@@ -139,22 +138,22 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
         return !versions.isEmpty() ? versions.get(0) : FALLBACK_USER_KEY_PAIR_VERSION;
     }
 
-    private ApiUserKeyPairAlgorithm[] getUserKeyPairAlgorithms()  throws DracoonNetIOException,
+    private List<ApiUserKeyPairAlgorithm> getUserKeyPairAlgorithms()  throws DracoonNetIOException,
             DracoonApiException {
         ApiServerCryptoAlgorithms apiCryptoAlgorithms = getCryptoAlgorithms();
 
         if (apiCryptoAlgorithms == null || apiCryptoAlgorithms.keyPairAlgorithms == null) {
-            return new ApiUserKeyPairAlgorithm[]{};
+            return Collections.emptyList();
         }
 
-        ApiUserKeyPairAlgorithm[] apiUserKeyPairAlgorithms = apiCryptoAlgorithms.keyPairAlgorithms;
+        List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = apiCryptoAlgorithms.keyPairAlgorithms;
         sortUserKeyPairAlgorithms(apiUserKeyPairAlgorithms);
         return apiUserKeyPairAlgorithms;
     }
 
-    private static void sortUserKeyPairAlgorithms(ApiUserKeyPairAlgorithm[] userKeyPairAlgorithms) {
+    private static void sortUserKeyPairAlgorithms(List<ApiUserKeyPairAlgorithm> userKeyPairAlgorithms) {
         String statusRequired = UserKeyPairAlgorithm.State.REQUIRED.getValue();
-        Arrays.sort(userKeyPairAlgorithms, (alg1, alg2) -> {
+        userKeyPairAlgorithms.sort((alg1, alg2) -> {
             boolean isStatus1Required = alg1.status != null && alg1.status.equals(statusRequired);
             boolean isStatus2Required = alg2.status != null && alg2.status.equals(statusRequired);
             if (isStatus1Required && !isStatus2Required) {

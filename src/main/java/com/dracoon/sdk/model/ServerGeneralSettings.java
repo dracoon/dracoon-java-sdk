@@ -77,13 +77,15 @@ public class ServerGeneralSettings {
      * <br>
      * A weak password has to fulfill the following criteria:<br>
      * - is at least 8 characters long<br>
-     * - contain letters and numbers<br>
+     * - contain letters<br>
      * A strong password has to fulfill the following criteria in addition:<br>
-     * - contain at least one special character<br>
-     * - contain upper and lower case characters
+     * - contain upper and lower case characters<br>
+     * - contain at least one digit<br>
+     * - contain at least one special character
      *
      * @return <code>true</code> if weak passwords are allowed; <code>false</code> otherwise
      */
+    @Deprecated
     public Boolean isWeakPasswordEnabled() {
         return mWeakPasswordEnabled;
     }
@@ -94,6 +96,7 @@ public class ServerGeneralSettings {
      * @param weakPasswordEnabled <code>true</code> if weak passwords are allowed;
      *                            <code>false</code> otherwise.
      */
+    @Deprecated
     public void setWeakPasswordEnabled(Boolean weakPasswordEnabled) {
         mWeakPasswordEnabled = weakPasswordEnabled;
     }

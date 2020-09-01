@@ -13,6 +13,7 @@ public interface DracoonConstants {
 
     String API_PATH = "/api/v4";
     String API_MIN_VERSION = "4.12.0";
+    String API_MIN_PASSWORD_POLICIES = "4.13.0";
     String API_MIN_S3_DIRECT_UPLOAD = "4.15.0";
     String API_MIN_NEW_CRYPTO_ALGOS = "4.99.0";
 

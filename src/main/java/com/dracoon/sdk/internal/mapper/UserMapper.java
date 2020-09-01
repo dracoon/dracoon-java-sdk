@@ -44,6 +44,9 @@ public class UserMapper extends BaseMapper {
         userAccount.setLastName(apiUserAccount.lastName);
         userAccount.setEmail(apiUserAccount.email);
 
+        userAccount.setUsername(apiUserAccount.userName != null ? apiUserAccount.userName :
+                apiUserAccount.login);
+
         userAccount.setHasEncryptionEnabled(toBoolean(apiUserAccount.isEncryptionEnabled));
         userAccount.setHasManageableRooms(toBoolean(apiUserAccount.hasManageableRooms));
 

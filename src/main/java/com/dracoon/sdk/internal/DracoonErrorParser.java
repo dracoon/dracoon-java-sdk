@@ -109,6 +109,42 @@ public class DracoonErrorParser {
         return parseUserKeyPairQueryError(response);
     }
 
+    public DracoonApiCode parseUserProfileAttributesSetError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -80023)
+                    return DracoonApiCode.VALIDATION_INVALID_KEY;
+                else
+                    return parseValidationError(errorCode);
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseUserProfileAttributesQueryError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        return parseStandardError(statusCode, errorCode);
+    }
+
+    public DracoonApiCode parseUserProfileAttributeDeleteError(Response response) {
+        return parseUserProfileAttributesSetError(response);
+    }
+
     public DracoonApiCode parseNodesQueryError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {

@@ -37,7 +37,6 @@ import com.dracoon.sdk.internal.model.ApiS3FileUploadStatus;
 import com.dracoon.sdk.internal.model.ApiS3FileUploadUrlList;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
 import com.dracoon.sdk.internal.util.StreamUtils;
-import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
@@ -555,7 +554,7 @@ public class UploadStream extends FileUploadStream {
             throw new DracoonApiException(errorCode);
         }
 
-        return response.body().urls[0].url;
+        return response.body().urls.get(0).url;
     }
 
     private Node completeS3Upload(List<ApiS3FileUploadPart> uploadParts,
@@ -565,7 +564,7 @@ public class UploadStream extends FileUploadStream {
 
         ApiCompleteS3FileUploadRequest request = new ApiCompleteS3FileUploadRequest();
         request.fileName = mFileUploadRequest.getName();
-        request.parts = uploadParts.toArray(new ApiS3FileUploadPart[0]);
+        request.parts = uploadParts;
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
