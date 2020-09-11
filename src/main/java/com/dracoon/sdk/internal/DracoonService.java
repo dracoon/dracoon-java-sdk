@@ -88,7 +88,7 @@ public interface DracoonService {
     @GET(API_PATH + "/user/account/customer")
     Call<ApiCustomerAccount> getCustomerAccount(@Header(AUTHORIZATION_HEADER) String token);
 
-    @GET(API_PATH + "/user/account/keypair")
+    @GET(API_PATH + "/user/account/keypairs")
     Call<List<ApiUserKeyPair>> getUserKeyPairs(@Header(AUTHORIZATION_HEADER) String token);
 
     @POST(API_PATH + "/user/account/keypair")
