@@ -157,9 +157,9 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             boolean isStatus1Required = alg1.status != null && alg1.status.equals(statusRequired);
             boolean isStatus2Required = alg2.status != null && alg2.status.equals(statusRequired);
             if (isStatus1Required && !isStatus2Required) {
-                return 1;
-            } else if (!isStatus1Required && isStatus2Required) {
                 return -1;
+            } else if (!isStatus1Required && isStatus2Required) {
+                return 1;
             } else {
                 return 0;
             }
