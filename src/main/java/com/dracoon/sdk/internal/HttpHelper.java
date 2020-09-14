@@ -5,6 +5,7 @@ import java.io.InterruptedIOException;
 import javax.net.ssl.SSLHandshakeException;
 
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.error.DracoonNetIOInterruptedException;
 import com.dracoon.sdk.error.DracoonNetInsecureException;
@@ -34,7 +35,8 @@ public class HttpHelper {
     // --- Methods for REST calls ---
 
     @SuppressWarnings("unchecked")
-    public <T> Response<T> executeRequest(Call<T> call) throws DracoonNetIOException {
+    public <T> Response<T> executeRequest(Call<T> call) throws DracoonNetIOException,
+            DracoonApiException {
         try {
             return (Response<T>) executeRequestInternally(call);
         } catch (InterruptedException e) {
@@ -46,7 +48,7 @@ public class HttpHelper {
 
     @SuppressWarnings("unchecked")
     public <T> Response<T> executeRequest(Call<T> call, Thread thread)
-            throws DracoonNetIOException, InterruptedException {
+            throws DracoonNetIOException, DracoonApiException, InterruptedException {
         try {
             return (Response<T>) executeRequestInternally(call);
         } catch (DracoonNetIOException e) {
@@ -60,7 +62,8 @@ public class HttpHelper {
     // --- Methods for HTTP calls ---
 
     @SuppressWarnings("unchecked")
-    public okhttp3.Response executeRequest(okhttp3.Call call) throws DracoonNetIOException {
+    public okhttp3.Response executeRequest(okhttp3.Call call) throws DracoonNetIOException,
+            DracoonApiException {
         try {
             return (okhttp3.Response) executeRequestInternally(call);
         } catch (InterruptedException e) {
@@ -72,7 +75,7 @@ public class HttpHelper {
 
     @SuppressWarnings("unchecked")
     public okhttp3.Response executeRequest(okhttp3.Call call, Thread thread)
-            throws DracoonNetIOException, InterruptedException {
+            throws DracoonNetIOException, DracoonApiException, InterruptedException {
         try {
             return (okhttp3.Response) executeRequestInternally(call);
         } catch (DracoonNetIOException e) {
@@ -86,7 +89,7 @@ public class HttpHelper {
     // --- Helper methods ---
 
     private Object executeRequestInternally(Object call) throws DracoonNetIOException,
-            InterruptedException {
+            DracoonApiException, InterruptedException {
         int retryCnt = 0;
 
         while (true) {
@@ -102,6 +105,12 @@ public class HttpHelper {
             } catch (IOException e) {
                 if (e.getClass().equals(InterruptedIOException.class)) {
                     throw new InterruptedException();
+                }
+                Throwable c = e.getCause();
+                if (c.getClass().equals(DracoonNetIOException.class)) {
+                    throw (DracoonNetIOException) c;
+                } else if (c.getClass().equals(DracoonApiException.class)) {
+                    throw (DracoonApiException) c;
                 }
                 exception = e;
             }

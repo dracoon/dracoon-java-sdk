@@ -314,9 +314,7 @@ public class UploadStream extends FileUploadStream {
             return false;
         }
 
-        String auth = mClient.buildAuthString();
-
-        Call<ApiServerGeneralSettings> call = mRestService.getServerGeneralSettings(auth);
+        Call<ApiServerGeneralSettings> call = mRestService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -334,8 +332,6 @@ public class UploadStream extends FileUploadStream {
 
     private String createUpload() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String auth = mClient.buildAuthString();
-
         Integer classification = mFileUploadRequest.getClassification() != null ?
                 mFileUploadRequest.getClassification().getValue() : null;
 
@@ -354,7 +350,7 @@ public class UploadStream extends FileUploadStream {
             request.directS3Upload = mIsS3Upload;
         }
 
-        Call<ApiFileUpload> call = mRestService.createFileUpload(auth, request);
+        Call<ApiFileUpload> call = mRestService.createFileUpload(request);
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -455,15 +451,13 @@ public class UploadStream extends FileUploadStream {
 
     private void uploadStandardChunk(long offset, byte[] chunk) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
-        String auth = mClient.buildAuthString();
-
         String fileName = mFileUploadRequest.getName();
         FileRequestBody fileChunk = createChunk(chunk);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileName, fileChunk);
 
         String contentRange = "bytes " + offset + "-" + (offset + chunk.length) + "/*";
 
-        Call<Void> call = mRestService.uploadFile(auth, mUploadId, contentRange, body);
+        Call<Void> call = mRestService.uploadFile(mUploadId, contentRange, body);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -477,14 +471,12 @@ public class UploadStream extends FileUploadStream {
 
     private Node completeStandardUpload(EncryptedFileKey encryptedFileKey)
             throws DracoonNetIOException, DracoonApiException, InterruptedException {
-        String auth = mClient.buildAuthString();
-
         ApiCompleteFileUploadRequest request = new ApiCompleteFileUploadRequest();
         request.fileName = mFileUploadRequest.getName();
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<ApiNode> call = mRestService.completeFileUpload(auth, mUploadId, request);
+        Call<ApiNode> call = mRestService.completeFileUpload(mUploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -532,8 +524,6 @@ public class UploadStream extends FileUploadStream {
 
     private String getS3UploadUrl(int chunkNum, long chunkSize) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
-        String auth = mClient.buildAuthString();
-
         mLog.d(LOG_TAG, String.format("Requesting S3 upload URL: chunk=%d: size=%d: ", chunkNum,
                 chunkSize));
 
@@ -542,8 +532,7 @@ public class UploadStream extends FileUploadStream {
         request.firstPartNumber = chunkNum + 1;
         request.lastPartNumber = chunkNum + 1;
 
-        Call<ApiS3FileUploadUrlList> call = mRestService.getS3FileUploadUrls(auth, mUploadId,
-                request);
+        Call<ApiS3FileUploadUrlList> call = mRestService.getS3FileUploadUrls(mUploadId, request);
         Response<ApiS3FileUploadUrlList> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -560,15 +549,13 @@ public class UploadStream extends FileUploadStream {
     private Node completeS3Upload(List<ApiS3FileUploadPart> uploadParts,
             EncryptedFileKey encryptedFileKey) throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String auth = mClient.buildAuthString();
-
         ApiCompleteS3FileUploadRequest request = new ApiCompleteS3FileUploadRequest();
         request.fileName = mFileUploadRequest.getName();
         request.parts = uploadParts;
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<Void> call = mRestService.completeS3FileUpload(auth, mUploadId, request);
+        Call<Void> call = mRestService.completeS3FileUpload(mUploadId, request);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -595,9 +582,7 @@ public class UploadStream extends FileUploadStream {
 
     private Node waitForCompleteS3Upload() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String auth = mClient.buildAuthString();
-
-        Call<ApiS3FileUploadStatus> call = mRestService.getS3FileUploadStatus(auth, mUploadId);
+        Call<ApiS3FileUploadStatus> call = mRestService.getS3FileUploadStatus(mUploadId);
         Response<ApiS3FileUploadStatus> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {

@@ -33,8 +33,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     public void pingUser() throws DracoonNetIOException, DracoonApiException {
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.pingUser(auth);
+        Call<Void> call = mService.pingUser();
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -49,8 +48,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiUserAccount> call = mService.getUserAccount(auth);
+        Call<ApiUserAccount> call = mService.getUserAccount();
         Response<ApiUserAccount> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -70,8 +68,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiCustomerAccount> call = mService.getCustomerAccount(auth);
+        Call<ApiCustomerAccount> call = mService.getCustomerAccount();
         Response<ApiCustomerAccount> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -109,8 +106,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
         ApiUserKeyPair apiUserKeyPair = UserMapper.toApiUserKeyPair(userKeyPair);
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.setUserKeyPair(auth, apiUserKeyPair);
+        Call<Void> call = mService.setUserKeyPair(apiUserKeyPair);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -138,8 +134,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     private UserKeyPair getUserKeyPair() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiUserKeyPair> call = mService.getUserKeyPair(auth);
+        Call<ApiUserKeyPair> call = mService.getUserKeyPair();
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -159,8 +154,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.deleteUserKeyPair(auth);
+        Call<Void> call = mService.deleteUserKeyPair();
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -241,8 +235,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.setUserProfileAttributes(auth, profileAttributes);
+        Call<Void> call = mService.setUserProfileAttributes(profileAttributes);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -258,8 +251,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiUserProfileAttributes> call = mService.getUserProfileAttributes(auth);
+        Call<ApiUserProfileAttributes> call = mService.getUserProfileAttributes();
         Response<ApiUserProfileAttributes> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -277,8 +269,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.deleteUserProfileAttribute(auth, key);
+        Call<Void> call = mService.deleteUserProfileAttribute(key);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

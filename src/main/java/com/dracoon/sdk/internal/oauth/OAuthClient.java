@@ -102,6 +102,8 @@ public class OAuthClient {
             DracoonApiException {
         String auth = Credentials.basic(mClientId, mClientSecret);
 
+        mLog.d(LOG_TAG, "Trying to retrieve OAuth tokens ...");
+
         Call<OAuthTokens> call = mOAuthService.getOAuthToken(auth,
                 OAuthConstants.OAuthGrantTypes.AUTHORIZATION_CODE, code);
         Response<OAuthTokens> response = mHttpHelper.executeRequest(call);
@@ -113,12 +115,16 @@ public class OAuthClient {
             throw e;
         }
 
+        mLog.d(LOG_TAG, "Successfully retrieved OAuth tokens.");
+
         return response.body();
     }
 
     public OAuthTokens refreshTokens(String refreshToken) throws DracoonNetIOException,
             DracoonApiException {
         String auth = Credentials.basic(mClientId, mClientSecret);
+
+        mLog.d(LOG_TAG, "Trying to refresh OAuth tokens ...");
 
         Call<OAuthTokens> call = mOAuthService.refreshOAuthToken(auth,
                 OAuthConstants.OAuthGrantTypes.REFRESH_TOKEN, refreshToken);
@@ -130,6 +136,8 @@ public class OAuthClient {
                     e.getCode().name()));
             throw e;
         }
+
+        mLog.d(LOG_TAG, "Successfully refreshed OAuth tokens.");
 
         return response.body();
     }
