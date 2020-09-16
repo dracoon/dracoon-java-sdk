@@ -373,7 +373,7 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     @Override
-    public boolean checkAuth() throws DracoonNetIOException, DracoonApiException {
+    public boolean isAuthValid() throws DracoonNetIOException, DracoonApiException {
         try {
             mAccount.pingUser();
         } catch (DracoonApiException e) {
@@ -383,8 +383,12 @@ public class DracoonClientImpl extends DracoonClient {
                 throw e;
             }
         }
-
         return true;
+    }
+
+    @Override
+    public void checkAuthValid() throws DracoonNetIOException, DracoonApiException {
+        mAccount.pingUser();
     }
 
     // --- Methods to get public handlers ---
