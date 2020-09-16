@@ -96,7 +96,7 @@ public class OAuthClient {
         mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
     }
 
-    // --- Methods to retrieve and refresh tokens ---
+    // --- Methods to retrieve, refresh and revoke tokens ---
 
     public OAuthTokens retrieveTokens(String code) throws DracoonNetIOException,
             DracoonApiException {
@@ -140,6 +140,38 @@ public class OAuthClient {
         mLog.d(LOG_TAG, "Successfully refreshed OAuth tokens.");
 
         return response.body();
+    }
+
+    public void revokeTokens(String accessToken, String refreshToken) throws DracoonNetIOException,
+            DracoonApiException {
+        mLog.d(LOG_TAG, "Trying to revoke OAuth tokens ...");
+
+        try {
+            revokeToken(OAuthConstants.OAuthTokenTypes.ACCESS_TOKEN, accessToken);
+            revokeToken(OAuthConstants.OAuthTokenTypes.REFRESH_TOKEN, refreshToken);
+        } catch (DracoonApiException e) {
+            mLog.d(LOG_TAG, String.format("Revocation of OAuth tokens failed with '%s'!",
+                    e.getCode().name()));
+            throw e;
+        }
+
+        mLog.d(LOG_TAG, "Successfully revoked OAuth tokens.");
+    }
+
+    private void revokeToken(String tokenType, String token) throws DracoonNetIOException,
+            DracoonApiException {
+        if (token == null) {
+            return;
+        }
+
+        String auth = Credentials.basic(mClientId, mClientSecret);
+
+        Call<Void> call = mOAuthService.revokeOAuthToken(auth, tokenType, token);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            throw mOAuthErrorParser.parseOAuthRevokeError(response);
+        }
     }
 
 }
