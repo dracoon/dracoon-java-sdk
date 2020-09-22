@@ -107,10 +107,12 @@ public class HttpHelper {
                     throw new InterruptedException();
                 }
                 Throwable c = e.getCause();
-                if (c.getClass().equals(DracoonNetIOException.class)) {
-                    throw (DracoonNetIOException) c;
-                } else if (c.getClass().equals(DracoonApiException.class)) {
-                    throw (DracoonApiException) c;
+                if (c != null) {
+                    if (c.getClass().equals(DracoonNetIOException.class)) {
+                        throw (DracoonNetIOException) c;
+                    } else if (c.getClass().equals(DracoonApiException.class)) {
+                        throw (DracoonApiException) c;
+                    }
                 }
                 exception = e;
             }
