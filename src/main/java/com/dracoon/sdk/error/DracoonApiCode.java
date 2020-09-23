@@ -25,6 +25,7 @@ public enum DracoonApiCode {
     AUTH_OAUTH_TOKEN_CODE_INVALID(-1107, "OAuth authorization code is invalid."),
     AUTH_OAUTH_REFRESH_REQUEST_INVALID(-1108, "OAuth token refresh request is invalid."),
     AUTH_OAUTH_REFRESH_TOKEN_INVALID(-1109, "OAuth refresh token is invalid."),
+    AUTH_OAUTH_REVOKE_REQUEST_INVALID(-1110, "OAuth token revoke request is invalid."),
     AUTH_OAUTH_CLIENT_NO_PERMISSION(-1150, "OAuth client has no permissions to execute the " +
             "action."),
     // Authorization

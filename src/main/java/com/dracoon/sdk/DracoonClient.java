@@ -1078,7 +1078,15 @@ public abstract class DracoonClient {
      * @throws DracoonNetIOException If a network error occurred.
      * @throws DracoonApiException   If the API responded with an error.
      */
-    public abstract boolean checkAuth() throws DracoonNetIOException, DracoonApiException;
+    public abstract boolean isAuthValid() throws DracoonNetIOException, DracoonApiException;
+
+    /**
+     * Checks if the <b>current</b> authorization is still valid.
+     *
+     * @throws DracoonNetIOException If a network error occurred.
+     * @throws DracoonApiException   If the API responded with an error.
+     */
+    public abstract void checkAuthValid() throws DracoonNetIOException, DracoonApiException;
 
     /**
      * Returns the client's encryption password.

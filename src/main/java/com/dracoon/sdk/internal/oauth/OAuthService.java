@@ -8,6 +8,7 @@ import retrofit2.http.POST;
 
 import static com.dracoon.sdk.internal.oauth.OAuthConstants.OAUTH_PATH;
 import static com.dracoon.sdk.internal.oauth.OAuthConstants.OAUTH_TOKEN_PATH;
+import static com.dracoon.sdk.internal.oauth.OAuthConstants.OAUTH_REVOKE_PATH;
 
 public interface OAuthService {
 
@@ -22,5 +23,11 @@ public interface OAuthService {
     Call<OAuthTokens> refreshOAuthToken(@Header("Authorization") String authorization,
             @Field("grant_type") String grantType,
             @Field("refresh_token") String refreshToken);
+
+    @FormUrlEncoded
+    @POST(OAUTH_PATH + OAUTH_REVOKE_PATH)
+    Call<Void> revokeOAuthToken(@Header("Authorization") String authorization,
+            @Field("token_type_hint") String tokenTypeHint,
+            @Field("token") String token);
 
 }

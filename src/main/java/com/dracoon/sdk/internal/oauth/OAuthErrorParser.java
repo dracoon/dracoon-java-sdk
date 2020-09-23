@@ -129,6 +129,23 @@ public class OAuthErrorParser {
         return new DracoonApiException(code);
     }
 
+    public DracoonApiException parseOAuthRevokeError(Response response) {
+        DracoonApiCode code;
+
+        switch (HttpStatus.valueOf(response.code())) {
+            case BAD_REQUEST:
+                code = DracoonApiCode.AUTH_OAUTH_REVOKE_REQUEST_INVALID;
+                break;
+            case UNAUTHORIZED:
+                code = DracoonApiCode.AUTH_OAUTH_CLIENT_UNAUTHORIZED;
+                break;
+            default:
+                code = DracoonApiCode.AUTH_UNKNOWN_ERROR;
+        }
+
+        return new DracoonApiException(code);
+    }
+
     private OAuthError getErrorResponse(Response response) {
         if (response.errorBody() == null) {
             return null;
