@@ -232,9 +232,7 @@ public class DownloadStream extends FileDownloadStream {
 
     private long getFileSize() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String auth = mClient.buildAuthString();
-
-        Call<ApiNode> call = mRestService.getNode(auth, mNodeId);
+        Call<ApiNode> call = mRestService.getNode(mNodeId);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -252,9 +250,7 @@ public class DownloadStream extends FileDownloadStream {
 
     private String createDownload() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        String auth = mClient.buildAuthString();
-
-        Call<ApiDownloadToken> call = mRestService.getDownloadToken(auth, mNodeId);
+        Call<ApiDownloadToken> call = mRestService.getDownloadToken(mNodeId);
         Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {

@@ -63,10 +63,9 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
                     userKeyPair.getUserPublicKey());
         }
 
-        String auth = mClient.buildAuthString();
         ApiCreateDownloadShareRequest apiRequest = ShareMapper.toApiCreateDownloadShareRequest(
                 request, userKeyPair, userEncFileKey);
-        Call<ApiDownloadShare> call = mService.createDownloadShare(auth, apiRequest);
+        Call<ApiDownloadShare> call = mService.createDownloadShare(apiRequest);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -111,9 +110,8 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ShareValidator.validateRange(offset, limit, true);
 
-        String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiDownloadShareList> call = mService.getDownloadShares(auth, filter, offset, limit);
+        Call<ApiDownloadShareList> call = mService.getDownloadShares(filter, offset, limit);
         Response<ApiDownloadShareList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -135,8 +133,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ShareValidator.validateShareId(shareId);
 
-        String auth = mClient.buildAuthString();
-        Call<ApiDownloadShare> call = mService.getDownloadShareQR(auth, shareId);
+        Call<ApiDownloadShare> call = mService.getDownloadShareQR(shareId);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -155,8 +152,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.deleteDownloadShare(auth, shareId);
+        Call<Void> call = mService.deleteDownloadShare(shareId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -175,9 +171,8 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ShareValidator.validateCreateUploadRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiCreateUploadShareRequest apiRequest = ShareMapper.toApiCreateUploadShareRequest(request);
-        Call<ApiUploadShare> call = mService.createUploadShare(auth, apiRequest);
+        Call<ApiUploadShare> call = mService.createUploadShare(apiRequest);
         Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -222,9 +217,8 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ShareValidator.validateRange(offset, limit, true);
 
-        String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiUploadShareList> call = mService.getUploadShares(auth, filter, offset, limit);
+        Call<ApiUploadShareList> call = mService.getUploadShares(filter, offset, limit);
         Response<ApiUploadShareList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -246,8 +240,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ShareValidator.validateShareId(shareId);
 
-        String auth = mClient.buildAuthString();
-        Call<ApiUploadShare> call = mService.getUploadShareQR(auth, shareId);
+        Call<ApiUploadShare> call = mService.getUploadShareQR(shareId);
         Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -265,8 +258,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     public void deleteUploadShare(long shareId) throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.deleteUploadShare(auth, shareId);
+        Call<Void> call = mService.deleteUploadShare(shareId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

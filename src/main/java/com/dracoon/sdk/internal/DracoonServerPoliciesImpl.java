@@ -50,8 +50,7 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiServerPasswordPolicies> call = mService.getServerPasswordPolicies(auth);
+        Call<ApiServerPasswordPolicies> call = mService.getServerPasswordPolicies();
         Response<ApiServerPasswordPolicies> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -69,8 +68,7 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings(auth);
+        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

@@ -198,11 +198,15 @@ public class DracoonExamples {
     }
 
     private static void checkAuth(DracoonClient client) throws DracoonException {
-        boolean isAuthValid = client.checkAuth();
-        if (isAuthValid) {
+        try {
+            client.checkAuthValid();
             System.out.println("Authorization is still valid.");
-        } else {
-            System.out.println("Authorization is no longer valid.");
+        } catch (DracoonApiException e) {
+            if (e.getCode().isAuthError()) {
+                System.out.println("Authorization is no longer valid.");
+            } else {
+                throw e;
+            }
         }
     }
 

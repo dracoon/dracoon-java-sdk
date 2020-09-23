@@ -51,7 +51,6 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 import static com.dracoon.sdk.internal.DracoonConstants.API_PATH;
-import static com.dracoon.sdk.internal.DracoonConstants.AUTHORIZATION_HEADER;
 
 public interface DracoonService {
 
@@ -62,51 +61,43 @@ public interface DracoonService {
     Call<ApiServerTime> getServerTime();
 
     @GET(API_PATH + "/config/info/general")
-    Call<ApiServerGeneralSettings> getServerGeneralSettings(
-            @Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiServerGeneralSettings> getServerGeneralSettings();
 
     @GET(API_PATH + "/config/info/defaults")
-    Call<ApiServerDefaults> getServerDefaults(
-            @Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiServerDefaults> getServerDefaults();
 
     @GET(API_PATH + "/config/info/policies/passwords")
-    Call<ApiServerPasswordPolicies> getServerPasswordPolicies(
-            @Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiServerPasswordPolicies> getServerPasswordPolicies();
 
     @GET(API_PATH + "/user/ping")
-    Call<Void> pingUser(@Header(AUTHORIZATION_HEADER) String token);
+    Call<Void> pingUser();
 
     @GET(API_PATH + "/user/account")
-    Call<ApiUserAccount> getUserAccount(@Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiUserAccount> getUserAccount();
 
     @GET(API_PATH + "/user/account/customer")
-    Call<ApiCustomerAccount> getCustomerAccount(@Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiCustomerAccount> getCustomerAccount();
 
     @POST(API_PATH + "/user/account/keypair")
-    Call<Void> setUserKeyPair(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiUserKeyPair request);
+    Call<Void> setUserKeyPair(@Body ApiUserKeyPair request);
 
     @GET(API_PATH + "/user/account/keypair")
-    Call<ApiUserKeyPair> getUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiUserKeyPair> getUserKeyPair();
 
     @DELETE(API_PATH + "/user/account/keypair")
-    Call<Void> deleteUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
+    Call<Void> deleteUserKeyPair();
 
     @PUT(API_PATH + "/user/profileAttributes")
-    Call<Void> setUserProfileAttributes(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiUserProfileAttributes request);
+    Call<Void> setUserProfileAttributes(@Body ApiUserProfileAttributes request);
 
     @GET(API_PATH + "/user/profileAttributes")
-    Call<ApiUserProfileAttributes> getUserProfileAttributes(
-            @Header(AUTHORIZATION_HEADER) String token);
+    Call<ApiUserProfileAttributes> getUserProfileAttributes();
 
     @DELETE(API_PATH + "/user/profileAttributes/{key}")
-    Call<Void> deleteUserProfileAttribute(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("key") String key);
+    Call<Void> deleteUserProfileAttribute(@Path("key") String key);
 
     @GET(API_PATH + "/nodes")
-    Call<ApiNodeList> getNodes(@Header(AUTHORIZATION_HEADER) String token,
-            @Query("parent_id") Long id,
+    Call<ApiNodeList> getNodes(@Query("parent_id") Long id,
             @Query("depth_level") Integer depthLevel,
             @Query("filter") String filter,
             @Query("sort") String sort,
@@ -114,12 +105,10 @@ public interface DracoonService {
             @Query("limit") Long limit);
 
     @GET(API_PATH + "/nodes/{node_id}")
-    Call<ApiNode> getNode(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("node_id") Long id);
+    Call<ApiNode> getNode(@Path("node_id") Long id);
 
     @GET(API_PATH + "/nodes/search")
-    Call<ApiNodeList> searchNodes(@Header(AUTHORIZATION_HEADER) String token,
-            @Query("search_string") String searchString,
+    Call<ApiNodeList> searchNodes(@Query("search_string") String searchString,
             @Query("parent_id") Long id,
             @Query("depth_level") Integer depthLevel,
             @Query("filter") String filter,
@@ -128,132 +117,104 @@ public interface DracoonService {
             @Query("limit") Long limit);
 
     @POST(API_PATH + "/nodes/rooms")
-    Call<ApiNode> createRoom(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiCreateRoomRequest request);
+    Call<ApiNode> createRoom(@Body ApiCreateRoomRequest request);
 
     @PUT(API_PATH + "/nodes/rooms/{room_id}")
-    Call<ApiNode> updateRoom(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("room_id") Long roomId,
+    Call<ApiNode> updateRoom(@Path("room_id") Long roomId,
             @Body ApiUpdateRoomRequest request);
 
     @POST(API_PATH + "/nodes/folders")
-    Call<ApiNode> createFolder(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiCreateFolderRequest request);
+    Call<ApiNode> createFolder(@Body ApiCreateFolderRequest request);
 
     @PUT(API_PATH + "/nodes/folders/{folder_id}")
-    Call<ApiNode> updateFolder(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("folder_id") Long folderId,
+    Call<ApiNode> updateFolder(@Path("folder_id") Long folderId,
             @Body ApiUpdateFolderRequest request);
 
     @PUT(API_PATH + "/nodes/files/{file_id}")
-    Call<ApiNode> updateFile(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("file_id") Long fileId,
+    Call<ApiNode> updateFile(@Path("file_id") Long fileId,
             @Body ApiUpdateFileRequest request);
 
     @HTTP(method = "DELETE", hasBody = true, path = API_PATH + "/nodes")
-    Call<Void> deleteNodes(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiDeleteNodesRequest request);
+    Call<Void> deleteNodes(@Body ApiDeleteNodesRequest request);
 
     @POST(API_PATH + "/nodes/{node_id}/copy_to")
-    Call<ApiNode> copyNodes(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("node_id") Long nodeId,
+    Call<ApiNode> copyNodes(@Path("node_id") Long nodeId,
             @Body ApiCopyNodesRequest request);
 
     @POST(API_PATH + "/nodes/{node_id}/move_to")
-    Call<ApiNode> moveNodes(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("node_id") Long nodeId,
+    Call<ApiNode> moveNodes(@Path("node_id") Long nodeId,
             @Body ApiMoveNodesRequest request);
 
     @POST(API_PATH + "/nodes/files/uploads")
-    Call<ApiFileUpload> createFileUpload(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiCreateFileUploadRequest request);
+    Call<ApiFileUpload> createFileUpload(@Body ApiCreateFileUploadRequest request);
 
     @Multipart
     @POST(API_PATH + "/nodes/files/uploads/{upload_id}")
-    Call<Void> uploadFile(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("upload_id") String uploadId,
+    Call<Void> uploadFile(@Path("upload_id") String uploadId,
             @Header("Content-Range") String contentRange,
             @Part MultipartBody.Part file);
 
     @PUT(API_PATH + "/nodes/files/uploads/{upload_id}")
-    Call<ApiNode> completeFileUpload(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("upload_id") String uploadId,
+    Call<ApiNode> completeFileUpload(@Path("upload_id") String uploadId,
             @Body ApiCompleteFileUploadRequest request);
 
     @POST(API_PATH + "/nodes/files/uploads/{upload_id}/s3_urls")
-    Call<ApiS3FileUploadUrlList> getS3FileUploadUrls(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("upload_id") String uploadId,
+    Call<ApiS3FileUploadUrlList> getS3FileUploadUrls(@Path("upload_id") String uploadId,
             @Body ApiGetS3FileUploadUrlsRequest request);
 
     @PUT(API_PATH + "/nodes/files/uploads/{upload_id}/s3")
-    Call<Void> completeS3FileUpload(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("upload_id") String uploadId,
+    Call<Void> completeS3FileUpload(@Path("upload_id") String uploadId,
             @Body ApiCompleteS3FileUploadRequest request);
 
     @GET(API_PATH + "/nodes/files/uploads/{upload_id}")
-    Call<ApiS3FileUploadStatus> getS3FileUploadStatus(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("upload_id") String uploadId);
+    Call<ApiS3FileUploadStatus> getS3FileUploadStatus(@Path("upload_id") String uploadId);
 
     @POST(API_PATH + "/nodes/files/{file_id}/downloads")
-    Call<ApiDownloadToken> getDownloadToken(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("file_id") Long fileId);
+    Call<ApiDownloadToken> getDownloadToken(@Path("file_id") Long fileId);
 
     @GET(API_PATH + "/nodes/files/{file_id}/user_file_key")
-    Call<ApiFileKey> getFileKey(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("file_id") Long fileId);
+    Call<ApiFileKey> getFileKey(@Path("file_id") Long fileId);
 
     @GET(API_PATH + "/nodes/missingFileKeys")
-    Call<ApiMissingFileKeys> getMissingFileKeys(@Header(AUTHORIZATION_HEADER) String token,
-            @Query("file_id") Long fileId,
+    Call<ApiMissingFileKeys> getMissingFileKeys(@Query("file_id") Long fileId,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
     @POST(API_PATH + "/nodes/files/keys")
-    Call<Void> setFileKeys(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiSetFileKeysRequest request);
+    Call<Void> setFileKeys(@Body ApiSetFileKeysRequest request);
 
     @POST(API_PATH + "/nodes/{node_id}/favorite")
-    Call<Void> markFavorite(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("node_id") Long nodeId);
+    Call<Void> markFavorite(@Path("node_id") Long nodeId);
 
     @DELETE(API_PATH + "/nodes/{node_id}/favorite")
-    Call<Void> unmarkFavorite(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("node_id") Long nodeId);
+    Call<Void> unmarkFavorite(@Path("node_id") Long nodeId);
 
     @POST(API_PATH + "/shares/downloads")
-    Call<ApiDownloadShare> createDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiCreateDownloadShareRequest request);
+    Call<ApiDownloadShare> createDownloadShare(@Body ApiCreateDownloadShareRequest request);
 
     @GET(API_PATH + "/shares/downloads")
-    Call<ApiDownloadShareList> getDownloadShares(@Header(AUTHORIZATION_HEADER) String token,
-            @Query("filter") String filter,
+    Call<ApiDownloadShareList> getDownloadShares(@Query("filter") String filter,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
     @GET(API_PATH + "/shares/downloads/{share_id}/qr")
-    Call<ApiDownloadShare> getDownloadShareQR(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("share_id") Long shareId);
+    Call<ApiDownloadShare> getDownloadShareQR(@Path("share_id") Long shareId);
 
     @DELETE(API_PATH + "/shares/downloads/{share_id}")
-    Call<Void> deleteDownloadShare(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("share_id") Long shareId);
+    Call<Void> deleteDownloadShare(@Path("share_id") Long shareId);
 
     @POST(API_PATH + "/shares/uploads")
-    Call<ApiUploadShare> createUploadShare(@Header(AUTHORIZATION_HEADER) String token,
-            @Body ApiCreateUploadShareRequest request);
+    Call<ApiUploadShare> createUploadShare(@Body ApiCreateUploadShareRequest request);
 
     @GET(API_PATH + "/shares/uploads")
-    Call<ApiUploadShareList> getUploadShares(@Header(AUTHORIZATION_HEADER) String token,
-            @Query("filter") String filter,
+    Call<ApiUploadShareList> getUploadShares(@Query("filter") String filter,
             @Query("offset") Long offset,
             @Query("limit") Long limit);
 
     @GET(API_PATH + "/shares/uploads/{share_id}/qr")
-    Call<ApiUploadShare> getUploadShareQR(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("share_id") Long shareId);
+    Call<ApiUploadShare> getUploadShareQR(@Path("share_id") Long shareId);
 
     @DELETE(API_PATH + "/shares/uploads/{share_id}")
-    Call<Void> deleteUploadShare(@Header(AUTHORIZATION_HEADER) String token,
-            @Path("share_id") Long shareId);
+    Call<Void> deleteUploadShare(@Path("share_id") Long shareId);
 
 }
