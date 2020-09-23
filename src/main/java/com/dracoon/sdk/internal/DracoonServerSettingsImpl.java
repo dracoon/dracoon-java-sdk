@@ -46,8 +46,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings(auth);
+        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -67,8 +66,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
     public ServerDefaults getDefaults() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiServerDefaults> call = mService.getServerDefaults(auth);
+        Call<ApiServerDefaults> call = mService.getServerDefaults();
         Response<ApiServerDefaults> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -168,8 +166,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
 
     private ApiServerCryptoAlgorithms getCryptoAlgorithms() throws DracoonNetIOException,
             DracoonApiException {
-        String auth = mClient.buildAuthString();
-        Call<ApiServerCryptoAlgorithms> call = mService.getServerCryptoAlgorithms(auth);
+        Call<ApiServerCryptoAlgorithms> call = mService.getServerCryptoAlgorithms();
         Response<ApiServerCryptoAlgorithms> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

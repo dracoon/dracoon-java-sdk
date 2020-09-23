@@ -126,10 +126,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         NodeValidator.validateParentNodeId(parentNodeId);
         NodeValidator.validateRange(offset, limit, true);
 
-        String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiNodeList> call = mService.getNodes(auth, parentNodeId, 0, filter, null,
-                offset, limit);
+        Call<ApiNodeList> call = mService.getNodes(parentNodeId, 0, filter, null, offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -151,8 +149,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateNodeId(nodeId);
 
-        String auth = mClient.buildAuthString();
-        Call<ApiNode> call = mService.getNode(auth, nodeId);
+        Call<ApiNode> call = mService.getNode(nodeId);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -211,9 +208,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         RoomValidator.validateCreateRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiCreateRoomRequest apiRequest = RoomMapper.toApiCreateRoomRequest(request);
-        Call<ApiNode> call = mService.createRoom(auth, apiRequest);
+        Call<ApiNode> call = mService.createRoom(apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -236,9 +232,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         RoomValidator.validateUpdateRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiUpdateRoomRequest apiRequest = RoomMapper.toApiUpdateRoomRequest(request);
-        Call<ApiNode> call = mService.updateRoom(auth, request.getId(), apiRequest);
+        Call<ApiNode> call = mService.updateRoom(request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -263,9 +258,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FolderValidator.validateCreateRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiCreateFolderRequest apiRequest = FolderMapper.toApiCreateFolderRequest(request);
-        Call<ApiNode> call = mService.createFolder(auth, apiRequest);
+        Call<ApiNode> call = mService.createFolder(apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -288,9 +282,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FolderValidator.validateUpdateRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiUpdateFolderRequest apiRequest = FolderMapper.toApiUpdateFolderRequest(request);
-        Call<ApiNode> call = mService.updateFolder(auth, request.getId(), apiRequest);
+        Call<ApiNode> call = mService.updateFolder(request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -315,9 +308,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateUpdateRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiUpdateFileRequest apiRequest = FileMapper.toApiUpdateFileRequest(request);
-        Call<ApiNode> call = mService.updateFile(auth, request.getId(), apiRequest);
+        Call<ApiNode> call = mService.updateFile(request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -342,9 +334,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateDeleteRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiDeleteNodesRequest apiRequest = NodeMapper.toApiDeleteNodesRequest(request);
-        Call<Void> call = mService.deleteNodes(auth, apiRequest);
+        Call<Void> call = mService.deleteNodes(apiRequest);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -363,9 +354,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateCopyRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiCopyNodesRequest apiRequest = NodeMapper.toApiCopyNodesRequest(request);
-        Call<ApiNode> call = mService.copyNodes(auth, request.getTargetNodeId(), apiRequest);
+        Call<ApiNode> call = mService.copyNodes(request.getTargetNodeId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -389,9 +379,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateMoveRequest(request);
 
-        String auth = mClient.buildAuthString();
         ApiMoveNodesRequest apiRequest = NodeMapper.toApiMoveNodesRequest(request);
-        Call<ApiNode> call = mService.moveNodes(auth, request.getTargetNodeId(), apiRequest);
+        Call<ApiNode> call = mService.moveNodes(request.getTargetNodeId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -782,10 +771,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
         NodeValidator.validateRange(offset, limit, true);
 
-        String auth = mClient.buildAuthString();
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiNodeList> call = mService.searchNodes(auth, searchString, parentNodeId, -1, filter,
-                null, offset, limit);
+        Call<ApiNodeList> call = mService.searchNodes(searchString, parentNodeId, -1, filter, null,
+                offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -892,8 +880,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private ApiMissingFileKeys getMissingFileKeysBatch(Long nodeId, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
-        String auth = mClient.buildAuthString();
-        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(auth, nodeId, offset, limit);
+        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(nodeId, offset, limit);
         Response<ApiMissingFileKeys> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -959,10 +946,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private void setFileKeysBatch(List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys)
             throws DracoonNetIOException, DracoonApiException {
-        String auth = mClient.buildAuthString();
         ApiSetFileKeysRequest request = new ApiSetFileKeysRequest();
         request.items = apiUserIdFileIdFileKeys;
-        Call<Void> call = mService.setFileKeys(auth, request);
+        Call<Void> call = mService.setFileKeys(request);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -980,8 +966,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonApiException, DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
-        String auth = mClient.buildAuthString();
-        Call<ApiFileKey> call = mService.getFileKey(auth, nodeId);
+        Call<ApiFileKey> call = mService.getFileKey(nodeId);
         Response<ApiFileKey> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -1043,8 +1028,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateNodeId(nodeId);
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.markFavorite(auth, nodeId);
+        Call<Void> call = mService.markFavorite(nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -1064,8 +1048,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         NodeValidator.validateNodeId(nodeId);
 
-        String auth = mClient.buildAuthString();
-        Call<Void> call = mService.unmarkFavorite(auth, nodeId);
+        Call<Void> call = mService.unmarkFavorite(nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

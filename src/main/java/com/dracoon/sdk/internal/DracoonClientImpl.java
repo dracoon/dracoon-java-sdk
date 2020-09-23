@@ -6,7 +6,6 @@ import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.dracoon.sdk.DracoonAuth;
@@ -20,6 +19,7 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
+import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
@@ -39,11 +39,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DracoonClientImpl extends DracoonClient {
 
-    private static final String LOG_TAG = DracoonClientImpl.class.getSimpleName();
-
     private static final int HTTP_SOCKET_BUFFER_SIZE = 16 * DracoonConstants.KIB;
 
-    private static final long AUTH_EXPIRE_TOLERANCE = 5 * DracoonConstants.SECOND;
+    private static final long AUTH_REFRESH_SKIP_INTERVAL = 15 * DracoonConstants.SECOND;
 
     private static class UserAgentInterceptor implements Interceptor {
 
@@ -65,10 +63,92 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     private DracoonAuth mAuth;
-    private long mAuthExpireTime = 0L;
+
+    private Interceptor mAuthInterceptor = new Interceptor() {
+
+        private long mLastRefreshTime = 0L;
+        private DracoonException mLastRefreshException = null;
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            // Get request
+            Request request = chain.request();
+
+            // If no authorization is needed: Send unchanged request
+            if (isPublicRequest(request)) {
+                return chain.proceed(request);
+            }
+            // If no authorization data was provided: Send unchanged request
+            if (mAuth == null) {
+                return chain.proceed(request);
+            }
+
+            // Try to send request
+            Response response = chain.proceed(addAuthorizationHeader(request));
+
+            // If request was successful: Return response
+            if (isSuccessfulResponse(response)) {
+                return response;
+            }
+            // If no refresh token was provided: Return response
+            if (mAuth.getRefreshToken() == null) {
+                return response;
+            }
+
+            // Close old response
+            response.close();
+
+            // Try to refresh tokens
+            refreshAuthTokens();
+
+            // Try to resend request
+            return chain.proceed(addAuthorizationHeader(request));
+        }
+
+        private boolean isPublicRequest(Request request) {
+            return request.url().encodedPath().startsWith(DracoonConstants.API_PATH + "/public/");
+        }
+
+        private boolean isSuccessfulResponse(Response response) {
+            return response.code() != HttpStatus.UNAUTHORIZED.getNumber();
+        }
+
+        private Request addAuthorizationHeader(Request request) {
+            return request.newBuilder().header(DracoonConstants.AUTHORIZATION_HEADER,
+                    DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken()).build();
+        }
+
+        private synchronized void refreshAuthTokens() throws IOException {
+            // If refresh is not overdue: Abort
+            if (mLastRefreshTime + AUTH_REFRESH_SKIP_INTERVAL > System.currentTimeMillis()) {
+                if (mLastRefreshException != null) {
+                    throw new IOException(mLastRefreshException);
+                }
+                return;
+            }
+
+            // Try to refresh tokens
+            try {
+                OAuthTokens tokens = mOAuthClient.refreshTokens(mAuth.getRefreshToken());
+                mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
+                        tokens.accessToken, tokens.refreshToken);
+                mLastRefreshTime = System.currentTimeMillis();
+                mLastRefreshException = null;
+            } catch (DracoonNetIOException e) {
+                throw new IOException(e);
+            } catch (DracoonApiException e) {
+                mLastRefreshTime = System.currentTimeMillis();
+                mLastRefreshException = e;
+                throw new IOException(e);
+            }
+        }
+
+    };
+
     private String mEncryptionPassword;
 
     private Log mLog = new NullLog();
+
     private DracoonHttpConfig mHttpConfig;
     private OkHttpClient mHttpClient;
 
@@ -164,9 +244,7 @@ public class DracoonClientImpl extends DracoonClient {
 
         assertApiVersionSupported();
 
-        if (mAuth != null) {
-            mAccount.pingUser();
-        }
+        retrieveAuthTokens();
     }
 
     private void initOAuthClient() {
@@ -203,7 +281,11 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     private void initDracoonService() {
-        Gson mGson = new GsonBuilder()
+        OkHttpClient httpClient = mHttpClient.newBuilder()
+                .addInterceptor(mAuthInterceptor)
+                .build();
+
+        Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Void.class, new TypeAdapter<Void>() {
                     @Override
                     public void write(JsonWriter out, Void value) {
@@ -228,13 +310,13 @@ public class DracoonClientImpl extends DracoonClient {
                 })
                 .create();
 
-        Retrofit mRetrofit = new Retrofit.Builder()
+        Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(mServerUrl.toString())
-                .client(mHttpClient)
-                .addConverterFactory(GsonConverterFactory.create(mGson))
+                .client(httpClient)
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
-        mDracoonService = mRetrofit.create(DracoonService.class);
+        mDracoonService = retrofit.create(DracoonService.class);
     }
 
     private void initDracoonErrorParser() {
@@ -371,8 +453,21 @@ public class DracoonClientImpl extends DracoonClient {
         return true;
     }
 
+    private void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
+        if (mAuth == null || !mAuth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
+            return;
+        }
+
+        // Try to retrieve auth tokens
+        OAuthTokens tokens = mOAuthClient.retrieveTokens(mAuth.getAuthorizationCode());
+
+        // Update auth data
+        mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(), tokens.accessToken,
+                tokens.refreshToken);
+    }
+
     @Override
-    public boolean checkAuth() throws DracoonNetIOException, DracoonApiException {
+    public boolean isAuthValid() throws DracoonNetIOException, DracoonApiException {
         try {
             mAccount.pingUser();
         } catch (DracoonApiException e) {
@@ -382,8 +477,12 @@ public class DracoonClientImpl extends DracoonClient {
                 throw e;
             }
         }
-
         return true;
+    }
+
+    @Override
+    public void checkAuthValid() throws DracoonNetIOException, DracoonApiException {
+        mAccount.pingUser();
     }
 
     // --- Methods to get public handlers ---
@@ -438,95 +537,6 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonSharesImpl getSharesImpl() {
         return mShares;
-    }
-
-    // --- OAuth authorization methods ---
-
-    public synchronized String buildAuthString() throws DracoonApiException, DracoonNetIOException {
-        // If no authorization information was provided: Abort
-        if (mAuth == null) {
-            return null;
-        }
-
-        // If expire time is not exceeded: Return current access token
-        if (mAuth.getMode().equals(DracoonAuth.Mode.ACCESS_TOKEN) ||
-                mAuthExpireTime - AUTH_EXPIRE_TOLERANCE > System.currentTimeMillis()) {
-            return DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken();
-        }
-
-        // If mode AUTHORIZATION_CODE: Retrieve new tokens
-        if (mAuth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
-            retrieveAuthTokens();
-        // If mode ACCESS_REFRESH_TOKEN: Refresh existing tokens
-        } else if (mAuth.getMode().equals(DracoonAuth.Mode.ACCESS_REFRESH_TOKEN)) {
-            refreshAuthTokens();
-        }
-
-        // Build authorization header string
-        return DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken();
-    }
-
-    private void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
-        String authorizationCode = mAuth.getAuthorizationCode();
-
-        // Try to retrieve auth tokens
-        OAuthTokens tokens = mOAuthClient.retrieveTokens(authorizationCode);
-
-        // Update auth data
-        mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
-                tokens.accessToken, tokens.refreshToken);
-        // Update auth expire time
-        mAuthExpireTime = System.currentTimeMillis() + tokens.expiresIn;
-    }
-
-    private void refreshAuthTokens() throws DracoonApiException, DracoonNetIOException {
-        String accessToken = mAuth.getAccessToken();
-        String refreshToken = mAuth.getRefreshToken();
-
-        String newAccessToken;
-        long expiresIn;
-        String newRefreshToken;
-
-        // TODO: Rework following logic when OAuth server is refactored
-        // Try to refresh auth tokens
-        try {
-            while (true) {
-                OAuthTokens tokens = mOAuthClient.refreshTokens(refreshToken);
-
-                newAccessToken = tokens.accessToken;
-                expiresIn = tokens.expiresIn * DracoonConstants.SECOND;
-                newRefreshToken = tokens.refreshToken;
-
-                // If new auth tokens have been issued: Abort
-                if (!Objects.equals(accessToken, newAccessToken)) {
-                    mLog.d(LOG_TAG, "A new auth token was created.");
-                    break;
-                }
-
-                // If auth tokens are still valid: Abort
-                if (expiresIn > AUTH_EXPIRE_TOLERANCE) {
-                    mLog.d(LOG_TAG, "Auth token is still valid.");
-                    break;
-                }
-
-                // Sleep some time before next try
-                mLog.d(LOG_TAG, "Old auth token is still valid. Trying again in 1 second.");
-                Thread.sleep(DracoonConstants.SECOND);
-            }
-        } catch (InterruptedException e) {
-            return;
-        }
-
-        // Update auth data
-        if (newRefreshToken != null) {
-            mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
-                    newAccessToken, newRefreshToken);
-        } else {
-            mAuth = new DracoonAuth(newAccessToken);
-        }
-
-        // Update auth expire time
-        mAuthExpireTime = System.currentTimeMillis() + expiresIn;
     }
 
     // --- Helper methods ---
