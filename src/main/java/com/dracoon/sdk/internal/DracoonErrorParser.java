@@ -182,7 +182,7 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
-                return DracoonApiCode.VALIDATION_ROOM_ALREADY_EXISTS;
+                return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -213,7 +213,7 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
-                return DracoonApiCode.VALIDATION_ROOM_ALREADY_EXISTS;
+                return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -242,7 +242,7 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
-                return DracoonApiCode.VALIDATION_FOLDER_ALREADY_EXISTS;
+                return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -271,7 +271,7 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
-                return DracoonApiCode.VALIDATION_FOLDER_ALREADY_EXISTS;
+                return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -306,7 +306,7 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
-                return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+                return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -543,7 +543,7 @@ public class DracoonErrorParser {
                 if (errorCode == -40010)
                     return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
                 else
-                    return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+                    return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             default:
                 return parseStandardError(statusCode, errorCode);
         }
@@ -608,7 +608,7 @@ public class DracoonErrorParser {
                 if (errorCode == -40010)
                     return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
                 else
-                    return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+                    return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             case GATEWAY_TIMEOUT:
                 if (errorCode == -90027)
                     return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
@@ -1087,7 +1087,7 @@ public class DracoonErrorParser {
                 if (errorCode == -40010)
                     return DracoonApiCode.VALIDATION_CAN_NOT_OVERWRITE_ROOM_FOLDER;
                 else
-                    return DracoonApiCode.VALIDATION_FILE_ALREADY_EXISTS;
+                    return DracoonApiCode.VALIDATION_NODE_ALREADY_EXISTS;
             case GATEWAY_TIMEOUT:
                 if (errorCode == -90027)
                     return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;

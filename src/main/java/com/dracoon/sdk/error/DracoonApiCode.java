@@ -58,9 +58,6 @@ public enum DracoonApiCode {
     VALIDATION_EXPIRATION_DATE_TOO_LATE(-3103, "Expiration date is too late. Max year is limited " +
             "to 9999."),
     VALIDATION_NODE_ALREADY_EXISTS(-3104, "A node with the same name already exits."),
-    VALIDATION_ROOM_ALREADY_EXISTS(-3105, "A room with the same name already exits."),
-    VALIDATION_FOLDER_ALREADY_EXISTS(-3106, "A folder with the same name already exits."),
-    VALIDATION_FILE_ALREADY_EXISTS(-3107, "A file with the same name already exits."),
     VALIDATION_NODES_NOT_IN_SAME_PARENT(-3108, "Folders/files must be in same parent."),
     VALIDATION_CAN_NOT_COPY_NODE_TO_OWN_PLACE_WITHOUT_RENAME(-3109, "A node can\'t be copied to " +
             "its own place without renaming."),
