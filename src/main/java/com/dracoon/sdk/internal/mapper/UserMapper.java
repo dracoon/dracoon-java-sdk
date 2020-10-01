@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.crypto.model.UserPrivateKey;
@@ -27,6 +28,11 @@ public class UserMapper extends BaseMapper {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(apiUserInfo.id);
         userInfo.setDisplayName(apiUserInfo.displayName);
+        try {
+            userInfo.setAvatarUuid(UUID.fromString(apiUserInfo.avatarUuid));
+        } catch (IllegalArgumentException e) {
+            // Nothing to do here
+        }
         return userInfo;
     }
 

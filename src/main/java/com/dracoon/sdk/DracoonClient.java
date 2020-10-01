@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.UUID;
 
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoException;
@@ -51,11 +52,11 @@ import com.dracoon.sdk.model.UserAccount;
  * - {@link Server Server}:   Query server information<br>
  * - {@link Account Account}: Query user/customer account information, set/delete encryption key
  *                            pair, ...<br>
- * - {@link Users Users}:     Not implemented yet<br>
+ * - {@link Users Users}:     Query user avatars<br>
  * - {@link Groups Groups}:   Not implemented yet<br>
  * - {@link Nodes Nodes}:     Query node(s), create room/folder, update room/folder/file,
  *                            upload/download files, ...<br>
- * - {@link Shares Shares}:   Not implemented yet<br>
+ * - {@link Shares Shares}:   Query and maintain upload/download shares<br>
  * <br>
  * New client instances can be created via {@link Builder}.
  */
@@ -267,6 +268,20 @@ public abstract class DracoonClient {
      * Handler to maintain users.
      */
     public interface Users {
+
+        /**
+         * Retrieves the avatar image of a user as byte array.<br>
+         *
+         * @param userId The ID of user. (ID must be positive.)
+         * @param avatarUuid The avatar UUID. (ID must be a valid UUID.)
+         *
+         * @return the byte array with the avatar image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getUserAvatar(long userId, UUID avatarUuid) throws DracoonNetIOException,
+                DracoonApiException;
 
     }
 

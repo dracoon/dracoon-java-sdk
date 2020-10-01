@@ -1065,6 +1065,19 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseAvatarDownloadError(okhttp3.Response response) {
+        int statusCode = response.code();
+
+        mLog.d(LOG_TAG, "Server API error: " + statusCode);
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_USER_AVATAR_NOT_FOUND;
+            default:
+                return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+    }
+
     // --- Methods to parse error response ---
 
     public DracoonApiCode parseS3UploadStatusError(ApiErrorResponse errorResponse) {

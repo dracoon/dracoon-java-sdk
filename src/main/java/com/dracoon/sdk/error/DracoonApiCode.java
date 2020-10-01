@@ -131,6 +131,7 @@ public enum DracoonApiCode {
     SERVER_USER_KEY_PAIR_NOT_FOUND(-5550, "Encryption key pair was not found."),
     SERVER_USER_KEY_PAIR_ALREADY_SET(-5551, "Encryption key pair was already set."),
     SERVER_USER_FILE_KEY_NOT_FOUND(-5552, "Encryption file key was not found."),
+    SERVER_USER_AVATAR_NOT_FOUND(5553, "User avatar could not be found."),
     // Groups
     SERVER_GROUP_NOT_FOUND(-5600, "Group could not be found."),
     // Config

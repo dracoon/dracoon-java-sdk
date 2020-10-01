@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
 import com.dracoon.sdk.model.UserAccount;
+import com.dracoon.sdk.model.UserInfo;
 
 /**
  * This class shows the usage of the Dracoon SDK.<br>
@@ -140,6 +142,8 @@ public class DracoonExamples {
 
         //generateMissingFileKeys(client);
         //generateMissingFileKeysForOneNode(client);
+
+        //getUserAvatar(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -676,10 +680,16 @@ public class DracoonExamples {
         }
     }
 
-    private static void getDownloadShareQrCode(DracoonClient client) throws DracoonException {
+    private static void getDownloadShareQrCode(DracoonClient client) throws DracoonException,
+            IOException {
         long shareId = 1L;
 
-        byte[] qrImage = client.shares().getDownloadShareQrCode(shareId);
+        byte[] qrCodeImage = client.shares().getDownloadShareQrCode(shareId);
+
+        File f = new File("C:\\temp\\qrcode.png");
+        OutputStream os = new FileOutputStream(f);
+        os.write(qrCodeImage);
+        os.close();
     }
 
     private static void deleteDownloadShare(DracoonClient client) throws DracoonException {
@@ -719,10 +729,16 @@ public class DracoonExamples {
         }
     }
 
-    private static void getUploadShareQR(DracoonClient client) throws DracoonException {
+    private static void getUploadShareQrCode(DracoonClient client) throws DracoonException,
+            IOException {
         long shareId = 1L;
 
-        byte[] qrImage = client.shares().getUploadShareQrCode(shareId);
+        byte[] qrCodeImage = client.shares().getUploadShareQrCode(shareId);
+
+        File f = new File("C:\\temp\\qrcode.png");
+        OutputStream os = new FileOutputStream(f);
+        os.write(qrCodeImage);
+        os.close();
     }
 
     private static void deleteUploadShare(DracoonClient client) throws DracoonException {
@@ -740,6 +756,21 @@ public class DracoonExamples {
         long nodeId = 1L;
 
         client.nodes().generateMissingFileKeys(nodeId, 10);
+    }
+
+    private static void getUserAvatar(DracoonClient client) throws DracoonException, IOException {
+        Node node = client.nodes().getNode(1L);
+        UserInfo userInfo = node.getCreatedBy();
+
+        System.out.println("User info: id=" + userInfo.getId() + ", avatarUuid=" +
+                userInfo.getAvatarUuid());
+
+        byte[] avatarImage = client.users().getUserAvatar(userInfo.getId(), userInfo.getAvatarUuid());
+
+        File f = new File("C:\\temp\\avatar.png");
+        OutputStream os = new FileOutputStream(f);
+        os.write(avatarImage);
+        os.close();
     }
 
 }
