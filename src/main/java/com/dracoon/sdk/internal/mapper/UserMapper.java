@@ -8,6 +8,7 @@ import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.crypto.model.UserPrivateKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
+import com.dracoon.sdk.internal.model.ApiUserAvatarInfo;
 import com.dracoon.sdk.internal.model.ApiUserInfo;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import com.dracoon.sdk.internal.model.ApiUserPrivateKey;
@@ -36,7 +37,8 @@ public class UserMapper extends BaseMapper {
         return userInfo;
     }
 
-    public static UserAccount fromApiUserAccount(ApiUserAccount apiUserAccount) {
+    public static UserAccount fromApiUserAccount(ApiUserAccount apiUserAccount,
+            ApiUserAvatarInfo apiUserAvatarInfo) {
         if (apiUserAccount == null) {
             return null;
         }
@@ -73,6 +75,15 @@ public class UserMapper extends BaseMapper {
             }
         }
         userAccount.setUserRoles(userRoles);
+
+        if (apiUserAvatarInfo != null) {
+            try {
+                userAccount.setAvatarUuid(UUID.fromString(apiUserAvatarInfo.avatarUuid));
+            } catch (IllegalArgumentException e) {
+                // Nothing to do here
+            }
+            userAccount.setHasCustomAvatar(apiUserAvatarInfo.isCustomAvatar);
+        }
 
         return userAccount;
     }

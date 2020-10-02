@@ -16,6 +16,7 @@ import com.dracoon.sdk.internal.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
+import com.dracoon.sdk.internal.model.ApiUserAvatarInfo;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import com.dracoon.sdk.internal.model.ApiUserProfileAttributes;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
@@ -48,20 +49,33 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        Call<ApiUserAccount> call = mService.getUserAccount();
-        Response<ApiUserAccount> response = mHttpHelper.executeRequest(call);
+        Call<ApiUserAccount> accountCall = mService.getUserAccount();
+        Response<ApiUserAccount> accountResponse = mHttpHelper.executeRequest(accountCall);
 
-        if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+        if (!accountResponse.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(accountResponse);
             String errorText = String.format("Query of user account failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
-        ApiUserAccount data = response.body();
+        ApiUserAccount accountData = accountResponse.body();
 
-        return UserMapper.fromApiUserAccount(data);
+        Call<ApiUserAvatarInfo> avatarInfoCall = mService.getUserAvatarInfo();
+        Response<ApiUserAvatarInfo> avatarInfoResponse = mHttpHelper.executeRequest(avatarInfoCall);
+
+        if (!avatarInfoResponse.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(avatarInfoResponse);
+            String errorText = String.format("Query of user account failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiUserAvatarInfo avatarInfoData = avatarInfoResponse.body();
+
+        return UserMapper.fromApiUserAccount(accountData, avatarInfoData);
     }
 
     @Override

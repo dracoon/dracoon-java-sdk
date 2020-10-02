@@ -34,6 +34,7 @@ import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
+import com.dracoon.sdk.internal.model.ApiUserAvatarInfo;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import com.dracoon.sdk.internal.model.ApiUserProfileAttributes;
 import okhttp3.MultipartBody;
@@ -95,6 +96,9 @@ public interface DracoonService {
 
     @DELETE(API_PATH + "/user/profileAttributes/{key}")
     Call<Void> deleteUserProfileAttribute(@Path("key") String key);
+
+    @GET(API_PATH + "/user/account/avatar")
+    Call<ApiUserAvatarInfo> getUserAvatarInfo();
 
     @GET(API_PATH + "/nodes")
     Call<ApiNodeList> getNodes(@Query("parent_id") Long id,
