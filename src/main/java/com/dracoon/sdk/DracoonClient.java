@@ -262,6 +262,35 @@ public abstract class DracoonClient {
          */
         String getUserProfileAttribute(String key) throws DracoonNetIOException, DracoonApiException;
 
+        /**
+         * Sets the avatar image of the user.<br>
+         *
+         * @param avatarImage The avatar image as byte array. (Image must be of type JPEG or PNG,
+         *                    with a maximum size of 5 MiB and maximum dimensions of 256x256 pixel.)
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void setUserAvatar(byte[] avatarImage) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves the avatar image of the user as byte array.<br>
+         *
+         * @return the byte array with the avatar image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getUserAvatar() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Deletes the avatar image of the user.<br>
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteUserAvatar() throws DracoonNetIOException, DracoonApiException;
+
     }
 
     /**

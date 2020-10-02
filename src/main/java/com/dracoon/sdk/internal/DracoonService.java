@@ -38,6 +38,7 @@ import com.dracoon.sdk.internal.model.ApiUserAvatarInfo;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import com.dracoon.sdk.internal.model.ApiUserProfileAttributes;
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -99,6 +100,12 @@ public interface DracoonService {
 
     @GET(API_PATH + "/user/account/avatar")
     Call<ApiUserAvatarInfo> getUserAvatarInfo();
+
+    @POST(API_PATH + "/user/account/avatar")
+    Call<Void> setUserAvatar(@Body RequestBody requestBody);
+
+    @DELETE(API_PATH + "/user/account/avatar")
+    Call<Void> deleteUserAvatar();
 
     @GET(API_PATH + "/nodes")
     Call<ApiNodeList> getNodes(@Query("parent_id") Long id,
