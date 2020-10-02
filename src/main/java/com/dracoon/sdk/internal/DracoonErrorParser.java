@@ -133,6 +133,30 @@ public class DracoonErrorParser {
         return parseUserProfileAttributesSetError(response);
     }
 
+    public DracoonApiCode parseUserAvatarSetError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -80042 || errorCode == -80043 || errorCode == -80044)
+                    return DracoonApiCode.VALIDATION_INVALID_IMAGE;
+                else
+                    return parseValidationError(errorCode);
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseUserAvatarDeleteError(Response response) {
+        return parseStandardError(response);
+    }
+
     public DracoonApiCode parseNodesQueryError(Response response) {
         ApiErrorResponse errorResponse = getErrorResponse(response);
         if (errorResponse == null) {
@@ -1060,6 +1084,19 @@ public class DracoonErrorParser {
                 return DracoonApiCode.AUTH_UNAUTHORIZED;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
+            default:
+                return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+    }
+
+    public DracoonApiCode parseAvatarDownloadError(okhttp3.Response response) {
+        int statusCode = response.code();
+
+        mLog.d(LOG_TAG, "Server API error: " + statusCode);
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_USER_AVATAR_NOT_FOUND;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
