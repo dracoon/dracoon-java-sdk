@@ -10,7 +10,7 @@ import com.google.gson.GsonBuilder;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"Duplicates", "rawtypes"})
 public class DracoonErrorParser {
 
     private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
