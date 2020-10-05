@@ -239,6 +239,7 @@ public class DracoonClientImpl extends DracoonClient {
 
         mServer = new DracoonServerImpl(this);
         mAccount = new DracoonAccountImpl(this);
+        mUsers = new DracoonUsersImpl(this);
         mNodes = new DracoonNodesImpl(this);
         mShares = new DracoonSharesImpl(this);
 

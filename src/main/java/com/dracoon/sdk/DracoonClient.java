@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoException;
@@ -53,11 +54,11 @@ import com.dracoon.sdk.model.UserKeyPairAlgorithm;
  * - {@link Server Server}:   Query server information<br>
  * - {@link Account Account}: Query user/customer account information, set/delete encryption key
  *                            pair, ...<br>
- * - {@link Users Users}:     Not implemented yet<br>
+ * - {@link Users Users}:     Query user avatars<br>
  * - {@link Groups Groups}:   Not implemented yet<br>
  * - {@link Nodes Nodes}:     Query node(s), create room/folder, update room/folder/file,
  *                            upload/download files, ...<br>
- * - {@link Shares Shares}:   Not implemented yet<br>
+ * - {@link Shares Shares}:   Query and maintain upload/download shares<br>
  * <br>
  * New client instances can be created via {@link Builder}.
  */
@@ -293,12 +294,55 @@ public abstract class DracoonClient {
          */
         String getUserProfileAttribute(String key) throws DracoonNetIOException, DracoonApiException;
 
+        /**
+         * Sets the avatar image of the user.<br>
+         *
+         * @param avatarImage The avatar image as byte array. (Image must be of type JPEG or PNG,
+         *                    with a maximum size of 5 MiB and maximum dimensions of 256x256 pixel.)
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void setUserAvatar(byte[] avatarImage) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves the avatar image of the user as byte array.<br>
+         *
+         * @return the byte array with the avatar image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getUserAvatar() throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Deletes the avatar image of the user.<br>
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteUserAvatar() throws DracoonNetIOException, DracoonApiException;
+
     }
 
     /**
      * Handler to maintain users.
      */
     public interface Users {
+
+        /**
+         * Retrieves the avatar image of a user as byte array.<br>
+         *
+         * @param userId The ID of user. (ID must be positive.)
+         * @param avatarUuid The avatar UUID. (ID must be a valid UUID.)
+         *
+         * @return the byte array with the avatar image
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        byte[] getUserAvatar(long userId, UUID avatarUuid) throws DracoonNetIOException,
+                DracoonApiException;
 
     }
 
