@@ -2,6 +2,7 @@ package com.dracoon.sdk.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User account model.<br>
@@ -35,6 +36,9 @@ public class UserAccount {
     private String mLastLoginFailIp;
 
     private List<UserRole> mUserRoles;
+
+    private UUID mAvatarUuid;
+    private Boolean mHasCustomAvatar;
 
     /**
      * Returns the ID of the user.
@@ -366,6 +370,43 @@ public class UserAccount {
      */
     public void setUserRoles(List<UserRole> userRoles) {
         mUserRoles = userRoles;
+    }
+
+    /**
+     * Returns the avatar UUID of the user.
+     *
+     * @return the avatar UUID
+     */
+    public UUID getAvatarUuid() {
+        return mAvatarUuid;
+    }
+
+    /**
+     * Sets avatar UUID of the user.
+     *
+     * @param avatarUuid The avatar UUID.
+     */
+    public void setAvatarUuid(UUID avatarUuid) {
+        mAvatarUuid = avatarUuid;
+    }
+
+    /**
+     * Returns <code>true</code> if user has a custom avatar.
+     *
+     * @return <code>true</code> if user has a custom avatar; <code>false</code> otherwise
+     */
+    public Boolean hasCustomAvatar() {
+        return mHasCustomAvatar;
+    }
+
+    /**
+     * Sets if user has a custom avatar.
+     *
+     * @param hasCustomAvatar <code>true</code> if user has a custom avatar;
+     *                        <code>false</code> otherwise.
+     */
+    public void setHasCustomAvatar(Boolean hasCustomAvatar) {
+        mHasCustomAvatar = hasCustomAvatar;
     }
 
 }

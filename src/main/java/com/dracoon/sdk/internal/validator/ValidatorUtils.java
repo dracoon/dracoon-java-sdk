@@ -83,6 +83,22 @@ public class ValidatorUtils {
         }
     }
 
+    // --- Byte array validation methods ---
+
+    public static void validateByteArray(String name, byte[] bytes, boolean nullable, long min,
+            long max) {
+        if (nullable && bytes == null) {
+            return;
+        }
+        validateNotNull(name, bytes);
+        if (bytes.length < min) {
+            throw new IllegalArgumentException(name + " cannot be smaller then " + min + " bytes.");
+        }
+        if (bytes.length > max) {
+            throw new IllegalArgumentException(name + " cannot be larger then " + max + " bytes.");
+        }
+    }
+
     // --- Other validation methods ---
 
     public static void validateServerURL(URL serverUrl) {

@@ -16,11 +16,14 @@ import com.dracoon.sdk.internal.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiUserAccount;
+import com.dracoon.sdk.internal.model.ApiUserAvatarInfo;
 import com.dracoon.sdk.internal.model.ApiUserKeyPair;
 import com.dracoon.sdk.internal.model.ApiUserProfileAttributes;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.UserAccount;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -28,8 +31,12 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private static final String LOG_TAG = DracoonAccountImpl.class.getSimpleName();
 
+    private final AvatarDownloader mAvatarDownloader;
+
     DracoonAccountImpl(DracoonClientImpl client) {
         super(client);
+
+        mAvatarDownloader = new AvatarDownloader(client);
     }
 
     public void pingUser() throws DracoonNetIOException, DracoonApiException {
@@ -48,20 +55,33 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        Call<ApiUserAccount> call = mService.getUserAccount();
-        Response<ApiUserAccount> response = mHttpHelper.executeRequest(call);
+        Call<ApiUserAccount> accountCall = mService.getUserAccount();
+        Response<ApiUserAccount> accountResponse = mHttpHelper.executeRequest(accountCall);
 
-        if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+        if (!accountResponse.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(accountResponse);
             String errorText = String.format("Query of user account failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
-        ApiUserAccount data = response.body();
+        ApiUserAccount accountData = accountResponse.body();
 
-        return UserMapper.fromApiUserAccount(data);
+        Call<ApiUserAvatarInfo> avatarInfoCall = mService.getUserAvatarInfo();
+        Response<ApiUserAvatarInfo> avatarInfoResponse = mHttpHelper.executeRequest(avatarInfoCall);
+
+        if (!avatarInfoResponse.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(avatarInfoResponse);
+            String errorText = String.format("Query of user account failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiUserAvatarInfo avatarInfoData = avatarInfoResponse.body();
+
+        return UserMapper.fromApiUserAccount(accountData, avatarInfoData);
     }
 
     @Override
@@ -279,6 +299,62 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
             DracoonApiCode errorCode = mErrorParser.parseUserProfileAttributeDeleteError(response);
             String errorText = String.format("Deleting user profile attribute failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
+    public void setUserAvatar(byte[] avatarImage) throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        ValidatorUtils.validateByteArray("Avatar image", avatarImage, false, 1, 5 * DracoonConstants.MIB);
+
+        Call<Void> call = mService.setUserAvatar(RequestBody.create(MediaType.parse(
+                "application/octet-stream"), avatarImage));
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserAvatarSetError(response);
+            String errorText = String.format("Setting user avatar failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
+    public byte[] getUserAvatar() throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        Call<ApiUserAvatarInfo> avatarInfoCall = mService.getUserAvatarInfo();
+        Response<ApiUserAvatarInfo> avatarInfoResponse = mHttpHelper.executeRequest(avatarInfoCall);
+
+        if (!avatarInfoResponse.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(avatarInfoResponse);
+            String errorText = String.format("Download of avatar failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiUserAvatarInfo avatarInfoData = avatarInfoResponse.body();
+        String downloadUrl = avatarInfoData != null ? avatarInfoData.avatarUri : null;
+
+        return mAvatarDownloader.downloadAvatar(downloadUrl);
+    }
+
+    @Override
+    public void deleteUserAvatar() throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        Call<Void> call = mService.deleteUserAvatar();
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserAvatarDeleteError(response);
+            String errorText = String.format("Deleting user avatar failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
