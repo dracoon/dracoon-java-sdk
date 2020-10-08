@@ -1,9 +1,12 @@
 package com.dracoon.sdk.example;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +54,7 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
 import com.dracoon.sdk.model.UserAccount;
+import com.dracoon.sdk.model.UserInfo;
 
 /**
  * This class shows the usage of the Dracoon SDK.<br>
@@ -90,6 +94,9 @@ public class DracoonExamples {
         //deleteUserKeyPair(client);
         //checkUserKeyPairPassword(client);
         //checkUserKeyPairPassword(client, ENCRYPTION_PASSWORD);
+
+        //setUserAvatar(client);
+        //deleteUserAvatar(client);
 
         //listNodes(client);
         //listNodesPaged(client);
@@ -140,6 +147,8 @@ public class DracoonExamples {
 
         //generateMissingFileKeys(client);
         //generateMissingFileKeysForOneNode(client);
+
+        //getUserAvatar(client);
     }
 
     private static void getServerData(DracoonClient client) throws DracoonException {
@@ -247,6 +256,17 @@ public class DracoonExamples {
             throws DracoonException {
         boolean isPasswordValid = client.account().checkUserKeyPairPassword(password);
         System.out.println("Valid encryption password: " + isPasswordValid);
+    }
+
+    private static void setUserAvatar(DracoonClient client) throws DracoonException, IOException {
+        File f = new File("C:\\temp\\avatar.png");
+        byte[] avatarImage = readBytes(f);
+
+        client.account().setUserAvatar(avatarImage);
+    }
+
+    private static void deleteUserAvatar(DracoonClient client) throws DracoonException {
+        client.account().deleteUserAvatar();
     }
 
     private static void listNodes(DracoonClient client) throws DracoonException {
@@ -676,10 +696,14 @@ public class DracoonExamples {
         }
     }
 
-    private static void getDownloadShareQrCode(DracoonClient client) throws DracoonException {
+    private static void getDownloadShareQrCode(DracoonClient client) throws DracoonException,
+            IOException {
         long shareId = 1L;
 
-        byte[] qrImage = client.shares().getDownloadShareQrCode(shareId);
+        byte[] qrCodeImage = client.shares().getDownloadShareQrCode(shareId);
+
+        File f = new File("C:\\temp\\qrcode.png");
+        writeBytes(f, qrCodeImage);
     }
 
     private static void deleteDownloadShare(DracoonClient client) throws DracoonException {
@@ -719,10 +743,14 @@ public class DracoonExamples {
         }
     }
 
-    private static void getUploadShareQR(DracoonClient client) throws DracoonException {
+    private static void getUploadShareQrCode(DracoonClient client) throws DracoonException,
+            IOException {
         long shareId = 1L;
 
-        byte[] qrImage = client.shares().getUploadShareQrCode(shareId);
+        byte[] qrCodeImage = client.shares().getUploadShareQrCode(shareId);
+
+        File f = new File("C:\\temp\\qrcode.png");
+        writeBytes(f, qrCodeImage);
     }
 
     private static void deleteUploadShare(DracoonClient client) throws DracoonException {
@@ -740,6 +768,42 @@ public class DracoonExamples {
         long nodeId = 1L;
 
         client.nodes().generateMissingFileKeys(nodeId, 10);
+    }
+
+    private static void getUserAvatar(DracoonClient client) throws DracoonException, IOException {
+        Node node = client.nodes().getNode(1L);
+        UserInfo userInfo = node.getCreatedBy();
+
+        System.out.println("User info: id=" + userInfo.getId() + ", avatarUuid=" +
+                userInfo.getAvatarUuid());
+
+        byte[] avatarImage = client.users().getUserAvatar(userInfo.getId(), userInfo.getAvatarUuid());
+
+        File f = new File("C:\\temp\\avatar.png");
+        writeBytes(f, avatarImage);
+    }
+
+    // --- Helper methods ---
+
+    private static byte[] readBytes(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            int c;
+            byte[] b = new byte[1024];
+            while ((c = is.read(b)) != -1) {
+                os.write(b, 0, c);
+            }
+        } finally {
+            is.close();
+        }
+        return os.toByteArray();
+    }
+
+    private static void writeBytes(File file, byte[] bytes) throws IOException {
+        OutputStream os = new FileOutputStream(file);
+        os.write(bytes);
+        os.close();
     }
 
 }

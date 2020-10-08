@@ -1,5 +1,7 @@
 package com.dracoon.sdk.model;
 
+import java.util.UUID;
+
 /**
  * User info model.<br>
  * <br>
@@ -10,6 +12,7 @@ public class UserInfo {
 
     private Long mId;
     private String mDisplayName;
+    private UUID mAvatarUuid;
 
     /**
      * Returns the ID of the user.
@@ -45,6 +48,24 @@ public class UserInfo {
      */
     public void setDisplayName(String displayName) {
         mDisplayName = displayName;
+    }
+
+    /**
+     * Returns the avatar UUID of the user.
+     *
+     * @return the avatar UUID
+     */
+    public UUID getAvatarUuid() {
+        return mAvatarUuid;
+    }
+
+    /**
+     * Sets avatar UUID of the user.
+     *
+     * @param avatarUuid The avatar UUID.
+     */
+    public void setAvatarUuid(UUID avatarUuid) {
+        mAvatarUuid = avatarUuid;
     }
 
 }
