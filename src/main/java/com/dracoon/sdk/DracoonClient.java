@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import com.dracoon.sdk.error.DracoonApiException;
@@ -43,6 +44,7 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
 import com.dracoon.sdk.model.UserAccount;
+import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 
 /**
  * DracoonClient is the main class of the Dracoon SDK. It contains several handlers which group the
@@ -130,6 +132,17 @@ public abstract class DracoonClient {
          */
         ServerDefaults getDefaults() throws DracoonNetIOException, DracoonApiException;
 
+        /**
+         * Retrieves the list of available user key pair algorithms.
+         *
+         * @return available user key pair algorithms
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        List<UserKeyPairAlgorithm> getAvailableUserKeyPairAlgorithms() throws DracoonNetIOException,
+                DracoonApiException;
+
     }
 
     /**
@@ -187,26 +200,43 @@ public abstract class DracoonClient {
         CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Retrieves a list of versions for which the user has encryption key pairs.
+         *
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
+         */
+        List<UserKeyPairAlgorithm.Version> getUserKeyPairAlgorithmVersions()
+                throws DracoonNetIOException, DracoonApiException, DracoonCryptoException;
+
+        /**
          * Sets the user's encryption key pair.
+         *
+         * @param version The version for which to set a key pair.
          *
          * @throws DracoonCryptoException If a crypto error occurred at creation of the key pair.
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          */
-        void setUserKeyPair() throws DracoonCryptoException, DracoonNetIOException,
-                DracoonApiException;
+        void setUserKeyPair(UserKeyPairAlgorithm.Version version) throws DracoonCryptoException,
+                DracoonNetIOException, DracoonApiException;
 
         /**
          * Deletes the user's encryption key pair.
          *
-         * @throws DracoonNetIOException If a network error occurred.
-         * @throws DracoonApiException   If the API responded with an error.
+         * @param version The version for which to delete the key pair.
+         *
+         * @throws DracoonCryptoException If a crypto error occurred at the key pair check.
+         * @throws DracoonNetIOException  If a network error occurred.
+         * @throws DracoonApiException    If the API responded with an error.
          */
-        void deleteUserKeyPair() throws DracoonNetIOException, DracoonApiException;
+        void deleteUserKeyPair(UserKeyPairAlgorithm.Version version) throws DracoonCryptoException,
+                DracoonNetIOException, DracoonApiException;
 
         /**
          * Checks if the user's encryption key pair can be unlocked with the currently set
          * encryption password.
+         *
+         * @param version The version for which to check the key pair password.
          *
          * @return <code>true</code> if key pair could be unlocked; <code>false</code> otherwise
          *
@@ -214,13 +244,14 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          */
-        boolean checkUserKeyPairPassword() throws DracoonCryptoException, DracoonNetIOException,
-                DracoonApiException;
+        boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version)
+                throws DracoonCryptoException, DracoonNetIOException, DracoonApiException;
 
         /**
          * Checks if the user's encryption key pair can be unlocked with the provided encryption
          * password.
-         * 
+         *
+         * @param version            The version for which to check the key pair password.
          * @param encryptionPassword The encryption password.
          *
          * @return <code>true</code> if key pair could be unlocked; <code>false</code> otherwise
@@ -229,8 +260,9 @@ public abstract class DracoonClient {
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          */
-        boolean checkUserKeyPairPassword(String encryptionPassword) throws DracoonCryptoException,
-                DracoonNetIOException, DracoonApiException;
+        boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version,
+                String encryptionPassword) throws DracoonCryptoException, DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Sets/resets the value of a user profile attribute.<br>
@@ -789,52 +821,36 @@ public abstract class DracoonClient {
                 long offset, long limit) throws DracoonNetIOException, DracoonApiException;
 
         /**
-         * Generates file keys for files with missing file keys.
+         * Generates file keys for files with missing file keys. The argument {@code limit}
+         * restricts the generation to a certain number.
+         *
+         * @param limit   The number limit. (Number of records; must be positive.)
+         *
+         * @return <code>true</code> if all file keys have been generated and no file keys are
+         *         missing anymore; <code>false</code> otherwise
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If a encryption/decryption failed.
          */
-        void generateMissingFileKeys() throws DracoonNetIOException, DracoonApiException,
+        boolean generateMissingFileKeys(int limit) throws DracoonNetIOException, DracoonApiException,
                 DracoonCryptoException;
 
         /**
          * Generates file keys for files with missing file keys. The argument {@code limit}
          * restricts the generation to a certain number.
          *
-         * @param limit The number limit. (Number of records; must be positive.)
+         * @param nodeId  The node ID of the file.
+         * @param limit   The number limit. (Number of records; must be positive.)
+         *
+         * @return <code>true</code> if all file keys have been generated and no file keys are
+         *         missing anymore; <code>false</code> otherwise
          *
          * @throws DracoonNetIOException  If a network error occurred.
          * @throws DracoonApiException    If the API responded with an error.
          * @throws DracoonCryptoException If a encryption/decryption failed.
          */
-        void generateMissingFileKeys(int limit) throws DracoonNetIOException, DracoonApiException,
-                DracoonCryptoException;
-
-        /**
-         * Generates file keys for a file with missing file keys.
-         *
-         * @param nodeId The node ID of the file.
-         *
-         * @throws DracoonNetIOException  If a network error occurred.
-         * @throws DracoonApiException    If the API responded with an error.
-         * @throws DracoonCryptoException If a encryption/decryption failed.
-         */
-        void generateMissingFileKeys(long nodeId) throws DracoonNetIOException, DracoonApiException,
-                DracoonCryptoException;
-
-        /**
-         * Generates file keys for files with missing file keys. The argument {@code limit}
-         * restricts the generation to a certain number.
-         *
-         * @param nodeId The node ID of the file.
-         * @param limit  The number limit. (Number of records; must be positive.)
-         *
-         * @throws DracoonNetIOException  If a network error occurred.
-         * @throws DracoonApiException    If the API responded with an error.
-         * @throws DracoonCryptoException If a encryption/decryption failed.
-         */
-        void generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
+        boolean generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
                 DracoonApiException, DracoonCryptoException;
 
         /**
@@ -1135,14 +1151,14 @@ public abstract class DracoonClient {
     /**
      * Returns the client's encryption password.
      *
-     * @return encryption password
+     * @return password
      */
     public abstract String getEncryptionPassword();
 
     /**
      * Sets the client's encryption password.
      *
-     * @param encryptionPassword The new encryption password.
+     * @param encryptionPassword The password.
      */
     public abstract void setEncryptionPassword(String encryptionPassword);
 

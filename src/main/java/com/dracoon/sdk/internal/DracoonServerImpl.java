@@ -25,6 +25,10 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
         mServerPolicies = new DracoonServerPoliciesImpl(client);
     }
 
+    public DracoonServerSettingsImpl getServerSettingsImpl() {
+        return mServerSettings;
+    }
+
     @Override
     public String getVersion() throws DracoonNetIOException, DracoonApiException {
         Call<ApiServerVersion> call = mService.getServerVersion();

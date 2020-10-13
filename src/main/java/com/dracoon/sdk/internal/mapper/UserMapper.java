@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.dracoon.sdk.crypto.error.UnknownVersionException;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.crypto.model.UserPrivateKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
@@ -113,7 +114,7 @@ public class UserMapper extends BaseMapper {
         }
 
         ApiUserPrivateKey apiUserPrivateKey = new ApiUserPrivateKey();
-        apiUserPrivateKey.version = userPrivateKey.getVersion();
+        apiUserPrivateKey.version = userPrivateKey.getVersion().getValue();
         apiUserPrivateKey.privateKey = userPrivateKey.getPrivateKey();
         return apiUserPrivateKey;
     }
@@ -124,42 +125,41 @@ public class UserMapper extends BaseMapper {
         }
 
         ApiUserPublicKey apiUserPublicKey = new ApiUserPublicKey();
-        apiUserPublicKey.version = userPublicKey.getVersion();
+        apiUserPublicKey.version = userPublicKey.getVersion().getValue();
         apiUserPublicKey.publicKey = userPublicKey.getPublicKey();
         return apiUserPublicKey;
     }
 
-    public static UserKeyPair fromApiUserKeyPair(ApiUserKeyPair apiUserKeyPair) {
+    public static UserKeyPair fromApiUserKeyPair(ApiUserKeyPair apiUserKeyPair)
+            throws UnknownVersionException {
         if (apiUserKeyPair == null) {
             return null;
         }
 
-        UserKeyPair userKeyPair = new UserKeyPair();
-        userKeyPair.setUserPrivateKey(fromApiUserPrivateKey(apiUserKeyPair.privateKeyContainer));
-        userKeyPair.setUserPublicKey(fromApiUserPublicKey(apiUserKeyPair.publicKeyContainer));
-        return userKeyPair;
+        return new UserKeyPair(fromApiUserPrivateKey(apiUserKeyPair.privateKeyContainer),
+                fromApiUserPublicKey(apiUserKeyPair.publicKeyContainer));
     }
 
-    private static UserPrivateKey fromApiUserPrivateKey(ApiUserPrivateKey apiUserPrivateKey) {
+    private static UserPrivateKey fromApiUserPrivateKey(ApiUserPrivateKey apiUserPrivateKey)
+            throws UnknownVersionException {
         if (apiUserPrivateKey == null) {
             return null;
         }
 
-        UserPrivateKey userPrivateKey = new UserPrivateKey();
-        userPrivateKey.setVersion(apiUserPrivateKey.version);
-        userPrivateKey.setPrivateKey(apiUserPrivateKey.privateKey);
-        return userPrivateKey;
+        UserKeyPair.Version version = UserKeyPair.Version.getByValue(apiUserPrivateKey.version);
+
+        return new UserPrivateKey(version, apiUserPrivateKey.privateKey);
     }
 
-    public static UserPublicKey fromApiUserPublicKey(ApiUserPublicKey apiUserPublicKey) {
+    public static UserPublicKey fromApiUserPublicKey(ApiUserPublicKey apiUserPublicKey)
+            throws UnknownVersionException {
         if (apiUserPublicKey == null) {
             return null;
         }
 
-        UserPublicKey userPublicKey = new UserPublicKey();
-        userPublicKey.setVersion(apiUserPublicKey.version);
-        userPublicKey.setPublicKey(apiUserPublicKey.publicKey);
-        return userPublicKey;
+        UserKeyPair.Version version = UserKeyPair.Version.getByValue(apiUserPublicKey.version);
+
+        return new UserPublicKey(version, apiUserPublicKey.publicKey);
     }
 
 }
