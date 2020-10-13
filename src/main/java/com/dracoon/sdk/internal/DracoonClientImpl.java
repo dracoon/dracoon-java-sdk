@@ -36,25 +36,6 @@ public class DracoonClientImpl extends DracoonClient {
 
     private static final long AUTH_REFRESH_SKIP_INTERVAL = 15 * DracoonConstants.SECOND;
 
-    private static class UserAgentInterceptor implements Interceptor {
-
-        private String mUserAgent;
-
-        public UserAgentInterceptor(String userAgent) {
-            mUserAgent = userAgent;
-        }
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request requestWithUserAgent = chain.request().newBuilder()
-                    .header("User-Agent", mUserAgent)
-                    .build();
-
-            return chain.proceed(requestWithUserAgent);
-        }
-
-    }
-
     private DracoonAuth mAuth;
 
     private Interceptor mAuthInterceptor = new Interceptor() {

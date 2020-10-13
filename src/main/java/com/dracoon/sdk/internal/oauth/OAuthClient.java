@@ -11,9 +11,11 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.HttpHelper;
 import com.dracoon.sdk.internal.NullLog;
+import com.dracoon.sdk.internal.UserAgentInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.Credentials;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -69,6 +71,13 @@ public class OAuthClient {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
                     mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
             builder.proxy(proxy);
+        }
+        for (Interceptor interceptor : mHttpConfig.getOkHttpApplicationInterceptors()) {
+            builder.addInterceptor(interceptor);
+        }
+        builder.addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()));
+        for (Interceptor interceptor : mHttpConfig.getOkHttpNetworkInterceptors()) {
+            builder.addNetworkInterceptor(interceptor);
         }
         mHttpClient = builder.build();
     }
