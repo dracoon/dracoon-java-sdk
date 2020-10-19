@@ -5,19 +5,26 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.crypto.model.EncryptedFileKey;
+import com.dracoon.sdk.crypto.model.PlainFileKey;
+import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoCode;
+import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.dracoon.sdk.internal.util.DateUtils;
+import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -35,25 +42,6 @@ public class DracoonClientImpl extends DracoonClient {
     private static final int HTTP_SOCKET_BUFFER_SIZE = 16 * DracoonConstants.KIB;
 
     private static final long AUTH_REFRESH_SKIP_INTERVAL = 15 * DracoonConstants.SECOND;
-
-    private static class UserAgentInterceptor implements Interceptor {
-
-        private String mUserAgent;
-
-        public UserAgentInterceptor(String userAgent) {
-            mUserAgent = userAgent;
-        }
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request requestWithUserAgent = chain.request().newBuilder()
-                    .header("User-Agent", mUserAgent)
-                    .build();
-
-            return chain.proceed(requestWithUserAgent);
-        }
-
-    }
 
     private DracoonAuth mAuth;
 
@@ -174,6 +162,14 @@ public class DracoonClientImpl extends DracoonClient {
 
     public String getEncryptionPassword() {
         return mEncryptionPassword;
+    }
+
+    public String getEncryptionPasswordOrAbort() throws DracoonCryptoException {
+        String encryptionPassword = getEncryptionPassword();
+        if (encryptionPassword == null) {
+            throw new DracoonCryptoException(DracoonCryptoCode.MISSING_PASSWORD_ERROR);
+        }
+        return encryptionPassword;
     }
 
     public void setEncryptionPassword(String encryptionPassword) {
@@ -330,6 +326,85 @@ public class DracoonClientImpl extends DracoonClient {
         mApiVersion = apiVersion;
     }
 
+    public void assertUserKeyPairVersionSupported(UserKeyPair.Version version)
+            throws DracoonNetIOException, DracoonApiException {
+        if (version == null) {
+            throw new IllegalArgumentException("Version can't be null.");
+        }
+
+        if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
+            if (version != UserKeyPair.Version.RSA2048) {
+                throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
+            }
+            return;
+        }
+
+        List<UserKeyPair.Version> versions = getServerSettingsImpl().getAvailableUserKeyPairVersions();
+        boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
+        if (!apiSupportsVersion) {
+            throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
+        }
+    }
+
+    public static UserKeyPair.Version toUserKeyPairVersion(UserKeyPairAlgorithm.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+                return UserKeyPair.Version.RSA2048;
+            case RSA4096:
+                return UserKeyPair.Version.RSA4096;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
+    public static UserKeyPairAlgorithm.Version fromUserKeyPairVersion(UserKeyPair.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+                return UserKeyPairAlgorithm.Version.RSA2048;
+            case RSA4096:
+                return UserKeyPairAlgorithm.Version.RSA4096;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
+    public static UserKeyPair.Version determineUserKeyPairVersion(EncryptedFileKey.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048_AES256GCM:
+                return UserKeyPair.Version.RSA2048;
+            case RSA4096_AES256GCM:
+                return UserKeyPair.Version.RSA4096;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
+    public static EncryptedFileKey.Version determineEncryptedFileKeyVersion(
+            UserKeyPair.Version version) throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+                return EncryptedFileKey.Version.RSA2048_AES256GCM;
+            case RSA4096:
+                return EncryptedFileKey.Version.RSA4096_AES256GCM;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
+    public static PlainFileKey.Version determinePlainFileKeyVersion(UserKeyPair.Version version)
+            throws DracoonCryptoException {
+        switch (version) {
+            case RSA2048:
+            case RSA4096:
+                return PlainFileKey.Version.AES256GCM;
+            default:
+                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
+        }
+    }
+
     public boolean isApiVersionGreaterEqual(String minApiVersion)
             throws DracoonNetIOException, DracoonApiException {
         if (mApiVersion == null) {
@@ -428,6 +503,10 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonServerImpl getServerImpl() {
         return mServer;
+    }
+
+    public DracoonServerSettingsImpl getServerSettingsImpl() {
+        return mServer.getServerSettingsImpl();
     }
 
     public DracoonAccountImpl getAccountImpl() {

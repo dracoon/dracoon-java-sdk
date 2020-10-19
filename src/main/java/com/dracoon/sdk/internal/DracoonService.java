@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal;
 
+import java.util.List;
+
 import com.dracoon.sdk.internal.model.ApiCompleteFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCompleteS3FileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
@@ -8,6 +10,7 @@ import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
+import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiDownloadShare;
@@ -68,6 +71,9 @@ public interface DracoonService {
     @GET(API_PATH + "/config/info/defaults")
     Call<ApiServerDefaults> getServerDefaults();
 
+    @GET(API_PATH + "/config/info/policies/algorithms")
+    Call<ApiServerCryptoAlgorithms> getServerCryptoAlgorithms();
+
     @GET(API_PATH + "/config/info/policies/passwords")
     Call<ApiServerPasswordPolicies> getServerPasswordPolicies();
 
@@ -80,14 +86,17 @@ public interface DracoonService {
     @GET(API_PATH + "/user/account/customer")
     Call<ApiCustomerAccount> getCustomerAccount();
 
+    @GET(API_PATH + "/user/account/keypairs")
+    Call<List<ApiUserKeyPair>> getUserKeyPairs();
+
     @POST(API_PATH + "/user/account/keypair")
     Call<Void> setUserKeyPair(@Body ApiUserKeyPair request);
 
     @GET(API_PATH + "/user/account/keypair")
-    Call<ApiUserKeyPair> getUserKeyPair();
+    Call<ApiUserKeyPair> getUserKeyPair(@Query("version") String version);
 
     @DELETE(API_PATH + "/user/account/keypair")
-    Call<Void> deleteUserKeyPair();
+    Call<Void> deleteUserKeyPair(@Query("version") String version);
 
     @PUT(API_PATH + "/user/profileAttributes")
     Call<Void> setUserProfileAttributes(@Body ApiUserProfileAttributes request);

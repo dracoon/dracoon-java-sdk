@@ -108,6 +108,7 @@ public enum DracoonApiCode {
 
     // General
     SERVER_UNKNOWN_ERROR(-5000, "A server error occurred."),
+    SERVER_CRYPTO_VERSION_NOT_SUPPORTED(-5010, "Crypto version not supported."),
     SERVER_MALICIOUS_FILE_DETECTED(-5090, "Malicious file detected."),
     // Nodes
     SERVER_NODE_NOT_FOUND(-5100, "Requested room/folder/file was not found."),
