@@ -152,7 +152,7 @@ public class DownloadStream extends FileDownloadStream {
         int bOff = off;
         int bLen = len;
 
-        // Read from buffer while requested length was read
+        // Read from buffer till requested length was read
         while (bLen > 0) {
             int bRead = mDownloadBuffer.read(b, bOff, bLen);
             // If buffer is exhausted: Try to download more data
@@ -189,16 +189,48 @@ public class DownloadStream extends FileDownloadStream {
     }
 
     @Override
-    public long skip(long n) throws IOException {
+    public long skip(long skip) throws IOException {
         assertNotClosed();
 
-        // If number of bytes to be skipped is negative: Abort
-        if (n <= 0L) {
+        // If number of bytes is negative: Abort
+        if (skip <= 0L) {
             return 0L;
         }
 
-        // TODO: Add logic to skip bytes
-        return 0L;
+        // If number of bytes is smaller than bytes in buffer: Skip buffer bytes and abort
+        if (mDownloadBuffer.size() > skip) {
+            mDownloadBuffer.skip(skip);
+            return skip;
+        }
+
+        long skipped = mDownloadBuffer.size();
+        long toSkip = skip - skipped;
+
+        // Discard buffer bytes
+        mDownloadBuffer.clear();
+
+        // Skip download data till requested number of bytes was skipped
+        while (toSkip > 0L) {
+            // Try to skip download data
+            long count;
+            try {
+                count = skipData(toSkip);
+            } catch (InterruptedException e) {
+                notifyCanceled(mId);
+                break;
+            } catch (DracoonException e) {
+                notifyFailed(mId, e);
+                throw new IOException("Could not read from download stream.", e);
+            }
+            // If no more data is available: Abort
+            if (count < 0L) {
+                break;
+            }
+            skipped = skipped + count;
+            toSkip = toSkip - count;
+        }
+
+        return skipped;
     }
 
     @Override
@@ -272,10 +304,12 @@ public class DownloadStream extends FileDownloadStream {
 
     private boolean downloadData() throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException, DracoonFileIOException, InterruptedException {
+        // If no more data is available: Abort
         if (mDownloadOffset == mDownloadLength) {
             return false;
         }
 
+        // If next chunk is needed: Request next chunk
         if (mRequestNextChunk) {
             long offset = mDownloadOffset;
             long remaining = mDownloadLength - mDownloadOffset;
@@ -286,8 +320,10 @@ public class DownloadStream extends FileDownloadStream {
             mChunkOffset = 0;
         }
 
+        // Download bytes
         byte[] bytes = downloadBytes(mDownloadInputStream, BLOCK_SIZE);
         int count = bytes.length;
+        // If no bytes were downloaded: Abort
         if (count == 0) {
             mRequestNextChunk = true;
             return true;
@@ -297,17 +333,90 @@ public class DownloadStream extends FileDownloadStream {
                 mChunkNum, mChunkOffset, mChunkOffset + count - 1, count,
                 mDownloadOffset, mDownloadOffset + count - 1, mDownloadLength));
 
-        mDownloadOffset = mDownloadOffset + count;
+        // Update offsets
         mChunkOffset = mChunkOffset + count;
+        mDownloadOffset = mDownloadOffset + count;
 
+        // If encrypted download: Decrypt bytes
         if (isEncryptedDownload()) {
             boolean isLastBytes = mDownloadOffset == mDownloadLength;
             bytes = decryptBytes(bytes, isLastBytes);
         }
 
+        // Write bytes to buffer
         mDownloadBuffer.write(bytes);
 
         return true;
+    }
+
+    private long skipData(long skip) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException, DracoonFileIOException, InterruptedException {
+        // If no more data is available: Abort
+        if (mDownloadOffset == mDownloadLength) {
+            return -1L;
+        }
+
+        // If next chunk is needed: Request next chunk
+        if (mRequestNextChunk) {
+            long offset = mDownloadOffset;
+            long remaining = mDownloadLength - mDownloadOffset;
+            long size = remaining > mChunkSize ? mChunkSize : remaining;
+
+            // If chunk can be skipped: Skip chunk and abort
+            if (!isEncryptedDownload()) {
+                long toSkip = skip > size ? size : skip;
+                mChunkNum++;
+
+                mLog.d(LOG_TAG, String.format("Skipping: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)",
+                        mId, mChunkNum, 0, toSkip - 1, toSkip,
+                        mDownloadOffset, mDownloadOffset + toSkip - 1, mDownloadLength));
+
+                mChunkOffset = 0;
+                mDownloadOffset = mDownloadOffset + toSkip;
+
+                return toSkip;
+            }
+
+            // Request next chunk
+            mDownloadInputStream = requestNextChunk(offset, size);
+            mRequestNextChunk = false;
+            mChunkNum++;
+            mChunkOffset = 0;
+        }
+
+        int toSkip = skip > BLOCK_SIZE ? BLOCK_SIZE : (int) skip;
+        byte[] bytes;
+        int count;
+        // If bytes can be skipped: Skip bytes
+        if (!isEncryptedDownload()) {
+            bytes = new byte[0];
+            count = skipBytes(mDownloadInputStream, toSkip);
+        // Otherwise: Download bytes
+        } else {
+            bytes = downloadBytes(mDownloadInputStream, toSkip);
+            count = bytes.length;
+        }
+        // If no bytes were skipped/downloaded: Abort
+        if (count == 0) {
+            mRequestNextChunk = true;
+            return 0L;
+        }
+
+        mLog.d(LOG_TAG, String.format("Skipping: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)", mId,
+                mChunkNum, mChunkOffset, mChunkOffset + count - 1, count,
+                mDownloadOffset, mDownloadOffset + count - 1, mDownloadLength));
+
+        // Update offsets
+        mChunkOffset = mChunkOffset + count;
+        mDownloadOffset = mDownloadOffset + count;
+
+        // If encrypted download: Decrypt bytes
+        if (isEncryptedDownload()) {
+            boolean isLastBytes = mDownloadOffset == mDownloadLength;
+            decryptBytes(bytes, isLastBytes);
+        }
+
+        return count;
     }
 
     private InputStream requestNextChunk(long offset, long size) throws DracoonNetIOException,
@@ -367,6 +476,20 @@ public class DownloadStream extends FileDownloadStream {
         }
 
         return os.toByteArray();
+    }
+
+    private int skipBytes(InputStream is, int n) throws DracoonNetIOException,
+            InterruptedException {
+        try {
+            return (int) is.skip(n);
+        } catch (IOException e) {
+            if (mThread.isInterrupted()) {
+                throw new InterruptedException();
+            }
+            String errorText = "Server communication failed!";
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonNetIOException(errorText, e);
+        }
     }
 
     private byte[] decryptBytes(byte[] bytes, boolean isLast) throws DracoonFileIOException,
