@@ -81,6 +81,16 @@ public abstract class DracoonClient {
         String getVersion() throws DracoonNetIOException, DracoonApiException;
 
         /**
+         * Checks if Dracoon Cloud server.
+         *
+         * @return <code>true</code> if Dracoon Cloud server; <code>false</code> otherwise
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        Boolean isDracoonCloud() throws DracoonNetIOException, DracoonApiException;
+
+        /**
          * Retrieves the server's time.
          *
          * @return server time
