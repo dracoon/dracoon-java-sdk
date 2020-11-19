@@ -43,7 +43,7 @@ public class DracoonErrorParser {
         return parseStandardError(statusCode, errorCode);
     }
 
-    public DracoonApiCode parseServerVersionError(Response response) {
+    public DracoonApiCode parseServerInfoQueryError(Response response) {
         if (HttpStatus.valueOf(response.code()) == HttpStatus.NOT_FOUND) {
             return DracoonApiCode.API_NOT_FOUND;
         }

@@ -28,8 +28,8 @@ import com.dracoon.sdk.internal.model.ApiGetS3FileUploadUrlsRequest;
 import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
 import com.dracoon.sdk.internal.model.ApiServerPasswordPolicies;
+import com.dracoon.sdk.internal.model.ApiServerInfo;
 import com.dracoon.sdk.internal.model.ApiServerTime;
-import com.dracoon.sdk.internal.model.ApiServerVersion;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
@@ -60,7 +60,7 @@ import static com.dracoon.sdk.internal.DracoonConstants.API_PATH;
 public interface DracoonService {
 
     @GET(API_PATH + "/public/software/version")
-    Call<ApiServerVersion> getServerVersion();
+    Call<ApiServerInfo> getServerInfo();
 
     @GET(API_PATH + "/public/time")
     Call<ApiServerTime> getServerTime();

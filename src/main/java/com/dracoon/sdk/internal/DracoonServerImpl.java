@@ -6,8 +6,8 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.model.ApiServerInfo;
 import com.dracoon.sdk.internal.model.ApiServerTime;
-import com.dracoon.sdk.internal.model.ApiServerVersion;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -31,18 +31,27 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
 
     @Override
     public String getVersion() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiServerVersion> call = mService.getServerVersion();
-        Response<ApiServerVersion> response = mHttpHelper.executeRequest(call);
+        return getServerInfo().restApiVersion;
+    }
+
+    @Override
+    public Boolean isDracoonCloud() throws DracoonNetIOException, DracoonApiException {
+        return getServerInfo().isDracoonCloud;
+    }
+
+    private ApiServerInfo getServerInfo() throws DracoonNetIOException, DracoonApiException {
+        Call<ApiServerInfo> call = mService.getServerInfo();
+        Response<ApiServerInfo> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseServerVersionError(response);
-            String errorText = String.format("Query of server version failed with '%s'!",
+            DracoonApiCode errorCode = mErrorParser.parseServerInfoQueryError(response);
+            String errorText = String.format("Query of server info failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
 
-        return response.body().restApiVersion;
+        return response.body();
     }
 
     @Override
