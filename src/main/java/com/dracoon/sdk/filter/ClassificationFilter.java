@@ -17,7 +17,7 @@ public class ClassificationFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Long> {
 
-        private ClassificationFilter mFilter;
+        private final ClassificationFilter mFilter;
 
         public Builder() {
             mFilter = new ClassificationFilter();
@@ -41,7 +41,7 @@ public class ClassificationFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private ClassificationFilter mFilter;
+        private final ClassificationFilter mFilter;
 
         Concater(ClassificationFilter filter) {
             mFilter = filter;

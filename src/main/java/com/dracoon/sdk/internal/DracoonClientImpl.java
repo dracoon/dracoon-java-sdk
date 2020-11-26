@@ -45,7 +45,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     private DracoonAuth mAuth;
 
-    private Interceptor mAuthInterceptor = new Interceptor() {
+    private final Interceptor mAuthInterceptor = new Interceptor() {
 
         private long mLastRefreshTime = 0L;
         private DracoonException mLastRefreshException = null;

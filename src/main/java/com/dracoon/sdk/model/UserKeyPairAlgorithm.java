@@ -16,7 +16,7 @@ public class UserKeyPairAlgorithm {
         RSA2048("A"),
         RSA4096("RSA-4096");
 
-        private String mValue;
+        private final String mValue;
 
         /**
          * Constructs a new enumeration constant with the provided version value.
@@ -67,7 +67,7 @@ public class UserKeyPairAlgorithm {
         REQUIRED("REQUIRED"),
         DISCOURAGED("DISCOURAGED");
 
-        private String mValue;
+        private final String mValue;
 
         /**
          * Constructs a new enumeration constant with the provided state value.

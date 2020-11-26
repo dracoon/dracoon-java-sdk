@@ -17,7 +17,7 @@ public class BranchVersionFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Long> {
 
-        private BranchVersionFilter mFilter;
+        private final BranchVersionFilter mFilter;
 
         public Builder() {
             mFilter = new BranchVersionFilter();
@@ -48,7 +48,7 @@ public class BranchVersionFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private BranchVersionFilter mFilter;
+        private final BranchVersionFilter mFilter;
 
         Concater(BranchVersionFilter filter) {
             mFilter = filter;

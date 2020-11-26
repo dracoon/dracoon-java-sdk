@@ -1226,7 +1226,7 @@ public abstract class DracoonClient {
      */
     public static class Builder {
 
-        private DracoonClientImpl mClient;
+        private final DracoonClientImpl mClient;
         private DracoonHttpConfig mHttpConfig;
 
         /**

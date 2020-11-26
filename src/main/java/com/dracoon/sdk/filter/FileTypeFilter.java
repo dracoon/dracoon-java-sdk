@@ -17,7 +17,7 @@ public class FileTypeFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<String> {
 
-        private FileTypeFilter mFilter;
+        private final FileTypeFilter mFilter;
 
         public Builder() {
             mFilter = new FileTypeFilter();
@@ -37,7 +37,7 @@ public class FileTypeFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private FileTypeFilter mFilter;
+        private final FileTypeFilter mFilter;
 
         Concater(FileTypeFilter filter) {
             mFilter = filter;

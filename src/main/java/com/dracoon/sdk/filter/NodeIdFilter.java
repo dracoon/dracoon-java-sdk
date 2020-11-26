@@ -17,7 +17,7 @@ public class NodeIdFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Long> {
 
-        private NodeIdFilter mFilter;
+        private final NodeIdFilter mFilter;
 
         public Builder() {
             mFilter = new NodeIdFilter();
@@ -37,7 +37,7 @@ public class NodeIdFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private NodeIdFilter mFilter;
+        private final NodeIdFilter mFilter;
 
         Concater(NodeIdFilter filter) {
             mFilter = filter;

@@ -36,8 +36,9 @@ public class DracoonHttpConfig {
     private boolean mProxyEnabled = false;
     private InetAddress mProxyAddress;
     private Integer mProxyPort;
-    private List<Interceptor> mOkHttpApplicationInterceptors;
-    private List<Interceptor> mOkHttpNetworkInterceptors;
+
+    private final List<Interceptor> mOkHttpApplicationInterceptors = new ArrayList<>();
+    private final List<Interceptor> mOkHttpNetworkInterceptors = new ArrayList<>();
 
     /**
      * Constructs a default HTTP configuration.
@@ -49,8 +50,6 @@ public class DracoonHttpConfig {
         mReadTimeout = 15;
         mWriteTimeout = 15;
         mChunkSize = (2 * DracoonConstants.MIB) / DracoonConstants.KIB;
-        mOkHttpApplicationInterceptors = new ArrayList<>();
-        mOkHttpNetworkInterceptors = new ArrayList<>();
     }
 
     /**

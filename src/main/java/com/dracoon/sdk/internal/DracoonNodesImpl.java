@@ -86,8 +86,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private static final String MEDIA_URL_TEMPLATE = "%s/mediaserver/image/%s/%dx%d";
 
-    private Map<String, UploadThread> mUploads = new HashMap<>();
-    private Map<String, DownloadThread> mDownloads = new HashMap<>();
+    private final Map<String, UploadThread> mUploads = new HashMap<>();
+    private final Map<String, DownloadThread> mDownloads = new HashMap<>();
 
     DracoonNodesImpl(DracoonClientImpl client) {
         super(client);

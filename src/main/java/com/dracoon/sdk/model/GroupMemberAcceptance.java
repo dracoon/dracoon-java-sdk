@@ -9,7 +9,7 @@ public enum GroupMemberAcceptance {
     AUTO_ALLOW("autoallow"),
     PENDING("pending");
 
-    private String mValue;
+    private final String mValue;
 
     /**
      * Constructs a new enumeration constant with the provided group member acceptance type value.

@@ -12,7 +12,7 @@ public enum PasswordPoliciesCharacterType {
     NUMERIC("numeric"),
     SPECIAL("special");
 
-    private String mValue;
+    private final String mValue;
 
     /**
      * Constructs a new enumeration constant with the provided character type value.

@@ -19,7 +19,7 @@ public class NodeTypeFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<NodeType> {
 
-        private NodeTypeFilter mFilter;
+        private final NodeTypeFilter mFilter;
 
         public Builder() {
             mFilter = new NodeTypeFilter();
@@ -43,7 +43,7 @@ public class NodeTypeFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private NodeTypeFilter mFilter;
+        private final NodeTypeFilter mFilter;
 
         Concater(NodeTypeFilter filter) {
             mFilter = filter;

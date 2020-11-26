@@ -17,7 +17,7 @@ public class ShareNameFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<String> {
 
-        private ShareNameFilter mFilter;
+        private final ShareNameFilter mFilter;
 
         public Builder() {
             mFilter = new ShareNameFilter();
@@ -37,7 +37,7 @@ public class ShareNameFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private ShareNameFilter mFilter;
+        private final ShareNameFilter mFilter;
 
         Concater(ShareNameFilter filter) {
             mFilter = filter;

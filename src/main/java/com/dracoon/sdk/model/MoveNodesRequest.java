@@ -16,11 +16,12 @@ public class MoveNodesRequest {
      */
     public static class SourceNode {
 
-        private Long mId;
-        private String mName;
+        private final Long mId;
+        private final String mName;
 
         SourceNode(Long id) {
             mId = id;
+            mName = null;
         }
 
         SourceNode(Long id, String name) {
@@ -95,7 +96,7 @@ public class MoveNodesRequest {
      */
     public static class Builder {
 
-        private MoveNodesRequest mRequest;
+        private final MoveNodesRequest mRequest;
 
         /**
          * Constructs a new builder.

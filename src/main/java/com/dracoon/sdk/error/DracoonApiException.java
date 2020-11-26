@@ -9,7 +9,7 @@ public class DracoonApiException extends DracoonException {
 
     private static final long serialVersionUID = -363709480322215168L;
 
-    private DracoonApiCode mCode;
+    private final DracoonApiCode mCode;
 
     /**
      * Constructs a new exception with an unknown error code.

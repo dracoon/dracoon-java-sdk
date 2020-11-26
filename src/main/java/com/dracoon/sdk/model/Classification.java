@@ -11,7 +11,7 @@ public enum Classification {
     CONFIDENTIAL(3),
     STRICTLY_CONFIDENTIAL(4);
 
-    private int mValue;
+    private final int mValue;
 
     /**
      * Constructs a new enumeration constant with the provided classification type value.

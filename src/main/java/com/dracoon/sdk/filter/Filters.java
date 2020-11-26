@@ -12,7 +12,7 @@ public abstract class Filters {
 
     private static final String SEPARATOR = "|";
 
-    protected List<Filter> mFilters = new ArrayList<>();
+    protected final List<Filter> mFilters = new ArrayList<>();
 
     /**
      * Validates a filter which will be added to the list. It checks if the filter is not

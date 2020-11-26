@@ -17,7 +17,7 @@ public class CreatedByFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<String> {
 
-        private CreatedByFilter mFilter;
+        private final CreatedByFilter mFilter;
 
         public Builder() {
             mFilter = new CreatedByFilter();
@@ -44,7 +44,7 @@ public class CreatedByFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private CreatedByFilter mFilter;
+        private final CreatedByFilter mFilter;
 
         Concater(CreatedByFilter filter) {
             mFilter = filter;
