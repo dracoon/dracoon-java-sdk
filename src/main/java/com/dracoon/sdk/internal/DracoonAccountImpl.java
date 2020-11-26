@@ -222,7 +222,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return response.body();
     }
 
-    private static boolean existsNoUserKeyPair(Response response) {
+    private static boolean existsNoUserKeyPair(Response<?> response) {
         return !response.isSuccessful() && response.code() == HttpStatus.NOT_FOUND.getNumber();
     }
 

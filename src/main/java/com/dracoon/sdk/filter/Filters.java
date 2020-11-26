@@ -12,7 +12,7 @@ public abstract class Filters {
 
     private static final String SEPARATOR = "|";
 
-    protected final List<Filter> mFilters = new ArrayList<>();
+    protected final List<Filter<?>> mFilters = new ArrayList<>();
 
     /**
      * Validates a filter which will be added to the list. It checks if the filter is not
@@ -20,11 +20,11 @@ public abstract class Filters {
      *
      * @param filter The filter.
      */
-    protected void validateSingleFilter(Filter filter) {
+    protected void validateSingleFilter(Filter<?> filter) {
         if (filter == null) {
             throw new IllegalArgumentException("Filter cannot be null.");
         }
-        for (Filter existingFilter : mFilters) {
+        for (Filter<?> existingFilter : mFilters) {
             if (existingFilter.getClass().equals(filter.getClass())) {
                 throw new IllegalArgumentException("Filter cannot added twice.");
             }
@@ -37,7 +37,7 @@ public abstract class Filters {
      *
      * @param filter The filter.
      */
-    protected void validateMultiFilter(Filter filter) {
+    protected void validateMultiFilter(Filter<?> filter) {
         if (filter == null) {
             throw new IllegalArgumentException("Filter cannot be null.");
         }

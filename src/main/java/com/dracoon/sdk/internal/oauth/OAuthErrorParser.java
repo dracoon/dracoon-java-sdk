@@ -61,7 +61,7 @@ public class OAuthErrorParser {
         return new DracoonApiException(code);
     }
 
-    public DracoonApiException parseTokenError(Response response) {
+    public DracoonApiException parseTokenError(Response<?> response) {
         OAuthError errorResponse = getErrorResponse(response);
 
         String error = errorResponse != null ? errorResponse.error : "";
@@ -95,7 +95,7 @@ public class OAuthErrorParser {
         return new DracoonApiException(code);
     }
 
-    public DracoonApiException parseOAuthRefreshError(Response response) {
+    public DracoonApiException parseOAuthRefreshError(Response<?> response) {
         OAuthError errorResponse = getErrorResponse(response);
 
         String error = errorResponse != null ? errorResponse.error : "";
@@ -129,7 +129,7 @@ public class OAuthErrorParser {
         return new DracoonApiException(code);
     }
 
-    public DracoonApiException parseOAuthRevokeError(Response response) {
+    public DracoonApiException parseOAuthRevokeError(Response<?> response) {
         DracoonApiCode code;
 
         switch (HttpStatus.valueOf(response.code())) {
@@ -146,7 +146,7 @@ public class OAuthErrorParser {
         return new DracoonApiException(code);
     }
 
-    private OAuthError getErrorResponse(Response response) {
+    private OAuthError getErrorResponse(Response<?> response) {
         if (response.errorBody() == null) {
             return null;
         }

@@ -172,7 +172,7 @@ public abstract class Filter<T> {
          *
          * @return a new builder which can be used to supply further filter values
          */
-        protected Builder and() {
+        protected Builder<?> and() {
             throw new UnsupportedOperationException();
         }
 
@@ -181,7 +181,7 @@ public abstract class Filter<T> {
          *
          * @return a new builder which can be used to supply further filter values
          */
-        protected Builder or() {
+        protected Builder<?> or() {
             throw new UnsupportedOperationException();
         }
 
@@ -190,7 +190,7 @@ public abstract class Filter<T> {
          *
          * @return a new {@link Filter} instance
          */
-        public abstract Filter build();
+        public abstract Filter<?> build();
 
     }
 
