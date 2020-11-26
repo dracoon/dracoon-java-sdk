@@ -61,7 +61,6 @@ public class HttpHelper {
 
     // --- Methods for HTTP calls ---
 
-    @SuppressWarnings("unchecked")
     public okhttp3.Response executeRequest(okhttp3.Call call) throws DracoonNetIOException,
             DracoonApiException {
         try {
@@ -73,7 +72,6 @@ public class HttpHelper {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public okhttp3.Response executeRequest(okhttp3.Call call, Thread thread)
             throws DracoonNetIOException, DracoonApiException, InterruptedException {
         try {
