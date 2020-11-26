@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.model;
 
+@SuppressWarnings("unused")
 public class ApiServerGeneralSettings {
     public Boolean sharePasswordSmsEnabled;
     public Boolean cryptoEnabled;

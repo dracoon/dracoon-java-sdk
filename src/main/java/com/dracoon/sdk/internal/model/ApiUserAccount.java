@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.model;
 
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class ApiUserAccount {
     public Long id;
     public String title;

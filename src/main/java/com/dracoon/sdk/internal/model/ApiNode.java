@@ -3,6 +3,7 @@ package com.dracoon.sdk.internal.model;
 import java.util.Date;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ApiNode {
     public Long id;
     public String type;

@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.model;
 
 import java.util.List;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ApiErrorInfos {
 
     public List<ApiConflictNode> conflictNodes;
