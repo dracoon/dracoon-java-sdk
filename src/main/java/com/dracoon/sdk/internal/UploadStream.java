@@ -613,14 +613,11 @@ public class UploadStream extends FileUploadStream {
 
     private FileRequestBody createChunk(byte[] chunk) {
         FileRequestBody requestBody = new FileRequestBody(chunk, chunk.length);
-        requestBody.setCallback(new FileRequestBody.Callback() {
-            @Override
-            public void onProgress(long send) {
-                if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
-                        && !mThread.isInterrupted()) {
-                    notifyRunning(mId, mUploadOffset + send, mUploadLength);
-                    mProgressUpdateTime = System.currentTimeMillis();
-                }
+        requestBody.setCallback(send -> {
+            if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
+                    && !mThread.isInterrupted()) {
+                notifyRunning(mId, mUploadOffset + send, mUploadLength);
+                mProgressUpdateTime = System.currentTimeMillis();
             }
         });
         return requestBody;
