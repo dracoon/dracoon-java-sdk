@@ -12,6 +12,10 @@ import com.dracoon.sdk.model.UpdateFileRequest;
 
 public class FileMapper extends BaseMapper {
 
+    private FileMapper() {
+        super();
+    }
+
     public static ApiUpdateFileRequest toApiUpdateFileRequest(UpdateFileRequest request) {
         ApiUpdateFileRequest apiRequest = new ApiUpdateFileRequest();
         apiRequest.name = request.getName();

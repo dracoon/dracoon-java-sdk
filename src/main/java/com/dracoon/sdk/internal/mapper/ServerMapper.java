@@ -14,6 +14,10 @@ import com.dracoon.sdk.model.ServerGeneralSettings;
 
 public class ServerMapper extends BaseMapper {
 
+    private ServerMapper() {
+        super();
+    }
+
     public static ServerGeneralSettings fromApiGeneralSettings(
             ApiServerGeneralSettings apiServerGeneralSettings) {
         if (apiServerGeneralSettings == null) {

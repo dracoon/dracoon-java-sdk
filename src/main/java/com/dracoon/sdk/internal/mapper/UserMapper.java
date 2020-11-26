@@ -22,6 +22,10 @@ import com.dracoon.sdk.model.UserRole;
 
 public class UserMapper extends BaseMapper {
 
+    private UserMapper() {
+        super();
+    }
+
     public static UserInfo fromApiUserInfo(ApiUserInfo apiUserInfo) {
         if (apiUserInfo == null) {
             return null;

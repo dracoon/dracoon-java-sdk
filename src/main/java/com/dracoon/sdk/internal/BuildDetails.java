@@ -16,7 +16,9 @@ public class BuildDetails {
         init(p);
     }
 
-    private BuildDetails() {}
+    private BuildDetails() {
+
+    }
 
     private static Properties loadProperties() {
         String fileName = PROPERTIES_FILE;

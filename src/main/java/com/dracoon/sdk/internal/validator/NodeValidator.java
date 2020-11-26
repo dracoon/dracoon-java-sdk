@@ -6,6 +6,10 @@ import com.dracoon.sdk.model.MoveNodesRequest;
 
 public class NodeValidator extends BaseValidator {
 
+    private NodeValidator() {
+        super();
+    }
+
     public static void validateParentNodeId(long id) {
         if (id != 0L) {
             BaseValidator.validateParentNodeId(id);

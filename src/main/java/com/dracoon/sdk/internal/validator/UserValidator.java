@@ -4,6 +4,10 @@ import java.util.UUID;
 
 public class UserValidator extends BaseValidator {
 
+    private UserValidator() {
+        super();
+    }
+
     public static void validateUserId(long id) {
         BaseValidator.validateUserId(id);
     }

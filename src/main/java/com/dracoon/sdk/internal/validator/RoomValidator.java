@@ -5,6 +5,10 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 
 public class RoomValidator extends BaseValidator {
 
+    private RoomValidator() {
+        super();
+    }
+
     public static void validateCreateRequest(CreateRoomRequest request) {
         ValidatorUtils.validateNotNull("Room creation request", request);
         if (request.getParentId() != null) {

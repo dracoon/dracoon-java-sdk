@@ -7,6 +7,10 @@ import com.dracoon.sdk.model.UpdateFolderRequest;
 
 public class FolderMapper extends BaseMapper {
 
+    private FolderMapper() {
+        super();
+    }
+
     public static ApiCreateFolderRequest toApiCreateFolderRequest(CreateFolderRequest request) {
         ApiCreateFolderRequest apiRequest = new ApiCreateFolderRequest();
         apiRequest.parentId = request.getParentId();

@@ -9,6 +9,10 @@ import com.dracoon.sdk.model.UpdateFileRequest;
 
 public class FileValidator extends BaseValidator {
 
+    private FileValidator() {
+        super();
+    }
+
     public static void validateUploadRequest(String id, FileUploadRequest request, File file) {
         ValidatorUtils.validateString("Upload ID", id, false);
         validateUploadRequest(request);

@@ -19,6 +19,10 @@ import com.dracoon.sdk.model.NodeType;
 
 public class NodeMapper extends BaseMapper {
 
+    private NodeMapper() {
+        super();
+    }
+
     public static NodeList fromApiNodeList(ApiNodeList apiNodeList) {
         if (apiNodeList == null) {
             return null;

@@ -5,6 +5,10 @@ import com.dracoon.sdk.model.NodePermissions;
 
 public class NodePermissionsMapper extends BaseMapper {
 
+    private NodePermissionsMapper() {
+        super();
+    }
+
     public static NodePermissions fromApiNodePermissions(ApiNodePermissions apiNodePermissions) {
         if (apiNodePermissions == null) {
             return null;

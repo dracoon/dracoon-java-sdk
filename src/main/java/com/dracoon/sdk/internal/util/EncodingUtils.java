@@ -4,6 +4,10 @@ import okio.ByteString;
 
 public class EncodingUtils {
 
+    private EncodingUtils() {
+
+    }
+
     public static String encodeBase64(byte[] data) {
         return ByteString.of(data).base64();
     }

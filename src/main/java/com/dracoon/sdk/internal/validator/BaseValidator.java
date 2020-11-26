@@ -4,6 +4,10 @@ import java.util.List;
 
 public class BaseValidator {
 
+    protected BaseValidator() {
+
+    }
+
     protected static void validateNodeId(Long id) {
         ValidatorUtils.validateId("Node", id);
     }

@@ -4,6 +4,10 @@ import java.util.List;
 
 public class TextUtils {
 
+    private TextUtils() {
+
+    }
+
     public static String join(List<String> strings) {
         if (strings == null) {
             return null;
