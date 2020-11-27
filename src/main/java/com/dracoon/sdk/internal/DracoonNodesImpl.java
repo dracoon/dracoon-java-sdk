@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -726,14 +727,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
-        EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
+        EncryptedFileKey encFileKey = getFileKey(nodeId);
 
         UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
-                encryptedFileKey.getVersion());
+                encFileKey.getVersion());
         UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(
                 userKeyPairVersion);
 
-        return decryptFileKey(nodeId, encryptedFileKey, userKeyPair.getUserPrivateKey(),
+        return decryptFileKey(nodeId, encFileKey, userKeyPair.getUserPrivateKey(),
                 userPrivateKeyPassword);
     }
 
@@ -846,31 +847,34 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
 
         List<ApiUserIdFileId> apiUserIdFileIds = apiMissingFileKeys.items;
-        Map<Long, UserPublicKey> userPublicKeys = convertUserPublicKeys(apiMissingFileKeys.users);
-        Map<Long, EncryptedFileKey> encryptedFileKeys = convertFileKeys(apiMissingFileKeys.files);
-        Map<Long, PlainFileKey> plainFileKeys = decryptFileKeys(encryptedFileKeys, userPrivateKeys,
+        Map<Long, List<UserPublicKey>> usersPublicKeys = convertUserPublicKeys(
+                apiMissingFileKeys.users);
+        Map<Long, List<EncryptedFileKey>> encFilesKeys = convertFileKeys(apiMissingFileKeys.files);
+        Map<Long, PlainFileKey> plainFileKeys = decryptFileKeys(encFilesKeys, userPrivateKeys,
                 userPrivateKeyPassword);
 
         List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys = new ArrayList<>();
 
         for (ApiUserIdFileId apiUserIdFileId : apiUserIdFileIds) {
-            UserPublicKey userPublicKey = userPublicKeys.get(apiUserIdFileId.userId);
+            List<UserPublicKey> userPublicKeys = usersPublicKeys.get(apiUserIdFileId.userId);
             PlainFileKey plainFileKey = plainFileKeys.get(apiUserIdFileId.fileId);
-            if (userPublicKey == null || plainFileKey == null) {
+            if (userPublicKeys == null || plainFileKey == null) {
                 continue;
             }
 
-            EncryptedFileKey encryptedFileKey = encryptFileKey(apiUserIdFileId.fileId, plainFileKey,
-                    userPublicKey);
+            for (UserPublicKey userPublicKey : userPublicKeys) {
+                EncryptedFileKey encFileKey = encryptFileKey(apiUserIdFileId.fileId, plainFileKey,
+                        userPublicKey);
 
-            ApiFileKey apiFileKey = FileMapper.toApiFileKey(encryptedFileKey);
+                ApiFileKey apiFileKey = FileMapper.toApiFileKey(encFileKey);
 
-            ApiUserIdFileIdFileKey apiUserIdFileIdFileKey = new ApiUserIdFileIdFileKey();
-            apiUserIdFileIdFileKey.userId = apiUserIdFileId.userId;
-            apiUserIdFileIdFileKey.fileId = apiUserIdFileId.fileId;
-            apiUserIdFileIdFileKey.fileKey = apiFileKey;
+                ApiUserIdFileIdFileKey apiUserIdFileIdFileKey = new ApiUserIdFileIdFileKey();
+                apiUserIdFileIdFileKey.userId = apiUserIdFileId.userId;
+                apiUserIdFileIdFileKey.fileId = apiUserIdFileId.fileId;
+                apiUserIdFileIdFileKey.fileKey = apiFileKey;
 
-            apiUserIdFileIdFileKeys.add(apiUserIdFileIdFileKey);
+                apiUserIdFileIdFileKeys.add(apiUserIdFileIdFileKey);
+            }
         }
 
         setFileKeysBatch(apiUserIdFileIdFileKeys);
@@ -894,52 +898,64 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return response.body();
     }
 
-    private static Map<Long, UserPublicKey> convertUserPublicKeys(
+    private static Map<Long, List<UserPublicKey>> convertUserPublicKeys(
             List<ApiUserIdUserPublicKey> apiUserIdUserPublicKeys) {
-        Map<Long, UserPublicKey> userPublicKeys = new HashMap<>();
+        Map<Long, List<UserPublicKey>> usersPublicKeys = new HashMap<>();
         for (ApiUserIdUserPublicKey apiUserIdUserPublicKey : apiUserIdUserPublicKeys) {
             try {
                 UserPublicKey userPublicKey = UserMapper.fromApiUserPublicKey(
                         apiUserIdUserPublicKey.publicKeyContainer);
-                userPublicKeys.put(apiUserIdUserPublicKey.id, userPublicKey);
+                List<UserPublicKey> userPublicKeys = usersPublicKeys.get(apiUserIdUserPublicKey.id);
+                if (userPublicKeys != null) {
+                    userPublicKeys.add(userPublicKey);
+                } else {
+                    usersPublicKeys.put(apiUserIdUserPublicKey.id, Collections.singletonList(
+                            userPublicKey));
+                }
             } catch (UnknownVersionException e) {
                 // Not supported public keys are ignored
             }
         }
-        return userPublicKeys;
+        return usersPublicKeys;
     }
 
-    private static Map<Long, EncryptedFileKey> convertFileKeys(
+    private static Map<Long, List<EncryptedFileKey>> convertFileKeys(
             List<ApiFileIdFileKey> apiFileIdFileKeys) {
-        Map<Long, EncryptedFileKey> encryptedFileKeys = new HashMap<>();
+        Map<Long, List<EncryptedFileKey>> encFilesKeys = new HashMap<>();
         for (ApiFileIdFileKey apiFileIdFileKey : apiFileIdFileKeys) {
             try {
-                EncryptedFileKey encryptedFileKey = FileMapper.fromApiFileKey(
+                EncryptedFileKey encFileKey = FileMapper.fromApiFileKey(
                         apiFileIdFileKey.fileKeyContainer);
-                encryptedFileKeys.put(apiFileIdFileKey.id, encryptedFileKey);
+                List<EncryptedFileKey> encFileKeys = encFilesKeys.get(apiFileIdFileKey.id);
+                if (encFileKeys != null) {
+                    encFileKeys.add(encFileKey);
+                } else {
+                    encFilesKeys.put(apiFileIdFileKey.id, Collections.singletonList(encFileKey));
+                }
             } catch (UnknownVersionException e) {
                 // Not supported public keys are ignored
             }
         }
-        return encryptedFileKeys;
+        return encFilesKeys;
     }
 
-    private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, EncryptedFileKey> encryptedFileKeys,
+    private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, List<EncryptedFileKey>> encFilesKeys,
             Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys, String userPrivateKeyPassword)
             throws DracoonCryptoException {
         Map<Long, PlainFileKey> plainFileKeys = new HashMap<>();
-        for (Map.Entry<Long, EncryptedFileKey> encryptedFileKey : encryptedFileKeys.entrySet()) {
-            UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
-                    encryptedFileKey.getValue().getVersion());
+        for (Map.Entry<Long, List<EncryptedFileKey>> encFileKeys : encFilesKeys.entrySet()) {
+            for (EncryptedFileKey encFileKey : encFileKeys.getValue()) {
+                UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
+                        encFileKey.getVersion());
 
-            UserPrivateKey userPrivateKey = userPrivateKeys.get(userKeyPairVersion);
-            if (userPrivateKey == null) {
-                continue;
+                UserPrivateKey userPrivateKey = userPrivateKeys.get(userKeyPairVersion);
+                if (userPrivateKey != null) {
+                    PlainFileKey plainFileKey = decryptFileKey(null, encFileKey, userPrivateKey,
+                            userPrivateKeyPassword);
+                    plainFileKeys.put(encFileKeys.getKey(), plainFileKey);
+                    break;
+                }
             }
-
-            PlainFileKey plainFileKey = decryptFileKey(null, encryptedFileKey.getValue(),
-                    userPrivateKey, userPrivateKeyPassword);
-            plainFileKeys.put(encryptedFileKey.getKey(), plainFileKey);
         }
         return plainFileKeys;
     }
@@ -990,12 +1006,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encryptedFileKeyFileKey,
+    public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encFileKeyFileKey,
             UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
             throws DracoonCryptoException {
         try {
-            return Crypto.decryptFileKey(encryptedFileKeyFileKey, userPrivateKey,
-                    userPrivateKeyPassword);
+            return Crypto.decryptFileKey(encFileKeyFileKey, userPrivateKey, userPrivateKeyPassword);
         } catch (CryptoException e) {
             String nodeErrorText = nodeId != null ? String.format("for node '%d' ", nodeId) : "";
             String errorText = String.format("Decryption of file key " + nodeErrorText +
