@@ -50,6 +50,7 @@ import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
@@ -74,6 +75,7 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
@@ -1099,6 +1101,42 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                 .eq(true).build());
 
         return searchNodes(0L, "*", filters, offset, limit);
+    }
+
+    // --- Comment methods ---
+
+    @Override
+    public NodeCommentList getNodeComments(long nodeId) throws DracoonNetIOException,
+            DracoonApiException {
+        return getNodeCommentsInternally(nodeId, null, null);
+    }
+
+    @Override
+    public NodeCommentList getNodeComments(long nodeId, long offset, long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        return getNodeCommentsInternally(nodeId, offset, limit);
+    }
+
+    private NodeCommentList getNodeCommentsInternally(long nodeId, Long offset, Long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateNodeId(nodeId);
+        NodeValidator.validateRange(offset, limit, true);
+
+        Call<ApiNodeCommentList> call = mService.getNodeComments(nodeId, offset, limit);
+        Response<ApiNodeCommentList> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentsGetError(response);
+            String errorText = String.format("Query of node comments for node '%d' failed with '%s'!",
+                    nodeId, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeCommentList data = response.body();
+        return NodeMapper.fromApiNodeCommentList(nodeId, data);
     }
 
     // --- Media methods ---

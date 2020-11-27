@@ -89,7 +89,7 @@ public enum DracoonApiCode {
     VALIDATION_PASSWORD_NOT_SECURE(-3800, "Password is not secure."),
     VALIDATION_EMAIL_ADDRESS_INVALID(-3801, "Email address invalid."),
 
-    PERMISSION_UNKNOWN_ERROR(-4000, "User has no permissions to execute the action in this room."),
+    PERMISSION_UNKNOWN_ERROR(-4000, "User has no permissions to execute the action."),
     PERMISSION_MANAGE_ERROR(-4100, "User has no permission to manage this room."),
     PERMISSION_READ_ERROR(-4101, "User has no permission to read nodes in this room."),
     PERMISSION_CREATE_ERROR(-4102, "User has no permission to create nodes in this room."),

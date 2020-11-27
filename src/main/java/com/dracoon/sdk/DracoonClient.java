@@ -34,6 +34,7 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.PasswordPolicies;
 import com.dracoon.sdk.model.ServerDefaults;
@@ -907,6 +908,35 @@ public abstract class DracoonClient {
          */
         NodeList getFavorites(long offset, long limit) throws DracoonNetIOException,
                 DracoonApiException;
+
+        /**
+         * Retrieves comments on a node.
+         *
+         * @param nodeId The ID of the node.
+         *
+         * @return list of node comments
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeCommentList getNodeComments(long nodeId) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves comments on a node. The arguments {@code offset} and {@code limit} restrict the
+         * result to a specific range.
+         *
+         * @param nodeId The ID of the node.
+         * @param offset The range offset. (Zero-based index; must be 0 or positive.)
+         * @param limit  The range limit. (Number of records; must be positive.)
+         *
+         * @return list of node comments
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeCommentList getNodeComments(long nodeId, long offset, long limit)
+                throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Builds a media URL. The URL can be used to get a thumbnail or preview image for a node.

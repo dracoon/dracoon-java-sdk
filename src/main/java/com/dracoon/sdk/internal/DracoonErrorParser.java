@@ -1006,6 +1006,26 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseNodeCommentsGetError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     private DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:

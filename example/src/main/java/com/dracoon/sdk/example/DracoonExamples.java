@@ -43,6 +43,8 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeComment;
+import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
 import com.dracoon.sdk.model.PasswordPolicies;
@@ -138,6 +140,8 @@ public class DracoonExamples {
         //unmarkFavorite(client);
         //getFavorites(client);
         //getFavoritesPaged(client);
+        //getNodeComments(client);
+        //getNodeCommentsPaged(client);
 
         //buildMediaUrl(client);
 
@@ -651,6 +655,37 @@ public class DracoonExamples {
             System.out.printf("Favorites page %d:\n", page);
             for (Node node : nodeList.getItems()) {
                 System.out.println(node.getId() + ": " + node.getParentPath() + node.getName());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
+    }
+
+    private static void getNodeComments(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+        NodeCommentList nodeCommentList = client.nodes().getNodeComments(nodeId);
+        for (NodeComment nodeComment : nodeCommentList.getItems()) {
+            System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
+        }
+    }
+
+    private static void getNodeCommentsPaged(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+        long page = 1;
+        long pageSize = 3;
+
+        long offset = 0;
+        long total;
+
+        do {
+            NodeCommentList nodeCommentList = client.nodes().getNodeComments(nodeId, offset,
+                    pageSize);
+            total = nodeCommentList.getTotal();
+
+            System.out.printf("Node comments page %d:\n", page);
+            for (NodeComment nodeComment : nodeCommentList.getItems()) {
+                System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
             }
 
             page++;

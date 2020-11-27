@@ -10,6 +10,7 @@ import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
+import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
@@ -208,6 +209,11 @@ public interface DracoonService {
 
     @DELETE(API_PATH + "/nodes/{node_id}/favorite")
     Call<Void> unmarkFavorite(@Path("node_id") Long nodeId);
+
+    @GET(API_PATH + "/nodes/{node_id}/comments")
+    Call<ApiNodeCommentList> getNodeComments(@Path("node_id") Long nodeId,
+            @Query("offset") Long offset,
+            @Query("limit") Long limit);
 
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Body ApiCreateDownloadShareRequest request);
