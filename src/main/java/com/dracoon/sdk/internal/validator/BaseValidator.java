@@ -133,7 +133,7 @@ public class BaseValidator {
     }
 
     public static void validateRange(Long offset, Long limit, boolean nullable) {
-        ValidatorUtils.validateNotNegative("offset", limit, nullable);
+        ValidatorUtils.validateNotNegative("offset", offset, nullable);
         ValidatorUtils.validatePositiveNumber("limit", limit, nullable);
     }
 
