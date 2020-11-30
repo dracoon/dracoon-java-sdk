@@ -30,6 +30,7 @@ import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
+import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.CustomerAccount;
@@ -52,6 +53,7 @@ import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
+import com.dracoon.sdk.model.UpdateNodeCommentRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
@@ -142,6 +144,9 @@ public class DracoonExamples {
         //getFavoritesPaged(client);
         //getNodeComments(client);
         //getNodeCommentsPaged(client);
+        //createNodeComment(client);
+        //updateNodeComment(client);
+        //deleteNodeComment(client);
 
         //buildMediaUrl(client);
 
@@ -691,6 +696,29 @@ public class DracoonExamples {
             page++;
             offset = offset + pageSize;
         } while (offset < total);
+    }
+
+    private static void createNodeComment(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+        CreateNodeCommentRequest request = new CreateNodeCommentRequest.Builder(nodeId,
+                "This is a comment!")
+                .build();
+        NodeComment nodeComment = client.nodes().createNodeComment(request);
+        System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
+    }
+
+    private static void updateNodeComment(DracoonClient client) throws DracoonException {
+        long commentId = 1L;
+        UpdateNodeCommentRequest request = new UpdateNodeCommentRequest.Builder(commentId,
+                "This is a changed comment!")
+                .build();
+        NodeComment nodeComment = client.nodes().updateNodeComment(request);
+        System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
+    }
+
+    private static void deleteNodeComment(DracoonClient client) throws DracoonException {
+        long commentId = 1L;
+        client.nodes().deleteNodeComment(commentId);
     }
 
     private static void buildMediaUrl(DracoonClient client) throws DracoonException {

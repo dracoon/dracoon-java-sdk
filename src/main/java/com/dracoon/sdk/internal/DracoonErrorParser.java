@@ -1026,6 +1026,54 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseNodeCommentCreateError(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                if (errorCode == -40000 || errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
+    public DracoonApiCode parseNodeCommentUpdateError(Response response) {
+        return parseNodeCommentUpdateDeleteErrorInternally(response);
+    }
+
+    public DracoonApiCode parseNodeCommentDeleteError(Response response) {
+        return parseNodeCommentUpdateDeleteErrorInternally(response);
+    }
+
+    private DracoonApiCode parseNodeCommentUpdateDeleteErrorInternally(Response response) {
+        ApiErrorResponse errorResponse = getErrorResponse(response);
+        if (errorResponse == null) {
+            return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+        }
+
+        int statusCode = response.code();
+        int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                if (errorCode == -41400)
+                    return DracoonApiCode.SERVER_NODE_COMMENT_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(statusCode, errorCode);
+        }
+    }
+
     private DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:

@@ -1,8 +1,10 @@
 package com.dracoon.sdk.internal.validator;
 
 import com.dracoon.sdk.model.CopyNodesRequest;
+import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.MoveNodesRequest;
+import com.dracoon.sdk.model.UpdateNodeCommentRequest;
 
 public class NodeValidator extends BaseValidator {
 
@@ -56,6 +58,18 @@ public class NodeValidator extends BaseValidator {
             BaseValidator.validateParentNodeId(id);
         }
         ValidatorUtils.validateString("Search string", searchString, false);
+    }
+
+    public static void validateCreateCommentRequest(CreateNodeCommentRequest request) {
+        ValidatorUtils.validateNotNull("Comment create request", request);
+        validateNodeId(request.getNodeId());
+        validateText(request.getText());
+    }
+
+    public static void validateUpdateCommentRequest(UpdateNodeCommentRequest request) {
+        ValidatorUtils.validateNotNull("Comment update request", request);
+        validateCommentId(request.getId());
+        validateText(request.getText());
     }
 
     public static void validateMediaUrlRequest(String mediaToken, int width, int height) {

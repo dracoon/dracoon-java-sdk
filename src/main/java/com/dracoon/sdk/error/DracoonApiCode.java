@@ -123,6 +123,7 @@ public enum DracoonApiCode {
     SERVER_INSUFFICIENT_ROOM_QUOTA(-5109, "Not enough quota for the room."),
     SERVER_INSUFFICIENT_UL_SHARE_QUOTA(-5110, "Not enough quota for the upload share."),
     SERVER_S3_COMMUNICATION_FAILED(-5120, "S3 communication failed."),
+    SERVER_NODE_COMMENT_NOT_FOUND(-5130, "Requested node comment was not found."),
     // Shares
     SERVER_DL_SHARE_NOT_FOUND(5200, "Download share could not be found."),
     SERVER_UL_SHARE_NOT_FOUND(5201, "Upload share could not be found."),

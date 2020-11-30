@@ -21,6 +21,7 @@ import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
+import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.CustomerAccount;
@@ -34,6 +35,7 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeComment;
 import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.PasswordPolicies;
@@ -41,6 +43,7 @@ import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
+import com.dracoon.sdk.model.UpdateNodeCommentRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
@@ -937,6 +940,42 @@ public abstract class DracoonClient {
          */
         NodeCommentList getNodeComments(long nodeId, long offset, long limit)
                 throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Creates a new node comment.
+         *
+         * @param request The request with information about the new node comment.
+         *
+         * @return the new node comment
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeComment createNodeComment(CreateNodeCommentRequest request) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Updates a node comment.
+         *
+         * @param request The request with updated information about the node comment.
+         *
+         * @return the updated node comment
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        NodeComment updateNodeComment(UpdateNodeCommentRequest request) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Deletes a node comment.
+         *
+         * @param commentId The ID of the node comment which should be deleted.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteNodeComment(long commentId) throws DracoonNetIOException, DracoonApiException;
 
         /**
          * Builds a media URL. The URL can be used to get a thumbnail or preview image for a node.

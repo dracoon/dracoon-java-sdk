@@ -11,7 +11,6 @@ import java.util.Date;
 public class NodeComment {
 
     private Long mId;
-    private Long mNodeId;
     private String mText;
 
     private Date mCreatedAt;
@@ -38,24 +37,6 @@ public class NodeComment {
      */
     public void setId(Long id) {
         mId = id;
-    }
-
-    /**
-     * Returns the node ID of the node comment.
-     *
-     * @return the node ID
-     */
-    public Long getNodeId() {
-        return mNodeId;
-    }
-
-    /**
-     * Sets the node ID of the node comment.
-     *
-     * @param nodeId The node ID.
-     */
-    public void setNodeId(Long nodeId) {
-        mNodeId = nodeId;
     }
 
     /**

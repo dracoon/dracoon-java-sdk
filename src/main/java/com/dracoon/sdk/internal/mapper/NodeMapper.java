@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.dracoon.sdk.internal.model.ApiCopyNode;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
+import com.dracoon.sdk.internal.model.ApiCreateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiMoveNode;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
@@ -11,8 +12,10 @@ import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeComment;
 import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
+import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
@@ -20,6 +23,7 @@ import com.dracoon.sdk.model.NodeComment;
 import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
+import com.dracoon.sdk.model.UpdateNodeCommentRequest;
 
 public class NodeMapper extends BaseMapper {
 
@@ -131,8 +135,7 @@ public class NodeMapper extends BaseMapper {
         return apiRequest;
     }
 
-    public static NodeCommentList fromApiNodeCommentList(long nodeId,
-            ApiNodeCommentList apiNodeCommentList) {
+    public static NodeCommentList fromApiNodeCommentList(ApiNodeCommentList apiNodeCommentList) {
         if (apiNodeCommentList == null) {
             return null;
         }
@@ -143,13 +146,13 @@ public class NodeMapper extends BaseMapper {
         nodeCommentList.setTotal(apiNodeCommentList.range.total);
         ArrayList<NodeComment> items = new ArrayList<>();
         for (ApiNodeComment apiNodeComment : apiNodeCommentList.items) {
-            items.add(NodeMapper.fromApiNodeComment(nodeId, apiNodeComment));
+            items.add(NodeMapper.fromApiNodeComment(apiNodeComment));
         }
         nodeCommentList.setItems(items);
         return nodeCommentList;
     }
 
-    public static NodeComment fromApiNodeComment(long nodeId, ApiNodeComment apiNodeComment) {
+    public static NodeComment fromApiNodeComment(ApiNodeComment apiNodeComment) {
         if (apiNodeComment == null) {
             return null;
         }
@@ -157,7 +160,6 @@ public class NodeMapper extends BaseMapper {
         NodeComment nodeComment = new NodeComment();
 
         nodeComment.setId(apiNodeComment.id);
-        nodeComment.setNodeId(nodeId);
         nodeComment.setText(apiNodeComment.text);
 
         nodeComment.setCreatedAt(apiNodeComment.createdAt);
@@ -169,6 +171,20 @@ public class NodeMapper extends BaseMapper {
         nodeComment.setWasDeleted(toBoolean(apiNodeComment.isDeleted));
 
         return nodeComment;
+    }
+
+    public static ApiCreateNodeCommentRequest toApiCreateNodeCommentRequest(
+            CreateNodeCommentRequest request) {
+        ApiCreateNodeCommentRequest apiRequest = new ApiCreateNodeCommentRequest();
+        apiRequest.text = request.getText();
+        return apiRequest;
+    }
+
+    public static ApiUpdateNodeCommentRequest toApiUpdateNodeCommentRequest(
+            UpdateNodeCommentRequest request) {
+        ApiUpdateNodeCommentRequest apiRequest = new ApiUpdateNodeCommentRequest();
+        apiRequest.text = request.getText();
+        return apiRequest;
     }
 
 }
