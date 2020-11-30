@@ -117,7 +117,7 @@ public interface DracoonService {
     Call<Void> deleteUserAvatar();
 
     @GET(API_PATH + "/nodes")
-    Call<ApiNodeList> getNodes(@Query("parent_id") Long id,
+    Call<ApiNodeList> getNodes(@Query("parent_id") Long parentNodeId,
             @Query("depth_level") Integer depthLevel,
             @Query("filter") String filter,
             @Query("sort") String sort,
@@ -125,11 +125,11 @@ public interface DracoonService {
             @Query("limit") Long limit);
 
     @GET(API_PATH + "/nodes/{node_id}")
-    Call<ApiNode> getNode(@Path("node_id") Long id);
+    Call<ApiNode> getNode(@Path("node_id") Long nodeId);
 
     @GET(API_PATH + "/nodes/search")
     Call<ApiNodeList> searchNodes(@Query("search_string") String searchString,
-            @Query("parent_id") Long id,
+            @Query("parent_id") Long parentNodeId,
             @Query("depth_level") Integer depthLevel,
             @Query("filter") String filter,
             @Query("sort") String sort,
@@ -156,6 +156,9 @@ public interface DracoonService {
 
     @HTTP(method = "DELETE", hasBody = true, path = API_PATH + "/nodes")
     Call<Void> deleteNodes(@Body ApiDeleteNodesRequest request);
+
+    @DELETE(API_PATH + "/nodes/{node_id}")
+    Call<Void> deleteNode(@Path("node_id") Long nodeId);
 
     @POST(API_PATH + "/nodes/{node_id}/copy_to")
     Call<ApiNode> copyNodes(@Path("node_id") Long nodeId,

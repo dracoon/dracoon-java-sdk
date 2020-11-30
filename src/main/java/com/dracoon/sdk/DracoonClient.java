@@ -536,6 +536,16 @@ public abstract class DracoonClient {
                 DracoonApiException;
 
         /**
+         * Deletes a node.
+         *
+         * @param nodeId The ID of the node which should be deleted.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteNode(long nodeId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
          * Copies nodes.
          *
          * @param request The request with target node ID and IDs of nodes which should be copied.

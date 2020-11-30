@@ -349,6 +349,24 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     @Override
+    public void deleteNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateNodeId(nodeId);
+
+        Call<Void> call = mService.deleteNode(nodeId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodesDeleteError(response);
+            String errorText = String.format("Deletion of node '%d' failed with '%s'!", nodeId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
     public Node copyNodes(CopyNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();

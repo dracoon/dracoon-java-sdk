@@ -121,6 +121,7 @@ public class DracoonExamples {
         //updateFile(client);
         //updateFileInvalidName(client);
         //deleteNodes(client);
+        //deleteNode(client);
         //copyNodes(client);
         //moveNodes(client);
 
@@ -429,6 +430,10 @@ public class DracoonExamples {
         DeleteNodesRequest request = new DeleteNodesRequest.Builder(ids)
                 .build();
         client.nodes().deleteNodes(request);
+    }
+
+    private static void deleteNode(DracoonClient client) throws DracoonException {
+        client.nodes().deleteNode(1L);
     }
 
     private static void copyNodes(DracoonClient client) throws DracoonException {
