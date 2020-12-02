@@ -33,12 +33,17 @@ public class UserMapper extends BaseMapper {
 
         UserInfo userInfo = new UserInfo();
         userInfo.setId(apiUserInfo.id);
-        userInfo.setDisplayName(apiUserInfo.displayName);
+        userInfo.setUserType(UserInfo.UserType.getByValue(apiUserInfo.userType));
+        userInfo.setFirstName(apiUserInfo.firstName);
+        userInfo.setLastName(apiUserInfo.lastName);
+        userInfo.setUsername(apiUserInfo.userName);
+        userInfo.setEmail(apiUserInfo.email);
         try {
             userInfo.setAvatarUuid(UUID.fromString(apiUserInfo.avatarUuid));
         } catch (IllegalArgumentException e) {
             // Nothing to do here
         }
+        userInfo.setDisplayName(apiUserInfo.displayName);
         return userInfo;
     }
 
