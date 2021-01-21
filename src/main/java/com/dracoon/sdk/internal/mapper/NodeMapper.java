@@ -88,6 +88,7 @@ public class NodeMapper extends BaseMapper {
         node.setCntDeletedVersions(apiNode.cntDeletedVersions);
         node.setHasRecycleBin(toBoolean(apiNode.hasRecycleBin));
         node.setRecycleBinRetentionPeriod(apiNode.recycleBinRetentionPeriod);
+        node.setCntComments(apiNode.cntComments);
         node.setCntDownloadShares(apiNode.cntDownloadShares);
         node.setCntUploadShares(apiNode.cntUploadShares);
         node.setBranchVersion(apiNode.branchVersion);

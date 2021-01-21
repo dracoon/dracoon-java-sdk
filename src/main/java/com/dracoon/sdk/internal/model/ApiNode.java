@@ -35,6 +35,7 @@ public class ApiNode {
     public Integer cntDeletedVersions;
     public Boolean hasRecycleBin;
     public Integer recycleBinRetentionPeriod;
+    public Integer cntComments;
     public Integer cntDownloadShares;
     public Integer cntUploadShares;
     public Long branchVersion;
