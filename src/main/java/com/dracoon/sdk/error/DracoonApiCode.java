@@ -76,6 +76,8 @@ public enum DracoonApiCode {
             "encrypted room."),
     VALIDATION_TARGET_ROOM_ENCRYPTED(-3120, "Not encrypted files can\'t be copied or moved to an " +
             "encrypted room."),
+    VALIDATION_NODE_COMMENT_CONTAINS_INVALID_CHARACTERS(-3130, "Node comment contains invalid " +
+            "characters."),
     // Shares
     VALIDATION_DL_SHARE_CAN_NOT_CREATE_ON_ENCRYPTED_ROOM_FOLDER(-3200, "A download share can\'t " +
             "be created on a encrypted room or folder."),
