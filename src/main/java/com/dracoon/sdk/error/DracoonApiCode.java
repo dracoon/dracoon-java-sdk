@@ -49,8 +49,9 @@ public enum DracoonApiCode {
     VALIDATION_FIELD_NOT_BETWEEN_0_10(-3005, "Field value must be between 0 and 10."),
     VALIDATION_FIELD_NOT_BETWEEN_0_9999(-3006, "Field value must be between 0 and 9999."),
     VALIDATION_FIELD_NOT_BETWEEN_1_9999(-3007, "Field value must be between 1 and 9999."),
-    VALIDATION_INVALID_OFFSET_OR_LIMIT(-3008, "Invalid offset or limit."),
-    VALIDATION_INVALID_KEY(-3009, "Invalid key."),
+    VALIDATION_FIELD_CONTAINS_INVALID_CHARACTERS(-3008, "Field contains invalid characters."),
+    VALIDATION_INVALID_OFFSET_OR_LIMIT(-3009, "Invalid offset or limit."),
+    VALIDATION_INVALID_KEY(-3010, "Invalid key."),
     VALIDATION_INVALID_IMAGE(-3090, "Invalid image."),
     // Nodes
     VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE(-3100, "A file can't be a target node."),
