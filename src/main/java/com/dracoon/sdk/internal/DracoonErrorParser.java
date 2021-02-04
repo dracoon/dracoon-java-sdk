@@ -1064,6 +1064,8 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 if (errorCode == -80023)
                     return DracoonApiCode.VALIDATION_NODE_COMMENT_CONTAINS_INVALID_CHARACTERS;
+                else if (errorCode == -80039)
+                    return DracoonApiCode.SERVER_NODE_COMMENT_ALREADY_DELETED;
                 else
                     return parseValidationError(errorCode);
             case NOT_FOUND:
@@ -1086,6 +1088,11 @@ public class DracoonErrorParser {
         int errorCode = (errorResponse.errorCode != null) ? errorResponse.errorCode : 0;
 
         switch (HttpStatus.valueOf(statusCode)) {
+            case BAD_REQUEST:
+                if (errorCode == -80039)
+                    return DracoonApiCode.SERVER_NODE_COMMENT_ALREADY_DELETED;
+                else
+                    return parseValidationError(errorCode);
             case NOT_FOUND:
                 if (errorCode == -41400)
                     return DracoonApiCode.SERVER_NODE_COMMENT_NOT_FOUND;
