@@ -8,8 +8,11 @@ import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFileUploadRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
+import com.dracoon.sdk.internal.model.ApiCreateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
+import com.dracoon.sdk.internal.model.ApiNodeComment;
+import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
@@ -33,6 +36,7 @@ import com.dracoon.sdk.internal.model.ApiServerTime;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
+import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
@@ -211,6 +215,22 @@ public interface DracoonService {
 
     @DELETE(API_PATH + "/nodes/{node_id}/favorite")
     Call<Void> unmarkFavorite(@Path("node_id") Long nodeId);
+
+    @GET(API_PATH + "/nodes/{node_id}/comments")
+    Call<ApiNodeCommentList> getNodeComments(@Path("node_id") Long nodeId,
+            @Query("offset") Long offset,
+            @Query("limit") Long limit);
+
+    @POST(API_PATH + "/nodes/{node_id}/comments")
+    Call<ApiNodeComment> createNodeComment(@Path("node_id") Long nodeId,
+            @Body ApiCreateNodeCommentRequest request);
+
+    @PUT(API_PATH + "/nodes/comments/{comment_id}")
+    Call<ApiNodeComment> updateNodeComment(@Path("comment_id") Long commentId,
+            @Body ApiUpdateNodeCommentRequest request);
+
+    @DELETE(API_PATH + "/nodes/comments/{comment_id}")
+    Call<Void> deleteNodeComment(@Path("comment_id") Long commentId);
 
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Body ApiCreateDownloadShareRequest request);

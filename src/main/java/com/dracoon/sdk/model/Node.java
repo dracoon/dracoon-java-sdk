@@ -42,6 +42,7 @@ public class Node {
     private Integer mCntDeletedVersions;
     private Boolean mHasRecycleBin;
     private Integer mRecycleBinRetentionPeriod;
+    private Integer mCntComments;
     private Integer mCntDownloadShares;
     private Integer mCntUploadShares;
     private Long mBranchVersion;
@@ -502,6 +503,24 @@ public class Node {
      */
     public void setRecycleBinRetentionPeriod(Integer recycleBinRetentionPeriod) {
         mRecycleBinRetentionPeriod = recycleBinRetentionPeriod;
+    }
+
+    /**
+     * Returns the number of comments on the node.
+     *
+     * @return the number of comments, or <code>null</code>
+     */
+    public Integer getCntComments() {
+        return mCntComments;
+    }
+
+    /**
+     * Sets the number of comments on the node.
+     *
+     * @param cntComments The number of comments.
+     */
+    public void setCntComments(Integer cntComments) {
+        mCntComments = cntComments;
     }
 
     /**

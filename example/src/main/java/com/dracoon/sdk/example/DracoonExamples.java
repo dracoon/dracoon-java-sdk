@@ -30,6 +30,7 @@ import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
+import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.CustomerAccount;
@@ -43,6 +44,8 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeComment;
+import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
 import com.dracoon.sdk.model.PasswordPolicies;
@@ -50,6 +53,7 @@ import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
+import com.dracoon.sdk.model.UpdateNodeCommentRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
@@ -139,6 +143,11 @@ public class DracoonExamples {
         //unmarkFavorite(client);
         //getFavorites(client);
         //getFavoritesPaged(client);
+        //getNodeComments(client);
+        //getNodeCommentsPaged(client);
+        //createNodeComment(client);
+        //updateNodeComment(client);
+        //deleteNodeComment(client);
 
         //buildMediaUrl(client);
 
@@ -661,6 +670,60 @@ public class DracoonExamples {
             page++;
             offset = offset + pageSize;
         } while (offset < total);
+    }
+
+    private static void getNodeComments(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+        NodeCommentList nodeCommentList = client.nodes().getNodeComments(nodeId);
+        for (NodeComment nodeComment : nodeCommentList.getItems()) {
+            System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
+        }
+    }
+
+    private static void getNodeCommentsPaged(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+        long page = 1;
+        long pageSize = 3;
+
+        long offset = 0;
+        long total;
+
+        do {
+            NodeCommentList nodeCommentList = client.nodes().getNodeComments(nodeId, offset,
+                    pageSize);
+            total = nodeCommentList.getTotal();
+
+            System.out.printf("Node comments page %d:\n", page);
+            for (NodeComment nodeComment : nodeCommentList.getItems()) {
+                System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
+            }
+
+            page++;
+            offset = offset + pageSize;
+        } while (offset < total);
+    }
+
+    private static void createNodeComment(DracoonClient client) throws DracoonException {
+        long nodeId = 1L;
+        CreateNodeCommentRequest request = new CreateNodeCommentRequest.Builder(nodeId,
+                "This is a comment!")
+                .build();
+        NodeComment nodeComment = client.nodes().createNodeComment(request);
+        System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
+    }
+
+    private static void updateNodeComment(DracoonClient client) throws DracoonException {
+        long commentId = 1L;
+        UpdateNodeCommentRequest request = new UpdateNodeCommentRequest.Builder(commentId,
+                "This is a changed comment!")
+                .build();
+        NodeComment nodeComment = client.nodes().updateNodeComment(request);
+        System.out.println(nodeComment.getId() + ": " + nodeComment.getText());
+    }
+
+    private static void deleteNodeComment(DracoonClient client) throws DracoonException {
+        long commentId = 1L;
+        client.nodes().deleteNodeComment(commentId);
     }
 
     private static void buildMediaUrl(DracoonClient client) throws DracoonException {

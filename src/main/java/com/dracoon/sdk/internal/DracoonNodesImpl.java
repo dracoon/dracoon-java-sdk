@@ -43,6 +43,7 @@ import com.dracoon.sdk.internal.mapper.RoomMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
+import com.dracoon.sdk.internal.model.ApiCreateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiFileIdFileKey;
@@ -50,21 +51,26 @@ import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.internal.model.ApiNodeComment;
+import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
+import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUserIdFileId;
 import com.dracoon.sdk.internal.model.ApiUserIdFileIdFileKey;
 import com.dracoon.sdk.internal.model.ApiUserIdUserPublicKey;
 import com.dracoon.sdk.internal.util.StreamUtils;
+import com.dracoon.sdk.internal.validator.BaseValidator;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.NodeValidator;
 import com.dracoon.sdk.internal.validator.RoomValidator;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
+import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
@@ -74,9 +80,12 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeComment;
+import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
+import com.dracoon.sdk.model.UpdateNodeCommentRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -1117,6 +1126,109 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                 .eq(true).build());
 
         return searchNodes(0L, "*", filters, offset, limit);
+    }
+
+    // --- Comment methods ---
+
+    @Override
+    public NodeCommentList getNodeComments(long nodeId) throws DracoonNetIOException,
+            DracoonApiException {
+        return getNodeCommentsInternally(nodeId, null, null);
+    }
+
+    @Override
+    public NodeCommentList getNodeComments(long nodeId, long offset, long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        return getNodeCommentsInternally(nodeId, offset, limit);
+    }
+
+    private NodeCommentList getNodeCommentsInternally(long nodeId, Long offset, Long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateNodeId(nodeId);
+        NodeValidator.validateRange(offset, limit, true);
+
+        Call<ApiNodeCommentList> call = mService.getNodeComments(nodeId, offset, limit);
+        Response<ApiNodeCommentList> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentsGetError(response);
+            String errorText = String.format("Query of node comments for node '%d' failed with '%s'!",
+                    nodeId, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeCommentList data = response.body();
+        return NodeMapper.fromApiNodeCommentList(data);
+    }
+
+    @Override
+    public NodeComment createNodeComment(CreateNodeCommentRequest request)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateCreateCommentRequest(request);
+
+        ApiCreateNodeCommentRequest apiRequest = NodeMapper.toApiCreateNodeCommentRequest(request);
+        Call<ApiNodeComment> call = mService.createNodeComment(request.getNodeId(), apiRequest);
+        Response<ApiNodeComment> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentCreateError(response);
+            String errorText = String.format("Creation of comment on node '%d' failed with '%s'!",
+                    request.getNodeId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeComment data = response.body();
+
+        return NodeMapper.fromApiNodeComment(data);
+    }
+
+    @Override
+    public NodeComment updateNodeComment(UpdateNodeCommentRequest request)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateUpdateCommentRequest(request);
+
+        ApiUpdateNodeCommentRequest apiRequest = NodeMapper.toApiUpdateNodeCommentRequest(request);
+        Call<ApiNodeComment> call = mService.updateNodeComment(request.getId(), apiRequest);
+        Response<ApiNodeComment> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentUpdateError(response);
+            String errorText = String.format("Update of comment '%d' failed with '%s'!",
+                    request.getId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeComment data = response.body();
+
+        return NodeMapper.fromApiNodeComment(data);
+    }
+
+    @Override
+    public void deleteNodeComment(long commentId)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        BaseValidator.validateCommentId(commentId);
+
+        Call<Void> call = mService.deleteNodeComment(commentId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentDeleteError(response);
+            String errorText = String.format("Deletion of comment '%d' failed with '%s'!", commentId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
     }
 
     // --- Media methods ---

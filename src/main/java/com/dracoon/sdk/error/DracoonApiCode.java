@@ -49,8 +49,9 @@ public enum DracoonApiCode {
     VALIDATION_FIELD_NOT_BETWEEN_0_10(-3005, "Field value must be between 0 and 10."),
     VALIDATION_FIELD_NOT_BETWEEN_0_9999(-3006, "Field value must be between 0 and 9999."),
     VALIDATION_FIELD_NOT_BETWEEN_1_9999(-3007, "Field value must be between 1 and 9999."),
-    VALIDATION_INVALID_OFFSET_OR_LIMIT(-3008, "Invalid offset or limit."),
-    VALIDATION_INVALID_KEY(-3009, "Invalid key."),
+    VALIDATION_FIELD_CONTAINS_INVALID_CHARACTERS(-3008, "Field contains invalid characters."),
+    VALIDATION_INVALID_OFFSET_OR_LIMIT(-3009, "Invalid offset or limit."),
+    VALIDATION_INVALID_KEY(-3010, "Invalid key."),
     VALIDATION_INVALID_IMAGE(-3090, "Invalid image."),
     // Nodes
     VALIDATION_FILE_CAN_NOT_BE_TARGET_NODE(-3100, "A file can't be a target node."),
@@ -75,6 +76,8 @@ public enum DracoonApiCode {
             "encrypted room."),
     VALIDATION_TARGET_ROOM_ENCRYPTED(-3120, "Not encrypted files can\'t be copied or moved to an " +
             "encrypted room."),
+    VALIDATION_NODE_COMMENT_CONTAINS_INVALID_CHARACTERS(-3130, "Node comment contains invalid " +
+            "characters."),
     // Shares
     VALIDATION_DL_SHARE_CAN_NOT_CREATE_ON_ENCRYPTED_ROOM_FOLDER(-3200, "A download share can\'t " +
             "be created on a encrypted room or folder."),
@@ -89,7 +92,7 @@ public enum DracoonApiCode {
     VALIDATION_PASSWORD_NOT_SECURE(-3800, "Password is not secure."),
     VALIDATION_EMAIL_ADDRESS_INVALID(-3801, "Email address invalid."),
 
-    PERMISSION_UNKNOWN_ERROR(-4000, "User has no permissions to execute the action in this room."),
+    PERMISSION_UNKNOWN_ERROR(-4000, "User has no permissions to execute the action."),
     PERMISSION_MANAGE_ERROR(-4100, "User has no permission to manage this room."),
     PERMISSION_READ_ERROR(-4101, "User has no permission to read nodes in this room."),
     PERMISSION_CREATE_ERROR(-4102, "User has no permission to create nodes in this room."),
@@ -123,6 +126,8 @@ public enum DracoonApiCode {
     SERVER_INSUFFICIENT_ROOM_QUOTA(-5109, "Not enough quota for the room."),
     SERVER_INSUFFICIENT_UL_SHARE_QUOTA(-5110, "Not enough quota for the upload share."),
     SERVER_S3_COMMUNICATION_FAILED(-5120, "S3 communication failed."),
+    SERVER_NODE_COMMENT_NOT_FOUND(-5130, "Requested node comment was not found."),
+    SERVER_NODE_COMMENT_ALREADY_DELETED(-5131, "Node comment was already deleted."),
     // Shares
     SERVER_DL_SHARE_NOT_FOUND(5200, "Download share could not be found."),
     SERVER_UL_SHARE_NOT_FOUND(5201, "Upload share could not be found."),
