@@ -3,6 +3,7 @@ package com.dracoon.sdk.internal.model;
 import java.util.Date;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ApiNode {
     public Long id;
     public String type;
@@ -34,6 +35,7 @@ public class ApiNode {
     public Integer cntDeletedVersions;
     public Boolean hasRecycleBin;
     public Integer recycleBinRetentionPeriod;
+    public Integer cntComments;
     public Integer cntDownloadShares;
     public Integer cntUploadShares;
     public Long branchVersion;

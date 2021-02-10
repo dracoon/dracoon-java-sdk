@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.model;
 
+@SuppressWarnings("unused")
 public class ApiNodePermissions {
     public Boolean manage;
     public Boolean read;

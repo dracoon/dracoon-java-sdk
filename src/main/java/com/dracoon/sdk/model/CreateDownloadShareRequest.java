@@ -195,7 +195,7 @@ public class CreateDownloadShareRequest {
      */
     public static class Builder {
 
-        private CreateDownloadShareRequest mRequest;
+        private final CreateDownloadShareRequest mRequest;
 
         /**
          * Constructs a new builder.

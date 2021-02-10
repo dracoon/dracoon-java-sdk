@@ -27,7 +27,7 @@ public class DracoonUsersImpl extends DracoonRequestHandler implements DracoonCl
         mClient.assertApiVersionSupported();
 
         UserValidator.validateUserId(userId);
-        UserValidator.validateAvatarUuir(avatarUuid);
+        UserValidator.validateAvatarUuid(avatarUuid);
 
         String downloadUrl = mClient.buildApiUrl("downloads", "avatar", Long.toString(userId),
                 avatarUuid.toString());

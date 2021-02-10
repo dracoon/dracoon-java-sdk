@@ -10,7 +10,7 @@ public enum NodeType {
     FOLDER("folder"),
     FILE("file");
 
-    private String mValue;
+    private final String mValue;
 
     /**
      * Constructs a new enumeration constant with the provided node type value.

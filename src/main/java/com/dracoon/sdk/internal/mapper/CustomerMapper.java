@@ -5,6 +5,10 @@ import com.dracoon.sdk.model.CustomerAccount;
 
 public class CustomerMapper extends BaseMapper {
 
+    private CustomerMapper() {
+        super();
+    }
+
     public static CustomerAccount fromApiCustomerAccount(ApiCustomerAccount apiCustomerAccount) {
         if (apiCustomerAccount == null) {
             return null;

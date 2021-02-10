@@ -17,7 +17,7 @@ public class UpdatedByFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<String> {
 
-        private UpdatedByFilter mFilter;
+        private final UpdatedByFilter mFilter;
 
         public Builder() {
             mFilter = new UpdatedByFilter();
@@ -44,7 +44,7 @@ public class UpdatedByFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private UpdatedByFilter mFilter;
+        private final UpdatedByFilter mFilter;
 
         Concater(UpdatedByFilter filter) {
             mFilter = filter;

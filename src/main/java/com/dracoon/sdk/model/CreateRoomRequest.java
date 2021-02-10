@@ -129,7 +129,7 @@ public class CreateRoomRequest {
      */
     public static class Builder {
 
-        private CreateRoomRequest mRequest;
+        private final CreateRoomRequest mRequest;
 
         /**
          * Constructs a new builder.

@@ -61,7 +61,6 @@ public class HttpHelper {
 
     // --- Methods for HTTP calls ---
 
-    @SuppressWarnings("unchecked")
     public okhttp3.Response executeRequest(okhttp3.Call call) throws DracoonNetIOException,
             DracoonApiException {
         try {
@@ -73,7 +72,6 @@ public class HttpHelper {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public okhttp3.Response executeRequest(okhttp3.Call call, Thread thread)
             throws DracoonNetIOException, DracoonApiException, InterruptedException {
         try {
@@ -138,7 +136,7 @@ public class HttpHelper {
 
     private Object executeCallInternally(Object call) throws IOException {
         if (call instanceof Call) {
-            return ((Call) call).execute();
+            return ((Call<?>) call).execute();
         } else if (call instanceof okhttp3.Call) {
             return ((okhttp3.Call) call).execute();
         } else {
@@ -148,7 +146,7 @@ public class HttpHelper {
 
     private Object cloneCallInternally(Object call) {
         if (call instanceof Call) {
-            return ((Call) call).clone();
+            return ((Call<?>) call).clone();
         } else if (call instanceof okhttp3.Call) {
             return ((okhttp3.Call) call).clone();
         } else {

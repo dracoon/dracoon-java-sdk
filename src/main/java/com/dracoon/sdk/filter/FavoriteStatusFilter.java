@@ -17,7 +17,7 @@ public class FavoriteStatusFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Boolean> {
 
-        private FavoriteStatusFilter mFilter;
+        private final FavoriteStatusFilter mFilter;
 
         public Builder() {
             mFilter = new FavoriteStatusFilter();
@@ -37,7 +37,7 @@ public class FavoriteStatusFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private FavoriteStatusFilter mFilter;
+        private final FavoriteStatusFilter mFilter;
 
         Concater(FavoriteStatusFilter filter) {
             mFilter = filter;

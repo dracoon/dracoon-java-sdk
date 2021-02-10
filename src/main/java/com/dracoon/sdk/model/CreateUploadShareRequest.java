@@ -192,7 +192,7 @@ public class CreateUploadShareRequest {
      */
     public static class Builder {
 
-        private CreateUploadShareRequest mRequest;
+        private final CreateUploadShareRequest mRequest;
 
         /**
          * Constructs a new builder.

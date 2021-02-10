@@ -58,10 +58,10 @@ public class DownloadStream extends FileDownloadStream {
     private long mDownloadOffset = 0L;
     private long mDownloadLength;
 
-    private Buffer mDownloadBuffer = new Buffer();
+    private final Buffer mDownloadBuffer = new Buffer();
     private InputStream mDownloadInputStream = null;
 
-    private int mChunkSize;
+    private final int mChunkSize;
     private int mChunkNum = 0;
     private int mChunkOffset = 0;
     private boolean mRequestNextChunk = true;

@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.model;
 
+@SuppressWarnings("unused")
 public class ApiCreateUploadShareRequest {
     public Long targetId;
     public String name;

@@ -21,7 +21,7 @@ public class ExpireAtFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Date> {
 
-        private ExpireAtFilter mFilter;
+        private final ExpireAtFilter mFilter;
 
         public Builder() {
             mFilter = new ExpireAtFilter();
@@ -52,7 +52,7 @@ public class ExpireAtFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private ExpireAtFilter mFilter;
+        private final ExpireAtFilter mFilter;
 
         Concater(ExpireAtFilter filter) {
             mFilter = filter;

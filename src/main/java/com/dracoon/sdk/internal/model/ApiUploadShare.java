@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.model;
 
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class ApiUploadShare {
     public Long id;
     public Long targetId;

@@ -17,7 +17,7 @@ public class EncryptionStatusFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Boolean> {
 
-        private EncryptionStatusFilter mFilter;
+        private final EncryptionStatusFilter mFilter;
 
         public Builder() {
             mFilter = new EncryptionStatusFilter();
@@ -37,7 +37,7 @@ public class EncryptionStatusFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private EncryptionStatusFilter mFilter;
+        private final EncryptionStatusFilter mFilter;
 
         Concater(EncryptionStatusFilter filter) {
             mFilter = filter;

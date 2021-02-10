@@ -4,6 +4,10 @@ import java.util.List;
 
 public class BaseValidator {
 
+    protected BaseValidator() {
+
+    }
+
     protected static void validateNodeId(Long id) {
         ValidatorUtils.validateId("Node", id);
     }
@@ -44,6 +48,14 @@ public class BaseValidator {
         ValidatorUtils.validateFileName("File name", name);
     }
 
+    protected static void validateName(String name) {
+        ValidatorUtils.validateString("Name", name, false);
+    }
+
+    protected static void validateText(String text) {
+        ValidatorUtils.validateString("Text", text, false);
+    }
+
     protected static void validateUserId(Long id) {
         ValidatorUtils.validateId("User", id);
     }
@@ -60,6 +72,14 @@ public class BaseValidator {
         ValidatorUtils.validateIds("Group", ids);
     }
 
+    public static void validateShareId(Long shareId) {
+        ValidatorUtils.validateId("Share ID", shareId);
+    }
+
+    public static void validateCommentId(Long commentId) {
+        ValidatorUtils.validateId("Comment ID", commentId);
+    }
+
     protected static void validateAccessPassword(String password) {
         ValidatorUtils.validateString("Access password", password, false);
     }
@@ -74,10 +94,6 @@ public class BaseValidator {
 
     protected static void validateMaxUploads(Integer maxUploads) {
         ValidatorUtils.validatePositiveNumber("Maximum uploads", maxUploads, false);
-    }
-
-    protected static void validateName(String name) {
-        ValidatorUtils.validateString("Name", name, false);
     }
 
     protected static void validateEmailAddress(String address) {
@@ -129,12 +145,8 @@ public class BaseValidator {
     }
 
     public static void validateRange(Long offset, Long limit, boolean nullable) {
-        ValidatorUtils.validateNotNegative("offset", limit, nullable);
+        ValidatorUtils.validateNotNegative("offset", offset, nullable);
         ValidatorUtils.validatePositiveNumber("limit", limit, nullable);
-    }
-
-    public static void validateShareId(Long shareId) {
-        ValidatorUtils.validateId("Share ID", shareId);
     }
 
 }

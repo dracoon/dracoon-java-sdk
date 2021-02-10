@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.model;
 
+@SuppressWarnings("unused")
 public class ApiCompleteFileUploadRequest {
     public String resolutionStrategy;
     public String fileName;

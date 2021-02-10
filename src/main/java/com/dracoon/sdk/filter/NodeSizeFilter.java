@@ -17,7 +17,7 @@ public class NodeSizeFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Long> {
 
-        private NodeSizeFilter mFilter;
+        private final NodeSizeFilter mFilter;
 
         public Builder() {
             mFilter = new NodeSizeFilter();
@@ -48,7 +48,7 @@ public class NodeSizeFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private NodeSizeFilter mFilter;
+        private final NodeSizeFilter mFilter;
 
         Concater(NodeSizeFilter filter) {
             mFilter = filter;

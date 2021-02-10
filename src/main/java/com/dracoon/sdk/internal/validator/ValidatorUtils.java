@@ -12,6 +12,10 @@ public class ValidatorUtils {
             '/', '\\'};
     private static final char[] INVALID_FILE_PATH_CHARS = {'<', '>', ':', '"', '|', '?', '*', '\\'};
 
+    private ValidatorUtils() {
+
+    }
+
     // --- Null validation methods ---
 
     public static void validateNotNull(String name, Object object) {

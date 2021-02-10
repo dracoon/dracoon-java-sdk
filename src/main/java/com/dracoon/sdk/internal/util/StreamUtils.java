@@ -6,6 +6,10 @@ import java.io.OutputStream;
 
 public class StreamUtils {
 
+    private StreamUtils() {
+
+    }
+
     public static void closeStream(InputStream is) {
         if (is == null) {
             return;

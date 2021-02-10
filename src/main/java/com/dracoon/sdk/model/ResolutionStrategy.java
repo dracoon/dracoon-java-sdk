@@ -10,7 +10,7 @@ public enum ResolutionStrategy {
     OVERWRITE("overwrite"),
     FAIL("fail");
 
-    private String mValue;
+    private final String mValue;
 
     /**
      * Constructs a new enumeration constant with the provided resolution strategy type value.

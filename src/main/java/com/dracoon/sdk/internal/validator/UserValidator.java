@@ -4,11 +4,15 @@ import java.util.UUID;
 
 public class UserValidator extends BaseValidator {
 
+    private UserValidator() {
+        super();
+    }
+
     public static void validateUserId(long id) {
         BaseValidator.validateUserId(id);
     }
 
-    public static void validateAvatarUuir(UUID uuid) {
+    public static void validateAvatarUuid(UUID uuid) {
         ValidatorUtils.validateNotNull("Avatar UUID", uuid);
     }
 

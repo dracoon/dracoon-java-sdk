@@ -26,6 +26,10 @@ public class ShareMapper extends BaseMapper {
 
     private static final String QR_CODE_PREFIX = "data:image/png;base64,";
 
+    private ShareMapper() {
+        super();
+    }
+
     public static ApiCreateDownloadShareRequest toApiCreateDownloadShareRequest(
             CreateDownloadShareRequest request, UserKeyPair keyPair, EncryptedFileKey fileKey) {
         ApiCreateDownloadShareRequest apiRequest = new ApiCreateDownloadShareRequest();

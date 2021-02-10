@@ -10,7 +10,7 @@ public enum Gender {
     FEMALE("f"),
     NEUTRAL("n");
 
-    private String mValue;
+    private final String mValue;
 
     /**
      * Constructs a new enumeration constant with the provided gender type value.

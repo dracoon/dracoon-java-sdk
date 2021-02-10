@@ -130,7 +130,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseDownloadSharesGetError(response);
-            String errorText = String.format("Query of get download shares failed with '%s'!",
+            String errorText = String.format("Query of download shares failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
@@ -152,7 +152,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseDownloadSharesGetError(response);
-            String errorText = String.format("Query of get download share qr failed with '%s'!",
+            String errorText = String.format("Query of download share QR code failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
@@ -237,7 +237,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUploadSharesGetError(response);
-            String errorText = String.format("Query of get upload shares failed with '%s'!",
+            String errorText = String.format("Query of upload shares failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
@@ -259,7 +259,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUploadSharesGetError(response);
-            String errorText = String.format("Query of get upload share qr failed with '%s'!",
+            String errorText = String.format("Query of upload share QR code failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);

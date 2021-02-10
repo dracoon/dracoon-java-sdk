@@ -21,7 +21,7 @@ public class CreatedAtFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<Date> {
 
-        private CreatedAtFilter mFilter;
+        private final CreatedAtFilter mFilter;
 
         public Builder() {
             mFilter = new CreatedAtFilter();
@@ -52,7 +52,7 @@ public class CreatedAtFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private CreatedAtFilter mFilter;
+        private final CreatedAtFilter mFilter;
 
         Concater(CreatedAtFilter filter) {
             mFilter = filter;

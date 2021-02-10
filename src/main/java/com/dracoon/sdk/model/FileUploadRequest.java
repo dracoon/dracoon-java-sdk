@@ -89,7 +89,7 @@ public class FileUploadRequest {
      */
     public static class Builder {
 
-        private FileUploadRequest mRequest;
+        private final FileUploadRequest mRequest;
 
         /**
          * Constructs a new builder.

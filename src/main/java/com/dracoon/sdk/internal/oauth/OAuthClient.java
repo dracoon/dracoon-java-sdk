@@ -26,9 +26,9 @@ public class OAuthClient {
 
     private static final String LOG_TAG = OAuthClient.class.getSimpleName();
 
-    private URL mServerUrl;
-    private String mClientId;
-    private String mClientSecret;
+    private final URL mServerUrl;
+    private final String mClientId;
+    private final String mClientSecret;
 
     private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig;

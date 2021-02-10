@@ -33,7 +33,7 @@ public class DeleteNodesRequest {
      */
     public static class Builder {
 
-        private DeleteNodesRequest mRequest;
+        private final DeleteNodesRequest mRequest;
 
         /**
          * Constructs a new builder.

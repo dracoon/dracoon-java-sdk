@@ -64,7 +64,7 @@ public class UpdateRoomRequest {
      */
     public static class Builder {
 
-        private UpdateRoomRequest mRequest;
+        private final UpdateRoomRequest mRequest;
 
         /**
          * Constructs a new builder.

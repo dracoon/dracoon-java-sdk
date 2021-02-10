@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.model;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ApiConflictNode {
 
     public Long nodeId;

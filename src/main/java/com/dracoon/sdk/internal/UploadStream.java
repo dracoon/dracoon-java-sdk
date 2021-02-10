@@ -131,15 +131,15 @@ public class UploadStream extends FileUploadStream {
 
     private String mUploadId;
     private long mUploadOffset = 0L;
-    private long mUploadLength;
+    private final long mUploadLength;
 
-    private Buffer mUploadBuffer = new Buffer();
+    private final Buffer mUploadBuffer = new Buffer();
 
     private int mChunkSize;
     private int mChunkNum = 0;
 
     private boolean mIsS3Upload = false;
-    private List<ApiS3FileUploadPart> mS3UploadParts = new ArrayList<>();
+    private final List<ApiS3FileUploadPart> mS3UploadParts = new ArrayList<>();
 
     private boolean mIsCompleted = false;
     private boolean mIsClosed = false;
@@ -613,14 +613,11 @@ public class UploadStream extends FileUploadStream {
 
     private FileRequestBody createChunk(byte[] chunk) {
         FileRequestBody requestBody = new FileRequestBody(chunk, chunk.length);
-        requestBody.setCallback(new FileRequestBody.Callback() {
-            @Override
-            public void onProgress(long send) {
-                if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
-                        && !mThread.isInterrupted()) {
-                    notifyRunning(mId, mUploadOffset + send, mUploadLength);
-                    mProgressUpdateTime = System.currentTimeMillis();
-                }
+        requestBody.setCallback(send -> {
+            if (mProgressUpdateTime + PROGRESS_UPDATE_INTERVAL < System.currentTimeMillis()
+                    && !mThread.isInterrupted()) {
+                notifyRunning(mId, mUploadOffset + send, mUploadLength);
+                mProgressUpdateTime = System.currentTimeMillis();
             }
         });
         return requestBody;

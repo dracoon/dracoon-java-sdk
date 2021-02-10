@@ -8,6 +8,10 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 
 public class RoomMapper extends BaseMapper {
 
+    private RoomMapper() {
+        super();
+    }
+
     public static ApiCreateRoomRequest toApiCreateRoomRequest(CreateRoomRequest request) {
         ApiCreateRoomRequest apiRequest = new ApiCreateRoomRequest();
         apiRequest.parentId = request.getParentId();

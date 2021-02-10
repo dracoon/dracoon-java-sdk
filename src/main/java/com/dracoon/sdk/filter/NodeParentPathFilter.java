@@ -17,7 +17,7 @@ public class NodeParentPathFilter extends Filter<String> {
      */
     public static class Builder extends Filter.Builder<String> {
 
-        private NodeParentPathFilter mFilter;
+        private final NodeParentPathFilter mFilter;
 
         public Builder() {
             mFilter = new NodeParentPathFilter();
@@ -44,7 +44,7 @@ public class NodeParentPathFilter extends Filter<String> {
      */
     public static class Concater extends Filter.Concater {
 
-        private NodeParentPathFilter mFilter;
+        private final NodeParentPathFilter mFilter;
 
         Concater(NodeParentPathFilter filter) {
             mFilter = filter;

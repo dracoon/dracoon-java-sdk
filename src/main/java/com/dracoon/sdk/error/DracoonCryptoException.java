@@ -9,7 +9,7 @@ public class DracoonCryptoException extends DracoonException {
 
     private static final long serialVersionUID = 2941100473405716679L;
 
-    private DracoonCryptoCode mCode;
+    private final DracoonCryptoCode mCode;
 
     /**
      * Constructs a new exception with an unknown error code. The cause is not initialized, and may

@@ -77,7 +77,7 @@ public class UpdateFileRequest {
      */
     public static class Builder {
 
-        private UpdateFileRequest mRequest;
+        private final UpdateFileRequest mRequest;
 
         /**
          * Constructs a new builder.

@@ -5,6 +5,10 @@ import com.dracoon.sdk.model.UpdateFolderRequest;
 
 public class FolderValidator extends BaseValidator {
 
+    private FolderValidator() {
+        super();
+    }
+
     public static void validateCreateRequest(CreateFolderRequest request) {
         ValidatorUtils.validateNotNull("Folder creation request", request);
         validateParentNodeId(request.getParentId());

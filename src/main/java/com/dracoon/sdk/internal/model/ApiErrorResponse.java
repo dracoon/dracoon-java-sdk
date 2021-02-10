@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.model;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ApiErrorResponse {
 
     public Integer code;

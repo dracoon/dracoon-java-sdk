@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.model;
 
 import java.util.List;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ApiErrorInfos {
 
     public List<ApiConflictNode> conflictNodes;
@@ -9,7 +10,7 @@ public class ApiErrorInfos {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ErrorInfos{conclictNodes=");
+        sb.append("ErrorInfos{conflictNodes=");
         if (conflictNodes != null && conflictNodes.size() != 0) {
             sb.append("[");
             for (int i = 0; i < conflictNodes.size(); i++) {

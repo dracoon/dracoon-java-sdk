@@ -48,7 +48,7 @@ public class DracoonAuth {
         ACCESS_REFRESH_TOKEN
     }
 
-    private Mode mMode;
+    private final Mode mMode;
 
     private String mClientId;
     private String mClientSecret;

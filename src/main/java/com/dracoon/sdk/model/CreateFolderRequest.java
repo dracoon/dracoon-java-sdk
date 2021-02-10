@@ -53,7 +53,7 @@ public class CreateFolderRequest {
      */
     public static class Builder {
 
-        private CreateFolderRequest mRequest;
+        private final CreateFolderRequest mRequest;
 
         /**
          * Constructs a new builder.

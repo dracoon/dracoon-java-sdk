@@ -12,7 +12,7 @@ public enum UserRole {
     ROOM_MANAGER(4),
     LOG_AUDITOR(5);
 
-    private int mValue;
+    private final int mValue;
 
     /**
      * Constructs a new enumeration constant with the provided user role type value.

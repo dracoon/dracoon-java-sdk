@@ -11,12 +11,11 @@ public abstract class Filter<T> {
     private static final String MV_SEPARATOR = ":";
     private static final String MR_SEPARATOR = "|";
 
-    private String mFieldName;
+    private final String mFieldName;
+    private final Type mType;
 
-    private Type mType;
-
-    private List<String> mOperators = new ArrayList<>();
-    private List<T> mValues = new ArrayList<>();
+    private final List<String> mOperators = new ArrayList<>();
+    private final List<T> mValues = new ArrayList<>();
 
     Filter(String fieldName, Type type) {
         mFieldName = fieldName;
@@ -173,7 +172,7 @@ public abstract class Filter<T> {
          *
          * @return a new builder which can be used to supply further filter values
          */
-        protected Builder and() {
+        protected Builder<?> and() {
             throw new UnsupportedOperationException();
         }
 
@@ -182,7 +181,7 @@ public abstract class Filter<T> {
          *
          * @return a new builder which can be used to supply further filter values
          */
-        protected Builder or() {
+        protected Builder<?> or() {
             throw new UnsupportedOperationException();
         }
 
@@ -191,7 +190,7 @@ public abstract class Filter<T> {
          *
          * @return a new {@link Filter} instance
          */
-        public abstract Filter build();
+        public abstract Filter<?> build();
 
     }
 

@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import com.dracoon.sdk.internal.mapper.RoomMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
 import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
+import com.dracoon.sdk.internal.model.ApiCreateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
 import com.dracoon.sdk.internal.model.ApiFileIdFileKey;
@@ -49,21 +51,26 @@ import com.dracoon.sdk.internal.model.ApiFileKey;
 import com.dracoon.sdk.internal.model.ApiMissingFileKeys;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
+import com.dracoon.sdk.internal.model.ApiNodeComment;
+import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
+import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUserIdFileId;
 import com.dracoon.sdk.internal.model.ApiUserIdFileIdFileKey;
 import com.dracoon.sdk.internal.model.ApiUserIdUserPublicKey;
 import com.dracoon.sdk.internal.util.StreamUtils;
+import com.dracoon.sdk.internal.validator.BaseValidator;
 import com.dracoon.sdk.internal.validator.FileValidator;
 import com.dracoon.sdk.internal.validator.FolderValidator;
 import com.dracoon.sdk.internal.validator.NodeValidator;
 import com.dracoon.sdk.internal.validator.RoomValidator;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
+import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.FileDownloadCallback;
@@ -73,9 +80,12 @@ import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
+import com.dracoon.sdk.model.NodeComment;
+import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
+import com.dracoon.sdk.model.UpdateNodeCommentRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -86,8 +96,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private static final String MEDIA_URL_TEMPLATE = "%s/mediaserver/image/%s/%dx%d";
 
-    private Map<String, UploadThread> mUploads = new HashMap<>();
-    private Map<String, DownloadThread> mDownloads = new HashMap<>();
+    private final Map<String, UploadThread> mUploads = new HashMap<>();
+    private final Map<String, DownloadThread> mDownloads = new HashMap<>();
 
     DracoonNodesImpl(DracoonClientImpl client) {
         super(client);
@@ -342,6 +352,24 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonApiCode errorCode = mErrorParser.parseNodesDeleteError(response);
             String errorText = String.format("Deletion of nodes %s failed with '%s'!",
                     request.getIds(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
+    @Override
+    public void deleteNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateNodeId(nodeId);
+
+        Call<Void> call = mService.deleteNode(nodeId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodesDeleteError(response);
+            String errorText = String.format("Deletion of node '%d' failed with '%s'!", nodeId,
+                    errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -726,14 +754,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
-        EncryptedFileKey encryptedFileKey = getFileKey(nodeId);
+        EncryptedFileKey encFileKey = getFileKey(nodeId);
 
         UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
-                encryptedFileKey.getVersion());
+                encFileKey.getVersion());
         UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(
                 userKeyPairVersion);
 
-        return decryptFileKey(nodeId, encryptedFileKey, userKeyPair.getUserPrivateKey(),
+        return decryptFileKey(nodeId, encFileKey, userKeyPair.getUserPrivateKey(),
                 userPrivateKeyPassword);
     }
 
@@ -846,31 +874,34 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
 
         List<ApiUserIdFileId> apiUserIdFileIds = apiMissingFileKeys.items;
-        Map<Long, UserPublicKey> userPublicKeys = convertUserPublicKeys(apiMissingFileKeys.users);
-        Map<Long, EncryptedFileKey> encryptedFileKeys = convertFileKeys(apiMissingFileKeys.files);
-        Map<Long, PlainFileKey> plainFileKeys = decryptFileKeys(encryptedFileKeys, userPrivateKeys,
+        Map<Long, List<UserPublicKey>> usersPublicKeys = convertUserPublicKeys(
+                apiMissingFileKeys.users);
+        Map<Long, List<EncryptedFileKey>> encFilesKeys = convertFileKeys(apiMissingFileKeys.files);
+        Map<Long, PlainFileKey> plainFileKeys = decryptFileKeys(encFilesKeys, userPrivateKeys,
                 userPrivateKeyPassword);
 
         List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys = new ArrayList<>();
 
         for (ApiUserIdFileId apiUserIdFileId : apiUserIdFileIds) {
-            UserPublicKey userPublicKey = userPublicKeys.get(apiUserIdFileId.userId);
+            List<UserPublicKey> userPublicKeys = usersPublicKeys.get(apiUserIdFileId.userId);
             PlainFileKey plainFileKey = plainFileKeys.get(apiUserIdFileId.fileId);
-            if (userPublicKey == null || plainFileKey == null) {
+            if (userPublicKeys == null || plainFileKey == null) {
                 continue;
             }
 
-            EncryptedFileKey encryptedFileKey = encryptFileKey(apiUserIdFileId.fileId, plainFileKey,
-                    userPublicKey);
+            for (UserPublicKey userPublicKey : userPublicKeys) {
+                EncryptedFileKey encFileKey = encryptFileKey(apiUserIdFileId.fileId, plainFileKey,
+                        userPublicKey);
 
-            ApiFileKey apiFileKey = FileMapper.toApiFileKey(encryptedFileKey);
+                ApiFileKey apiFileKey = FileMapper.toApiFileKey(encFileKey);
 
-            ApiUserIdFileIdFileKey apiUserIdFileIdFileKey = new ApiUserIdFileIdFileKey();
-            apiUserIdFileIdFileKey.userId = apiUserIdFileId.userId;
-            apiUserIdFileIdFileKey.fileId = apiUserIdFileId.fileId;
-            apiUserIdFileIdFileKey.fileKey = apiFileKey;
+                ApiUserIdFileIdFileKey apiUserIdFileIdFileKey = new ApiUserIdFileIdFileKey();
+                apiUserIdFileIdFileKey.userId = apiUserIdFileId.userId;
+                apiUserIdFileIdFileKey.fileId = apiUserIdFileId.fileId;
+                apiUserIdFileIdFileKey.fileKey = apiFileKey;
 
-            apiUserIdFileIdFileKeys.add(apiUserIdFileIdFileKey);
+                apiUserIdFileIdFileKeys.add(apiUserIdFileIdFileKey);
+            }
         }
 
         setFileKeysBatch(apiUserIdFileIdFileKeys);
@@ -894,52 +925,64 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return response.body();
     }
 
-    private static Map<Long, UserPublicKey> convertUserPublicKeys(
+    private static Map<Long, List<UserPublicKey>> convertUserPublicKeys(
             List<ApiUserIdUserPublicKey> apiUserIdUserPublicKeys) {
-        Map<Long, UserPublicKey> userPublicKeys = new HashMap<>();
+        Map<Long, List<UserPublicKey>> usersPublicKeys = new HashMap<>();
         for (ApiUserIdUserPublicKey apiUserIdUserPublicKey : apiUserIdUserPublicKeys) {
             try {
                 UserPublicKey userPublicKey = UserMapper.fromApiUserPublicKey(
                         apiUserIdUserPublicKey.publicKeyContainer);
-                userPublicKeys.put(apiUserIdUserPublicKey.id, userPublicKey);
+                List<UserPublicKey> userPublicKeys = usersPublicKeys.get(apiUserIdUserPublicKey.id);
+                if (userPublicKeys != null) {
+                    userPublicKeys.add(userPublicKey);
+                } else {
+                    usersPublicKeys.put(apiUserIdUserPublicKey.id, Collections.singletonList(
+                            userPublicKey));
+                }
             } catch (UnknownVersionException e) {
                 // Not supported public keys are ignored
             }
         }
-        return userPublicKeys;
+        return usersPublicKeys;
     }
 
-    private static Map<Long, EncryptedFileKey> convertFileKeys(
+    private static Map<Long, List<EncryptedFileKey>> convertFileKeys(
             List<ApiFileIdFileKey> apiFileIdFileKeys) {
-        Map<Long, EncryptedFileKey> encryptedFileKeys = new HashMap<>();
+        Map<Long, List<EncryptedFileKey>> encFilesKeys = new HashMap<>();
         for (ApiFileIdFileKey apiFileIdFileKey : apiFileIdFileKeys) {
             try {
-                EncryptedFileKey encryptedFileKey = FileMapper.fromApiFileKey(
+                EncryptedFileKey encFileKey = FileMapper.fromApiFileKey(
                         apiFileIdFileKey.fileKeyContainer);
-                encryptedFileKeys.put(apiFileIdFileKey.id, encryptedFileKey);
+                List<EncryptedFileKey> encFileKeys = encFilesKeys.get(apiFileIdFileKey.id);
+                if (encFileKeys != null) {
+                    encFileKeys.add(encFileKey);
+                } else {
+                    encFilesKeys.put(apiFileIdFileKey.id, Collections.singletonList(encFileKey));
+                }
             } catch (UnknownVersionException e) {
                 // Not supported public keys are ignored
             }
         }
-        return encryptedFileKeys;
+        return encFilesKeys;
     }
 
-    private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, EncryptedFileKey> encryptedFileKeys,
+    private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, List<EncryptedFileKey>> encFilesKeys,
             Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys, String userPrivateKeyPassword)
             throws DracoonCryptoException {
         Map<Long, PlainFileKey> plainFileKeys = new HashMap<>();
-        for (Map.Entry<Long, EncryptedFileKey> encryptedFileKey : encryptedFileKeys.entrySet()) {
-            UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
-                    encryptedFileKey.getValue().getVersion());
+        for (Map.Entry<Long, List<EncryptedFileKey>> encFileKeys : encFilesKeys.entrySet()) {
+            for (EncryptedFileKey encFileKey : encFileKeys.getValue()) {
+                UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
+                        encFileKey.getVersion());
 
-            UserPrivateKey userPrivateKey = userPrivateKeys.get(userKeyPairVersion);
-            if (userPrivateKey == null) {
-                continue;
+                UserPrivateKey userPrivateKey = userPrivateKeys.get(userKeyPairVersion);
+                if (userPrivateKey != null) {
+                    PlainFileKey plainFileKey = decryptFileKey(null, encFileKey, userPrivateKey,
+                            userPrivateKeyPassword);
+                    plainFileKeys.put(encFileKeys.getKey(), plainFileKey);
+                    break;
+                }
             }
-
-            PlainFileKey plainFileKey = decryptFileKey(null, encryptedFileKey.getValue(),
-                    userPrivateKey, userPrivateKeyPassword);
-            plainFileKeys.put(encryptedFileKey.getKey(), plainFileKey);
         }
         return plainFileKeys;
     }
@@ -990,12 +1033,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encryptedFileKeyFileKey,
+    public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encFileKeyFileKey,
             UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
             throws DracoonCryptoException {
         try {
-            return Crypto.decryptFileKey(encryptedFileKeyFileKey, userPrivateKey,
-                    userPrivateKeyPassword);
+            return Crypto.decryptFileKey(encFileKeyFileKey, userPrivateKey, userPrivateKeyPassword);
         } catch (CryptoException e) {
             String nodeErrorText = nodeId != null ? String.format("for node '%d' ", nodeId) : "";
             String errorText = String.format("Decryption of file key " + nodeErrorText +
@@ -1084,6 +1126,109 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
                 .eq(true).build());
 
         return searchNodes(0L, "*", filters, offset, limit);
+    }
+
+    // --- Comment methods ---
+
+    @Override
+    public NodeCommentList getNodeComments(long nodeId) throws DracoonNetIOException,
+            DracoonApiException {
+        return getNodeCommentsInternally(nodeId, null, null);
+    }
+
+    @Override
+    public NodeCommentList getNodeComments(long nodeId, long offset, long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        return getNodeCommentsInternally(nodeId, offset, limit);
+    }
+
+    private NodeCommentList getNodeCommentsInternally(long nodeId, Long offset, Long limit)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateNodeId(nodeId);
+        NodeValidator.validateRange(offset, limit, true);
+
+        Call<ApiNodeCommentList> call = mService.getNodeComments(nodeId, offset, limit);
+        Response<ApiNodeCommentList> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentsGetError(response);
+            String errorText = String.format("Query of node comments for node '%d' failed with '%s'!",
+                    nodeId, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeCommentList data = response.body();
+        return NodeMapper.fromApiNodeCommentList(data);
+    }
+
+    @Override
+    public NodeComment createNodeComment(CreateNodeCommentRequest request)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateCreateCommentRequest(request);
+
+        ApiCreateNodeCommentRequest apiRequest = NodeMapper.toApiCreateNodeCommentRequest(request);
+        Call<ApiNodeComment> call = mService.createNodeComment(request.getNodeId(), apiRequest);
+        Response<ApiNodeComment> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentCreateError(response);
+            String errorText = String.format("Creation of comment on node '%d' failed with '%s'!",
+                    request.getNodeId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeComment data = response.body();
+
+        return NodeMapper.fromApiNodeComment(data);
+    }
+
+    @Override
+    public NodeComment updateNodeComment(UpdateNodeCommentRequest request)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        NodeValidator.validateUpdateCommentRequest(request);
+
+        ApiUpdateNodeCommentRequest apiRequest = NodeMapper.toApiUpdateNodeCommentRequest(request);
+        Call<ApiNodeComment> call = mService.updateNodeComment(request.getId(), apiRequest);
+        Response<ApiNodeComment> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentUpdateError(response);
+            String errorText = String.format("Update of comment '%d' failed with '%s'!",
+                    request.getId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNodeComment data = response.body();
+
+        return NodeMapper.fromApiNodeComment(data);
+    }
+
+    @Override
+    public void deleteNodeComment(long commentId)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        BaseValidator.validateCommentId(commentId);
+
+        Call<Void> call = mService.deleteNodeComment(commentId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentDeleteError(response);
+            String errorText = String.format("Deletion of comment '%d' failed with '%s'!", commentId,
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
     }
 
     // --- Media methods ---
