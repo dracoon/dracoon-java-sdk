@@ -1107,6 +1107,8 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 return parseValidationError(errorCode);
+            case PAYMENT_REQUIRED:
+                return DracoonApiCode.PRECONDITION_PAYMENT_REQUIRED;
             case FORBIDDEN:
                 if (errorCode == -10003 || errorCode == -10007)
                     return DracoonApiCode.AUTH_USER_LOCKED;
@@ -1161,9 +1163,18 @@ public class DracoonErrorParser {
     }
 
     private ApiErrorResponse getErrorResponse(Response response) {
+        int statusCode = response.code();
+
+        if (HttpStatus.valueOf(statusCode) == HttpStatus.PAYMENT_REQUIRED) {
+            ApiErrorResponse er = new ApiErrorResponse();
+            er.code = HttpStatus.PAYMENT_REQUIRED.getNumber();
+            er.message = HttpStatus.PAYMENT_REQUIRED.getText();
+            return er;
+        }
+
         if (response.errorBody() == null) {
             mLog.e(LOG_TAG, "Invalid server API error response!");
-            mLog.e(LOG_TAG, String.format("(Server API HTTP code '%d'.)", response.code()));
+            mLog.e(LOG_TAG, String.format("(Server API HTTP code '%d'.)", statusCode));
             return null;
         }
 
@@ -1171,7 +1182,7 @@ public class DracoonErrorParser {
 
         if (responseBody.contentType() == null || responseBody.contentType().subtype() == null) {
             mLog.e(LOG_TAG, "Invalid server API error response!");
-            mLog.e(LOG_TAG, String.format("(Server API HTTP code '%d'.)", response.code()));
+            mLog.e(LOG_TAG, String.format("(Server API HTTP code '%d'.)", statusCode));
             try {
                 mLog.d(LOG_TAG, responseBody.string());
             } catch (IOException e) {
