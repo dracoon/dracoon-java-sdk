@@ -15,6 +15,7 @@ import okhttp3.Interceptor;
  * Following options can be configured:<br>
  * - User-Agent string               (Default: Java-SDK|[VERSION]|-|-|[BUILD_TIMESTAMP])<br>
  * - Auto-retry of failed requests   (Default: disabled)<br>
+ * - Auto-rate limiting of requests  (Default: disabled)<br>
  * - HTTP connection timeout         (Default: 15 seconds)<br>
  * - HTTP read timeout               (Default: 15 seconds)<br>
  * - HTTP write timeout              (Default: 15 seconds)<br>
@@ -29,6 +30,7 @@ public class DracoonHttpConfig {
 
     private String mUserAgent;
     private boolean mRetryEnabled;
+    private boolean mRateLimitingEnabled;
     private int mConnectTimeout;
     private int mReadTimeout;
     private int mWriteTimeout;
@@ -46,6 +48,7 @@ public class DracoonHttpConfig {
     public DracoonHttpConfig() {
         mUserAgent = buildDefaultUserAgentString();
         mRetryEnabled = false;
+        mRateLimitingEnabled = false;
         mConnectTimeout = 15;
         mReadTimeout = 15;
         mWriteTimeout = 15;
@@ -86,6 +89,25 @@ public class DracoonHttpConfig {
      */
     public void setRetryEnabled(boolean retryEnabled) {
         mRetryEnabled = retryEnabled;
+    }
+
+    /**
+     * Returns <code>true</code> if auto-rate-limiting is enabled.
+     *
+     * @return <code>true</code> if auto-rate-limiting is enabled; <code>false</code> otherwise
+     */
+    public boolean isRateLimitingEnabled() {
+        return mRateLimitingEnabled;
+    }
+
+    /**
+     * Enables/disables auto-rate-limiting.
+     *
+     * @param rateLimitingEnabled <code>true</code> to enable auto-rate-limiting; otherwise
+     *                            <code>false</code>.
+     */
+    public void setRateLimitingEnabled(boolean rateLimitingEnabled) {
+        mRateLimitingEnabled = rateLimitingEnabled;
     }
 
     /**

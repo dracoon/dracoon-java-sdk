@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.util.List;
 import javax.net.ssl.SSLHandshakeException;
 
 import com.dracoon.sdk.Log;
@@ -16,9 +17,12 @@ public class HttpHelper {
 
     private static final String LOG_TAG = HttpHelper.class.getSimpleName();
 
+    private static final String HEADER_RETRY_AFTER = "Retry-After";
+
     private Log mLog = new NullLog();
 
     private boolean mIsRetryEnabled;
+    private boolean mIsRateLimitingEnabled;
 
     private Executor mExecutor;
 
@@ -34,10 +38,17 @@ public class HttpHelper {
         mIsRetryEnabled = isRetryEnabled;
     }
 
+    public void setRateLimitingEnabled(boolean isRateLimitingEnabled) {
+        mIsRateLimitingEnabled = isRateLimitingEnabled;
+    }
+
     public void init() {
         mExecutor = new NetworkExecutor();
         if (mIsRetryEnabled) {
             mExecutor = new RetryExecutor(mExecutor);
+        }
+        if (mIsRateLimitingEnabled) {
+            mExecutor = new RateLimitingExecutor(mExecutor);
         }
         mExecutor = new InterceptionErrorHandlingExecutor(mExecutor);
     }
@@ -144,6 +155,47 @@ public class HttpHelper {
         }
     }
 
+    private class RateLimitingExecutor extends Executor {
+
+        public RateLimitingExecutor(Executor nextExecutor) {
+            mNextExecutor = nextExecutor;
+        }
+
+        @Override
+        public Object execute(Object call) throws DracoonNetIOException, DracoonApiException,
+                InterceptedIOException, InterruptedException {
+            int retryCnt = 0;
+
+            while (true) {
+                // Try to execute call
+                Object response = mNextExecutor.execute(call);
+                if (!isRateLimitResponse(response)) {
+                    return response;
+                }
+
+                mLog.d(LOG_TAG, "Server communication failed due to rate limit!");
+
+                // If retries are exceeded: Abort
+                if (retryCnt >= 3) {
+                    return response;
+                }
+
+                // Get retry after interval
+                Integer retryAfterInterval = getRetryAfterInterval(response);
+
+                // Calculate sleep interval
+                int sleepSeconds = retryAfterInterval != null ? retryAfterInterval : retryCnt + 1;
+
+                // Sleep till next try
+                mLog.d(LOG_TAG, String.format("Next retry in %d seconds.", sleepSeconds));
+                Thread.sleep(sleepSeconds * DracoonConstants.SECOND);
+                call = cloneCall(call);
+                retryCnt++;
+            }
+        }
+
+    }
+
     private class RetryExecutor extends Executor {
 
         public RetryExecutor(Executor nextExecutor) {
@@ -161,15 +213,19 @@ public class HttpHelper {
                     return mNextExecutor.execute(call);
                 // Handle network IO errors
                 } catch (DracoonNetIOException e) {
-                    if (retryCnt < 3) {
-                        int sleepSeconds = retryCnt;
-                        mLog.d(LOG_TAG, String.format("Next retry in %d seconds.", sleepSeconds));
-                        Thread.sleep(sleepSeconds * DracoonConstants.SECOND);
-                        call = cloneCall(call);
-                        retryCnt++;
-                    } else {
+                    // If retries are exceeded: Abort
+                    if (retryCnt >= 3) {
                         throw e;
                     }
+
+                    // Calculate sleep interval
+                    int sleepSeconds = retryCnt;
+
+                    // Sleep till next try
+                    mLog.d(LOG_TAG, String.format("Next retry in %d seconds.", sleepSeconds));
+                    Thread.sleep(sleepSeconds * DracoonConstants.SECOND);
+                    call = cloneCall(call);
+                    retryCnt++;
                 }
             }
         }
@@ -228,6 +284,47 @@ public class HttpHelper {
             return ((okhttp3.Call) call).clone();
         } else {
             throw new RuntimeException("Can't clone request. Invalid call object.");
+        }
+    }
+
+    private static boolean isRateLimitResponse(Object response) {
+        int statusCode;
+
+        if (response instanceof Response) {
+            Response<?> r = (Response<?>) response;
+            statusCode = r.code();
+        } else if (response instanceof okhttp3.Response) {
+            okhttp3.Response r = (okhttp3.Response) response;
+            statusCode = r.code();
+        } else {
+            throw new RuntimeException("Can't get response status code. Invalid response object.");
+        }
+
+        return HttpStatus.valueOf(statusCode) == HttpStatus.TOO_MANY_REQUESTS;
+    }
+
+    private static Integer getRetryAfterInterval(Object response) {
+        String value;
+
+        if (response instanceof Response) {
+            Response<?> r = (Response<?>) response;
+            List<String> vs = r.headers().values(HEADER_RETRY_AFTER);
+            value = vs.size() > 0 ? vs.get(0) : null;
+        } else if (response instanceof okhttp3.Response) {
+            okhttp3.Response r = (okhttp3.Response) response;
+            value = r.header(HEADER_RETRY_AFTER);
+        } else {
+            throw new RuntimeException("Can't get response header. Invalid response object.");
+        }
+
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
