@@ -112,6 +112,7 @@ public enum DracoonApiCode {
 
     // General
     SERVER_UNKNOWN_ERROR(-5000, "A server error occurred."),
+    SERVER_TOO_MANY_REQUESTS(-5001, "Too many requests in a given amount of time."),
     SERVER_CRYPTO_VERSION_NOT_SUPPORTED(-5010, "Crypto version not supported."),
     SERVER_MALICIOUS_FILE_DETECTED(-5090, "Malicious file detected."),
     // Nodes

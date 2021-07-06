@@ -887,6 +887,11 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
                 return parseValidationError(errorCode);
+            case UNAUTHORIZED:
+                if (errorCode == -10006)
+                    return DracoonApiCode.AUTH_OAUTH_CLIENT_NO_PERMISSION;
+                else
+                    return DracoonApiCode.AUTH_UNAUTHORIZED;
             case PAYMENT_REQUIRED:
                 return DracoonApiCode.PRECONDITION_PAYMENT_REQUIRED;
             case FORBIDDEN:
@@ -900,11 +905,6 @@ public class DracoonErrorParser {
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
                 else
                     return DracoonApiCode.PERMISSION_UNKNOWN_ERROR;
-            case UNAUTHORIZED:
-                if (errorCode == -10006)
-                    return DracoonApiCode.AUTH_OAUTH_CLIENT_NO_PERMISSION;
-                else
-                    return DracoonApiCode.AUTH_UNAUTHORIZED;
             case PRECONDITION_FAILED:
                 if (errorCode == -10103)
                     return DracoonApiCode.PRECONDITION_MUST_ACCEPT_EULA;
@@ -914,6 +914,8 @@ public class DracoonErrorParser {
                     return DracoonApiCode.PRECONDITION_MUST_CHANGE_USER_NAME;
                 else
                     return DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            case TOO_MANY_REQUESTS:
+                return DracoonApiCode.SERVER_TOO_MANY_REQUESTS;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
@@ -1012,8 +1014,6 @@ public class DracoonErrorParser {
         mLog.d(LOG_TAG, "Server API error: " + statusCode);
 
         switch (HttpStatus.valueOf(statusCode)) {
-            case UNAUTHORIZED:
-                return DracoonApiCode.AUTH_UNAUTHORIZED;
             case FORBIDDEN:
                 String avHeader = response.headers().get(HEADER_X_FORBIDDEN);
                 if (avHeader != null && avHeader.equals("403"))
@@ -1025,7 +1025,7 @@ public class DracoonErrorParser {
             case MALICIOUS_FILE_DETECTED:
                 return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
             default:
-                return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+                return parseStandardError(response);
         }
     }
 
@@ -1037,6 +1037,21 @@ public class DracoonErrorParser {
         switch (HttpStatus.valueOf(statusCode)) {
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_USER_AVATAR_NOT_FOUND;
+            default:
+                return parseStandardError(response);
+        }
+    }
+
+    public DracoonApiCode parseStandardError(okhttp3.Response response) {
+        int statusCode = response.code();
+
+        switch (HttpStatus.valueOf(statusCode)) {
+            case UNAUTHORIZED:
+                return DracoonApiCode.AUTH_UNAUTHORIZED;
+            case PAYMENT_REQUIRED:
+                return DracoonApiCode.PRECONDITION_PAYMENT_REQUIRED;
+            case TOO_MANY_REQUESTS:
+                return DracoonApiCode.SERVER_TOO_MANY_REQUESTS;
             default:
                 return DracoonApiCode.SERVER_UNKNOWN_ERROR;
         }
