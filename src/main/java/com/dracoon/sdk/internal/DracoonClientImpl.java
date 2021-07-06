@@ -19,7 +19,6 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
-import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
@@ -48,7 +47,7 @@ public class DracoonClientImpl extends DracoonClient {
     private final Interceptor mAuthInterceptor = new Interceptor() {
 
         private long mLastRefreshTime = 0L;
-        private DracoonException mLastRefreshException = null;
+        private InterceptedIOException mLastRefreshException = null;
 
         @Override
         public Response intercept(Chain chain) throws IOException {
@@ -99,11 +98,11 @@ public class DracoonClientImpl extends DracoonClient {
                     DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken()).build();
         }
 
-        private synchronized void refreshAuthTokens() throws IOException {
+        private synchronized void refreshAuthTokens() throws InterceptedIOException {
             // If refresh is not overdue: Abort
             if (mLastRefreshTime + AUTH_REFRESH_SKIP_INTERVAL > System.currentTimeMillis()) {
                 if (mLastRefreshException != null) {
-                    throw new IOException(mLastRefreshException);
+                    throw mLastRefreshException;
                 }
                 return;
             }
@@ -116,11 +115,11 @@ public class DracoonClientImpl extends DracoonClient {
                 mLastRefreshTime = System.currentTimeMillis();
                 mLastRefreshException = null;
             } catch (DracoonNetIOException e) {
-                throw new IOException(e);
+                throw new InterceptedIOException(e);
             } catch (DracoonApiException e) {
                 mLastRefreshTime = System.currentTimeMillis();
-                mLastRefreshException = e;
-                throw new IOException(e);
+                mLastRefreshException = new InterceptedIOException(e);
+                throw mLastRefreshException;
             }
         }
 
@@ -310,6 +309,7 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpHelper = new HttpHelper();
         mHttpHelper.setLog(mLog);
         mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
+        mHttpHelper.init();
     }
 
     public void assertApiVersionSupported() throws DracoonNetIOException, DracoonApiException {

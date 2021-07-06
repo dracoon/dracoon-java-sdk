@@ -20,6 +20,8 @@ public class HttpHelper {
 
     private boolean mIsRetryEnabled;
 
+    private Executor mExecutor;
+
     public HttpHelper() {
 
     }
@@ -32,6 +34,14 @@ public class HttpHelper {
         mIsRetryEnabled = isRetryEnabled;
     }
 
+    public void init() {
+        mExecutor = new NetworkExecutor();
+        if (mIsRetryEnabled) {
+            mExecutor = new RetryExecutor(mExecutor);
+        }
+        mExecutor = new InterceptionErrorHandlingExecutor(mExecutor);
+    }
+
     // --- Methods for REST calls ---
 
     @SuppressWarnings("unchecked")
@@ -40,7 +50,7 @@ public class HttpHelper {
         try {
             return (Response<T>) executeRequestInternally(call);
         } catch (InterruptedException e) {
-            String errorText = "Server communication interrupted.";
+            String errorText = "Server communication was interrupted.";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOInterruptedException(errorText, e);
         }
@@ -66,7 +76,7 @@ public class HttpHelper {
         try {
             return (okhttp3.Response) executeRequestInternally(call);
         } catch (InterruptedException e) {
-            String errorText = "Server communication interrupted.";
+            String errorText = "Server communication was interrupted.";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOInterruptedException(errorText, e);
         }
@@ -84,26 +94,43 @@ public class HttpHelper {
         }
     }
 
-    // --- Helper methods ---
+    // --- Executor methods ---
 
     private Object executeRequestInternally(Object call) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
-        int retryCnt = 0;
+        try {
+            return mExecutor.execute(call);
+        } catch (InterceptedIOException e) {
+            String errorText = "Server communication failed due to an unknown error!";
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonNetIOException(errorText, e);
+        }
+    }
 
-        while (true) {
-            Object response = null;
-            Exception exception = null;
+    private static abstract class Executor {
 
+        protected Executor mNextExecutor;
+
+        public abstract Object execute(Object call) throws DracoonNetIOException, DracoonApiException,
+                InterceptedIOException, InterruptedException;
+
+    }
+
+    private class InterceptionErrorHandlingExecutor extends Executor {
+
+        public InterceptionErrorHandlingExecutor(Executor nextExecutor) {
+            mNextExecutor = nextExecutor;
+        }
+
+        @Override
+        public Object execute(Object call) throws DracoonNetIOException, DracoonApiException,
+                InterceptedIOException, InterruptedException {
+            // Try to execute call
             try {
-                response = executeCallInternally(call);
-            } catch (SSLHandshakeException e) {
-                String errorText = "Server SSL handshake failed!";
-                mLog.e(LOG_TAG, errorText, e);
-                throw new DracoonNetInsecureException(errorText, e);
-            } catch (IOException e) {
-                if (e.getClass().equals(InterruptedIOException.class)) {
-                    throw new InterruptedException();
-                }
+                return mNextExecutor.execute(call);
+            // Handle intercepted IO errors
+            } catch (InterceptedIOException e) {
+                mLog.d(LOG_TAG, "Server communication was intercepted.");
                 Throwable c = e.getCause();
                 if (c != null) {
                     if (c.getClass().equals(DracoonNetIOException.class)) {
@@ -112,29 +139,79 @@ public class HttpHelper {
                         throw (DracoonApiException) c;
                     }
                 }
-                exception = e;
+                throw e;
             }
-
-            if (exception != null) {
-                String errorText = "Server communication failed!";
-                mLog.d(LOG_TAG, errorText);
-
-                if (mIsRetryEnabled && retryCnt < 3) {
-                    mLog.d(LOG_TAG, String.format("Next retry in %d seconds.", retryCnt));
-                    Thread.sleep(retryCnt * 1000);
-                    call = cloneCallInternally(call);
-                    retryCnt++;
-                    continue;
-                } else {
-                    throw new DracoonNetIOException(errorText, exception);
-                }
-            }
-
-            return response;
         }
     }
 
-    private Object executeCallInternally(Object call) throws IOException {
+    private class RetryExecutor extends Executor {
+
+        public RetryExecutor(Executor nextExecutor) {
+            mNextExecutor = nextExecutor;
+        }
+
+        @Override
+        public Object execute(Object call) throws DracoonNetIOException, DracoonApiException,
+                InterceptedIOException, InterruptedException {
+            int retryCnt = 0;
+
+            while (true) {
+                // Try to execute call
+                try {
+                    return mNextExecutor.execute(call);
+                // Handle network IO errors
+                } catch (DracoonNetIOException e) {
+                    if (retryCnt < 3) {
+                        int sleepSeconds = retryCnt;
+                        mLog.d(LOG_TAG, String.format("Next retry in %d seconds.", sleepSeconds));
+                        Thread.sleep(sleepSeconds * DracoonConstants.SECOND);
+                        call = cloneCall(call);
+                        retryCnt++;
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        }
+    }
+
+    private class NetworkExecutor extends Executor {
+
+        public NetworkExecutor() {
+
+        }
+
+        @Override
+        public Object execute(Object call) throws DracoonNetIOException, InterceptedIOException,
+                InterruptedException {
+            try {
+                // Try to execute call
+                return executeCall(call);
+            } catch (SSLHandshakeException e) {
+                // Throw network insecure exception
+                String errorText = "Server SSL handshake failed!";
+                mLog.e(LOG_TAG, errorText, e);
+                throw new DracoonNetInsecureException(errorText, e);
+            } catch (IOException e) {
+                // If network IO was interrupted: Throw interrupted exception
+                if (e.getClass().equals(InterruptedIOException.class)) {
+                    throw new InterruptedException();
+                }
+                // If network IO was intercepted: Throw intercepted exception
+                if (e.getClass().equals(InterceptedIOException.class)) {
+                    throw (InterceptedIOException) e;
+                }
+                // Throw network IO exception
+                String errorText = "Server communication failed!";
+                mLog.d(LOG_TAG, errorText);
+                throw new DracoonNetIOException(errorText, e);
+            }
+        }
+    }
+
+    // --- Helper methods ---
+
+    private static Object executeCall(Object call) throws IOException {
         if (call instanceof Call) {
             return ((Call<?>) call).execute();
         } else if (call instanceof okhttp3.Call) {
@@ -144,7 +221,7 @@ public class HttpHelper {
         }
     }
 
-    private Object cloneCallInternally(Object call) {
+    private static Object cloneCall(Object call) {
         if (call instanceof Call) {
             return ((Call<?>) call).clone();
         } else if (call instanceof okhttp3.Call) {
