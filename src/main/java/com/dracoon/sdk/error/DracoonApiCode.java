@@ -39,6 +39,7 @@ public enum DracoonApiCode {
     PRECONDITION_MUST_ACCEPT_EULA(-2101, "User must accept EULA."),
     PRECONDITION_MUST_CHANGE_USER_NAME(-2102, "User must change his user name."),
     PRECONDITION_MUST_CHANGE_PASSWORD(-2103, "User must change his password."),
+    PRECONDITION_PAYMENT_REQUIRED(-2104, "Further payment is required."),
 
     // General
     VALIDATION_UNKNOWN_ERROR(-3000, "The server request was invalid."),
@@ -111,6 +112,7 @@ public enum DracoonApiCode {
 
     // General
     SERVER_UNKNOWN_ERROR(-5000, "A server error occurred."),
+    SERVER_TOO_MANY_REQUESTS(-5001, "Too many requests in a given amount of time."),
     SERVER_CRYPTO_VERSION_NOT_SUPPORTED(-5010, "Crypto version not supported."),
     SERVER_MALICIOUS_FILE_DETECTED(-5090, "Malicious file detected."),
     // Nodes
