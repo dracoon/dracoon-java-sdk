@@ -103,6 +103,8 @@ public class OAuthClient {
         mHttpHelper = new HttpHelper();
         mHttpHelper.setLog(mLog);
         mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
+        mHttpHelper.setRateLimitingEnabled(mHttpConfig.isRateLimitingEnabled());
+        mHttpHelper.init();
     }
 
     // --- Methods to retrieve, refresh and revoke tokens ---
