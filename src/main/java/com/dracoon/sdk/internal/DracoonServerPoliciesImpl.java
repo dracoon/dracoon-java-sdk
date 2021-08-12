@@ -7,10 +7,13 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.mapper.ServerMapper;
+import com.dracoon.sdk.internal.model.ApiServerClassificationPolicies;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
 import com.dracoon.sdk.internal.model.ApiServerPasswordPolicies;
+import com.dracoon.sdk.model.ClassificationPolicies;
 import com.dracoon.sdk.model.PasswordPolicies;
 import com.dracoon.sdk.model.PasswordPoliciesCharacterType;
+import com.dracoon.sdk.model.ShareClassificationPolicies;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -26,6 +29,7 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
     @Override
     public PasswordPolicies getEncryptionPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
+        mClient.assertApiVersionSupported();
         if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_PASSWORD_POLICIES)) {
             return getFallbackPasswordPolicies();
         }
@@ -38,6 +42,7 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
     @Override
     public PasswordPolicies getSharesPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
+        mClient.assertApiVersionSupported();
         if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_PASSWORD_POLICIES)) {
             return getFallbackPasswordPolicies();
         }
@@ -48,8 +53,6 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
 
     private ApiServerPasswordPolicies getPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiServerPasswordPolicies> call = mService.getServerPasswordPolicies();
         Response<ApiServerPasswordPolicies> response = mHttpHelper.executeRequest(call);
 
@@ -66,8 +69,6 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
 
     private PasswordPolicies getFallbackPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
@@ -108,6 +109,36 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
         policies.setRejectUserInfo(false);
         policies.setRejectKeyboardPatterns(false);
         policies.setRejectDictionaryWords(false);
+        return policies;
+    }
+
+    @Override
+    public ClassificationPolicies getClassificationPolicies() throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_CLASSIFICATION_POLICIES)) {
+            return getFallbackClassificationPolicies();
+        }
+
+        Call<ApiServerClassificationPolicies> call = mService.getServerClassificationPolicies();
+        Response<ApiServerClassificationPolicies> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
+            String errorText = String.format("Query of server classification policies failed " +
+                    "with '%s'!", errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiServerClassificationPolicies data = response.body();
+
+        return ServerMapper.fromApiClassificationPolicies(data);
+    }
+
+    private ClassificationPolicies getFallbackClassificationPolicies() {
+        ClassificationPolicies policies = new ClassificationPolicies();
+        policies.setShareClassificationPolicies(new ShareClassificationPolicies());
         return policies;
     }
 

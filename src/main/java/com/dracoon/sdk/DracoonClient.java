@@ -18,6 +18,7 @@ import com.dracoon.sdk.filter.GetUploadSharesFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
+import com.dracoon.sdk.model.ClassificationPolicies;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
@@ -184,6 +185,17 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         PasswordPolicies getSharesPasswordPolicies() throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves the classification policies.
+         *
+         * @return classification policies
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        ClassificationPolicies getClassificationPolicies() throws DracoonNetIOException,
                 DracoonApiException;
 
     }
