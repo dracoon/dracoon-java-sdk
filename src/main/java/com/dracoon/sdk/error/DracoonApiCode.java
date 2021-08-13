@@ -89,6 +89,8 @@ public enum DracoonApiCode {
     VALIDATION_USER_KEY_PAIR_INVALID(-3551, "Encryption key pair invalid."),
     VALIDATION_USER_HAS_NO_FILE_KEY(-3552, "User has no encryption file key."),
     // Groups
+    // Policies
+    VALIDATION_CLASSIFICATION_POLICY_VIOLATION(3750, "A classification policy is violated."),
     // Other
     VALIDATION_PASSWORD_NOT_SECURE(-3800, "Password is not secure."),
     VALIDATION_EMAIL_ADDRESS_INVALID(-3801, "Email address invalid."),
