@@ -13,6 +13,7 @@ import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
 import com.dracoon.sdk.internal.model.ApiNodeComment;
 import com.dracoon.sdk.internal.model.ApiNodeCommentList;
+import com.dracoon.sdk.internal.model.ApiServerClassificationPolicies;
 import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
@@ -80,6 +81,9 @@ public interface DracoonService {
 
     @GET(API_PATH + "/config/info/policies/passwords")
     Call<ApiServerPasswordPolicies> getServerPasswordPolicies();
+
+    @GET(API_PATH + "/config/info/policies/classifications")
+    Call<ApiServerClassificationPolicies> getServerClassificationPolicies();
 
     @GET(API_PATH + "/user/ping")
     Call<Void> pingUser();

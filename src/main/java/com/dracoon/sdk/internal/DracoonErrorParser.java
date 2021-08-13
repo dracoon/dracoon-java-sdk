@@ -608,6 +608,8 @@ public class DracoonErrorParser {
                     return DracoonApiCode.VALIDATION_EMAIL_ADDRESS_INVALID;
                 else if (error.errorCode == -80030)
                     return DracoonApiCode.SERVER_SMS_IS_DISABLED;
+                else if (error.errorCode == -80064)
+                    return DracoonApiCode.VALIDATION_CLASSIFICATION_POLICY_VIOLATION;
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
@@ -676,6 +678,8 @@ public class DracoonErrorParser {
                     return DracoonApiCode.VALIDATION_EMAIL_ADDRESS_INVALID;
                 else if (error.errorCode == -80030)
                     return DracoonApiCode.SERVER_SMS_IS_DISABLED;
+                else if (error.errorCode == -80064)
+                    return DracoonApiCode.VALIDATION_CLASSIFICATION_POLICY_VIOLATION;
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
