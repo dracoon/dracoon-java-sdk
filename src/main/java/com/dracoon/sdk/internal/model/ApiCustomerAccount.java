@@ -9,9 +9,6 @@ public class ApiCustomerAccount {
     public Integer accountsLimit;
     public Long spaceUsed;
     public Long spaceLimit;
-    public Long cntRooms;
-    public Long cntFolders;
-    public Long cntFiles;
 
     public Boolean customerEncryptionEnabled;
 

@@ -21,9 +21,6 @@ public class CustomerMapper extends BaseMapper {
         customerAccount.setUserAccountsLimit(apiCustomerAccount.accountsLimit);
         customerAccount.setSpaceUsed(apiCustomerAccount.spaceUsed);
         customerAccount.setSpaceLimit(apiCustomerAccount.spaceLimit);
-        customerAccount.setCntRooms(apiCustomerAccount.cntRooms);
-        customerAccount.setCntFolders(apiCustomerAccount.cntFolders);
-        customerAccount.setCntFiles(apiCustomerAccount.cntFiles);
         customerAccount.setHasEncryptionEnabled(toBoolean(
                 apiCustomerAccount.customerEncryptionEnabled));
         return customerAccount;
