@@ -38,6 +38,7 @@ import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
+import com.dracoon.sdk.internal.model.ApiUpdateRoomConfigRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
@@ -150,6 +151,10 @@ public interface DracoonService {
     @PUT(API_PATH + "/nodes/rooms/{room_id}")
     Call<ApiNode> updateRoom(@Path("room_id") Long roomId,
             @Body ApiUpdateRoomRequest request);
+
+    @PUT(API_PATH + "/nodes/rooms/{room_id}/config")
+    Call<ApiNode> updateRoomConfig(@Path("room_id") Long roomId,
+            @Body ApiUpdateRoomConfigRequest request);
 
     @POST(API_PATH + "/nodes/folders")
     Call<ApiNode> createFolder(@Body ApiCreateFolderRequest request);

@@ -1,10 +1,12 @@
 package com.dracoon.sdk.internal.mapper;
 
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
+import com.dracoon.sdk.internal.model.ApiUpdateRoomConfigRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.GroupMemberAcceptance;
+import com.dracoon.sdk.model.UpdateRoomConfigRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 
 public class RoomMapper extends BaseMapper {
@@ -39,6 +41,23 @@ public class RoomMapper extends BaseMapper {
         apiRequest.name = request.getName();
         apiRequest.quota = request.getQuota();
         apiRequest.notes = request.getNotes();
+        return apiRequest;
+    }
+
+    public static ApiUpdateRoomConfigRequest toApiUpdateRoomConfigRequest(
+            UpdateRoomConfigRequest request) {
+        ApiUpdateRoomConfigRequest apiRequest = new ApiUpdateRoomConfigRequest();
+        apiRequest.recycleBinRetentionPeriod = request.getRecycleBinRetentionPeriod();
+        apiRequest.inheritPermissions = request.hasInheritPermissions();
+        apiRequest.adminIds = request.getAdminUserIds();
+        apiRequest.adminGroupIds = request.getAdminGroupIds();
+        GroupMemberAcceptance groupMemberAcceptance = request.getNewGroupMemberAcceptance();
+        apiRequest.newGroupMemberAcceptance = groupMemberAcceptance != null ?
+                groupMemberAcceptance.getValue() : null;
+        Classification classification = request.getClassification();
+        if (classification != null) {
+            apiRequest.classification = classification.getValue();
+        }
         return apiRequest;
     }
 
