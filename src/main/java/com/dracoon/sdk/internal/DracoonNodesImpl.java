@@ -58,6 +58,7 @@ import com.dracoon.sdk.internal.model.ApiSetFileKeysRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
+import com.dracoon.sdk.internal.model.ApiUpdateRoomConfigRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUserIdFileId;
 import com.dracoon.sdk.internal.model.ApiUserIdFileIdFileKey;
@@ -86,6 +87,7 @@ import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateNodeCommentRequest;
+import com.dracoon.sdk.model.UpdateRoomConfigRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -249,6 +251,30 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseRoomUpdateError(response);
             String errorText = String.format("Update of room '%d' failed with '%s'!",
+                    request.getId(), errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        ApiNode data = response.body();
+
+        return NodeMapper.fromApiNode(data);
+    }
+
+    @Override
+    public Node updateRoomConfig(UpdateRoomConfigRequest request) throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.assertApiVersionSupported();
+
+        RoomValidator.validateUpdateConfigRequest(request);
+
+        ApiUpdateRoomConfigRequest apiRequest = RoomMapper.toApiUpdateRoomConfigRequest(request);
+        Call<ApiNode> call = mService.updateRoomConfig(request.getId(), apiRequest);
+        Response<ApiNode> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseRoomUpdateError(response);
+            String errorText = String.format("Update config of room '%d' failed with '%s'!",
                     request.getId(), errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);

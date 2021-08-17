@@ -23,6 +23,8 @@ public class CreateRoomRequest {
     private List<Long> mAdminGroupIds;
     private GroupMemberAcceptance mNewGroupMemberAcceptance;
 
+    private Classification mClassification;
+
     private CreateRoomRequest() {
 
     }
@@ -72,6 +74,11 @@ public class CreateRoomRequest {
         return mHasRecycleBin;
     }
 
+    /**
+     * Returns the recycle bin retention period of the new room.
+     *
+     * @return the recycle bin retention period
+     */
     public Integer getRecycleBinRetentionPeriod() {
         return mRecycleBinRetentionPeriod;
     }
@@ -113,6 +120,15 @@ public class CreateRoomRequest {
     }
 
     /**
+     * Returns the default classification of folders and files of the new room.
+     *
+     * @return the default classification of folders and files
+     */
+    public Classification getClassification() {
+        return mClassification;
+    }
+
+    /**
      * This builder creates new instances of {@link CreateRoomRequest}.<br>
      * <br>
      * Following properties can be set:<br>
@@ -126,6 +142,7 @@ public class CreateRoomRequest {
      * - Admin user IDs:               {@link #adminUserIds(List)}<br>
      * - Admin group IDs:              {@link #adminGroupIds(List)}<br>
      * - Group member acceptance       {@link #newGroupMemberAcceptance(GroupMemberAcceptance)}
+     * - Classification:               {@link #classification(Classification)}<br>
      */
     public static class Builder {
 
@@ -252,6 +269,18 @@ public class CreateRoomRequest {
          */
         public Builder newGroupMemberAcceptance(GroupMemberAcceptance newGroupMemberAcceptance) {
             mRequest.mNewGroupMemberAcceptance = newGroupMemberAcceptance;
+            return this;
+        }
+
+        /**
+         * Sets the default classification of folders and files of the new room.
+         *
+         * @param classification The default classification of folders and files.
+         *
+         * @return a reference to this object
+         */
+        public Builder classification(Classification classification) {
+            mRequest.mClassification = classification;
             return this;
         }
 
