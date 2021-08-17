@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dracoon.sdk.internal.model.ApiEncryptionPasswordPolicies;
+import com.dracoon.sdk.internal.model.ApiServerClassificationPolicies;
 import com.dracoon.sdk.internal.model.ApiServerDefaults;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
+import com.dracoon.sdk.internal.model.ApiServerShareClassificationPolicies;
 import com.dracoon.sdk.internal.model.ApiSharesPasswordPolicies;
+import com.dracoon.sdk.model.Classification;
+import com.dracoon.sdk.model.ClassificationPolicies;
 import com.dracoon.sdk.model.PasswordPolicies;
 import com.dracoon.sdk.model.PasswordPoliciesCharacterType;
 import com.dracoon.sdk.model.ServerDefaults;
 import com.dracoon.sdk.model.ServerGeneralSettings;
+import com.dracoon.sdk.model.ShareClassificationPolicies;
 
 public class ServerMapper extends BaseMapper {
 
@@ -111,6 +116,32 @@ public class ServerMapper extends BaseMapper {
             }
         }
         return characterTypes;
+    }
+
+    public static ClassificationPolicies fromApiClassificationPolicies(
+            ApiServerClassificationPolicies apiServerClassificationPolicies) {
+        if (apiServerClassificationPolicies == null) {
+            return null;
+        }
+
+        ClassificationPolicies policies = new ClassificationPolicies();
+        policies.setShareClassificationPolicies(fromApiShareClassificationPolicies(
+                apiServerClassificationPolicies.shareClassificationPolicies));
+        return policies;
+    }
+
+    private static ShareClassificationPolicies fromApiShareClassificationPolicies(
+            ApiServerShareClassificationPolicies apiServerShareClassificationPolicies) {
+        if (apiServerShareClassificationPolicies == null) {
+            return null;
+        }
+
+        ShareClassificationPolicies policies = new ShareClassificationPolicies();
+        if (apiServerShareClassificationPolicies.classificationRequiresSharePassword != null) {
+            policies.setRequirePasswordClassification(Classification.getByValue(
+                    apiServerShareClassificationPolicies.classificationRequiresSharePassword));
+        }
+        return policies;
     }
 
 }

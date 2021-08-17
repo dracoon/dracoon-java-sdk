@@ -18,6 +18,7 @@ import com.dracoon.sdk.filter.GetUploadSharesFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
+import com.dracoon.sdk.model.ClassificationPolicies;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
@@ -44,6 +45,7 @@ import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateNodeCommentRequest;
+import com.dracoon.sdk.model.UpdateRoomConfigRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
@@ -184,6 +186,17 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         PasswordPolicies getSharesPasswordPolicies() throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Retrieves the classification policies.
+         *
+         * @return classification policies
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        ClassificationPolicies getClassificationPolicies() throws DracoonNetIOException,
                 DracoonApiException;
 
     }
@@ -487,6 +500,19 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException,
+                DracoonApiException;
+
+        /**
+         * Updates the configuration of a room.
+         *
+         * @param request The request with updated configuration of the room.
+         *
+         * @return the updated node
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        Node updateRoomConfig(UpdateRoomConfigRequest request) throws DracoonNetIOException,
                 DracoonApiException;
 
         /**

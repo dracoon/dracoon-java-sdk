@@ -15,9 +15,6 @@ public class CustomerAccount {
     private Integer mUserAccountsLimit;
     private Long mSpaceUsed;
     private Long mSpaceLimit;
-    private Long mCntRooms;
-    private Long mCntFolders;
-    private Long mCntFiles;
 
     private Boolean mHasEncryptionEnabled;
 
@@ -127,60 +124,6 @@ public class CustomerAccount {
      */
     public void setSpaceLimit(Long spaceLimit) {
         mSpaceLimit = spaceLimit;
-    }
-
-    /**
-     * Returns the number of rooms used by the customer.
-     *
-     * @return the number of rooms
-     */
-    public Long getCntRooms() {
-        return mCntRooms;
-    }
-
-    /**
-     * Sets the number of rooms used by the customer.
-     *
-     * @param cntRooms The number of rooms.
-     */
-    public void setCntRooms(Long cntRooms) {
-        mCntRooms = cntRooms;
-    }
-
-    /**
-     * Returns the number of folders used by the customer.
-     *
-     * @return the number of folders
-     */
-    public Long getCntFolders() {
-        return mCntFolders;
-    }
-
-    /**
-     * Sets the number of folders used by the customer.
-     *
-     * @param cntFolders The number of folders.
-     */
-    public void setCntFolders(Long cntFolders) {
-        mCntFolders = cntFolders;
-    }
-
-    /**
-     * Returns the number of files used by the customer.
-     *
-     * @return the number of files
-     */
-    public Long getCntFiles() {
-        return mCntFiles;
-    }
-
-    /**
-     * Sets the number of files used by the customer.
-     *
-     * @param cntFiles The number of files.
-     */
-    public void setCntFiles(Long cntFiles) {
-        mCntFiles = cntFiles;
     }
 
     /**

@@ -54,6 +54,7 @@ import com.dracoon.sdk.model.ServerGeneralSettings;
 import com.dracoon.sdk.model.UpdateFileRequest;
 import com.dracoon.sdk.model.UpdateFolderRequest;
 import com.dracoon.sdk.model.UpdateNodeCommentRequest;
+import com.dracoon.sdk.model.UpdateRoomConfigRequest;
 import com.dracoon.sdk.model.UpdateRoomRequest;
 import com.dracoon.sdk.model.UploadShare;
 import com.dracoon.sdk.model.UploadShareList;
@@ -120,6 +121,7 @@ public class DracoonExamples {
 
         //createRoom(client);
         //updateRoom(client);
+        //updateRoomConfig(client);
         //createFolder(client);
         //updateFolder(client);
         //updateFile(client);
@@ -396,6 +398,14 @@ public class DracoonExamples {
         System.out.println("id=" + node.getId() + ", name=" + node.getName());
     }
 
+    private static void updateRoomConfig(DracoonClient client) throws DracoonException {
+        UpdateRoomConfigRequest request = new UpdateRoomConfigRequest.Builder(1L)
+                .classification(Classification.CONFIDENTIAL)
+                .build();
+        Node node = client.nodes().updateRoomConfig(request);
+        System.out.println("id=" + node.getId() + ", classification=" + node.getClassification());
+    }
+
     private static void createFolder(DracoonClient client) throws DracoonException {
         CreateFolderRequest request = new CreateFolderRequest.Builder(1L, "Test-Folder")
                 .notes("This is a test folder.")
@@ -490,12 +500,12 @@ public class DracoonExamples {
 
             @Override
             public void onCanceled(String id) {
-                System.out.println(String.format("Upload %s failed.", id));
+                System.out.println(String.format("Upload %s canceled.", id));
             }
 
             @Override
             public void onFailed(String id, DracoonException e) {
-                System.out.println(String.format("Upload %s canceled.", id));
+                System.out.println(String.format("Upload %s failed.", id));
             }
         };
 
@@ -551,12 +561,12 @@ public class DracoonExamples {
 
             @Override
             public void onCanceled(String id) {
-                System.out.println(String.format("Download %s failed.", id));
+                System.out.println(String.format("Download %s canceled.", id));
             }
 
             @Override
             public void onFailed(String id, DracoonException e) {
-                System.out.println(String.format("Download %s canceled.", id));
+                System.out.println(String.format("Download %s failed.", id));
             }
         };
 

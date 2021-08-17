@@ -16,6 +16,7 @@ public interface DracoonConstants {
     String API_MIN_PASSWORD_POLICIES = "4.13.0";
     String API_MIN_S3_DIRECT_UPLOAD = "4.15.0";
     String API_MIN_NEW_CRYPTO_ALGOS = "4.24.0";
+    String API_MIN_CLASSIFICATION_POLICIES = "4.30.0";
 
     String API_TIME_ZONE = "UTC";
     String API_DATE_FORMAT = "yyyy-MM-dd";
