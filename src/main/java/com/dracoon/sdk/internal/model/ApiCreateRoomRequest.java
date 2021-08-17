@@ -16,4 +16,6 @@ public class ApiCreateRoomRequest {
     public List<Long> adminIds;
     public List<Long> adminGroupIds;
     public String newGroupMemberAcceptance;
+
+    public Integer classification;
 }

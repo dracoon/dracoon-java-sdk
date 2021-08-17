@@ -10,6 +10,7 @@ public class UpdateFolderRequest {
 
     private Long mId;
     private String mName;
+    private Classification mClassification;
     private String mNotes;
 
     private UpdateFolderRequest() {
@@ -35,6 +36,15 @@ public class UpdateFolderRequest {
     }
 
     /**
+     * Returns the new classification of the folder.
+     *
+     * @return the new classification
+     */
+    public Classification getClassification() {
+        return mClassification;
+    }
+
+    /**
      * Returns the new notes of the folder.
      *
      * @return the new notes
@@ -49,6 +59,7 @@ public class UpdateFolderRequest {
      * Following properties can be set:<br>
      * - Node ID (mandatory): {@link #Builder(Long)}<br>
      * - Name:                {@link #name(String)}<br>
+     * - Classification:      {@link #classification(Classification)}<br>
      * - Notes:               {@link #notes(String)}
      */
     public static class Builder {
@@ -75,6 +86,18 @@ public class UpdateFolderRequest {
          */
         public Builder name(String name) {
             mRequest.mName = name;
+            return this;
+        }
+
+        /**
+         * Sets the new classification of the folder.
+         *
+         * @param classification The new classification.
+         *
+         * @return a reference to this object
+         */
+        public Builder classification(Classification classification) {
+            mRequest.mClassification = classification;
             return this;
         }
 

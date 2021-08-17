@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.mapper;
 
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateRoomRequest;
+import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.GroupMemberAcceptance;
 import com.dracoon.sdk.model.UpdateRoomRequest;
@@ -26,6 +27,10 @@ public class RoomMapper extends BaseMapper {
         GroupMemberAcceptance groupMemberAcceptance = request.getNewGroupMemberAcceptance();
         apiRequest.newGroupMemberAcceptance = groupMemberAcceptance != null ?
                 groupMemberAcceptance.getValue() : null;
+        Classification classification = request.getClassification();
+        if (classification != null) {
+            apiRequest.classification = classification.getValue();
+        }
         return apiRequest;
     }
 
