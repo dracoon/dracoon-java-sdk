@@ -500,12 +500,12 @@ public class DracoonExamples {
 
             @Override
             public void onCanceled(String id) {
-                System.out.println(String.format("Upload %s failed.", id));
+                System.out.println(String.format("Upload %s canceled.", id));
             }
 
             @Override
             public void onFailed(String id, DracoonException e) {
-                System.out.println(String.format("Upload %s canceled.", id));
+                System.out.println(String.format("Upload %s failed.", id));
             }
         };
 
@@ -561,12 +561,12 @@ public class DracoonExamples {
 
             @Override
             public void onCanceled(String id) {
-                System.out.println(String.format("Download %s failed.", id));
+                System.out.println(String.format("Download %s canceled.", id));
             }
 
             @Override
             public void onFailed(String id, DracoonException e) {
-                System.out.println(String.format("Download %s canceled.", id));
+                System.out.println(String.format("Download %s failed.", id));
             }
         };
 
