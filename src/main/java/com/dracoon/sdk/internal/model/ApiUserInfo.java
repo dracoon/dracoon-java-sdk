@@ -9,5 +9,4 @@ public class ApiUserInfo {
     public String userName;
     public String email;
     public String avatarUuid;
-    public String displayName;
 }
