@@ -14,7 +14,6 @@ public class DownloadShare {
     private Long mNodeId;
     private String mNodePath;
     private String mName;
-    private Classification mClassification;
     private String mNotes;
     private Date mExpireAt;
 
@@ -102,24 +101,6 @@ public class DownloadShare {
      */
     public void setName(String name) {
         mName = name;
-    }
-
-    /**
-     * Returns the classification of the download share.
-     *
-     * @return the classification
-     */
-    public Classification getClassification() {
-        return mClassification;
-    }
-
-    /**
-     * Sets the classification of the download share.
-     *
-     * @param classification The classification
-     */
-    public void setClassification(Classification classification) {
-        mClassification = classification;
     }
 
     /**
