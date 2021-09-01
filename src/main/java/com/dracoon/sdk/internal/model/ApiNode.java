@@ -31,7 +31,9 @@ public class ApiNode {
     public Boolean isFavorite;
     public Boolean isEncrypted;
     public ApiEncryptionInfo encryptionInfo;
-    public Integer cntChildren;
+    public Integer cntRooms;
+    public Integer cntFolders;
+    public Integer cntFiles;
     public Integer cntDeletedVersions;
     public Boolean hasRecycleBin;
     public Integer recycleBinRetentionPeriod;

@@ -38,7 +38,9 @@ public class Node {
 
     private Boolean mIsFavorite;
     private Boolean mIsEncrypted;
-    private Integer mCntChildren;
+    private Integer mCntChildRooms;
+    private Integer mCntChildFolders;
+    private Integer mCntChildFiles;
     private Integer mCntDeletedVersions;
     private Boolean mHasRecycleBin;
     private Integer mRecycleBinRetentionPeriod;
@@ -432,21 +434,57 @@ public class Node {
     }
 
     /**
-     * Returns the number of child nodes of the node, if node is a room or folder.
+     * Returns the number of child rooms of the node, if node is a room.
      *
-     * @return the number of child nodes, or <code>null</code>
+     * @return the number of child rooms, or <code>null</code>
      */
-    public Integer getCntChildren() {
-        return mCntChildren;
+    public Integer getCntChildRooms() {
+        return mCntChildRooms;
     }
 
     /**
-     * Sets the number of child nodes of the node.
+     * Sets the number of child rooms of the node.
      *
-     * @param cntChildren The number of child nodes.
+     * @param cntChildRooms The number of child rooms.
      */
-    public void setCntChildren(Integer cntChildren) {
-        mCntChildren = cntChildren;
+    public void setCntChildRooms(Integer cntChildRooms) {
+        mCntChildRooms = cntChildRooms;
+    }
+
+    /**
+     * Returns the number of child folders of the node, if node is a room or folder.
+     *
+     * @return the number of child folders, or <code>null</code>
+     */
+    public Integer getCntChildFolders() {
+        return mCntChildFolders;
+    }
+
+    /**
+     * Sets the number of child folders of the node.
+     *
+     * @param cntChildFolders The number of child folders.
+     */
+    public void setCntChildFolders(Integer cntChildFolders) {
+        mCntChildFolders = cntChildFolders;
+    }
+
+    /**
+     * Returns the number of child files of the node, if node is a room or folder.
+     *
+     * @return the number of child files, or <code>null</code>
+     */
+    public Integer getCntChildFiles() {
+        return mCntChildFiles;
+    }
+
+    /**
+     * Sets the number of child files of the node.
+     *
+     * @param cntChildFiles The number of child files.
+     */
+    public void setCntChildFiles(Integer cntChildFiles) {
+        mCntChildFiles = cntChildFiles;
     }
 
     /**
