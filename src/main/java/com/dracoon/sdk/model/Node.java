@@ -42,7 +42,6 @@ public class Node {
     private Integer mCntChildFolders;
     private Integer mCntChildFiles;
     private Integer mCntDeletedVersions;
-    private Boolean mHasRecycleBin;
     private Integer mRecycleBinRetentionPeriod;
     private Integer mCntComments;
     private Integer mCntDownloadShares;
@@ -503,26 +502,6 @@ public class Node {
      */
     public void setCntDeletedVersions(Integer cntDeletedVersions) {
         mCntDeletedVersions = cntDeletedVersions;
-    }
-
-    /**
-     * Returns <code>true</code> if node has recycle bin enabled. (Only for rooms.)
-     *
-     * @return <code>true</code> if node has recycle bin enabled; <code>false</code> otherwise;
-     *         <code>null</code> for folders and files
-     */
-    public Boolean hasRecycleBin() {
-        return mHasRecycleBin;
-    }
-
-    /**
-     * Sets if node has recycle bin enabled.
-     *
-     * @param hasRecycleBin <code>true</code> if node has recycle bin enabled; <code>false</code>
-     *                      otherwise.
-     */
-    public void setHasRecycleBin(Boolean hasRecycleBin) {
-        mHasRecycleBin = hasRecycleBin;
     }
 
     /**
