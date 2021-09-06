@@ -346,6 +346,8 @@ public class UploadStream extends FileUploadStream {
             apiExpiration.expireAt = mFileUploadRequest.getExpirationDate();
             request.expiration = apiExpiration;
         }
+        request.timestampCreation = mFileUploadRequest.getOriginalCreationDate();
+        request.timestampModification = mFileUploadRequest.getOriginalModificationDate();
         if (mIsS3Upload) {
             request.directS3Upload = mIsS3Upload;
         }
