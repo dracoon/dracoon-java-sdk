@@ -295,11 +295,7 @@ public class DownloadStream extends FileDownloadStream {
 
         ApiDownloadToken downloadToken = response.body();
 
-        if (downloadToken.downloadUrl != null) {
-            return downloadToken.downloadUrl;
-        } else {
-            return mClient.buildApiUrl("downloads", downloadToken.token);
-        }
+        return downloadToken.downloadUrl;
     }
 
     private boolean downloadData() throws DracoonNetIOException, DracoonApiException,

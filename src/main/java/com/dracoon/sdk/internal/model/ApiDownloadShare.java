@@ -8,7 +8,6 @@ public class ApiDownloadShare {
     public Long nodeId;
     public String nodePath;
     public String name;
-    public Integer classification;
     public String notes;
     public Date expireAt;
 

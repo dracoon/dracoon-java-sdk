@@ -73,10 +73,6 @@ public class ShareMapper extends BaseMapper {
         downloadShare.setNodeId(apiDownloadShare.nodeId);
         downloadShare.setNodePath(apiDownloadShare.nodePath);
         downloadShare.setName(apiDownloadShare.name);
-        if (apiDownloadShare.classification != null) {
-            downloadShare.setClassification(Classification.getByValue(
-                    apiDownloadShare.classification));
-        }
         downloadShare.setNotes(apiDownloadShare.notes);
         downloadShare.setExpireAt(apiDownloadShare.expireAt);
         downloadShare.setAccessKey(apiDownloadShare.accessKey);
