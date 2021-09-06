@@ -33,6 +33,9 @@ public class Node {
     private Date mUpdatedAt;
     private UserInfo mUpdatedBy;
 
+    private Date mOriginalCreatedAt;
+    private Date mOriginalModifiedAt;
+
     private Boolean mHasInheritPermissions;
     private NodePermissions mPermissions;
 
@@ -354,6 +357,44 @@ public class Node {
      */
     public void setUpdatedBy(UserInfo updatedBy) {
         mUpdatedBy = updatedBy;
+    }
+
+    /**
+     * Returns the original creation date of the node, if the node is a file and a creation date was
+     * provided at the upload.
+     *
+     * @return the original creation date, or <code>null</code>
+     */
+    public Date getOriginalCreatedAt() {
+        return mOriginalCreatedAt;
+    }
+
+    /**
+     * Sets the original creation date of the node.
+     *
+     * @param originalCreatedAt The the original creation date.
+     */
+    public void setOriginalCreatedAt(Date originalCreatedAt) {
+        mOriginalCreatedAt = originalCreatedAt;
+    }
+
+    /**
+     * Returns the original modification date of the node, if the node is a file and a modification
+     * date was provided at the upload.
+     *
+     * @return the original modification date, or <code>null</code>
+     */
+    public Date getOriginalModifiedAt() {
+        return mOriginalModifiedAt;
+    }
+
+    /**
+     * Sets the original modification date of the node.
+     *
+     * @param originalModifiedAt The the original modification date.
+     */
+    public void setOriginalModifiedAt(Date originalModifiedAt) {
+        mOriginalModifiedAt = originalModifiedAt;
     }
 
     /**

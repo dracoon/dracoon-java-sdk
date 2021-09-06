@@ -79,6 +79,9 @@ public class NodeMapper extends BaseMapper {
         node.setUpdatedAt(apiNode.updatedAt);
         node.setUpdatedBy(UserMapper.fromApiUserInfo(apiNode.updatedBy));
 
+        node.setOriginalCreatedAt(apiNode.timestampCreation);
+        node.setOriginalModifiedAt(apiNode.timestampModification);
+
         node.setHasInheritPermissions(toBoolean(apiNode.inheritPermissions));
         node.setPermissions(NodePermissionsMapper.fromApiNodePermissions(apiNode.permissions));
 

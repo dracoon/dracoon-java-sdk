@@ -25,6 +25,9 @@ public class ApiNode {
     public Date updatedAt;
     public ApiUserInfo updatedBy;
 
+    public Date timestampCreation;
+    public Date timestampModification;
+
     public ApiNodePermissions permissions;
     public Boolean inheritPermissions;
 
