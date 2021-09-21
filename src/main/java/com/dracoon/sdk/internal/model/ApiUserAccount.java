@@ -21,7 +21,6 @@ public class ApiUserAccount {
     public Boolean needsToChangeUserName;
     public Boolean needsToChangePassword;
 
-    public Integer lockStatus;
     public Date expireAt;
 
     public Date lastLoginSuccessAt;

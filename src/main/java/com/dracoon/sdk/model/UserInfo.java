@@ -71,8 +71,6 @@ public class UserInfo {
     private String mEmail;
     private UUID mAvatarUuid;
 
-    private String mDisplayName;
-
     /**
      * Returns the ID of the user.
      *
@@ -197,26 +195,6 @@ public class UserInfo {
      */
     public void setAvatarUuid(UUID avatarUuid) {
         mAvatarUuid = avatarUuid;
-    }
-
-    /**
-     * Returns the display name of the user.
-     *
-     * @return the display name
-     */
-    @Deprecated
-    public String getDisplayName() {
-        return mDisplayName;
-    }
-
-    /**
-     * Sets the display name of the user.
-     *
-     * @param displayName The display name.
-     */
-    @Deprecated
-    public void setDisplayName(String displayName) {
-        mDisplayName = displayName;
     }
 
 }

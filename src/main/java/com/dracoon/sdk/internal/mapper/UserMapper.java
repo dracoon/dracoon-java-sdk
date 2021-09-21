@@ -43,7 +43,6 @@ public class UserMapper extends BaseMapper {
         } catch (IllegalArgumentException e) {
             // Nothing to do here
         }
-        userInfo.setDisplayName(apiUserInfo.displayName);
         return userInfo;
     }
 

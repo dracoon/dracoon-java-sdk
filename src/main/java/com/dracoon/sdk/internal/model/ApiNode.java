@@ -25,15 +25,19 @@ public class ApiNode {
     public Date updatedAt;
     public ApiUserInfo updatedBy;
 
+    public Date timestampCreation;
+    public Date timestampModification;
+
     public ApiNodePermissions permissions;
     public Boolean inheritPermissions;
 
     public Boolean isFavorite;
     public Boolean isEncrypted;
     public ApiEncryptionInfo encryptionInfo;
-    public Integer cntChildren;
+    public Integer cntRooms;
+    public Integer cntFolders;
+    public Integer cntFiles;
     public Integer cntDeletedVersions;
-    public Boolean hasRecycleBin;
     public Integer recycleBinRetentionPeriod;
     public Integer cntComments;
     public Integer cntDownloadShares;

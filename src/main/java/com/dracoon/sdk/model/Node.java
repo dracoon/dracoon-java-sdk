@@ -33,14 +33,18 @@ public class Node {
     private Date mUpdatedAt;
     private UserInfo mUpdatedBy;
 
+    private Date mOriginalCreatedAt;
+    private Date mOriginalModifiedAt;
+
     private Boolean mHasInheritPermissions;
     private NodePermissions mPermissions;
 
     private Boolean mIsFavorite;
     private Boolean mIsEncrypted;
-    private Integer mCntChildren;
+    private Integer mCntChildRooms;
+    private Integer mCntChildFolders;
+    private Integer mCntChildFiles;
     private Integer mCntDeletedVersions;
-    private Boolean mHasRecycleBin;
     private Integer mRecycleBinRetentionPeriod;
     private Integer mCntComments;
     private Integer mCntDownloadShares;
@@ -356,6 +360,44 @@ public class Node {
     }
 
     /**
+     * Returns the original creation date of the node, if the node is a file and a creation date was
+     * provided at the upload.
+     *
+     * @return the original creation date, or <code>null</code>
+     */
+    public Date getOriginalCreatedAt() {
+        return mOriginalCreatedAt;
+    }
+
+    /**
+     * Sets the original creation date of the node.
+     *
+     * @param originalCreatedAt The the original creation date.
+     */
+    public void setOriginalCreatedAt(Date originalCreatedAt) {
+        mOriginalCreatedAt = originalCreatedAt;
+    }
+
+    /**
+     * Returns the original modification date of the node, if the node is a file and a modification
+     * date was provided at the upload.
+     *
+     * @return the original modification date, or <code>null</code>
+     */
+    public Date getOriginalModifiedAt() {
+        return mOriginalModifiedAt;
+    }
+
+    /**
+     * Sets the original modification date of the node.
+     *
+     * @param originalModifiedAt The the original modification date.
+     */
+    public void setOriginalModifiedAt(Date originalModifiedAt) {
+        mOriginalModifiedAt = originalModifiedAt;
+    }
+
+    /**
      * Returns <code>true</code> if node inherits permissions of the parent node. (Only for rooms.)
      *
      * @return <code>true</code> if node inherits permissions of the parent node; <code>false</code>
@@ -432,21 +474,57 @@ public class Node {
     }
 
     /**
-     * Returns the number of child nodes of the node, if node is a room or folder.
+     * Returns the number of child rooms of the node, if node is a room.
      *
-     * @return the number of child nodes, or <code>null</code>
+     * @return the number of child rooms, or <code>null</code>
      */
-    public Integer getCntChildren() {
-        return mCntChildren;
+    public Integer getCntChildRooms() {
+        return mCntChildRooms;
     }
 
     /**
-     * Sets the number of child nodes of the node.
+     * Sets the number of child rooms of the node.
      *
-     * @param cntChildren The number of child nodes.
+     * @param cntChildRooms The number of child rooms.
      */
-    public void setCntChildren(Integer cntChildren) {
-        mCntChildren = cntChildren;
+    public void setCntChildRooms(Integer cntChildRooms) {
+        mCntChildRooms = cntChildRooms;
+    }
+
+    /**
+     * Returns the number of child folders of the node, if node is a room or folder.
+     *
+     * @return the number of child folders, or <code>null</code>
+     */
+    public Integer getCntChildFolders() {
+        return mCntChildFolders;
+    }
+
+    /**
+     * Sets the number of child folders of the node.
+     *
+     * @param cntChildFolders The number of child folders.
+     */
+    public void setCntChildFolders(Integer cntChildFolders) {
+        mCntChildFolders = cntChildFolders;
+    }
+
+    /**
+     * Returns the number of child files of the node, if node is a room or folder.
+     *
+     * @return the number of child files, or <code>null</code>
+     */
+    public Integer getCntChildFiles() {
+        return mCntChildFiles;
+    }
+
+    /**
+     * Sets the number of child files of the node.
+     *
+     * @param cntChildFiles The number of child files.
+     */
+    public void setCntChildFiles(Integer cntChildFiles) {
+        mCntChildFiles = cntChildFiles;
     }
 
     /**
@@ -465,26 +543,6 @@ public class Node {
      */
     public void setCntDeletedVersions(Integer cntDeletedVersions) {
         mCntDeletedVersions = cntDeletedVersions;
-    }
-
-    /**
-     * Returns <code>true</code> if node has recycle bin enabled. (Only for rooms.)
-     *
-     * @return <code>true</code> if node has recycle bin enabled; <code>false</code> otherwise;
-     *         <code>null</code> for folders and files
-     */
-    public Boolean hasRecycleBin() {
-        return mHasRecycleBin;
-    }
-
-    /**
-     * Sets if node has recycle bin enabled.
-     *
-     * @param hasRecycleBin <code>true</code> if node has recycle bin enabled; <code>false</code>
-     *                      otherwise.
-     */
-    public void setHasRecycleBin(Boolean hasRecycleBin) {
-        mHasRecycleBin = hasRecycleBin;
     }
 
     /**

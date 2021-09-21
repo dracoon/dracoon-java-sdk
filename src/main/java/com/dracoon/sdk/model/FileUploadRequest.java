@@ -17,6 +17,9 @@ public class FileUploadRequest {
     private String mNotes;
     private Date mExpirationDate;
 
+    private Date mOriginalCreationDate;
+    private Date mOriginalModificationDate;
+
     private FileUploadRequest() {
 
     }
@@ -76,6 +79,24 @@ public class FileUploadRequest {
     }
 
     /**
+     * Returns the original creation date of the new file.
+     *
+     * @return the original creation date
+     */
+    public Date getOriginalCreationDate() {
+        return mOriginalCreationDate;
+    }
+
+    /**
+     * Returns the original modification date of the new file.
+     *
+     * @return the original modification date
+     */
+    public Date getOriginalModificationDate() {
+        return mOriginalModificationDate;
+    }
+
+    /**
      * This builder creates new instances of {@link FileUploadRequest}.<br>
      * <br>
      * Following properties can be set:<br>
@@ -85,7 +106,9 @@ public class FileUploadRequest {
      * (Default: AUTO_RENAME)<br>
      * - Classification:               {@link #classification(Classification)}<br>
      * - Notes:                        {@link #notes(String)}<br>
-     * - Expiration date:              {@link #expirationDate(Date)}
+     * - Expiration date:              {@link #expirationDate(Date)}<br>
+     * - Original creation date:       {@link #originalCreationDate(Date)}<br>
+     * - Original modification date:   {@link #originalModificationDate(Date)}
      */
     public static class Builder {
 
@@ -151,6 +174,30 @@ public class FileUploadRequest {
          */
         public Builder expirationDate(Date expirationDate) {
             mRequest.mExpirationDate = expirationDate;
+            return this;
+        }
+
+        /**
+         * Sets the original creation date of the new file.
+         *
+         * @param originalCreationDate The original creation date.
+         *
+         * @return a reference to this object
+         */
+        public Builder originalCreationDate(Date originalCreationDate) {
+            mRequest.mOriginalCreationDate = originalCreationDate;
+            return this;
+        }
+
+        /**
+         * Sets the original modification date of the new file.
+         *
+         * @param originalModificationDate The original modification date.
+         *
+         * @return a reference to this object
+         */
+        public Builder originalModificationDate(Date originalModificationDate) {
+            mRequest.mOriginalModificationDate = originalModificationDate;
             return this;
         }
 
