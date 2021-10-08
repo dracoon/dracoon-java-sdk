@@ -19,7 +19,7 @@ import com.dracoon.sdk.model.Node;
 
 public class UploadThread extends Thread {
 
-    private static final String LOG_TAG = DownloadThread.class.getSimpleName();
+    private static final String LOG_TAG = UploadThread.class.getSimpleName();
 
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
 
