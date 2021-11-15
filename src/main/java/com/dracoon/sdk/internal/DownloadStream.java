@@ -325,9 +325,9 @@ public class DownloadStream extends FileDownloadStream {
             return true;
         }
 
-        mLog.d(LOG_TAG, String.format("Loading: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)", mId,
-                mChunkNum, mChunkOffset, mChunkOffset + count - 1, count,
-                mDownloadOffset, mDownloadOffset + count - 1, mDownloadLength));
+        //mLog.d(LOG_TAG, String.format("Loading: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)", mId,
+        //        mChunkNum, mChunkOffset, mChunkOffset + count - 1, count,
+        //        mDownloadOffset, mDownloadOffset + count - 1, mDownloadLength));
 
         // Update offsets
         mChunkOffset = mChunkOffset + count;
@@ -352,67 +352,66 @@ public class DownloadStream extends FileDownloadStream {
             return -1L;
         }
 
-        // If next chunk is needed: Request next chunk
-        if (mRequestNextChunk) {
-            long offset = mDownloadOffset;
-            long remaining = mDownloadLength - mDownloadOffset;
-            long size = remaining > mChunkSize ? mChunkSize : remaining;
-
-            // If chunk can be skipped: Skip chunk and abort
-            if (!isEncryptedDownload()) {
-                long toSkip = skip > size ? size : skip;
-                mChunkNum++;
-
-                mLog.d(LOG_TAG, String.format("Skipping: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)",
-                        mId, mChunkNum, 0, toSkip - 1, toSkip,
-                        mDownloadOffset, mDownloadOffset + toSkip - 1, mDownloadLength));
-
-                mChunkOffset = 0;
-                mDownloadOffset = mDownloadOffset + toSkip;
-
-                return toSkip;
-            }
-
-            // Request next chunk
-            mDownloadInputStream = requestNextChunk(offset, size);
-            mRequestNextChunk = false;
-            mChunkNum++;
-            mChunkOffset = 0;
-        }
-
-        int toSkip = skip > BLOCK_SIZE ? BLOCK_SIZE : (int) skip;
-        byte[] bytes;
-        int count;
-        // If bytes can be skipped: Skip bytes
+        // If file is not encrypted: Skip bytes
         if (!isEncryptedDownload()) {
-            bytes = new byte[0];
-            count = skipBytes(mDownloadInputStream, toSkip);
+            return skipDataPlain(skip);
         // Otherwise: Download bytes
         } else {
-            bytes = downloadBytes(mDownloadInputStream, toSkip);
-            count = bytes.length;
+            return skipDataEncrypted(skip);
         }
-        // If no bytes were skipped/downloaded: Abort
-        if (count == 0) {
-            mRequestNextChunk = true;
-            return 0L;
+    }
+
+    private long skipDataPlain(long skip) throws DracoonNetIOException, InterruptedException {
+        // If next chunk is needed: Skip chunk
+        if (mRequestNextChunk) {
+            long remaining = mDownloadLength - mDownloadOffset;
+            long remainingInChunk = remaining > mChunkSize ? mChunkSize : remaining;
+
+            long toSkip = skip > remainingInChunk ? remainingInChunk : skip;
+            mChunkNum++;
+
+            //mLog.d(LOG_TAG, String.format("Skipped chunk: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)",
+            //        mId, mChunkNum, 0, toSkip - 1, toSkip,
+            //        mDownloadOffset, mDownloadOffset + toSkip - 1, mDownloadLength));
+
+            mChunkOffset = 0;
+            mDownloadOffset = mDownloadOffset + toSkip;
+
+            return toSkip;
+        // Otherwise: Skip bytes
+        } else {
+            int toSkip = skip > BLOCK_SIZE ? BLOCK_SIZE : (int) skip;
+
+            int skipped = skipBytes(mDownloadInputStream, toSkip);
+            if (skipped == 0) {
+                mRequestNextChunk = true;
+                return 0L;
+            }
+
+            //mLog.d(LOG_TAG, String.format("Skipped bytes: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)",
+            //        mId, mChunkNum, mChunkOffset, mChunkOffset + skipped - 1, skipped,
+            //        mDownloadOffset, mDownloadOffset + skipped - 1, mDownloadLength));
+
+            mChunkOffset = mChunkOffset + skipped;
+            mDownloadOffset = mDownloadOffset + skipped;
+
+            return skipped;
         }
+    }
 
-        mLog.d(LOG_TAG, String.format("Skipping: id='%s': chunk=%d: %d-%d=%d (%d-%d/%d)", mId,
-                mChunkNum, mChunkOffset, mChunkOffset + count - 1, count,
-                mDownloadOffset, mDownloadOffset + count - 1, mDownloadLength));
+    private long skipDataEncrypted(long skip) throws DracoonNetIOException, DracoonApiException,
+            DracoonCryptoException, DracoonFileIOException, InterruptedException {
+        byte[] bytes = new byte[BLOCK_SIZE];
+        int toSkip = skip > bytes.length ? bytes.length : (int) skip;
 
-        // Update offsets
-        mChunkOffset = mChunkOffset + count;
-        mDownloadOffset = mDownloadOffset + count;
-
-        // If encrypted download: Decrypt bytes
-        if (isEncryptedDownload()) {
-            boolean isLastBytes = mDownloadOffset == mDownloadLength;
-            decryptBytes(bytes, isLastBytes);
+        // Read bytes from buffer
+        int skipped = mDownloadBuffer.read(bytes, 0, toSkip);
+        // If buffer is exhausted: Try to download more data
+        if (skipped < 0) {
+            boolean more = downloadData();
+            skipped = more ? 0 : -1;
         }
-
-        return count;
+        return skipped;
     }
 
     private InputStream requestNextChunk(long offset, long size) throws DracoonNetIOException,

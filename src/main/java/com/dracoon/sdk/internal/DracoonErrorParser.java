@@ -141,7 +141,7 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.PERMISSION_READ_ERROR;
             case NOT_FOUND:
-                if (error.errorCode == -40000)
+                if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -722,7 +722,7 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -40000)
+                if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
                 else if (error.errorCode == -60500)
                     return DracoonApiCode.SERVER_UL_SHARE_NOT_FOUND;
@@ -759,7 +759,7 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -40000)
+                if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_ROOM_NOT_FOUND;
                 else if (error.errorCode == -40751)
                     return DracoonApiCode.SERVER_FILE_NOT_FOUND;

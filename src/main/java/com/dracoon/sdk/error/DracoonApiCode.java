@@ -122,7 +122,7 @@ public enum DracoonApiCode {
     SERVER_ROOM_NOT_FOUND(-5101, "Requested room was not found."),
     SERVER_FOLDER_NOT_FOUND(-5102, "Requested folder was not found."),
     SERVER_FILE_NOT_FOUND(-5103, "Requested file was not found."),
-    SERVER_SOURCE_NODE_NOT_FOUND(-5104, "Target room or folder was not found."),
+    SERVER_SOURCE_NODE_NOT_FOUND(-5104, "Source room or folder was not found."),
     SERVER_TARGET_NODE_NOT_FOUND(-5105, "Target room or folder was not found."),
     SERVER_TARGET_ROOM_NOT_FOUND(-5106, "Target room was not found."),
     SERVER_INSUFFICIENT_STORAGE(-5107, "Not enough free storage on the server."),

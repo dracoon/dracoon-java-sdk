@@ -412,6 +412,10 @@ public class DracoonClientImpl extends DracoonClient {
             mApiVersion = mServer.getVersion();
         }
 
+        if (mApiVersion == null || mApiVersion.isEmpty()) {
+            return false;
+        }
+
         String[] av = mApiVersion.split("\\-")[0].split("\\.");
         String[] mav = minApiVersion.split("\\.");
 
@@ -422,7 +426,7 @@ public class DracoonClientImpl extends DracoonClient {
             try {
                 v = Integer.valueOf(av[i]);
                 mv = Integer.valueOf(mav[i]);
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Can't parse server API version.", e);
             }
 
