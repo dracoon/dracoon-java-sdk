@@ -1,0 +1,6 @@
+{
+  "method": "get",
+  "url": "http://server/api/v4/public/software/version",
+  "headers": [],
+  "body": null
+}

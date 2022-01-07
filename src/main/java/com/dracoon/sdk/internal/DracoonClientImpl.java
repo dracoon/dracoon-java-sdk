@@ -318,13 +318,9 @@ public class DracoonClientImpl extends DracoonClient {
             return;
         }
 
-        String apiVersion = mServer.getVersion();
-
         if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_VERSION)) {
             throw new DracoonApiException(DracoonApiCode.API_VERSION_NOT_SUPPORTED);
         }
-
-        mApiVersion = apiVersion;
     }
 
     public void assertUserKeyPairVersionSupported(UserKeyPair.Version version)

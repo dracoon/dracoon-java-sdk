@@ -60,6 +60,7 @@
         <retrofit.version>2.9.0</retrofit.version>
 
         <junit.version>5.8.2</junit.version>
+        <mockwebserver.version>3.14.9</mockwebserver.version>
     </properties>
 
     <dependencies>
@@ -89,6 +90,12 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>${mockwebserver.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
