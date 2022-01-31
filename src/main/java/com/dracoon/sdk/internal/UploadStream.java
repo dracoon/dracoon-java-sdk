@@ -445,6 +445,10 @@ public class UploadStream extends FileUploadStream {
     private Node completeUpload(EncryptedFileKey encryptedFileKey) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
         if (mIsS3Upload) {
+            if (mS3UploadParts.isEmpty()) {
+                ApiS3FileUploadPart uploadPart = uploadS3Chunk(0, new byte[0]);
+                mS3UploadParts.add(uploadPart);
+            }
             return completeS3Upload(mS3UploadParts, encryptedFileKey);
         } else {
             return completeStandardUpload(encryptedFileKey);
