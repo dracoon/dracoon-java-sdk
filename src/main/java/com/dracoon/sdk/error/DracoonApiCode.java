@@ -90,7 +90,7 @@ public enum DracoonApiCode {
     VALIDATION_USER_HAS_NO_FILE_KEY(-3552, "User has no encryption file key."),
     // Groups
     // Policies
-    VALIDATION_CLASSIFICATION_POLICY_VIOLATION(3750, "A classification policy is violated."),
+    VALIDATION_CLASSIFICATION_POLICY_VIOLATION(-3750, "A classification policy is violated."),
     // Other
     VALIDATION_PASSWORD_NOT_SECURE(-3800, "Password is not secure."),
     VALIDATION_EMAIL_ADDRESS_INVALID(-3801, "Email address invalid."),
@@ -133,8 +133,8 @@ public enum DracoonApiCode {
     SERVER_NODE_COMMENT_NOT_FOUND(-5130, "Requested node comment was not found."),
     SERVER_NODE_COMMENT_ALREADY_DELETED(-5131, "Node comment was already deleted."),
     // Shares
-    SERVER_DL_SHARE_NOT_FOUND(5200, "Download share could not be found."),
-    SERVER_UL_SHARE_NOT_FOUND(5201, "Upload share could not be found."),
+    SERVER_DL_SHARE_NOT_FOUND(-5200, "Download share could not be found."),
+    SERVER_UL_SHARE_NOT_FOUND(-5201, "Upload share could not be found."),
     // Customers
     SERVER_CUSTOMER_NOT_FOUND(-5400, "Customer could not be found."),
     // Users
@@ -142,7 +142,7 @@ public enum DracoonApiCode {
     SERVER_USER_KEY_PAIR_NOT_FOUND(-5550, "Encryption key pair was not found."),
     SERVER_USER_KEY_PAIR_ALREADY_SET(-5551, "Encryption key pair was already set."),
     SERVER_USER_FILE_KEY_NOT_FOUND(-5552, "Encryption file key was not found."),
-    SERVER_USER_AVATAR_NOT_FOUND(5553, "User avatar could not be found."),
+    SERVER_USER_AVATAR_NOT_FOUND(-5553, "User avatar could not be found."),
     // Groups
     SERVER_GROUP_NOT_FOUND(-5600, "Group could not be found."),
     // Config

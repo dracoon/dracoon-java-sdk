@@ -41,7 +41,7 @@
     </licenses>
 
     <properties>
-        <dracoon-sdk.version>2.5.2</dracoon-sdk.version>
+        <dracoon-sdk.version>2.5.3</dracoon-sdk.version>
 
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
 
