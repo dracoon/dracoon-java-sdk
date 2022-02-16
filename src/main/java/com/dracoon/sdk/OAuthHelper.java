@@ -27,6 +27,8 @@ import com.dracoon.sdk.internal.validator.ValidatorUtils;
 @SuppressWarnings("unused")
 public class OAuthHelper {
 
+    private static final OAuthErrorParser sErrorParser = new OAuthErrorParser();
+
     private OAuthHelper() {
 
     }
@@ -120,8 +122,7 @@ public class OAuthHelper {
 
         String error = queryParams.get("error");
         if (error != null) {
-            OAuthErrorParser errorParser = new OAuthErrorParser();
-            throw errorParser.parseAuthorizeError(error);
+            throw sErrorParser.parseAuthorizeError(error);
         }
 
         return queryParams.get(name);
@@ -131,7 +132,7 @@ public class OAuthHelper {
 
     private static Map<String, String> parseQuery(String query) {
         Map<String, String> result = new HashMap<>();
-        String[] params = query.split("&");
+        String[] params = query != null ? query.split("&") : new String[]{};
         for (String param : params) {
             String[] kv = param.split("=");
             String k = kv.length > 0 ? kv[0] : null;
