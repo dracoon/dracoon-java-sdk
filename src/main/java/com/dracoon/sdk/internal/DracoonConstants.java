@@ -24,6 +24,5 @@ public interface DracoonConstants {
 
     String AUTHORIZATION_HEADER = "Authorization";
     String AUTHORIZATION_TYPE = "Bearer";
-    long AUTHORIZATION_REFRESH_INTERVAL = HOUR - MINUTE;
 
 }

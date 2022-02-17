@@ -153,28 +153,38 @@ public class OAuthClient {
         return response.body();
     }
 
-    public void revokeTokens(String accessToken, String refreshToken) throws DracoonNetIOException,
+    public void revokeAccessToken(String accessToken) throws DracoonNetIOException,
             DracoonApiException {
-        mLog.d(LOG_TAG, "Trying to revoke OAuth tokens ...");
+        mLog.d(LOG_TAG, "Trying to revoke OAuth access token ...");
 
         try {
             revokeToken(OAuthConstants.OAuthTokenTypes.ACCESS_TOKEN, accessToken);
-            revokeToken(OAuthConstants.OAuthTokenTypes.REFRESH_TOKEN, refreshToken);
         } catch (DracoonApiException e) {
-            mLog.d(LOG_TAG, String.format("Revocation of OAuth tokens failed with '%s'!",
+            mLog.d(LOG_TAG, String.format("Revocation of OAuth access token failed with '%s'!",
                     e.getCode().name()));
             throw e;
         }
 
-        mLog.d(LOG_TAG, "Successfully revoked OAuth tokens.");
+        mLog.d(LOG_TAG, "Successfully revoked OAuth access token.");
+    }
+
+    public void revokeRefreshToken(String refreshToken) throws DracoonNetIOException,
+            DracoonApiException {
+        mLog.d(LOG_TAG, "Trying to revoke OAuth refresh token ...");
+
+        try {
+            revokeToken(OAuthConstants.OAuthTokenTypes.REFRESH_TOKEN, refreshToken);
+        } catch (DracoonApiException e) {
+            mLog.d(LOG_TAG, String.format("Revocation of OAuth refresh token failed with '%s'!",
+                    e.getCode().name()));
+            throw e;
+        }
+
+        mLog.d(LOG_TAG, "Successfully revoked OAuth refresh token.");
     }
 
     private void revokeToken(String tokenType, String token) throws DracoonNetIOException,
             DracoonApiException {
-        if (token == null) {
-            return;
-        }
-
         String auth = Credentials.basic(mClientId, mClientSecret);
 
         Call<Void> call = mOAuthService.revokeOAuthToken(auth, tokenType, token);
