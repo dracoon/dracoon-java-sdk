@@ -7,8 +7,6 @@ import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,13 +33,11 @@ class OAuthClientTest extends BaseHttpTest {
                 DracoonApiException {
             OAuthClient oAuthClient = createOAuthClient();
 
-            MockResponse response1 = createMockResponse("/oauth/retrieve_tokens/valid_response.json");
-            sServer.enqueue(response1);
+            enqueueResponse("/oauth/retrieve_tokens/valid_response.json");
 
             OAuthTokens tokens = oAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb");
 
-            RecordedRequest request1 = sServer.takeRequest();
-            checkRecordedRequest("/oauth/retrieve_tokens/valid_request.json", request1);
+            checkRequest("/oauth/retrieve_tokens/valid_request.json");
 
             assertNotNull(tokens);
             assertEquals("bearer", tokens.tokenType);
@@ -57,7 +53,7 @@ class OAuthClientTest extends BaseHttpTest {
         void testErrorHandling(String resourceName, DracoonApiCode code) {
             OAuthClient oAuthClient = createOAuthClient();
 
-            sServer.enqueue(createMockResponse(resourceName));
+            enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
                     oAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb"));
@@ -92,13 +88,11 @@ class OAuthClientTest extends BaseHttpTest {
                 DracoonApiException {
             OAuthClient oAuthClient = createOAuthClient();
 
-            MockResponse response1 = createMockResponse("/oauth/refresh_tokens/valid_response.json");
-            sServer.enqueue(response1);
+            enqueueResponse("/oauth/refresh_tokens/valid_response.json");
 
             OAuthTokens tokens = oAuthClient.refreshTokens("G6626ZHERgVTTpA2WuGxg3EKnGKoAIgh");
 
-            RecordedRequest request1 = sServer.takeRequest();
-            checkRecordedRequest("/oauth/refresh_tokens/valid_request.json", request1);
+            checkRequest("/oauth/refresh_tokens/valid_request.json");
 
             assertNotNull(tokens);
             assertEquals("bearer", tokens.tokenType);
@@ -114,7 +108,7 @@ class OAuthClientTest extends BaseHttpTest {
         void testErrorHandling(String resourceName, DracoonApiCode code) {
             OAuthClient oAuthClient = createOAuthClient();
 
-            sServer.enqueue(createMockResponse(resourceName));
+            enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
                     oAuthClient.refreshTokens("G6626ZHERgVTTpA2WuGxg3EKnGKoAIgh"));
@@ -149,14 +143,11 @@ class OAuthClientTest extends BaseHttpTest {
                 DracoonApiException {
             OAuthClient oAuthClient = createOAuthClient();
 
-            MockResponse response1 = createMockResponse(
-                    "/oauth/revoke_access_token/valid_response.json");
-            sServer.enqueue(response1);
+            enqueueResponse("/oauth/revoke_access_token/valid_response.json");
 
             oAuthClient.revokeAccessToken("1j9PZ7OWy8IO9sDTf7f1koGPCvfwg083");
 
-            RecordedRequest request1 = sServer.takeRequest();
-            checkRecordedRequest("/oauth/revoke_access_token/valid_request.json", request1);
+            checkRequest("/oauth/revoke_access_token/valid_request.json");
         }
 
         @ParameterizedTest
@@ -165,7 +156,7 @@ class OAuthClientTest extends BaseHttpTest {
         void testRevokeAccessTokenErrorHandling(String resourceName, DracoonApiCode code) {
             OAuthClient oAuthClient = createOAuthClient();
 
-            sServer.enqueue(createMockResponse(resourceName));
+            enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
                     oAuthClient.revokeAccessToken("1j9PZ7OWy8IO9sDTf7f1koGPCvfwg083"));
@@ -177,14 +168,11 @@ class OAuthClientTest extends BaseHttpTest {
                 DracoonApiException {
             OAuthClient oAuthClient = createOAuthClient();
 
-            MockResponse response1 = createMockResponse(
-                    "/oauth/revoke_refresh_token/valid_response.json");
-            sServer.enqueue(response1);
+            enqueueResponse("/oauth/revoke_refresh_token/valid_response.json");
 
             oAuthClient.revokeRefreshToken("TQeXE4EZZypxX8pAsz91JEDg7sNvbLiR");
 
-            RecordedRequest request1 = sServer.takeRequest();
-            checkRecordedRequest("/oauth/revoke_refresh_token/valid_request.json", request1);
+            checkRequest("/oauth/revoke_refresh_token/valid_request.json");
         }
 
         @ParameterizedTest
@@ -193,7 +181,7 @@ class OAuthClientTest extends BaseHttpTest {
         void testRevokeRefreshTokenErrorHandling(String resourceName, DracoonApiCode code) {
             OAuthClient oAuthClient = createOAuthClient();
 
-            sServer.enqueue(createMockResponse(resourceName));
+            enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
                     oAuthClient.revokeRefreshToken("TQeXE4EZZypxX8pAsz91JEDg7sNvbLiR"));
@@ -216,10 +204,10 @@ class OAuthClientTest extends BaseHttpTest {
 
     // --- Helper methods ---
 
-    private static OAuthClient createOAuthClient() {
+    private OAuthClient createOAuthClient() {
         DracoonHttpConfig httpConfig = new DracoonHttpConfig();
         httpConfig.setUserAgent(USER_AGENT);
-        OAuthClient oAuthClient = new OAuthClient(sServerUrl, CLIENT_ID, CLIENT_SECRET);
+        OAuthClient oAuthClient = new OAuthClient(mServerUrl, CLIENT_ID, CLIENT_SECRET);
         oAuthClient.setHttpConfig(httpConfig);
         oAuthClient.init();
         return oAuthClient;

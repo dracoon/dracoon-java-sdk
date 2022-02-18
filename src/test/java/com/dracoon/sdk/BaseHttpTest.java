@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,44 +16,55 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import okio.Buffer;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public abstract class BaseHttpTest {
+public abstract class BaseHttpTest extends BaseTest {
 
     private static final String HTTP_DIR = "http";
 
-    protected static MockWebServer sServer;
-    protected static URL sServerUrl;
+    private static final String HTTP_PROTOCOL = "http";
+
+    protected MockWebServer mMockWebServer;
+
+    private String mServerHostName;
+    private int mServerPort;
+
+    protected URL mServerUrl;
 
     @BeforeAll
-    public static void setup() throws Exception {
+    protected static void init() {
         Logger l = Logger.getLogger(MockWebServer.class.getName());
         l.setLevel(Level.WARNING);
         l.setUseParentHandlers(false);
         l.addHandler(new TestConsoleHandler());
+    }
 
-        sServer = new MockWebServer();
-        sServer.start();
+    @BeforeEach
+    protected void setup() throws Exception {
+        mMockWebServer = new MockWebServer();
+        mMockWebServer.start();
 
-        sServerUrl = new URL("http://" + sServer.getHostName() + ":" + sServer.getPort());
+        mServerHostName = mMockWebServer.getHostName();
+        mServerPort = mMockWebServer.getPort();
+
+        mServerUrl = new URL(buildServerUrl(HTTP_PROTOCOL, mServerHostName, mServerPort));
     }
 
     @AfterEach
-    public void cleanup() throws InterruptedException {
-        while (sServer.takeRequest(0L, TimeUnit.SECONDS) != null) {}
+    protected void tearDown() throws IOException {
+        mMockWebServer.shutdown();
     }
 
-    @AfterAll
-    public static void tearDown() throws IOException {
-        sServer.shutdown();
+    protected void enqueueResponse(String name) {
+        mMockWebServer.enqueue(createMockResponse(name));
     }
 
-    protected static MockResponse createMockResponse(String name) {
+    private MockResponse createMockResponse(String name) {
         // Read response data
         HttpResponse data = TestUtils.readData(HttpResponse.class, HTTP_DIR + name);
 
@@ -88,7 +98,15 @@ public abstract class BaseHttpTest {
         return response;
     }
 
-    protected static void checkRecordedRequest(String name, RecordedRequest request) {
+    protected void dropRequest() throws InterruptedException {
+        mMockWebServer.takeRequest();
+    }
+
+    protected void checkRequest(String name) throws InterruptedException {
+        checkRecordedRequest(name, mMockWebServer.takeRequest());
+    }
+
+    private void checkRecordedRequest(String name, RecordedRequest request) {
         // Read request data
         HttpRequest data = TestUtils.readData(HttpRequest.class, HTTP_DIR + name);
 
@@ -137,6 +155,10 @@ public abstract class BaseHttpTest {
                 assertEquals(expectedContent, actualContent);
             }
         }
+    }
+
+    private static String buildServerUrl(String protocol, String hostName, int port) {
+        return protocol + "://" + hostName + ":" + port;
     }
 
 }
