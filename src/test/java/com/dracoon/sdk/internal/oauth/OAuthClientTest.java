@@ -6,7 +6,7 @@ import com.dracoon.sdk.BaseHttpTest;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
-import com.dracoon.sdk.error.DracoonNetIOException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,21 +23,37 @@ class OAuthClientTest extends BaseHttpTest {
     private static final String CLIENT_SECRET = "rmOU0GVL";
     private static final String USER_AGENT = "Java-SDK-Unit-Test";
 
+    private OAuthClient mOAuthClient;
+
+    @BeforeEach
+    protected void setup() throws Exception {
+        super.setup();
+
+        DracoonHttpConfig httpConfig = new DracoonHttpConfig();
+        httpConfig.setUserAgent(USER_AGENT);
+
+        mOAuthClient = new OAuthClient(mServerUrl, CLIENT_ID, CLIENT_SECRET);
+        mOAuthClient.setHttpConfig(httpConfig);
+        mOAuthClient.init();
+    }
+
     // --- Tests for retrieving tokens ---
 
     @Nested
-    class RetrieveTokenTests {
+    class RetrieveTokensTests {
+
+        private final String DATA_PATH = "/oauth/retrieve_tokens/";
 
         @Test
-        void testRetrievedTokensCorrect() throws InterruptedException, DracoonNetIOException,
-                DracoonApiException {
-            OAuthClient oAuthClient = createOAuthClient();
+        void testRequestValid() throws Exception {
+            retrieveTokens();
 
-            enqueueResponse("/oauth/retrieve_tokens/valid_response.json");
+            checkRequest(DATA_PATH + "retrieve_tokens_request.json");
+        }
 
-            OAuthTokens tokens = oAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb");
-
-            checkRequest("/oauth/retrieve_tokens/valid_request.json");
+        @Test
+        void testDataCorrect() throws Exception {
+            OAuthTokens tokens = retrieveTokens();
 
             assertNotNull(tokens);
             assertEquals("bearer", tokens.tokenType);
@@ -47,16 +63,19 @@ class OAuthClientTest extends BaseHttpTest {
             assertEquals("all", tokens.scope);
         }
 
+        private OAuthTokens retrieveTokens() throws Exception {
+            enqueueResponse(DATA_PATH + "retrieve_tokens_response.json");
+            return mOAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb");
+        }
+
         @ParameterizedTest
         @MethodSource("com.dracoon.sdk.internal.oauth.OAuthClientTest#"+
                 "createTestRetrieveTokenErrorHandlingArguments")
         void testErrorHandling(String resourceName, DracoonApiCode code) {
-            OAuthClient oAuthClient = createOAuthClient();
-
             enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    oAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb"));
+                    mOAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb"));
             assertEquals(code, thrown.getCode());
         }
 
@@ -83,16 +102,18 @@ class OAuthClientTest extends BaseHttpTest {
     @Nested
     class RefreshTokensTests {
 
+        private final String DATA_PATH = "/oauth/refresh_tokens/";
+
         @Test
-        void testRefreshedTokensCorrect() throws InterruptedException, DracoonNetIOException,
-                DracoonApiException {
-            OAuthClient oAuthClient = createOAuthClient();
+        void testRequestValid() throws Exception {
+            refreshTokens();
 
-            enqueueResponse("/oauth/refresh_tokens/valid_response.json");
+            checkRequest(DATA_PATH + "refresh_tokens_request.json");
+        }
 
-            OAuthTokens tokens = oAuthClient.refreshTokens("G6626ZHERgVTTpA2WuGxg3EKnGKoAIgh");
-
-            checkRequest("/oauth/refresh_tokens/valid_request.json");
+        @Test
+        void testDataCorrect() throws Exception {
+            OAuthTokens tokens = refreshTokens();
 
             assertNotNull(tokens);
             assertEquals("bearer", tokens.tokenType);
@@ -102,16 +123,19 @@ class OAuthClientTest extends BaseHttpTest {
             assertEquals("all", tokens.scope);
         }
 
+        private OAuthTokens refreshTokens() throws Exception {
+            enqueueResponse(DATA_PATH + "refresh_tokens_response.json");
+            return mOAuthClient.refreshTokens("G6626ZHERgVTTpA2WuGxg3EKnGKoAIgh");
+        }
+
         @ParameterizedTest
         @MethodSource("com.dracoon.sdk.internal.oauth.OAuthClientTest#"+
                 "createTestRefreshTokensErrorHandlingArguments")
         void testErrorHandling(String resourceName, DracoonApiCode code) {
-            OAuthClient oAuthClient = createOAuthClient();
-
             enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    oAuthClient.refreshTokens("G6626ZHERgVTTpA2WuGxg3EKnGKoAIgh"));
+                    mOAuthClient.refreshTokens("G6626ZHERgVTTpA2WuGxg3EKnGKoAIgh"));
             assertEquals(code, thrown.getCode());
         }
 
@@ -136,55 +160,47 @@ class OAuthClientTest extends BaseHttpTest {
     // --- Tests for revoking tokens ---
 
     @Nested
-    class RevokeTokenTests {
+    class RevokeTokensTests {
+
+        private final String DATA_PATH = "/oauth/revoke_tokens/";
 
         @Test
-        void testRevokeAccessTokenCorrect() throws InterruptedException, DracoonNetIOException,
-                DracoonApiException {
-            OAuthClient oAuthClient = createOAuthClient();
+        void testAccessTokenRequestValid() throws Exception {
+            enqueueResponse(DATA_PATH + "revoke_access_token_response.json");
 
-            enqueueResponse("/oauth/revoke_access_token/valid_response.json");
+            mOAuthClient.revokeAccessToken("1j9PZ7OWy8IO9sDTf7f1koGPCvfwg083");
 
-            oAuthClient.revokeAccessToken("1j9PZ7OWy8IO9sDTf7f1koGPCvfwg083");
-
-            checkRequest("/oauth/revoke_access_token/valid_request.json");
+            checkRequest(DATA_PATH + "revoke_access_token_request.json");
         }
 
         @ParameterizedTest
         @MethodSource("com.dracoon.sdk.internal.oauth.OAuthClientTest#"+
                 "createTestRevokeTokensErrorHandlingArguments")
         void testRevokeAccessTokenErrorHandling(String resourceName, DracoonApiCode code) {
-            OAuthClient oAuthClient = createOAuthClient();
-
             enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    oAuthClient.revokeAccessToken("1j9PZ7OWy8IO9sDTf7f1koGPCvfwg083"));
+                    mOAuthClient.revokeAccessToken("1j9PZ7OWy8IO9sDTf7f1koGPCvfwg083"));
             assertEquals(code, thrown.getCode());
         }
 
         @Test
-        void testRevokeRefreshTokenCorrect() throws InterruptedException, DracoonNetIOException,
-                DracoonApiException {
-            OAuthClient oAuthClient = createOAuthClient();
+        void testRefreshTokenRequestValid() throws Exception {
+            enqueueResponse(DATA_PATH + "revoke_refresh_token_response.json");
 
-            enqueueResponse("/oauth/revoke_refresh_token/valid_response.json");
+            mOAuthClient.revokeRefreshToken("TQeXE4EZZypxX8pAsz91JEDg7sNvbLiR");
 
-            oAuthClient.revokeRefreshToken("TQeXE4EZZypxX8pAsz91JEDg7sNvbLiR");
-
-            checkRequest("/oauth/revoke_refresh_token/valid_request.json");
+            checkRequest(DATA_PATH + "revoke_refresh_token_request.json");
         }
 
         @ParameterizedTest
         @MethodSource("com.dracoon.sdk.internal.oauth.OAuthClientTest#"+
                 "createTestRevokeTokensErrorHandlingArguments")
         void testRevokeRefreshTokenErrorHandling(String resourceName, DracoonApiCode code) {
-            OAuthClient oAuthClient = createOAuthClient();
-
             enqueueResponse(resourceName);
 
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    oAuthClient.revokeRefreshToken("TQeXE4EZZypxX8pAsz91JEDg7sNvbLiR"));
+                    mOAuthClient.revokeRefreshToken("TQeXE4EZZypxX8pAsz91JEDg7sNvbLiR"));
             assertEquals(code, thrown.getCode());
         }
 
@@ -200,17 +216,6 @@ class OAuthClientTest extends BaseHttpTest {
                 Arguments.of("/oauth/common/internal_error_response.json",
                         DracoonApiCode.AUTH_UNKNOWN_ERROR)
         );
-    }
-
-    // --- Helper methods ---
-
-    private OAuthClient createOAuthClient() {
-        DracoonHttpConfig httpConfig = new DracoonHttpConfig();
-        httpConfig.setUserAgent(USER_AGENT);
-        OAuthClient oAuthClient = new OAuthClient(mServerUrl, CLIENT_ID, CLIENT_SECRET);
-        oAuthClient.setHttpConfig(httpConfig);
-        oAuthClient.init();
-        return oAuthClient;
     }
 
 }
