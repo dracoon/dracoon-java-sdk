@@ -127,23 +127,23 @@ public class DracoonClientImpl extends DracoonClient {
 
     private String mEncryptionPassword;
 
-    private Log mLog = new NullLog();
+    protected Log mLog = new NullLog();
 
     private DracoonHttpConfig mHttpConfig;
     private OkHttpClient mHttpClient;
+    protected HttpHelper mHttpHelper;
 
     private OAuthClient mOAuthClient;
 
-    private DracoonService mDracoonService;
-    private DracoonErrorParser mDracoonErrorParser;
-    private HttpHelper mHttpHelper;
+    protected DracoonService mDracoonService;
+    protected DracoonErrorParser mDracoonErrorParser;
 
-    private DracoonServerImpl mServer;
-    private DracoonAccountImpl mAccount;
-    private Users mUsers;
-    private Groups mGroups;
-    private DracoonNodesImpl mNodes;
-    private DracoonSharesImpl mShares;
+    protected DracoonServerImpl mServer;
+    protected DracoonAccountImpl mAccount;
+    protected Users mUsers;
+    protected Groups mGroups;
+    protected DracoonNodesImpl mNodes;
+    protected DracoonSharesImpl mShares;
 
     private String mApiVersion = null;
 
@@ -213,9 +213,9 @@ public class DracoonClientImpl extends DracoonClient {
         initOAuthClient();
 
         initHttpClient();
+        initHttpHelper();
         initDracoonService();
         initDracoonErrorParser();
-        initHttpHelper();
 
         mServer = new DracoonServerImpl(this);
         mAccount = new DracoonAccountImpl(this);
@@ -228,7 +228,7 @@ public class DracoonClientImpl extends DracoonClient {
         retrieveAuthTokens();
     }
 
-    private void initOAuthClient() {
+    protected void initOAuthClient() {
         if (mAuth == null) {
             return;
         }
@@ -239,7 +239,7 @@ public class DracoonClientImpl extends DracoonClient {
         mOAuthClient.init();
     }
 
-    private void initHttpClient() {
+    protected void initHttpClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS);
         builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
@@ -261,7 +261,15 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpClient = builder.build();
     }
 
-    private void initDracoonService() {
+    protected void initHttpHelper() {
+        mHttpHelper = new HttpHelper();
+        mHttpHelper.setLog(mLog);
+        mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
+        mHttpHelper.setRateLimitingEnabled(mHttpConfig.isRateLimitingEnabled());
+        mHttpHelper.init();
+    }
+
+    protected void initDracoonService() {
         OkHttpClient httpClient = mHttpClient.newBuilder()
                 .addInterceptor(mAuthInterceptor)
                 .build();
@@ -300,17 +308,9 @@ public class DracoonClientImpl extends DracoonClient {
         mDracoonService = retrofit.create(DracoonService.class);
     }
 
-    private void initDracoonErrorParser() {
+    protected void initDracoonErrorParser() {
         mDracoonErrorParser = new DracoonErrorParser();
         mDracoonErrorParser.setLog(mLog);
-    }
-
-    private void initHttpHelper() {
-        mHttpHelper = new HttpHelper();
-        mHttpHelper.setLog(mLog);
-        mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
-        mHttpHelper.setRateLimitingEnabled(mHttpConfig.isRateLimitingEnabled());
-        mHttpHelper.init();
     }
 
     public void assertApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
