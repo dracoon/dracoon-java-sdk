@@ -69,7 +69,7 @@ public class DracoonAuth {
         mClientId = clientId;
         ValidatorUtils.validateString("Client secret", clientSecret, false);
         mClientSecret = clientSecret;
-        ValidatorUtils.validateString("Authorization code", clientSecret, false);
+        ValidatorUtils.validateString("Authorization code", authorizationCode, false);
         mAuthorizationCode = authorizationCode;
     }
 

@@ -1,0 +1,13 @@
+{
+  "status": 400,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"error\":\"invalid_grant\"}"
+  }
+}
