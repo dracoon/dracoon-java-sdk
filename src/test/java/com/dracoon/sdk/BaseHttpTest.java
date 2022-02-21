@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,8 +67,12 @@ public abstract class BaseHttpTest extends BaseTest {
     }
 
     private MockResponse createMockResponse(String name) {
+        // Create replacements
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("SERVER_URL", buildServerUrl(HTTP_PROTOCOL, mServerHostName, mServerPort));
+
         // Read response data
-        HttpResponse data = TestUtils.readData(HttpResponse.class, HTTP_DIR + name);
+        HttpResponse data = TestUtils.readData(HttpResponse.class, HTTP_DIR + name, replacements);
 
         // Create HTTP response with specific status code
         MockResponse response = new MockResponse().setResponseCode(data.status);
@@ -107,8 +113,12 @@ public abstract class BaseHttpTest extends BaseTest {
     }
 
     private void checkRecordedRequest(String name, RecordedRequest request) {
+        // Create replacements
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("SERVER_URL", buildServerUrl(HTTP_PROTOCOL, mServerHostName, mServerPort));
+
         // Read request data
-        HttpRequest data = TestUtils.readData(HttpRequest.class, HTTP_DIR + name);
+        HttpRequest data = TestUtils.readData(HttpRequest.class, HTTP_DIR + name, replacements);
 
         // Get request URL
         URL url;
@@ -123,6 +133,11 @@ public abstract class BaseHttpTest extends BaseTest {
         assertNotNull(request);
         // Check method
         assertEquals(data.method.name(), request.getMethod());
+        // Check protocol
+        assertEquals(HTTP_PROTOCOL, request.getRequestUrl().scheme());
+        // Check host/port
+        assertEquals(mServerHostName, request.getRequestUrl().host());
+        assertEquals(mServerPort, request.getRequestUrl().port());
         // Check path
         assertEquals(url.getPath(), request.getRequestUrl().encodedPath());
         // Check query

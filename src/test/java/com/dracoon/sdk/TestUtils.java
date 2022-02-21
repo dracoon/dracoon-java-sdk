@@ -1,11 +1,10 @@
 package com.dracoon.sdk;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,18 +21,28 @@ public class TestUtils {
     }
 
     public static <T> T readData(Class<? extends T> clazz, String fileName) {
-        InputStream is = null;
-        BufferedReader rd = null;
         try {
-            is = open(fileName);
-            rd = new BufferedReader(new InputStreamReader(is));
-            return sGson.fromJson(rd, clazz);
+            byte[] data = readFile(fileName);
+            String s = new String(data);
+            return sGson.fromJson(s, clazz);
         } catch (JsonParseException e) {
             throw new RuntimeException(String.format("Could not parse test resource file '%s'!",
                     fileName), e);
-        } finally {
-            close(rd);
-            close(is);
+        }
+    }
+
+    public static <T> T readData(Class<? extends T> clazz, String fileName,
+            Map<String, String> replacements) {
+        try {
+            byte[] data = readFile(fileName);
+            String s = new String(data);
+            for (Map.Entry<String, String> replacement : replacements.entrySet()) {
+                s = s.replace("[" + replacement.getKey() + "]", replacement.getValue());
+            }
+            return sGson.fromJson(s, clazz);
+        } catch (JsonParseException e) {
+            throw new RuntimeException(String.format("Could not parse test resource file '%s'!",
+                    fileName), e);
         }
     }
 

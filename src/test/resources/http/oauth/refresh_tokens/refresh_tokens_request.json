@@ -1,6 +1,6 @@
 {
   "method": "post",
-  "url": "http://server/oauth/token",
+  "url": "[SERVER_URL]/oauth/token",
   "headers": [
     {
       "name": "authorization",
