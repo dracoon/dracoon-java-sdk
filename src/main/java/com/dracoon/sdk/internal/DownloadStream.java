@@ -53,6 +53,8 @@ public class DownloadStream extends FileDownloadStream {
     private final PlainFileKey mFileKey;
 
     private FileDecryptionCipher mDecryptionCipher;
+    private boolean mIsDecryptionStarted = false;
+    private boolean mIsDecryptionFinished = false;
 
     private long mDownloadOffset = 0L;
     private long mDownloadLength;
@@ -91,6 +93,9 @@ public class DownloadStream extends FileDownloadStream {
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         mThread = Thread.currentThread();
+
+        mDownloadUrl = null;
+        mIsClosed = false;
 
         try {
             notifyStarted(mId);
@@ -136,6 +141,7 @@ public class DownloadStream extends FileDownloadStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+        assertStarted();
         assertNotClosed();
 
         // If start offset and/or maximum number of bytes is invalid: Throw error
@@ -191,6 +197,7 @@ public class DownloadStream extends FileDownloadStream {
 
     @Override
     public long skip(long skip) throws IOException {
+        assertStarted();
         assertNotClosed();
 
         // If number of bytes is negative: Abort
@@ -236,9 +243,15 @@ public class DownloadStream extends FileDownloadStream {
 
     @Override
     public int available() throws IOException {
+        assertStarted();
         assertNotClosed();
 
-        long remaining = mDownloadLength - mDownloadOffset;
+        long bufferSize = mDownloadBuffer.size();
+        if (isEncryptedDownload() && mIsDecryptionStarted && !mIsDecryptionFinished) {
+            bufferSize = bufferSize + mFileKey.getIv().length();
+        }
+
+        long remaining = mDownloadLength - mDownloadOffset + bufferSize;
         return remaining > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) remaining;
     }
 
@@ -254,7 +267,7 @@ public class DownloadStream extends FileDownloadStream {
     private FileDecryptionCipher createDecryptionCipher() throws DracoonCryptoException {
         try {
             return Crypto.createFileDecryptionCipher(mFileKey);
-        } catch (CryptoException e) {
+        } catch (IllegalArgumentException | CryptoException e) {
             String errorText = String.format("Decryption failed at download of '%s'! %s", mId,
                     e.getMessage());
             mLog.d(LOG_TAG, errorText);
@@ -497,12 +510,14 @@ public class DownloadStream extends FileDownloadStream {
         try {
             encData = new EncryptedDataContainer(bytes, null);
             plainData = mDecryptionCipher.processBytes(encData);
+            mIsDecryptionStarted = true;
             os.write(plainData.getContent());
 
             if (isLast) {
                 byte[] encTag = CryptoUtils.stringToByteArray(mFileKey.getTag());
                 encData = new EncryptedDataContainer(null, encTag);
                 plainData = mDecryptionCipher.doFinal(encData);
+                mIsDecryptionFinished = true;
                 os.write(plainData.getContent());
             }
         } catch (BadFileException | IllegalArgumentException | IllegalStateException |
@@ -524,6 +539,12 @@ public class DownloadStream extends FileDownloadStream {
         }
 
         return os.toByteArray();
+    }
+
+    private void assertStarted() throws IOException {
+        if (mDownloadUrl == null) {
+            throw new IOException("Download stream was not started.");
+        }
     }
 
     private void assertNotClosed() throws IOException {
