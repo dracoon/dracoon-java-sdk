@@ -361,11 +361,6 @@ public class DownloadStream extends FileDownloadStream {
 
     private long skipData(long skip) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException, DracoonFileIOException, InterruptedException {
-        // If no more data is available: Abort
-        if (mDownloadOffset == mDownloadLength) {
-            return -1L;
-        }
-
         // If file is not encrypted: Skip bytes
         if (!isEncryptedDownload()) {
             return skipDataPlain(skip);
@@ -376,6 +371,11 @@ public class DownloadStream extends FileDownloadStream {
     }
 
     private long skipDataPlain(long skip) throws DracoonNetIOException, InterruptedException {
+        // If no more data is available: Abort
+        if (mDownloadOffset == mDownloadLength) {
+            return -1L;
+        }
+
         // If next chunk is needed: Skip chunk
         if (mRequestNextChunk) {
             long remaining = mDownloadLength - mDownloadOffset;

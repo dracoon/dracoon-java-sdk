@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.dracoon.sdk.DracoonHttpConfig;
+import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import org.junit.jupiter.api.BeforeEach;
@@ -110,7 +111,177 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Available tests ---
 
-    // TODO
+    @Nested
+    class AvailableStandardTests {
+
+        private final String DATA_PATH = "/download/available_standard/";
+
+        @BeforeEach
+        void setup() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+
+            // Create and start download
+            mDls = new DownloadStream(mDracoonClientImpl, "Test", 2, null);
+            mDls.start();
+
+            // Drop irrelevant requests
+            dropRequest();
+            dropRequest();
+        }
+
+        @Test
+        void testAvailableCorrectAfterStart() throws Exception {
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(2064L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterRead() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+
+            // Read bytes (< chunk size)
+            readBytes(mDls, 8L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(2056L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterReadChunk() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(DATA_PATH + "download_response_2.json");
+
+            // Read bytes (>= chunk size)
+            readBytes(mDls, 2056L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(8L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterSkip() throws Exception {
+            // Skip bytes (< chunk size)
+            skipBytes(mDls, 8L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(2056L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterSkipChunk() throws Exception {
+            // Skip bytes (>= chunk size)
+            skipBytes(mDls, 2056L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(8L, available, "Number of available bytes does not match!");
+        }
+
+    }
+
+    @Nested
+    class AvailableEncryptedTests {
+
+        private final String DATA_PATH = "/download/available_encrypted/";
+
+        @BeforeEach
+        void setup() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+
+            // Create and start download
+            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
+            mDls = new DownloadStream(mDracoonClientImpl, "Test", 2, fileKey);
+            mDls.start();
+
+            // Drop irrelevant requests
+            dropRequest();
+            dropRequest();
+        }
+
+        @Test
+        void testAvailableCorrectAfterStart() throws Exception {
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(2064L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterRead() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+
+            // Read bytes (< chunk size)
+            readBytes(mDls, 8L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(2056L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterReadChunk() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(DATA_PATH + "download_response_2.json");
+
+            // Read bytes (>= chunk size)
+            readBytes(mDls, 2056L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(8L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterSkip() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+
+            // Skip bytes (< chunk size)
+            skipBytes(mDls, 8L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(2056L, available, "Number of available bytes does not match!");
+        }
+
+        @Test
+        void testAvailableCorrectAfterSkipChunk() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(DATA_PATH + "download_response_2.json");
+
+            // Skip bytes (>= chunk size)
+            skipBytes(mDls, 2056L);
+            // Get available bytes
+            long available = mDls.available();
+
+            // Assert number of available bytes is correct
+            assertEquals(8L, available, "Number of available bytes does not match!");
+        }
+
+    }
 
     // --- Read tests ---
 
@@ -147,8 +318,35 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         return read;
     }
 
+    private static byte[] readBytes(DownloadStream dls, long length) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        readBytes(dls, os, length);
+        return os.toByteArray();
+    }
+
+    private static long readBytes(InputStream is, OutputStream os, long length) throws IOException {
+        byte[] b = new byte[1024];
+        long read = 0L;
+        long remaining = length;
+        while (remaining > 0L) {
+            int len = remaining > b.length ? b.length : (int) remaining;
+            int cnt = is.read(b, 0, len);
+            if (cnt < 0) {
+                break;
+            }
+            os.write(b, 0, cnt);
+            read += cnt;
+            remaining -= cnt;
+        }
+        return read;
+    }
+
     private static void skipBytes(DownloadStream dls) throws IOException {
         while (dls.skip(128L) > 0L) {};
+    }
+
+    private static void skipBytes(DownloadStream dls, long skip) throws IOException {
+        dls.skip(skip);
     }
 
 }
