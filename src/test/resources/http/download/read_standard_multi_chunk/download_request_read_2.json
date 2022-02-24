@@ -1,0 +1,14 @@
+{
+  "method": "get",
+  "url": "[SERVER_URL]/api/v4/downloads/0mESGjqRZLwVMyIyE3XKXvRKamqNTiajzFHQLwFktTeaMYpl7MZCRftsh08icVor",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    },
+    {
+      "name": "range",
+      "value": "bytes=2048-4095"
+    }
+  ]
+}
