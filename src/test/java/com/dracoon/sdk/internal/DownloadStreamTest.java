@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.stream.Stream;
 
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
@@ -12,6 +13,9 @@ import com.dracoon.sdk.error.DracoonApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1068,7 +1072,135 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Skip tests ---
 
-    // TODO
+    @Nested
+    class SkipStandardTests {
+
+        private final String DATA_PATH = "/download/skip_standard/";
+
+        @BeforeEach
+        void setup() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+
+            // Create and start download
+            mDls = new DownloadStream(mDracoonClientImpl, "Test", 8, null);
+            mDls.start();
+
+            // Drop irrelevant requests
+            dropRequest();
+            dropRequest();
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.dracoon.sdk.internal.DownloadStreamTest#" +
+                "createSkipTestsTestSkippedCorrectArguments")
+        void testSkippedCorrect(long skip, long expectedSkipped) throws Exception {
+            // Skip bytes
+            long skipped = mDls.skip(skip);
+
+            // Assert skipped is correct
+            assertEquals(expectedSkipped, skipped, "Skipped bytes does not match!");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.dracoon.sdk.internal.DownloadStreamTest#" +
+                "createSkipTestsTestSkippedCorrectAfterReadArguments")
+        void testSkippedCorrectAfterRead(long skip, long expectedSkipped) throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+
+            // Read some bytes
+            readBytes(mDls, 16L);
+            // Skip bytes
+            long skipped = mDls.skip(skip);
+
+            // Assert skipped is correct
+            assertEquals(expectedSkipped, skipped, "Skipped bytes does not match!");
+        }
+
+    }
+
+    @Nested
+    class SkipEncryptedTests {
+
+        private final String DATA_PATH = "/download/skip_encrypted/";
+
+        @BeforeEach
+        void setup() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+
+            // Create and start download
+            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
+            mDls = new DownloadStream(mDracoonClientImpl, "Test", 9, fileKey);
+            mDls.start();
+
+            // Drop irrelevant requests
+            dropRequest();
+            dropRequest();
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.dracoon.sdk.internal.DownloadStreamTest#" +
+                "createSkipTestsTestSkippedCorrectArguments")
+        void testSkippedCorrect(long skip, long expectedSkipped) throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(DATA_PATH + "download_response_2.json");
+
+            // Skip bytes
+            long skipped = mDls.skip(skip);
+
+            // Assert skipped is correct
+            assertEquals(expectedSkipped, skipped, "Skipped bytes does not match!");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.dracoon.sdk.internal.DownloadStreamTest#" +
+                "createSkipTestsTestSkippedCorrectAfterReadArguments")
+        void testSkippedCorrectAfterRead(long skip, long expectedSkipped) throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(DATA_PATH + "download_response_2.json");
+
+            // Read some bytes
+            readBytes(mDls, 16L);
+            // Skip bytes
+            long skipped = mDls.skip(skip);
+
+            // Assert skipped is correct
+            assertEquals(expectedSkipped, skipped, "Skipped bytes does not match!");
+        }
+
+    }
+
+    @SuppressWarnings("unused")
+    private static Stream<Arguments> createSkipTestsTestSkippedCorrectArguments() {
+        return Stream.of(
+                Arguments.of(-1L,   0L),    // Skip negative bytes
+                Arguments.of(0L,    0L),    // Skip zero bytes
+                Arguments.of(1024L, 1024L), // Skip bytes in first chunk
+                Arguments.of(2048L, 2048L), // Skip all bytes in first chunk
+                Arguments.of(2056L, 2056L), // Skip bytes in second chunk
+                Arguments.of(2064L, 2064L), // Skip all bytes
+                Arguments.of(2065L, 2064L)  // Skip more bytes then available
+        );
+    }
+
+    @SuppressWarnings("unused")
+    private static Stream<Arguments> createSkipTestsTestSkippedCorrectAfterReadArguments() {
+        return Stream.of(
+                Arguments.of(-1L,   0L),    // Skip negative bytes
+                Arguments.of(0L,    0L),    // Skip zero bytes
+                Arguments.of(1024L, 1024L), // Skip bytes in first chunk
+                Arguments.of(2032L, 2032L), // Skip all bytes in first chunk
+                Arguments.of(2040L, 2040L), // Skip bytes in second chunk
+                Arguments.of(2048L, 2048L), // Skip all bytes
+                Arguments.of(2049L, 2048L)  // Skip more bytes then available
+        );
+    }
 
     // --- Close tests ---
 
