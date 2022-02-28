@@ -1204,7 +1204,44 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Close tests ---
 
-    // TODO
+    @Nested
+    class CloseTests {
+
+        @BeforeEach
+        void setup() {
+            mDls = new DownloadStream(mDracoonClientImpl, "Test", 9, null);
+        }
+
+        @Test
+        void testCloseAllowed() throws Exception {
+            mDls.close();
+        }
+
+        @Test
+        void testAvailableAfterCloseNotAllowed() throws Exception {
+            mDls.close();
+            assertThrows(IOException.class, () -> mDls.available());
+        }
+
+        @Test
+        void testReadAfterCloseNotAllowed() throws Exception {
+            mDls.close();
+            assertThrows(IOException.class, () -> readBytes(mDls));
+        }
+
+        @Test
+        void testSkipAfterCloseNotAllowed() throws Exception {
+            mDls.close();
+            assertThrows(IOException.class, () -> skipBytes(mDls));
+        }
+
+        @Test
+        void testCloseAfterCloseNotAllowed() throws Exception {
+            mDls.close();
+            assertThrows(IOException.class, () -> mDls.close());
+        }
+
+    }
 
     // --- Callback tests ---
 
