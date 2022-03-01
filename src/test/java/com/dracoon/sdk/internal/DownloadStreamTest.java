@@ -10,6 +10,8 @@ import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.model.FileDownloadCallback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -1245,7 +1248,393 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Callback tests ---
 
-    // TODO
+    private static abstract class CallbackTests implements FileDownloadCallback {
+
+        protected final String DATA_PATH = "/download/callback/";
+
+        protected final String DOWNLOAD_ID = "Test";
+
+        @Override
+        public void onStarted(String id) {}
+
+        @Override
+        public void onRunning(String id, long bytesRead, long bytesTotal) {}
+
+        @Override
+        public void onFinished(String id) {}
+
+        @Override
+        public void onCanceled(String id) {}
+
+        @Override
+        public void onFailed(String id, DracoonException e) {}
+
+    }
+
+    @Nested
+    class CallbackStartTests extends CallbackTests {
+
+        private boolean mOnStartCalled = false;
+        private String mOnStartId;
+
+        @BeforeEach
+        void setup() {
+            // Create download
+            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
+            mDls.addCallback(this);
+        }
+
+        @Override
+        public void onStarted(String id) {
+            mOnStartCalled = true;
+            mOnStartId = id;
+        }
+
+        @Test
+        void testOnStartedCalled() throws Exception {
+            start();
+            assertTrue(mOnStartCalled, "Start callback was not called!");
+        }
+
+        @Test
+        void testOnStartedParametersCorrect() throws Exception {
+            start();
+            assertEquals(DOWNLOAD_ID, mOnStartId);
+        }
+
+        private void start() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+
+            // Start download
+            mDls.start();
+        }
+
+    }
+
+    @Nested
+    class CallbackRunningTests extends CallbackTests {
+
+        private boolean mOnRunningCalled = false;
+        private String mOnRunningId;
+        private long mOnRunningBytesRead = 0L;
+        private long mOnRunningBytesTotal = 0L;
+
+        @BeforeEach
+        void setup() {
+            // Change chunk size to be larger than internal buffer of 2KB
+            DracoonHttpConfig httpConfig = new DracoonHttpConfig();
+            httpConfig.setChunkSize(4);
+            mDracoonClientImpl.setHttpConfig(httpConfig);
+
+            // Create download
+            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
+            mDls.addCallback(this);
+        }
+
+        @Override
+        public void onRunning(String id, long bytesRead, long bytesTotal) {
+            mOnRunningCalled = true;
+            mOnRunningId = id;
+            mOnRunningBytesRead = bytesRead;
+            mOnRunningBytesTotal = bytesTotal;
+        }
+
+        @Test
+        void testOnRunningCalled() throws Exception {
+            startAndRead();
+            assertTrue(mOnRunningCalled, "Running callback was not called!");
+        }
+
+        @Test
+        void testOnRunningParametersCorrect() throws Exception {
+            startAndRead();
+            assertEquals(DOWNLOAD_ID, mOnRunningId);
+            assertEquals(2048L, mOnRunningBytesRead);
+            assertEquals(4096L, mOnRunningBytesTotal);
+        }
+
+        private void startAndRead() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(DATA_PATH + "download_response.json");
+
+            // Start download and read some bytes
+            mDls.start();
+            Thread.sleep(100L);
+            readBytes(mDls, 512L);
+        }
+
+    }
+
+    @Nested
+    class CallbackFinishedTests extends CallbackTests {
+
+        private boolean mOnFinishedCalled = false;
+        private String mOnFinishedId;
+
+        @BeforeEach
+        void setup() {
+            // Create download
+            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
+            mDls.addCallback(this);
+        }
+
+        @Override
+        public void onFinished(String id) {
+            mOnFinishedCalled = true;
+            mOnFinishedId = id;
+        }
+
+        @Test
+        void testOnFinishedCalled() throws Exception {
+            startAndReadAll();
+            assertTrue(mOnFinishedCalled, "Finish callback was not called!");
+        }
+
+        @Test
+        void testOnFinishedParametersCorrect() throws Exception {
+            startAndReadAll();
+            assertEquals(DOWNLOAD_ID, mOnFinishedId);
+        }
+
+        private void startAndReadAll() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(DATA_PATH + "download_response.json");
+
+            // Start download and read all bytes
+            mDls.start();
+            readBytes(mDls);
+        }
+
+    }
+
+    @Nested
+    class CallbackCanceledTests extends CallbackTests {
+
+        private boolean mOnCanceledCalled = false;
+        private String mOnCanceledId;
+
+        @BeforeEach
+        void setup() {
+            // Simulate an interrupted thread
+            TestHttpHelper httpHelper = (TestHttpHelper) mDracoonClientImpl.getHttpHelper();
+            httpHelper.setSimulateInterruptedThread(true);
+
+            // Create download
+            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
+            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
+            mDls.addCallback(this);
+        }
+
+        @Override
+        public void onCanceled(String id) {
+            mOnCanceledCalled = true;
+            mOnCanceledId = id;
+        }
+
+        @Test
+        void testOnCanceledCalledAtStart() throws Exception {
+            start();
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnCanceledParametersCorrectAtStart() throws Exception {
+            start();
+            assertCallbackParameters();
+        }
+
+        private void start() throws Exception {
+            // Enqueue responses
+            enqueueIOErrorResponse(DATA_PATH + "get_node_response.json", 50L);
+
+            // Start download
+            mDls.start();
+        }
+
+        @Test
+        void testOnCanceledCalledAtRead() throws Exception {
+            startAndRead();
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnCanceledParametersCorrectAtRead() throws Exception {
+            startAndRead();
+            assertCallbackParameters();
+        }
+
+        private void startAndRead() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+
+            // Start download and read some bytes
+            mDls.start();
+            readBytes(mDls, 1024L);
+        }
+
+        @Test
+        void testOnCanceledCalledAtSkip() throws Exception {
+            startAndSkip();
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnCanceledParametersCorrectAtSkip() throws Exception {
+            startAndSkip();
+            assertCallbackParameters();
+        }
+
+        private void startAndSkip() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+
+            // Start download and skip some bytes
+            mDls.start();
+            skipBytes(mDls, 1024L);
+        }
+
+        private void assertCallbackCalled() {
+            assertTrue(mOnCanceledCalled, "Canceled callback was not called!");
+        }
+
+        private void assertCallbackParameters() {
+            assertEquals(DOWNLOAD_ID, mOnCanceledId);
+        }
+
+    }
+
+    @Nested
+    class CallbackFailedTests extends CallbackTests {
+
+        private boolean mOnFailedCalled = false;
+        private String mOnFailedId;
+        private DracoonException mOnFailedException;
+
+        @BeforeEach
+        void setup() {
+            // Create download
+            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
+            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
+            mDls.addCallback(this);
+        }
+
+        @Override
+        public void onFailed(String id, DracoonException e) {
+            mOnFailedCalled = true;
+            mOnFailedId = id;
+            mOnFailedException = e;
+        }
+
+        @Test
+        void testOnFailedCalledAtStart() throws Exception {
+            start(DracoonApiCode.SERVER_UNKNOWN_ERROR);
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnFailedParametersCorrectAtStart() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_NODE_NOT_FOUND;
+            start(code);
+            assertCallbackParameters(code);
+        }
+
+        private void start(DracoonApiCode code) throws Exception {
+            // Mock error parsing
+            when(mDracoonErrorParser.parseNodesQueryError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_not_found_response.json");
+
+            // Start download
+            try {
+                mDls.start();
+            } catch (DracoonApiException e) {
+                // Nothing to do here
+            }
+        }
+
+        @Test
+        void testOnFailedCalledAtRead() throws Exception {
+            startAndRead(DracoonApiCode.SERVER_UNKNOWN_ERROR);
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnFailedParametersCorrectAtRead() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_FILE_NOT_FOUND;
+            startAndRead(code);
+            assertCallbackParameters(code);
+        }
+
+        private void startAndRead(DracoonApiCode code) throws Exception {
+            // Mock error parsing
+            when(mDracoonErrorParser.parseDownloadError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(DATA_PATH + "download_not_found_response.json");
+
+            // Start download and read some bytes
+            mDls.start();
+            try {
+                readBytes(mDls, 1024L);
+            } catch (IOException e) {
+                // Nothing to do here
+            }
+        }
+
+        @Test
+        void testOnFailedCalledAtSkip() throws Exception {
+            startAndSkip(DracoonApiCode.SERVER_UNKNOWN_ERROR);
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnFailedParametersCorrectAtSkip() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_FILE_NOT_FOUND;
+            startAndSkip(code);
+            assertCallbackParameters(code);
+        }
+
+        private void startAndSkip(DracoonApiCode code) throws Exception {
+            // Mock error parsing
+            when(mDracoonErrorParser.parseDownloadError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_node_response.json");
+            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(DATA_PATH + "download_not_found_response.json");
+
+            // Start download and skip some bytes
+            mDls.start();
+            try {
+                skipBytes(mDls, 1024L);
+            } catch (IOException e) {
+                // Nothing to do here
+            }
+        }
+
+        private void assertCallbackCalled() {
+            assertTrue(mOnFailedCalled, "Failed callback was not called!");
+        }
+
+        private void assertCallbackParameters(DracoonApiCode expectedCode) {
+            assertEquals(DOWNLOAD_ID, mOnFailedId);
+            assertEquals(DracoonApiException.class, mOnFailedException.getClass());
+            DracoonApiException exception = (DracoonApiException) mOnFailedException;
+            assertEquals(expectedCode, exception.getCode());
+        }
+
+    }
 
     // --- Helper methods ---
 

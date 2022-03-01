@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,6 +18,7 @@ import com.dracoon.sdk.util.TestConsoleHandler;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
 import okio.Buffer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,6 +66,13 @@ public abstract class BaseHttpTest extends BaseTest {
 
     protected void enqueueResponse(String name) {
         mMockWebServer.enqueue(createMockResponse(name));
+    }
+
+    protected void enqueueIOErrorResponse(String name, long delay) {
+        MockResponse response = createMockResponse(name);
+        response.setBodyDelay(delay, TimeUnit.MILLISECONDS);
+        response.setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY);
+        mMockWebServer.enqueue(response);
     }
 
     private MockResponse createMockResponse(String name) {
