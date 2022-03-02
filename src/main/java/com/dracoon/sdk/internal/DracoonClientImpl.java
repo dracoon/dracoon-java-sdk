@@ -145,7 +145,7 @@ public class DracoonClientImpl extends DracoonClient {
     protected DracoonNodesImpl mNodes;
     protected DracoonSharesImpl mShares;
 
-    private String mApiVersion = null;
+    protected String mApiVersion = null;
 
     public DracoonClientImpl(URL serverUrl) {
         super(serverUrl);
@@ -402,8 +402,8 @@ public class DracoonClientImpl extends DracoonClient {
         }
     }
 
-    public boolean isApiVersionGreaterEqual(String minApiVersion)
-            throws DracoonNetIOException, DracoonApiException {
+    public boolean isApiVersionGreaterEqual(String minApiVersion) throws DracoonNetIOException,
+            DracoonApiException {
         if (mApiVersion == null) {
             mApiVersion = mServer.getVersion();
         }

@@ -7,6 +7,7 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     public DracoonClientImplMock(URL serverUrl) {
         super(serverUrl);
+        mApiVersion = DracoonConstants.API_MIN_VERSION;
     }
 
     public void setDracoonService(DracoonService dracoonService) {
@@ -15,6 +16,10 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     public void setDracoonErrorParser(DracoonErrorParser dracoonErrorParser) {
         mDracoonErrorParser = dracoonErrorParser;
+    }
+
+    public void setApiVersion(String apiVersion) {
+        mApiVersion = apiVersion;
     }
 
     // --- Initialization methods ---
