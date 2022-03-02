@@ -219,6 +219,7 @@ public class UploadStream extends FileUploadStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
+        assertStarted();
         assertNotCompleted();
         assertNotClosed();
 
@@ -247,6 +248,7 @@ public class UploadStream extends FileUploadStream {
 
     @Override
     public Node complete() throws IOException {
+        assertStarted();
         assertNotCompleted();
         assertNotClosed();
 
@@ -627,6 +629,12 @@ public class UploadStream extends FileUploadStream {
             }
         });
         return requestBody;
+    }
+
+    private void assertStarted() throws IOException {
+        if (mUploadId == null) {
+            throw new IOException("Upload stream was not started.");
+        }
     }
 
     private void assertNotCompleted() throws IOException {
