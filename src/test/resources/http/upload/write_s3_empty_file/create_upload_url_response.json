@@ -1,0 +1,13 @@
+{
+  "status": 201,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"urls\":[{\"url\":\"[SERVER_URL]/0/8ed-fcc/000000d-up608842144-304c67504b425750654d67486d414f70\"}]}"
+  }
+}

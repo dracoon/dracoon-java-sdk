@@ -21,7 +21,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -327,10 +326,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             IOException thrown = assertThrows(IOException.class, () -> readBytes(mDls));
 
             // Assert correct error code
-            Throwable cause = thrown.getCause();
-            assertInstanceOf(DracoonApiException.class, cause);
-            DracoonApiException exception = (DracoonApiException) cause;
-            assertEquals(code, exception.getCode());
+            assertDracoonApiException(thrown, code);
         }
 
     }

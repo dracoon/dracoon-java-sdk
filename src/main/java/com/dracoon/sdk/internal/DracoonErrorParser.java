@@ -462,7 +462,9 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case NOT_FOUND:
-                if (error.errorCode == -40000 || error.errorCode == -41000)
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+                else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -489,7 +491,9 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -40000 || error.errorCode == -41000)
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+                else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -510,10 +514,12 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -20501 || error.errorCode == -90034)
-                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
                 else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (error.errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case GATEWAY_TIMEOUT:
@@ -540,10 +546,12 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -20501 || error.errorCode == -90034)
-                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
                 else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (error.errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
@@ -568,10 +576,12 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -20501 || error.errorCode == -90034)
-                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
                 else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (error.errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:
@@ -1009,7 +1019,12 @@ public class DracoonErrorParser {
 
         mLog.d(LOG_TAG, "S3 error: " + statusCode);
 
-        return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            default:
+                return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+        }
     }
 
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
@@ -1075,8 +1090,12 @@ public class DracoonErrorParser {
             case BAD_REQUEST:
                 return parseValidationError(errorCode);
             case NOT_FOUND:
-                if (errorCode == -40000 || errorCode == -41000)
+                if (errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+                else if (errorCode == -40000 || errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:

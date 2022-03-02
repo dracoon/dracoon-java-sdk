@@ -1,0 +1,14 @@
+{
+  "method": "put",
+  "url": "[SERVER_URL]/0/8ed-fcc/000000d-up608842144-304c67504b425750654d67486d414f70",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "file",
+    "content": "/upload/write_s3_empty_file/upload_request_content.bin"
+  }
+}

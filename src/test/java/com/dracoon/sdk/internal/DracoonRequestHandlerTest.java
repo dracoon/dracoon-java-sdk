@@ -4,10 +4,15 @@ import com.dracoon.sdk.BaseHttpTest;
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.TestLogger;
+import com.dracoon.sdk.error.DracoonApiCode;
+import com.dracoon.sdk.error.DracoonApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ExtendWith(MockitoExtension.class)
 public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
@@ -36,6 +41,13 @@ public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
         mDracoonClientImpl.init();
         mDracoonClientImpl.setDracoonErrorParser(mDracoonErrorParser);
         mDracoonClientImpl.setLog(new TestLogger());
+    }
+
+    protected static void assertDracoonApiException(Exception thrown, DracoonApiCode code) {
+        Throwable cause = thrown.getCause();
+        assertInstanceOf(DracoonApiException.class, cause);
+        DracoonApiException exception = (DracoonApiException) cause;
+        assertEquals(code, exception.getCode());
     }
 
 }

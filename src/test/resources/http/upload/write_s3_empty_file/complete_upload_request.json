@@ -1,0 +1,14 @@
+{
+  "method": "put",
+  "url": "[SERVER_URL]/api/v4/nodes/files/uploads/D938lIG4JmrPTtmx/s3",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"parts\":[{\"partNumber\":1,\"partEtag\":\"d658f3a8a1cf6bc67ec03dedbc99c486\"}],\"resolutionStrategy\":\"autorename\",\"fileName\":\"file.txt\"}"
+  }
+}

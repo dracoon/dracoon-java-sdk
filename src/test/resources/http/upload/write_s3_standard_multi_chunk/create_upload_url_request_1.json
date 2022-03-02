@@ -1,0 +1,14 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/api/v4/nodes/files/uploads/JmrPTtmxlIG4D938/s3_urls",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"size\":3072,\"firstPartNumber\":1,\"lastPartNumber\":1}"
+  }
+}

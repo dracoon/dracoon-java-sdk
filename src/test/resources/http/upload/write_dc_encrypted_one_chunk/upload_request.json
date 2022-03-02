@@ -1,0 +1,18 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/api/v4/nodes/files/uploads/bjHCTDboH9OTt2QZ",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    },
+    {
+      "name": "content-range",
+      "value": "bytes 0-128/*"
+    }
+  ],
+  "body": {
+    "type": "part-file",
+    "content": "/upload/write_dc_encrypted_one_chunk/upload_request_content.bin"
+  }
+}
