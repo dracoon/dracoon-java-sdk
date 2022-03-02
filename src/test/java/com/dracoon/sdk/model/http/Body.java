@@ -1,8 +1,8 @@
-package com.dracoon.sdk.model;
+package com.dracoon.sdk.model.http;
 
 import com.google.gson.annotations.SerializedName;
 
-public class HttpBody {
+public class Body {
 
     public enum Type {
         @SerializedName("text")
@@ -10,7 +10,9 @@ public class HttpBody {
         @SerializedName("base64")
         BASE64,
         @SerializedName("file")
-        FILE;
+        FILE,
+        @SerializedName("part-file")
+        PART_FILE;
     }
 
     public Type type;

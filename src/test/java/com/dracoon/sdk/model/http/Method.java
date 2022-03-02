@@ -1,8 +1,8 @@
-package com.dracoon.sdk.model;
+package com.dracoon.sdk.model.http;
 
 import com.google.gson.annotations.SerializedName;
 
-public enum HttpMethod {
+public enum Method {
     @SerializedName("head")
     HEAD,
     @SerializedName("get")
