@@ -207,6 +207,10 @@ public class DracoonClientImpl extends DracoonClient {
         return mHttpHelper;
     }
 
+    public int getS3DefaultChunkSize() {
+        return DracoonConstants.S3_DEFAULT_CHUNK_SIZE;
+    }
+
     // --- Initialization methods ---
 
     public void init() throws DracoonNetIOException, DracoonApiException {

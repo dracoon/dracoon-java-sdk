@@ -57,7 +57,6 @@ public class UploadStream extends FileUploadStream {
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
     private static final long PROGRESS_UPDATE_INTERVAL = 100;
 
-    private static final int S3_DEFAULT_CHUNK_SIZE = 5 * DracoonConstants.MIB;
     private static final String S3_ETAG_HEADER = "ETag";
     private static final long S3_MIN_COMPLETE_WAIT_TIME = 500;
     private static final long S3_MAX_COMPLETE_WAIT_TIME = 5 * DracoonConstants.SECOND;
@@ -181,7 +180,7 @@ public class UploadStream extends FileUploadStream {
             mIsS3Upload = checkIsS3Upload();
 
             if (mIsS3Upload) {
-                mChunkSize = mChunkSize > S3_DEFAULT_CHUNK_SIZE ? mChunkSize : S3_DEFAULT_CHUNK_SIZE;
+                mChunkSize = Math.max(mChunkSize, mClient.getS3DefaultChunkSize());
             }
 
             mUploadId = createUpload();

@@ -5,6 +5,8 @@ import java.net.URL;
 @SuppressWarnings("unused")
 public class DracoonClientImplMock extends DracoonClientImpl {
 
+    private int mS3DefaultChunkSize = 0;
+
     public DracoonClientImplMock(URL serverUrl) {
         super(serverUrl);
         mApiVersion = DracoonConstants.API_MIN_VERSION;
@@ -20,6 +22,21 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     public void setApiVersion(String apiVersion) {
         mApiVersion = apiVersion;
+    }
+
+    @Override
+    public int getS3DefaultChunkSize() {
+        if (mS3DefaultChunkSize > 0) {
+            return mS3DefaultChunkSize;
+        } else {
+            return super.getS3DefaultChunkSize();
+        }
+    }
+
+    public void setS3DefaultChunkSize(int s3DefaultChunkSize) {
+        if (s3DefaultChunkSize >= 0) {
+            mS3DefaultChunkSize = s3DefaultChunkSize;
+        }
     }
 
     // --- Initialization methods ---
