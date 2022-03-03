@@ -57,7 +57,6 @@ public class UploadStream extends FileUploadStream {
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
     private static final long PROGRESS_UPDATE_INTERVAL = 100;
 
-    private static final int S3_DEFAULT_CHUNK_SIZE = 5 * DracoonConstants.MIB;
     private static final String S3_ETAG_HEADER = "ETag";
     private static final long S3_MIN_COMPLETE_WAIT_TIME = 500;
     private static final long S3_MAX_COMPLETE_WAIT_TIME = 5 * DracoonConstants.SECOND;
@@ -117,7 +116,7 @@ public class UploadStream extends FileUploadStream {
 
     private final DracoonClientImpl mClient;
     private final Log mLog;
-    private final DracoonService mRestService;
+    private final DracoonService mService;
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
@@ -154,10 +153,9 @@ public class UploadStream extends FileUploadStream {
             UserPublicKey userPublicKey, PlainFileKey fileKey) {
         mClient = client;
         mLog = client.getLog();
-        mRestService = client.getDracoonService();
+        mService = client.getDracoonService();
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
-        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
         mErrorParser = client.getDracoonErrorParser();
 
         mId = id;
@@ -165,6 +163,8 @@ public class UploadStream extends FileUploadStream {
         mUploadLength = length;
         mUserPublicKey = userPublicKey;
         mFileKey = fileKey;
+
+        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
@@ -180,7 +180,7 @@ public class UploadStream extends FileUploadStream {
             mIsS3Upload = checkIsS3Upload();
 
             if (mIsS3Upload) {
-                mChunkSize = mChunkSize > S3_DEFAULT_CHUNK_SIZE ? mChunkSize : S3_DEFAULT_CHUNK_SIZE;
+                mChunkSize = Math.max(mChunkSize, mClient.getS3DefaultChunkSize());
             }
 
             mUploadId = createUpload();
@@ -219,6 +219,7 @@ public class UploadStream extends FileUploadStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
+        assertStarted();
         assertNotCompleted();
         assertNotClosed();
 
@@ -247,6 +248,7 @@ public class UploadStream extends FileUploadStream {
 
     @Override
     public Node complete() throws IOException {
+        assertStarted();
         assertNotCompleted();
         assertNotClosed();
 
@@ -314,7 +316,7 @@ public class UploadStream extends FileUploadStream {
             return false;
         }
 
-        Call<ApiServerGeneralSettings> call = mRestService.getServerGeneralSettings();
+        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -352,7 +354,7 @@ public class UploadStream extends FileUploadStream {
             request.directS3Upload = mIsS3Upload;
         }
 
-        Call<ApiFileUpload> call = mRestService.createFileUpload(request);
+        Call<ApiFileUpload> call = mService.createFileUpload(request);
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -463,7 +465,7 @@ public class UploadStream extends FileUploadStream {
 
         String contentRange = "bytes " + offset + "-" + (offset + chunk.length) + "/*";
 
-        Call<Void> call = mRestService.uploadFile(mUploadId, contentRange, body);
+        Call<Void> call = mService.uploadFile(mUploadId, contentRange, body);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -482,7 +484,7 @@ public class UploadStream extends FileUploadStream {
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<ApiNode> call = mRestService.completeFileUpload(mUploadId, request);
+        Call<ApiNode> call = mService.completeFileUpload(mUploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -538,7 +540,7 @@ public class UploadStream extends FileUploadStream {
         request.firstPartNumber = chunkNum + 1;
         request.lastPartNumber = chunkNum + 1;
 
-        Call<ApiS3FileUploadUrlList> call = mRestService.getS3FileUploadUrls(mUploadId, request);
+        Call<ApiS3FileUploadUrlList> call = mService.getS3FileUploadUrls(mUploadId, request);
         Response<ApiS3FileUploadUrlList> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -561,7 +563,7 @@ public class UploadStream extends FileUploadStream {
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<Void> call = mRestService.completeS3FileUpload(mUploadId, request);
+        Call<Void> call = mService.completeS3FileUpload(mUploadId, request);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -588,7 +590,7 @@ public class UploadStream extends FileUploadStream {
 
     private Node waitForCompleteS3Upload() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        Call<ApiS3FileUploadStatus> call = mRestService.getS3FileUploadStatus(mUploadId);
+        Call<ApiS3FileUploadStatus> call = mService.getS3FileUploadStatus(mUploadId);
         Response<ApiS3FileUploadStatus> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -627,6 +629,12 @@ public class UploadStream extends FileUploadStream {
             }
         });
         return requestBody;
+    }
+
+    private void assertStarted() throws IOException {
+        if (mUploadId == null) {
+            throw new IOException("Upload stream was not started.");
+        }
     }
 
     private void assertNotCompleted() throws IOException {

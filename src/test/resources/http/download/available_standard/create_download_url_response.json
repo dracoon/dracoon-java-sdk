@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"downloadUrl\":\"[SERVER_URL]/api/v4/downloads/UW0AkfcIsUflmCN8bAdAF4tHFI5hOgv7UFkqRlwdMsUShXIyGmjEpYNNvKMXQrzt\"}"
+  }
+}

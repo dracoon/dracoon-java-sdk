@@ -25,4 +25,6 @@ public interface DracoonConstants {
     String AUTHORIZATION_HEADER = "Authorization";
     String AUTHORIZATION_TYPE = "Bearer";
 
+    int S3_DEFAULT_CHUNK_SIZE = 5 * DracoonConstants.MIB;
+
 }

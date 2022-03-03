@@ -19,7 +19,7 @@ public class HttpHelper {
 
     private static final String HEADER_RETRY_AFTER = "Retry-After";
 
-    private Log mLog = new NullLog();
+    protected Log mLog = new NullLog();
 
     private boolean mIsRetryEnabled;
     private boolean mIsRateLimitingEnabled;
@@ -107,7 +107,7 @@ public class HttpHelper {
 
     // --- Executor methods ---
 
-    private Object executeRequestInternally(Object call) throws DracoonNetIOException,
+    protected Object executeRequestInternally(Object call) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
         try {
             return mExecutor.execute(call);
@@ -267,7 +267,7 @@ public class HttpHelper {
 
     // --- Helper methods ---
 
-    private static Object executeCall(Object call) throws IOException {
+    protected static Object executeCall(Object call) throws IOException {
         if (call instanceof Call) {
             return ((Call<?>) call).execute();
         } else if (call instanceof okhttp3.Call) {
@@ -277,7 +277,7 @@ public class HttpHelper {
         }
     }
 
-    private static Object cloneCall(Object call) {
+    protected static Object cloneCall(Object call) {
         if (call instanceof Call) {
             return ((Call<?>) call).clone();
         } else if (call instanceof okhttp3.Call) {

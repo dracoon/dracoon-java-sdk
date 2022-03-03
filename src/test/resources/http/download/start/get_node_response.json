@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"id\":2,\"type\":\"file\",\"name\":\"test.txt\",\"parentId\":1,\"parentPath\":\"/Test/\",\"size\":5}"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "text/plain;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "file",
+    "content": "/download/read_standard_one_chunk/download_response_read_content.bin"
+  }
+}

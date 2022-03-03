@@ -1,0 +1,13 @@
+{
+  "status": 201,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "file",
+    "content": "/upload/write_dc_encrypted_multi_chunk/complete_upload_response_content.bin"
+  }
+}
