@@ -8,7 +8,9 @@ import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.internal.model.ApiErrorResponse;
+import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,7 @@ import retrofit2.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -934,7 +937,447 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Callback tests ---
 
-    // TODO
+    private static abstract class CallbackTests implements FileUploadCallback {
+
+        protected final String DATA_PATH = "/upload/callback/";
+
+        protected final String UPLOAD_ID = "Test";
+
+        @Override
+        public void onStarted(String id) {}
+
+        @Override
+        public void onRunning(String id, long bytesSend, long bytesTotal) {}
+
+        @Override
+        public void onFinished(String id, Node node) {}
+
+        @Override
+        public void onCanceled(String id) {}
+
+        @Override
+        public void onFailed(String id, DracoonException e) {}
+
+    }
+
+    @Nested
+    class CallbackStartTests extends CallbackTests {
+
+        private boolean mOnStartCalled = false;
+        private String mOnStartId;
+
+        @BeforeEach
+        void setup() {
+            // Create upload
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0, null, null);
+            mUls.addCallback(this);
+        }
+
+        @Override
+        public void onStarted(String id) {
+            mOnStartCalled = true;
+            mOnStartId = id;
+        }
+
+        @Test
+        void testOnStartedCalled() throws Exception {
+            start();
+            assertTrue(mOnStartCalled, "Start callback was not called!");
+        }
+
+        @Test
+        void testOnStartedParametersCorrect() throws Exception {
+            start();
+            assertEquals(UPLOAD_ID, mOnStartId);
+        }
+
+        private void start() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+
+            // Start upload
+            mUls.start();
+        }
+
+    }
+
+    @Nested
+    class CallbackRunningTests extends CallbackTests {
+
+        private boolean mOnRunningCalled = false;
+        private String mOnRunningId;
+        private long mOnRunningBytesSend = 0L;
+        private long mOnRunningBytesTotal = 0L;
+
+        @BeforeEach
+        void setup() {
+            // Create upload
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 4096L, null, null);
+            mUls.addCallback(this);
+        }
+
+        @Override
+        public void onRunning(String id, long bytesSend, long bytesTotal) {
+            mOnRunningCalled = true;
+            mOnRunningId = id;
+            mOnRunningBytesSend = bytesSend;
+            mOnRunningBytesTotal = bytesTotal;
+        }
+
+        @Test
+        void testOnRunningCalled() throws Exception {
+            startAndWrite();
+            assertTrue(mOnRunningCalled, "Running callback was not called!");
+        }
+
+        @Test
+        void testOnRunningParametersCorrect() throws Exception {
+            startAndWrite();
+            assertEquals(UPLOAD_ID, mOnRunningId);
+            assertEquals(2048L, mOnRunningBytesSend);
+            assertEquals(4096L, mOnRunningBytesTotal);
+        }
+
+        private void startAndWrite() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(DATA_PATH + "upload_response.json");
+
+            // Start upload and write some bytes
+            mUls.start();
+            Thread.sleep(100L);
+            mUls.write(new byte[2048]);
+            mUls.write(new byte[2048]);
+        }
+
+    }
+
+    @Nested
+    class CallbackFinishedTests extends CallbackTests {
+
+        private boolean mOnFinishedCalled = false;
+        private String mOnFinishedId;
+        private Node mOnFinishedNode;
+
+        @BeforeEach
+        void setup() {
+            // Create upload
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls.addCallback(this);
+        }
+
+        @Override
+        public void onFinished(String id, Node node) {
+            mOnFinishedCalled = true;
+            mOnFinishedId = id;
+            mOnFinishedNode = node;
+        }
+
+        @Test
+        void testOnFinishedCalled() throws Exception {
+            startAndComplete();
+            assertTrue(mOnFinishedCalled, "Finish callback was not called!");
+        }
+
+        @Test
+        void testOnFinishedParametersCorrect() throws Exception {
+            startAndComplete();
+            assertEquals(UPLOAD_ID, mOnFinishedId);
+            Node node = readData(Node.class, DATA_PATH + "node.json");
+            assertDeepEquals(node, mOnFinishedNode);
+        }
+
+        private void startAndComplete() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(DATA_PATH + "complete_upload_response.json");
+
+            // Start and complete upload
+            mUls.start();
+            mUls.complete();
+        }
+
+    }
+
+    @Nested
+    class CallbackCanceledTests extends CallbackTests {
+
+        private boolean mOnCanceledCalled = false;
+        private String mOnCanceledId;
+
+        @BeforeEach
+        void setup() {
+            // Simulate an interrupted thread
+            TestHttpHelper httpHelper = (TestHttpHelper) mDracoonClientImpl.getHttpHelper();
+            httpHelper.setSimulateInterruptedThread(true);
+
+            // Create upload
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls.addCallback(this);
+        }
+
+        @Override
+        public void onCanceled(String id) {
+            mOnCanceledCalled = true;
+            mOnCanceledId = id;
+        }
+
+        @Test
+        void testOnCanceledCalledAtStart() throws Exception {
+            start();
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnCanceledParametersCorrectAtStart() throws Exception {
+            start();
+            assertCallbackParameters();
+        }
+
+        private void start() throws Exception {
+            // Start upload
+            mUls.start();
+        }
+
+        @Test
+        void testOnCanceledCalledAtWrite() throws Exception {
+            startAndWrite();
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnCanceledParametersCorrectAtWrite() throws Exception {
+            startAndWrite();
+            assertCallbackParameters();
+        }
+
+        private void startAndWrite() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+
+            // Start upload and write some bytes
+            mUls.start();
+            mUls.write(new byte[4096]);
+        }
+
+        @Test
+        void testOnCanceledCalledAtComplete1() throws Exception {
+            startWriteAndComplete1();
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnCanceledParametersCorrectAtComplete1() throws Exception {
+            startWriteAndComplete1();
+            assertCallbackParameters();
+        }
+
+        private void startWriteAndComplete1() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+
+            // Start upload, write some bytes and complete upload
+            mUls.start();
+            mUls.write(new byte[512]);
+            mUls.complete();
+        }
+
+        @Test
+        void testOnCanceledCalledAtComplete2() throws Exception {
+            startWriteAndComplete2();
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnCanceledParametersCorrectAtComplete2() throws Exception {
+            startWriteAndComplete2();
+            assertCallbackParameters();
+        }
+
+        private void startWriteAndComplete2() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(DATA_PATH + "upload_response.json");
+
+            // Start upload, write some bytes and complete upload
+            mUls.start();
+            mUls.write(new byte[512]);
+            mUls.complete();
+        }
+
+        private void assertCallbackCalled() {
+            assertTrue(mOnCanceledCalled, "Canceled callback was not called!");
+        }
+
+        private void assertCallbackParameters() {
+            assertEquals(UPLOAD_ID, mOnCanceledId);
+        }
+
+    }
+
+    @Nested
+    class CallbackFailedTests extends CallbackTests {
+
+        private boolean mOnFailedCalled = false;
+        private String mOnFailedId;
+        private DracoonException mOnFailedException;
+
+        @BeforeEach
+        void setup() {
+            // Create upload
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls.addCallback(this);
+        }
+
+        @Override
+        public void onFailed(String id, DracoonException e) {
+            mOnFailedCalled = true;
+            mOnFailedId = id;
+            mOnFailedException = e;
+        }
+
+        @Test
+        void testOnFailedCalledAtStart() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+            start(code);
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnFailedParametersCorrectAtStart() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+            start(code);
+            assertCallbackParameters(code);
+        }
+
+        private void start(DracoonApiCode code) throws Exception {
+            // Mock error parsing
+            when(mDracoonErrorParser.parseUploadCreateError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_not_found_response.json");
+
+            // Start upload
+            try {
+                mUls.start();
+            } catch (DracoonApiException e) {
+                // Nothing to do here
+            }
+        }
+
+        @Test
+        void testOnFailedCalledAtWrite() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            startAndWrite(code);
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnFailedParametersCorrectAtWrite() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            startAndWrite(code);
+            assertCallbackParameters(code);
+        }
+
+        private void startAndWrite(DracoonApiCode code) throws Exception {
+            // Mock error parsing
+            when(mDracoonErrorParser.parseUploadError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(DATA_PATH + "upload_failed_response.json");
+
+            // Start upload and write some bytes
+            mUls.start();
+            try {
+                mUls.write(new byte[4096]);
+            } catch (IOException e) {
+                // Nothing to do here
+            }
+        }
+
+        @Test
+        void testOnFailedCalledAtComplete1() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            startWriteAndComplete1(code);
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnFailedParametersCorrectAtComplete1() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            startWriteAndComplete1(code);
+            assertCallbackParameters(code);
+        }
+
+        private void startWriteAndComplete1(DracoonApiCode code) throws Exception {
+            // Mock error parsing
+            when(mDracoonErrorParser.parseUploadError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(DATA_PATH + "upload_failed_response.json");
+
+            // Start upload, write some bytes and complete upload
+            mUls.start();
+            mUls.write(new byte[512]);
+            try {
+                mUls.complete();
+            } catch (IOException e) {
+                // Nothing to do here
+            }
+        }
+
+        @Test
+        void testOnFailedCalledAtComplete2() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            startWriteAndComplete2(code);
+            assertCallbackCalled();
+        }
+
+        @Test
+        void testOnFailedParametersCorrectAtComplete2() throws Exception {
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            startWriteAndComplete2(code);
+            assertCallbackParameters(code);
+        }
+
+        private void startWriteAndComplete2(DracoonApiCode code) throws Exception {
+            // Mock error parsing
+            when(mDracoonErrorParser.parseUploadCompleteError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(DATA_PATH + "upload_response.json");
+            enqueueResponse(DATA_PATH + "complete_upload_not_found_response.json");
+
+            // Start upload, write some bytes and complete upload
+            mUls.start();
+            mUls.write(new byte[512]);
+            try {
+                mUls.complete();
+            } catch (IOException e) {
+                // Nothing to do here
+            }
+        }
+
+        private void assertCallbackCalled() {
+            assertTrue(mOnFailedCalled, "Failed callback was not called!");
+        }
+
+        private void assertCallbackParameters(DracoonApiCode expectedCode) {
+            assertEquals(UPLOAD_ID, mOnFailedId);
+            assertEquals(DracoonApiException.class, mOnFailedException.getClass());
+            DracoonApiException exception = (DracoonApiException) mOnFailedException;
+            assertEquals(expectedCode, exception.getCode());
+        }
+
+    }
 
     // --- Helper methods ---
 
