@@ -1,0 +1,51 @@
+{
+  "mId": 2,
+  "mType": "FILE",
+  "mParentId": 1,
+  "mParentPath": "/Test/",
+  "mName": "file.txt",
+  "mExtension": "txt",
+  "mMediaType": "application/octet-stream",
+  "mSize": 0,
+  "mClassification": "INTERNAL",
+  "mCreatedAt": "Jan 1, 2022, 1:00:00 PM",
+  "mCreatedBy": {
+    "mId": 1,
+    "mUserType": "INTERNAL",
+    "mFirstName": "John",
+    "mLastName": "Doe",
+    "mUsername": "john.doe@dracoon.com",
+    "mEmail": "john.doe@dracoon.com",
+    "mAvatarUuid": "61e8c2e3-4467-4985-b90d-3c0120dd029f"
+  },
+  "mUpdatedAt": "Jan 1, 2022, 1:00:00 PM",
+  "mUpdatedBy": {
+    "mId": 1,
+    "mUserType": "INTERNAL",
+    "mFirstName": "John",
+    "mLastName": "Doe",
+    "mUsername": "john.doe@dracoon.com",
+    "mEmail": "john.doe@dracoon.com",
+    "mAvatarUuid": "61e8c2e3-4467-4985-b90d-3c0120dd029f"
+  },
+  "mOriginalCreatedAt": "Jan 1, 2022, 1:00:00 PM",
+  "mOriginalModifiedAt": "Jan 1, 2022, 1:00:00 PM",
+  "mHasInheritPermissions": false,
+  "mPermissions": {
+    "mManage": true,
+    "mRead": true,
+    "mCreate": true,
+    "mChange": true,
+    "mDelete": true,
+    "mManageDownloadShare": true,
+    "mManageUploadShare": true,
+    "mReadRecycleBin": true,
+    "mRestoreRecycleBin": true,
+    "mDeleteRecycleBin": true
+  },
+  "mIsFavorite": false,
+  "mIsEncrypted": false,
+  "mCntDeletedVersions": 0,
+  "mCntComments": 0,
+  "mBranchVersion": 1646820826517
+}

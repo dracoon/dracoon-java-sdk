@@ -8,11 +8,14 @@ import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.internal.model.ApiErrorResponse;
 import com.dracoon.sdk.model.FileUploadRequest;
+import com.dracoon.sdk.model.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import retrofit2.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -661,7 +664,237 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Complete tests ---
 
-    // TODO
+    @Nested
+    class CompleteDcTests extends DcUploadTest {
+
+        private final String DATA_PATH = "/upload/complete_dc/";
+
+        @Override
+        protected void setup() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+
+            // Create and start upload
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 0, null, null);
+            mUls.start();
+
+            // Drop irrelevant requests
+            dropRequest();
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            // Enqueue responses
+            enqueueCompleteUploadResponses();
+
+            // Complete upload
+            Node node = mUls.complete();
+
+            // Assert data is correct
+            Node expectedNode = readData(Node.class, DATA_PATH + "node.json");
+            assertDeepEquals(expectedNode, node);
+        }
+
+        @Test
+        void testCompleteAllowed() throws Exception {
+            // Enqueue responses
+            enqueueCompleteUploadResponses();
+
+            // Complete upload
+            mUls.complete();
+        }
+
+        @Test
+        void testWriteAfterCompleteNotAllowed() throws Exception {
+            // Enqueue responses
+            enqueueCompleteUploadResponses();
+
+            // Complete upload
+            mUls.complete();
+
+            // Assert that write throws exception
+            assertThrows(IOException.class, () -> mUls.write(new byte[1]));
+        }
+
+        @Test
+        void testCompleteAfterCompleteNotAllowed() throws Exception {
+            // Enqueue responses
+            enqueueCompleteUploadResponses();
+
+            // Complete upload
+            mUls.complete();
+
+            // Assert that complete throws exception
+            assertThrows(IOException.class, () -> mUls.complete());
+        }
+
+        @Test
+        void testCompleteUploadErrorNotFound() {
+            // Mock error parsing
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            when(mDracoonErrorParser.parseUploadCompleteError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "complete_upload_not_found_response.json");
+
+            // Complete upload
+            IOException thrown = assertThrows(IOException.class, mUls::complete);
+
+            // Assert correct error code
+            assertDracoonApiException(thrown, code);
+        }
+
+        private void enqueueCompleteUploadResponses() {
+            enqueueResponse(DATA_PATH + "complete_upload_response.json");
+        }
+
+    }
+
+    @Nested
+    class CompleteS3Tests extends S3UploadTest {
+
+        private final String DATA_PATH = "/upload/complete_s3/";
+
+        @Override
+        protected void setup() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "get_server_settings_response.json");
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+
+            // Create and start upload
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 0, null, null);
+            mUls.start();
+
+            // Drop irrelevant requests
+            dropRequest();
+            dropRequest();
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            // Enqueue responses
+            enqueueUploadResponses();
+            enqueueCompleteUploadResponses();
+            enqueueGetUploadStatusResponses();
+
+            // Complete upload
+            Node node = mUls.complete();
+
+            // Assert data is correct
+            Node expectedNode = readData(Node.class, DATA_PATH + "node.json");
+            assertDeepEquals(expectedNode, node);
+        }
+
+        @Test
+        void testCompleteAllowed() throws Exception {
+            // Enqueue responses
+            enqueueUploadResponses();
+            enqueueCompleteUploadResponses();
+            enqueueGetUploadStatusResponses();
+
+            // Complete upload
+            mUls.complete();
+        }
+
+        @Test
+        void testWriteAfterCompleteNotAllowed() throws Exception {
+            // Enqueue responses
+            enqueueUploadResponses();
+            enqueueCompleteUploadResponses();
+            enqueueGetUploadStatusResponses();
+
+            // Complete upload
+            mUls.complete();
+
+            // Assert that write throws exception
+            assertThrows(IOException.class, () -> mUls.write(new byte[1]));
+        }
+
+        @Test
+        void testCompleteAfterCompleteNotAllowed() throws Exception {
+            // Enqueue responses
+            enqueueUploadResponses();
+            enqueueCompleteUploadResponses();
+            enqueueGetUploadStatusResponses();
+
+            // Complete upload
+            mUls.complete();
+
+            // Assert that complete throws exception
+            assertThrows(IOException.class, () -> mUls.complete());
+        }
+
+        @Test
+        void testCompleteUploadErrorNotFound() {
+            // Mock error parsing
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            when(mDracoonErrorParser.parseS3UploadCompleteError(any())).thenReturn(code);
+
+            // Enqueue responses
+            enqueueUploadResponses();
+            enqueueResponse(DATA_PATH + "complete_upload_not_found_response.json");
+
+            // Complete upload
+            IOException thrown = assertThrows(IOException.class, mUls::complete);
+
+            // Assert correct error code
+            assertDracoonApiException(thrown, code);
+        }
+
+        @Test
+        void testGetUploadStatusErrorNotFound1() {
+            // Mock error parsing
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            when(mDracoonErrorParser.parseS3UploadStatusError(any(Response.class)))
+                    .thenReturn(code);
+
+            // Enqueue responses
+            enqueueUploadResponses();
+            enqueueCompleteUploadResponses();
+            enqueueResponse(DATA_PATH + "get_upload_status_not_found_response_1.json");
+
+            // Complete upload
+            IOException thrown = assertThrows(IOException.class, mUls::complete);
+
+            // Assert correct error code
+            assertDracoonApiException(thrown, code);
+        }
+
+        @Test
+        void testGetUploadStatusErrorNotFound2() {
+            // Mock error parsing
+            DracoonApiCode code = DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            when(mDracoonErrorParser.parseS3UploadStatusError(any(ApiErrorResponse.class)))
+                    .thenReturn(code);
+
+            // Enqueue responses
+            enqueueUploadResponses();
+            enqueueCompleteUploadResponses();
+            enqueueResponse(DATA_PATH + "get_upload_status_not_found_response_2.json");
+
+            // Complete upload
+            IOException thrown = assertThrows(IOException.class, mUls::complete);
+
+            // Assert correct error code
+            assertDracoonApiException(thrown, code);
+        }
+
+        private void enqueueUploadResponses() {
+            enqueueResponse(DATA_PATH + "create_upload_url_response.json");
+            enqueueResponse(DATA_PATH + "upload_response.json");
+        }
+
+        private void enqueueCompleteUploadResponses() {
+            enqueueResponse(DATA_PATH + "complete_upload_response.json");
+        }
+
+        private void enqueueGetUploadStatusResponses() {
+            enqueueResponse(DATA_PATH + "get_upload_status_response.json");
+        }
+
+    }
 
     // --- Close tests ---
 

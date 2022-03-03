@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"status\":\"error\",\"errorDetails\":{\"code\":404,\"errorCode\":-20501}}"
+  }
+}
