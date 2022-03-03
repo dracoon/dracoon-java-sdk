@@ -898,7 +898,39 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Close tests ---
 
-    // TODO
+    @Nested
+    class CloseTests {
+
+        @BeforeEach
+        void setup() {
+            FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
+            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 512L, null, null);
+        }
+
+        @Test
+        void testCloseAllowed() throws Exception {
+            mUls.close();
+        }
+
+        @Test
+        void testWriteAfterCloseNotAllowed() throws Exception {
+            mUls.close();
+            assertThrows(IOException.class, () -> mUls.write(new byte[1]));
+        }
+
+        @Test
+        void testCompleteAfterCloseNotAllowed() throws Exception {
+            mUls.close();
+            assertThrows(IOException.class, () -> mUls.complete());
+        }
+
+        @Test
+        void testCloseAfterCloseNotAllowed() throws Exception {
+            mUls.close();
+            assertThrows(IOException.class, () -> mUls.close());
+        }
+
+    }
 
     // --- Callback tests ---
 
