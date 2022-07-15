@@ -52,6 +52,8 @@
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
+        <maven-dependency-check-plugin.version>7.1.1</maven-dependency-check-plugin.version>
+        <maven-sonar-plugin.version>3.9.1.2184</maven-sonar-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M2</maven-deploy-plugin.version>
 
         <!-- dependencies versions -->
@@ -63,6 +65,18 @@
         <junit.version>5.8.2</junit.version>
         <mockito.version>4.3.1</mockito.version>
         <mockwebserver.version>3.14.9</mockwebserver.version>
+
+        <!-- sonar -->
+        <sonar.host.url>https://${sonar.domain}</sonar.host.url>
+        <sonar.projectName>${project.name}</sonar.projectName>
+        <sonar.projectVersion>${project.version}</sonar.projectVersion>
+        <sonar.scm.provider>git</sonar.scm.provider>
+        <sonar.scm.revision>unknown</sonar.scm.revision> <!-- Overwritten by GitLab pipeline -->
+        <sonar.branch.name>unknown</sonar.branch.name> <!-- Overwritten by GitLab pipeline -->
+        <sonar.sources>src/main/java/</sonar.sources>
+        <sonar.tests>src/test/java/</sonar.tests>
+        <sonar.dependencyCheck.htmlReportPath>target/dependency-check-reports/dependency-check-report.html</sonar.dependencyCheck.htmlReportPath>
+        <sonar.dependencyCheck.jsonReportPath>target/dependency-check-reports/dependency-check-report.json</sonar.dependencyCheck.jsonReportPath>
     </properties>
 
     <dependencies>
@@ -150,6 +164,16 @@
                     <version>${maven-jacoco-plugin.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${maven-dependency-check-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${maven-sonar-plugin.version}</version>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
@@ -212,6 +236,21 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <outputDirectory>target/dependency-check-reports</outputDirectory>
+                    <formats>
+                        <format>HTML</format>
+                        <format>JSON</format>
+                    </formats>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
