@@ -40,10 +40,14 @@ unit test:
     - build
   script:
     - mvn test
+    - mvn jacoco:report
+    - ./print_coverage.sh target/site/jacoco/jacoco.csv
+  coverage: '/Instructions covered: \d+.\d+%/'
   artifacts:
     when: always
     paths:
       - target/surefire-reports
+      - target/site/jacoco
     reports:
       junit: target/surefire-reports/TEST-*.xml
 
