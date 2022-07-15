@@ -4,17 +4,59 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 public class TestUtils {
 
     private static final int BUFFER_SIZE = 1024;
 
-    private static final Gson sGson = new GsonBuilder().disableHtmlEscaping().create();
+    private static class DateTypeAdapter extends TypeAdapter<Date> {
+        @Override
+        public void write(JsonWriter out, Date date) throws IOException {
+            String value = null;
+            if (date != null) {
+                value = createDateFormat().format(date);
+            }
+            out.value(value);
+        }
+
+        @Override
+        public Date read(JsonReader in) throws IOException {
+            String value = in.nextString();
+            if (value == null) {
+                return null;
+            }
+
+            try {
+                return createDateFormat().parse(value);
+            } catch (ParseException e) {
+                throw new IOException(e);
+            }
+        }
+
+        private static DateFormat createDateFormat() {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return df;
+        }
+    }
+
+    private static final Gson sGson = new GsonBuilder()
+                .disableHtmlEscaping()
+                .registerTypeAdapter(Date.class, new DateTypeAdapter())
+                .create();
 
     private TestUtils() {
 

@@ -8,7 +8,7 @@
   "mMediaType": "application/octet-stream",
   "mSize": 0,
   "mClassification": "INTERNAL",
-  "mCreatedAt": "Jan 1, 2022, 1:00:00 PM",
+  "mCreatedAt": "2022-01-01T12:00:00Z",
   "mCreatedBy": {
     "mId": 1,
     "mUserType": "INTERNAL",
@@ -18,7 +18,7 @@
     "mEmail": "john.doe@dracoon.com",
     "mAvatarUuid": "61e8c2e3-4467-4985-b90d-3c0120dd029f"
   },
-  "mUpdatedAt": "Jan 1, 2022, 1:00:00 PM",
+  "mUpdatedAt": "2022-01-01T12:00:00Z",
   "mUpdatedBy": {
     "mId": 1,
     "mUserType": "INTERNAL",
@@ -28,8 +28,8 @@
     "mEmail": "john.doe@dracoon.com",
     "mAvatarUuid": "61e8c2e3-4467-4985-b90d-3c0120dd029f"
   },
-  "mOriginalCreatedAt": "Jan 1, 2022, 1:00:00 PM",
-  "mOriginalModifiedAt": "Jan 1, 2022, 1:00:00 PM",
+  "mOriginalCreatedAt": "2022-01-01T12:00:00Z",
+  "mOriginalModifiedAt": "2022-01-01T12:00:00Z",
   "mHasInheritPermissions": false,
   "mPermissions": {
     "mManage": true,

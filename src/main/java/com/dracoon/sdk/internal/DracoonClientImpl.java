@@ -279,6 +279,7 @@ public class DracoonClientImpl extends DracoonClient {
                 .build();
 
         Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
                 .registerTypeAdapter(Void.class, new TypeAdapter<Void>() {
                     @Override
                     public void write(JsonWriter out, Void value) {

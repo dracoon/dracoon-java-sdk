@@ -10,7 +10,9 @@ public abstract class BaseTest {
     private static final String DATA_DIR = "data";
     private static final String FILES_DIR = "files";
 
-    private static final Gson sGson = new GsonBuilder().disableHtmlEscaping().create();
+    private static final Gson sGson = new GsonBuilder()
+            .disableHtmlEscaping()
+            .create();
 
     protected static byte[] readFile(String fileName) {
         return TestUtils.readFile(FILES_DIR + fileName);

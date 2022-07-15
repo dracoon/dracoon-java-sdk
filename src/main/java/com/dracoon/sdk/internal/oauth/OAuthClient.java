@@ -83,7 +83,9 @@ public class OAuthClient {
     }
 
     private void initOAuthService() {
-        Gson gson = new GsonBuilder().create();
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
+                .create();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(mServerUrl.toString())
