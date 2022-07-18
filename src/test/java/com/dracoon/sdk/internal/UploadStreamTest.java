@@ -97,12 +97,21 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         }
 
         @Test
-        void testWriteBeforeStartedNotAllowed() {
+        void testStartAllowed() throws Exception { // NOSONAR: Test doesn't need assert statement
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "create_upload_response.json");
+
+            // Start upload
+            mUls.start();
+        }
+
+        @Test
+        void testWriteBeforeStartNotAllowed() {
             assertThrows(IOException.class, () -> mUls.write(new byte[1]));
         }
 
         @Test
-        void testCompleteBeforeStartedNotAllowed() {
+        void testCompleteBeforeStartNotAllowed() {
             assertThrows(IOException.class, () -> mUls.complete());
         }
 
@@ -700,7 +709,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         }
 
         @Test
-        void testCompleteAllowed() throws Exception {
+        void testCompleteAllowed() throws Exception { // NOSONAR: Test doesn't need assert statement
             // Enqueue responses
             enqueueCompleteUploadResponses();
 
@@ -791,7 +800,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         }
 
         @Test
-        void testCompleteAllowed() throws Exception {
+        void testCompleteAllowed() throws Exception { // NOSONAR: Test doesn't need assert statement
             // Enqueue responses
             enqueueUploadResponses();
             enqueueCompleteUploadResponses();
@@ -911,7 +920,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         }
 
         @Test
-        void testCloseAllowed() throws Exception {
+        void testCloseAllowed() throws Exception { // NOSONAR: Test doesn't need assert statement
             mUls.close();
         }
 
@@ -1047,7 +1056,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
             // Start upload and write some bytes
             mUls.start();
-            Thread.sleep(100L);
+            Thread.sleep(100L); // NOSONAR: Sleep is needed to receive running callbacks (every 100ms)
             mUls.write(new byte[2048]);
             mUls.write(new byte[2048]);
         }

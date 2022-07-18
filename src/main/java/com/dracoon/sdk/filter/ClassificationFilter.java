@@ -15,7 +15,7 @@ public class ClassificationFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link ClassificationFilter}.
      */
-    public static class Builder extends Filter.Builder<Long> {
+    public static class Builder extends Filter.Builder<Long, String> {
 
         private final ClassificationFilter mFilter;
 
@@ -30,7 +30,7 @@ public class ClassificationFilter extends Filter<String> {
         @Override
         public Concater eq(Long value) {
             validateRestrictionValue(value);
-            mFilter.addValue(EQ, Long.toString(value));
+            mFilter.addValue(OPERATOR_EQ, Long.toString(value));
             return new Concater(mFilter);
         }
 
@@ -39,7 +39,7 @@ public class ClassificationFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<Long, String> {
 
         private final ClassificationFilter mFilter;
 

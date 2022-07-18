@@ -26,10 +26,6 @@ public class HttpHelper {
 
     private Executor mExecutor;
 
-    public HttpHelper() {
-
-    }
-
     public void setLog(Log log) {
         mLog = log != null ? log : new NullLog();
     }
@@ -55,19 +51,20 @@ public class HttpHelper {
 
     // --- Methods for REST calls ---
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // Cast to Response<T> is safe
     public <T> Response<T> executeRequest(Call<T> call) throws DracoonNetIOException,
             DracoonApiException {
         try {
             return (Response<T>) executeRequestInternally(call);
-        } catch (InterruptedException e) {
+        // SONAR: Rethrowing exception might cause unknown problems
+        } catch (InterruptedException e) { // NOSONAR
             String errorText = "Server communication was interrupted.";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOInterruptedException(errorText, e);
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // Cast to Response<T> is safe
     public <T> Response<T> executeRequest(Call<T> call, Thread thread)
             throws DracoonNetIOException, DracoonApiException, InterruptedException {
         try {
@@ -86,7 +83,8 @@ public class HttpHelper {
             DracoonApiException {
         try {
             return (okhttp3.Response) executeRequestInternally(call);
-        } catch (InterruptedException e) {
+        // SONAR: Rethrowing exception might cause unknown problems
+        } catch (InterruptedException e) { // NOSONAR
             String errorText = "Server communication was interrupted.";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOInterruptedException(errorText, e);
@@ -232,10 +230,6 @@ public class HttpHelper {
     }
 
     private class NetworkExecutor extends Executor {
-
-        public NetworkExecutor() {
-
-        }
 
         @Override
         public Object execute(Object call) throws DracoonNetIOException, InterceptedIOException,

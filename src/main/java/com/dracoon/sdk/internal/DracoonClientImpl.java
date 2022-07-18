@@ -283,7 +283,7 @@ public class DracoonClientImpl extends DracoonClient {
                 .registerTypeAdapter(Void.class, new TypeAdapter<Void>() {
                     @Override
                     public void write(JsonWriter out, Void value) {
-
+                        // SONAR: Empty method body is intentional
                     }
 
                     @Override

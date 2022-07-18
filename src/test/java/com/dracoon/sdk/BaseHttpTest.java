@@ -58,17 +58,23 @@ public abstract class BaseHttpTest extends BaseTest {
 
     @BeforeEach
     protected void setup() throws Exception {
+        // Start Mock Web Server
         mMockWebServer = new MockWebServer();
         mMockWebServer.start();
 
+        // Get hostname and port
         mServerHostName = mMockWebServer.getHostName();
         mServerPort = mMockWebServer.getPort();
 
+        // Build server URL which is used in tests
         mServerUrl = new URL(buildServerUrl(HTTP_PROTOCOL, mServerHostName, mServerPort));
     }
 
     @AfterEach
     protected void tearDown() throws IOException {
+        // Clear interrupted flag to allow showdown of Mock Web Server
+        Thread.interrupted();
+        // Shutdown Mock Web Server
         mMockWebServer.shutdown();
     }
 

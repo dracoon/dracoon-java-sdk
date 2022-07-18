@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.Log;
 
+@SuppressWarnings("squid:S1186") // SONAR: The methods are intentionally-blank overrides
 public class NullLog implements Log {
 
     @Override

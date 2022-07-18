@@ -136,7 +136,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mClient.assertApiVersionSupported();
 
         NodeValidator.validateParentNodeId(parentNodeId);
-        NodeValidator.validateRange(offset, limit, true);
+        BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
         Call<ApiNodeList> call = mService.getNodes(parentNodeId, 0, filter, null, offset, limit);
@@ -532,12 +532,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         FileUploadCallback internalCallback = new FileUploadCallback() {
             @Override
             public void onStarted(String id) {
-
+                // SONAR: Empty method body is intentional
             }
 
             @Override
             public void onRunning(String id, long bytesSend, long bytesTotal) {
-
+                // SONAR: Empty method body is intentional
             }
 
             @Override
@@ -593,8 +593,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
         PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
-        UploadStream uploadStream = new UploadStream(mClient, id, request, length, userPublicKey,
-                plainFileKey);
+        // SONAR: No try-with-resources or close is needed here
+        UploadStream uploadStream = new UploadStream(mClient, id, request, length, //NOSONAR
+                userPublicKey, plainFileKey);
 
         if (callback != null) {
             uploadStream.addCallback(callback);
@@ -701,12 +702,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
             @Override
             public void onStarted(String id) {
-
+                // SONAR: Empty method body is intentional
             }
 
             @Override
             public void onRunning(String id, long bytesSend, long bytesTotal) {
-
+                // SONAR: Empty method body is intentional
             }
 
             @Override
@@ -760,7 +761,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
-        DownloadStream downloadStream = new DownloadStream(mClient, id, nodeId, plainFileKey);
+        // SONAR: No try-with-resources or close is needed here
+        DownloadStream downloadStream = new DownloadStream(mClient, id, nodeId, //NOSONAR
+                plainFileKey);
 
         if (callback != null) {
             downloadStream.addCallback(callback);
@@ -823,7 +826,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mClient.assertApiVersionSupported();
 
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
-        NodeValidator.validateRange(offset, limit, true);
+        BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
         Call<ApiNodeList> call = mService.searchNodes(searchString, parentNodeId, -1, filter, null,
@@ -1065,9 +1068,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         try {
             return Crypto.decryptFileKey(encFileKeyFileKey, userPrivateKey, userPrivateKeyPassword);
         } catch (CryptoException e) {
-            String nodeErrorText = nodeId != null ? String.format("for node '%d' ", nodeId) : "";
-            String errorText = String.format("Decryption of file key " + nodeErrorText +
-                    "failed! %s", nodeId, e.getMessage());
+            String errorText;
+            if (nodeId != null) {
+                errorText = String.format("Decryption of file key for node '%d' failed! %s", nodeId,
+                        e.getMessage());
+            } else {
+                errorText = String.format("Decryption of file key failed! %s", e.getMessage());
+            }
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
@@ -1079,9 +1086,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         try {
             return Crypto.encryptFileKey(plainFileKey, userPublicKey);
         } catch (CryptoException e) {
-            String nodeErrorText = nodeId != null ? String.format("for node '%d' ", nodeId) : "";
-            String errorText = String.format("Encryption of file key " + nodeErrorText +
-                    "failed! %s", nodeId, e.getMessage());
+            String errorText;
+            if (nodeId != null) {
+                errorText = String.format("Encryption of file key for node '%d' failed! %s", nodeId,
+                        e.getMessage());
+            } else {
+                errorText = String.format("Encryption of file key failed! %s", e.getMessage());
+            }
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
@@ -1173,7 +1184,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mClient.assertApiVersionSupported();
 
         NodeValidator.validateNodeId(nodeId);
-        NodeValidator.validateRange(offset, limit, true);
+        BaseValidator.validateRange(offset, limit, true);
 
         Call<ApiNodeCommentList> call = mService.getNodeComments(nodeId, offset, limit);
         Response<ApiNodeCommentList> response = mHttpHelper.executeRequest(call);

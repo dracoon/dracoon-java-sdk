@@ -1212,7 +1212,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         }
 
         @Test
-        void testCloseAllowed() throws Exception {
+        void testCloseAllowed() throws Exception { // NOSONAR: Test doesn't need assert statement
             mDls.close();
         }
 
@@ -1359,7 +1359,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Start download and read some bytes
             mDls.start();
-            Thread.sleep(100L);
+            Thread.sleep(100L); // NOSONAR: Sleep is needed to receive running callbacks (every 100ms)
             readBytes(mDls, 512L);
         }
 

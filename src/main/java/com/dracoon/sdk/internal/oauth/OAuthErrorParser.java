@@ -27,10 +27,6 @@ public class OAuthErrorParser {
 
     private Log mLog = new NullLog();
 
-    public OAuthErrorParser() {
-
-    }
-
     public void setLog(Log log) {
         mLog = log != null ? log : new NullLog();
     }

@@ -18,6 +18,7 @@ import com.dracoon.sdk.internal.model.ApiDownloadShare;
 import com.dracoon.sdk.internal.model.ApiDownloadShareList;
 import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
+import com.dracoon.sdk.internal.validator.BaseValidator;
 import com.dracoon.sdk.internal.validator.ShareValidator;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
@@ -122,7 +123,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        ShareValidator.validateRange(offset, limit, true);
+        BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
         Call<ApiDownloadShareList> call = mService.getDownloadShares(filter, offset, limit);
@@ -145,7 +146,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        ShareValidator.validateShareId(shareId);
+        BaseValidator.validateShareId(shareId);
 
         Call<ApiDownloadShare> call = mService.getDownloadShareQR(shareId);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
@@ -229,7 +230,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        ShareValidator.validateRange(offset, limit, true);
+        BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
         Call<ApiUploadShareList> call = mService.getUploadShares(filter, offset, limit);
@@ -252,7 +253,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        ShareValidator.validateShareId(shareId);
+        BaseValidator.validateShareId(shareId);
 
         Call<ApiUploadShare> call = mService.getUploadShareQR(shareId);
         Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);

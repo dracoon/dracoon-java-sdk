@@ -21,15 +21,25 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OAuthHelperTest {
 
+    private static URL sDefaultServerUrl;
+
+    static {
+        try {
+            sDefaultServerUrl = new URL("https://dracoon.team");
+        } catch (MalformedURLException e) {
+            // Nothing to do here
+        }
+    }
+
     // --- Tests for authorization URL creation ---
 
     @Nested
     class CreateAuthorizationUrlTests {
 
         @Test
-        void testAuthorizationUrlCorrect() throws MalformedURLException {
-            String url = OAuthHelper.createAuthorizationUrl(new URL("https://dracoon.team"),
-                    "prgj5uzb", "b0fQ8iGQUONL4BHt");
+        void testAuthorizationUrlCorrect() {
+            String url = OAuthHelper.createAuthorizationUrl(sDefaultServerUrl, "prgj5uzb",
+                    "b0fQ8iGQUONL4BHt");
 
             assertEquals("https://dracoon.team/oauth/authorize?"
                     + "response_type=code&"
@@ -49,14 +59,14 @@ class OAuthHelperTest {
         @NullAndEmptySource
         void testClientIdValidation(String clientId) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    new URL("https://dracoon.team"), clientId, "b0fQ8iGQ"));
+                    sDefaultServerUrl, clientId, "b0fQ8iGQ"));
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         void testStateValidation(String state) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    new URL("https://dracoon.team"), "prgj", state));
+                    sDefaultServerUrl, "prgj", state));
         }
 
     }
@@ -65,9 +75,9 @@ class OAuthHelperTest {
     class CreateAuthorizationUrlWithUserAgentInfoTests {
 
         @Test
-        void testAuthorizationUrlCorrect() throws MalformedURLException {
-            String url = OAuthHelper.createAuthorizationUrl(new URL("https://dracoon.team"),
-                    "prgj5uzb", "b0fQ8iGQUONL4BHt", "dGVzdA==");
+        void testAuthorizationUrlCorrect() {
+            String url = OAuthHelper.createAuthorizationUrl(sDefaultServerUrl, "prgj5uzb",
+                    "b0fQ8iGQUONL4BHt", "dGVzdA==");
 
             assertEquals("https://dracoon.team/oauth/authorize?"
                     + "response_type=code&"
@@ -88,21 +98,21 @@ class OAuthHelperTest {
         @NullAndEmptySource
         void testClientIdValidation(String clientId) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    new URL("https://dracoon.team"), clientId, "b0fQ8iGQ", "dGVzdA=="));
+                    sDefaultServerUrl, clientId, "b0fQ8iGQ", "dGVzdA=="));
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         void testStateValidation(String state) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    new URL("https://dracoon.team"), "prgj", state, "dGVzdA=="));
+                    sDefaultServerUrl, "prgj", state, "dGVzdA=="));
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         void testUserAgentInfoValidation(String userAgentInfo) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    new URL("https://dracoon.team"), "prgj", "b0fQ8iGQ", userAgentInfo));
+                    sDefaultServerUrl, "prgj", "b0fQ8iGQ", userAgentInfo));
         }
 
     }

@@ -17,7 +17,7 @@ public class NodeTypeFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link NodeTypeFilter}.
      */
-    public static class Builder extends Filter.Builder<NodeType> {
+    public static class Builder extends Filter.Builder<NodeType, String> {
 
         private final NodeTypeFilter mFilter;
 
@@ -32,7 +32,7 @@ public class NodeTypeFilter extends Filter<String> {
         @Override
         public Concater eq(NodeType value) {
             validateRestrictionValue(value);
-            mFilter.addValue(EQ, value.getValue());
+            mFilter.addValue(OPERATOR_EQ, value.getValue());
             return new Concater(mFilter);
         }
 
@@ -41,7 +41,7 @@ public class NodeTypeFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<NodeType, String> {
 
         private final NodeTypeFilter mFilter;
 

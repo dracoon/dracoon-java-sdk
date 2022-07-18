@@ -15,7 +15,7 @@ public class NodeIdFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link NodeIdFilter}.
      */
-    public static class Builder extends Filter.Builder<Long> {
+    public static class Builder extends Filter.Builder<Long, String> {
 
         private final NodeIdFilter mFilter;
 
@@ -26,7 +26,7 @@ public class NodeIdFilter extends Filter<String> {
         @Override
         public Concater eq(Long value) {
             validateRestrictionValue(value);
-            mFilter.addValue(EQ, Long.toString(value));
+            mFilter.addValue(OPERATOR_EQ, Long.toString(value));
             return new Concater(mFilter);
         }
 
@@ -35,7 +35,7 @@ public class NodeIdFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<Long, String> {
 
         private final NodeIdFilter mFilter;
 

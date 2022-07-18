@@ -11,7 +11,12 @@ import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-@SuppressWarnings({"Duplicates", "rawtypes"})
+@SuppressWarnings({"Duplicates", // Duplicate code in error parsing methods is intentional
+        "rawtypes", // Type for Response is dropped to be less verbose
+        "squid:S1301", // SONAR: Switch statements are used for better readability
+        "squid:S3776", // SONAR: Complexity of error parsing methods is accepted
+        "squid:S4144" // SONAR: Duplicate code in error parsing methods is intentional
+})
 public class DracoonErrorParser {
 
     private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
@@ -26,10 +31,6 @@ public class DracoonErrorParser {
     }
 
     private Log mLog = new NullLog();
-
-    public DracoonErrorParser() {
-
-    }
 
     public void setLog(Log log) {
         mLog = log != null ? log : new NullLog();
@@ -959,7 +960,7 @@ public class DracoonErrorParser {
     }
 
     private Error getError(Response response) {
-        mLog.d(LOG_TAG, "Server API error: " + response.code());
+        mLog.d(LOG_TAG, "Server API error: " + response.code()); // NOSONAR: Won't create a constant
 
         Error ei = new Error();
         ei.statusCode = response.code();
@@ -980,7 +981,7 @@ public class DracoonErrorParser {
         MediaType contentType = responseBody.contentType();
 
         if (contentType == null) {
-            mLog.d(LOG_TAG, "Invalid server API error response!");
+            mLog.d(LOG_TAG, "Invalid server API error response!"); // NOSONAR: Won't create a constant
             try {
                 mLog.d(LOG_TAG, responseBody.string());
             } catch (IOException e) {
@@ -1005,7 +1006,7 @@ public class DracoonErrorParser {
             // Nothing to do here
         }
         if (errorResponse != null) {
-            mLog.d(LOG_TAG, "Server API error response:");
+            mLog.d(LOG_TAG, "Server API error response:"); // NOSONAR: Won't create a constant
             mLog.d(LOG_TAG, errorResponse.toString());
         }
 
@@ -1030,7 +1031,7 @@ public class DracoonErrorParser {
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
         int statusCode = response.code();
 
-        mLog.d(LOG_TAG, "Server API error: " + statusCode);
+        mLog.d(LOG_TAG, "Server API error: " + statusCode); // NOSONAR: Won't create a constant
 
         switch (HttpStatus.valueOf(statusCode)) {
             case FORBIDDEN:
@@ -1051,7 +1052,7 @@ public class DracoonErrorParser {
     public DracoonApiCode parseAvatarDownloadError(okhttp3.Response response) {
         int statusCode = response.code();
 
-        mLog.d(LOG_TAG, "Server API error: " + statusCode);
+        mLog.d(LOG_TAG, "Server API error: " + statusCode); // NOSONAR: Won't create a constant
 
         switch (HttpStatus.valueOf(statusCode)) {
             case NOT_FOUND:

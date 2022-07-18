@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * The base class for all filters.
  */
-public abstract class Filter<T> {
+public abstract class Filter<TF> {
 
     private static final String MV_SEPARATOR = ":";
     private static final String MR_SEPARATOR = "|";
@@ -15,14 +15,14 @@ public abstract class Filter<T> {
     private final Type mType;
 
     private final List<String> mOperators = new ArrayList<>();
-    private final List<T> mValues = new ArrayList<>();
+    private final List<TF> mValues = new ArrayList<>();
 
     Filter(String fieldName, Type type) {
         mFieldName = fieldName;
         mType = type;
     }
 
-    void addValue(String operator, T value) {
+    void addValue(String operator, TF value) {
         mOperators.add(operator);
         mValues.add(value);
     }
@@ -93,15 +93,13 @@ public abstract class Filter<T> {
 
     /**
      * The base class for all filter builders.
-     *
-     * @param <T> The type of the filter builder.
      */
-    protected static abstract class Builder<T> {
+    protected static abstract class Builder<T1, T2> {
 
-        protected static final String EQ = "eq";
-        protected static final String CN = "cn";
-        protected static final String GE = "ge";
-        protected static final String LE = "le";
+        protected static final String OPERATOR_EQ = "eq";
+        protected static final String OPERATOR_CN = "cn";
+        protected static final String OPERATOR_GE = "ge";
+        protected static final String OPERATOR_LE = "le";
 
         /**
          * Adds an "equals" restriction to the filter.
@@ -110,7 +108,7 @@ public abstract class Filter<T> {
          *
          * @return a new {@link Concater}
          */
-        protected Concater eq(T value) {
+        protected Concater<T1, T2> eq(T1 value) {
             throw new UnsupportedOperationException();
         }
 
@@ -121,7 +119,7 @@ public abstract class Filter<T> {
          *
          * @return a new {@link Concater}
          */
-        protected Concater cn(T value) {
+        protected Concater<T1, T2> cn(T1 value) {
             throw new UnsupportedOperationException();
         }
 
@@ -132,7 +130,7 @@ public abstract class Filter<T> {
          *
          * @return a new {@link Concater}
          */
-        protected Concater ge(T value) {
+        protected Concater<T1, T2> ge(T1 value) {
             throw new UnsupportedOperationException();
         }
 
@@ -143,7 +141,7 @@ public abstract class Filter<T> {
          *
          * @return a new {@link Concater}
          */
-        protected Concater le(T value) {
+        protected Concater<T1, T2> le(T1 value) {
             throw new UnsupportedOperationException();
         }
 
@@ -152,7 +150,7 @@ public abstract class Filter<T> {
          *
          * @param value The restriction value.
          */
-        protected void validateRestrictionValue(T value) {
+        protected void validateRestrictionValue(T1 value) {
             if (value == null) {
                 throw new IllegalArgumentException("Restriction value cannot be null.");
             }
@@ -165,14 +163,14 @@ public abstract class Filter<T> {
      * <br>
      * A concater can be used to supply further filter values and/or build the corresponding filter.
      */
-    protected static abstract class Concater {
+    protected static abstract class Concater<T1, T2> {
 
         /**
          * Allows concatenation with "and" operator.
          *
          * @return a new builder which can be used to supply further filter values
          */
-        protected Builder<?> and() {
+        protected Builder<T1, T2> and() {
             throw new UnsupportedOperationException();
         }
 
@@ -181,7 +179,7 @@ public abstract class Filter<T> {
          *
          * @return a new builder which can be used to supply further filter values
          */
-        protected Builder<?> or() {
+        protected Builder<T1, T2> or() {
             throw new UnsupportedOperationException();
         }
 
@@ -190,7 +188,7 @@ public abstract class Filter<T> {
          *
          * @return a new {@link Filter} instance
          */
-        public abstract Filter<?> build();
+        public abstract Filter<T2> build();
 
     }
 

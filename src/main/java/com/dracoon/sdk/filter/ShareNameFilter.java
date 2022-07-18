@@ -15,7 +15,7 @@ public class ShareNameFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link ShareNameFilter}.
      */
-    public static class Builder extends Filter.Builder<String> {
+    public static class Builder extends Filter.Builder<String, String> {
 
         private final ShareNameFilter mFilter;
 
@@ -26,7 +26,7 @@ public class ShareNameFilter extends Filter<String> {
         @Override
         public Concater cn(String value) {
             validateRestrictionValue(value);
-            mFilter.addValue(CN, value);
+            mFilter.addValue(OPERATOR_CN, value);
             return new Concater(mFilter);
         }
 
@@ -35,7 +35,7 @@ public class ShareNameFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<String, String> {
 
         private final ShareNameFilter mFilter;
 
@@ -49,4 +49,5 @@ public class ShareNameFilter extends Filter<String> {
         }
 
     }
+
 }
