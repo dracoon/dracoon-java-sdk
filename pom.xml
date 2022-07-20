@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -55,6 +55,8 @@
         <maven-dependency-check-plugin.version>7.1.1</maven-dependency-check-plugin.version>
         <maven-sonar-plugin.version>3.9.1.2184</maven-sonar-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M2</maven-deploy-plugin.version>
+        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+        <maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
 
         <!-- dependencies versions -->
         <dracoon-crypto-sdk.version>2.0.2</dracoon-crypto-sdk.version>
@@ -189,6 +191,16 @@
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>${maven-nexus-staging-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -266,19 +278,6 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>dracoon-artifactory-release</id>
-            <name>DRACOON Artifactory Releases</name>
-            <url>https://${artifactory.domain}/artifactory/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>dracoon-artifactory-snapshot</id>
-            <name>DRACOON Artifactory Snapshots</name>
-            <url>https://${artifactory.domain}/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <profiles>
         <profile>
             <id>development</id>
@@ -293,6 +292,18 @@
                     </plugin>
                 </plugins>
             </build>
+            <distributionManagement>
+                <repository>
+                    <id>dracoon-artifactory-release</id>
+                    <name>DRACOON Artifactory Releases</name>
+                    <url>https://${artifactory.domain}/artifactory/libs-release-local</url>
+                </repository>
+                <snapshotRepository>
+                    <id>dracoon-artifactory-snapshot</id>
+                    <name>DRACOON Artifactory Snapshots</name>
+                    <url>https://${artifactory.domain}/artifactory/libs-snapshot-local</url>
+                </snapshotRepository>
+            </distributionManagement>
         </profile>
         <profile>
             <id>release</id>
@@ -307,6 +318,61 @@
                     </plugin>
                 </plugins>
             </build>
+            <distributionManagement>
+                <repository>
+                    <id>dracoon-artifactory-release</id>
+                    <name>DRACOON Artifactory Releases</name>
+                    <url>https://${artifactory.domain}/artifactory/libs-release-local</url>
+                </repository>
+                <snapshotRepository>
+                    <id>dracoon-artifactory-snapshot</id>
+                    <name>DRACOON Artifactory Snapshots</name>
+                    <url>https://${artifactory.domain}/artifactory/libs-snapshot-local</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>rollout</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <interactive>false</interactive>
+                            <gpgArguments>
+                                <arg>--no-permission-warning</arg>
+                                <arg>--batch</arg>
+                            </gpgArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <repository>
+                    <id>ossrh</id>
+                    <name>Sonatype Nexus</name>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
         </profile>
     </profiles>
 
