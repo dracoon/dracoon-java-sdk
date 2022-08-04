@@ -297,8 +297,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case FORBIDDEN:
                 if (error.errorCode == -70020)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
@@ -454,8 +452,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case FORBIDDEN:
                 String avHeader = response.headers().get(HEADER_X_FORBIDDEN);
                 if (avHeader != null && avHeader.equals("403"))
@@ -489,8 +485,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
                 if (error.errorCode == -20501)
                     return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
@@ -512,8 +506,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
                 if (error.errorCode == -20501)
                     return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
@@ -544,8 +536,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
                 if (error.errorCode == -20501)
                     return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
@@ -574,8 +564,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
                 if (error.errorCode == -20501)
                     return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
@@ -645,23 +633,15 @@ public class DracoonErrorParser {
 
     public DracoonApiCode parseDownloadSharesGetError(Response response) {
         Error error = getError(response);
-
-        switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
-            default:
-                return parseStandardError(error.statusCode, error.errorCode);
-        }
+        return parseStandardError(error.statusCode, error.errorCode);
     }
 
     public DracoonApiCode parseDownloadShareDeleteError(Response response) {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -41000)
+                if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
                 else if (error.errorCode == -60000)
                     return DracoonApiCode.SERVER_DL_SHARE_NOT_FOUND;
@@ -717,21 +697,13 @@ public class DracoonErrorParser {
 
     public DracoonApiCode parseUploadSharesGetError(Response response) {
         Error error = getError(response);
-
-        switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
-            default:
-                return parseStandardError(error.statusCode, error.errorCode);
-        }
+        return parseStandardError(error.statusCode, error.errorCode);
     }
 
     public DracoonApiCode parseUploadShareDeleteError(Response response) {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
@@ -962,15 +934,15 @@ public class DracoonErrorParser {
     private Error getError(Response response) {
         mLog.d(LOG_TAG, "Server API error: " + response.code()); // NOSONAR: Won't create a constant
 
-        Error ei = new Error();
-        ei.statusCode = response.code();
+        Error error = new Error();
+        error.statusCode = response.code();
 
         ApiErrorResponse errorResponse = getApiErrorResponse(response.errorBody());
         if (errorResponse != null && errorResponse.errorCode != null) {
-            ei.errorCode = errorResponse.errorCode;
+            error.errorCode = errorResponse.errorCode;
         }
 
-        return ei;
+        return error;
     }
 
     private ApiErrorResponse getApiErrorResponse(ResponseBody responseBody) {
@@ -1088,8 +1060,6 @@ public class DracoonErrorParser {
         int errorCode = errorResponse.errorCode != null ? errorResponse.errorCode : 0;
 
         switch (HttpStatus.valueOf(statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(errorCode);
             case NOT_FOUND:
                 if (errorCode == -20501)
                     return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
