@@ -15,7 +15,7 @@ public class NodeNameFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link NodeNameFilter}.
      */
-    public static class Builder extends Filter.Builder<String> {
+    public static class Builder extends Filter.Builder<String, String> {
 
         private final NodeNameFilter mFilter;
 
@@ -26,14 +26,14 @@ public class NodeNameFilter extends Filter<String> {
         @Override
         public Concater cn(String value) {
             validateRestrictionValue(value);
-            mFilter.addValue(CN, value);
+            mFilter.addValue(OPERATOR_CN, value);
             return new Concater(mFilter);
         }
 
         @Override
         public Concater eq(String value) {
             validateRestrictionValue(value);
-            mFilter.addValue(EQ, value);
+            mFilter.addValue(OPERATOR_EQ, value);
             return new Concater(mFilter);
         }
 
@@ -42,7 +42,7 @@ public class NodeNameFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<String, String> {
 
         private final NodeNameFilter mFilter;
 

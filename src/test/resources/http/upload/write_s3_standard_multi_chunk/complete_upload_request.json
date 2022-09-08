@@ -1,0 +1,14 @@
+{
+  "method": "put",
+  "url": "[SERVER_URL]/api/v4/nodes/files/uploads/JmrPTtmxlIG4D938/s3",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"parts\":[{\"partNumber\":1,\"partEtag\":\"3c8b5395757553139ba746a3e0a9df82\"},{\"partNumber\":2,\"partEtag\":\"445804a85d9ba038434cb1001cc5cb9d\"}],\"resolutionStrategy\":\"autorename\",\"fileName\":\"file.txt\"}"
+  }
+}

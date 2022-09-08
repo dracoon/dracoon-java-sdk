@@ -1,0 +1,22 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/oauth/revoke",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Basic cVBZbHVVM1M6cm1PVTBHVkw="
+    },
+    {
+      "name": "content-type",
+      "value": "application/x-www-form-urlencoded"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "token_type_hint=refresh_token&token=TQeXE4EZZypxX8pAsz91JEDg7sNvbLiR"
+  }
+}

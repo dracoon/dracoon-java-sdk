@@ -19,7 +19,7 @@ public class ExpireAtFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link ExpireAtFilter}.
      */
-    public static class Builder extends Filter.Builder<Date> {
+    public static class Builder extends Filter.Builder<Date, String> {
 
         private final ExpireAtFilter mFilter;
 
@@ -34,14 +34,14 @@ public class ExpireAtFilter extends Filter<String> {
         @Override
         public Concater ge(Date value) {
             validateRestrictionValue(value);
-            mFilter.addValue(GE, DateUtils.formatDate(value));
+            mFilter.addValue(OPERATOR_GE, DateUtils.formatDate(value));
             return new Concater(mFilter);
         }
 
         @Override
         public Concater le(Date value) {
             validateRestrictionValue(value);
-            mFilter.addValue(LE, DateUtils.formatDate(value));
+            mFilter.addValue(OPERATOR_LE, DateUtils.formatDate(value));
             return new Concater(mFilter);
         }
 
@@ -50,7 +50,7 @@ public class ExpireAtFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<Date, String> {
 
         private final ExpireAtFilter mFilter;
 

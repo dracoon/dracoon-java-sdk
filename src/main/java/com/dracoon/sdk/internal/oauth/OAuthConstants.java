@@ -1,23 +1,33 @@
 package com.dracoon.sdk.internal.oauth;
 
-public interface OAuthConstants {
+public abstract class OAuthConstants {
 
-    String OAUTH_PATH = "/oauth";
+    private OAuthConstants() {}
 
-    String OAUTH_AUTHORIZE_PATH = "/authorize";
-    String OAUTH_TOKEN_PATH = "/token";
-    String OAUTH_REVOKE_PATH = "/revoke";
+    public static final String OAUTH_PATH = "/oauth";
 
-    String OAUTH_FLOW = "code";
+    public static final String OAUTH_AUTHORIZE_PATH = "/authorize";
+    public static final String OAUTH_TOKEN_PATH = "/token";
+    public static final String OAUTH_REVOKE_PATH = "/revoke";
 
-    interface OAuthGrantTypes {
-        String AUTHORIZATION_CODE = "authorization_code";
-        String REFRESH_TOKEN = "refresh_token";
+    public static final String OAUTH_FLOW = "code";
+
+    public static abstract class OAuthGrantTypes {
+
+        private OAuthGrantTypes() {}
+
+        public static final String AUTHORIZATION_CODE = "authorization_code";
+        public static final String REFRESH_TOKEN = "refresh_token";
+
     }
 
-    interface OAuthTokenTypes {
-        String ACCESS_TOKEN = "access_token";
-        String REFRESH_TOKEN = "refresh_token";
+    public static abstract class OAuthTokenTypes {
+
+        private OAuthTokenTypes() {}
+
+        public static final String ACCESS_TOKEN = "access_token";
+        public static final String REFRESH_TOKEN = "refresh_token";
+
     }
 
 }

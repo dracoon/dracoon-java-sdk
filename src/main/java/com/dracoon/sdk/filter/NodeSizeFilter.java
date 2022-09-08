@@ -15,7 +15,7 @@ public class NodeSizeFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link NodeSizeFilter}.
      */
-    public static class Builder extends Filter.Builder<Long> {
+    public static class Builder extends Filter.Builder<Long, String> {
 
         private final NodeSizeFilter mFilter;
 
@@ -30,14 +30,14 @@ public class NodeSizeFilter extends Filter<String> {
         @Override
         public Concater ge(Long value) {
             validateRestrictionValue(value);
-            mFilter.addValue(GE, Long.toString(value));
+            mFilter.addValue(OPERATOR_GE, Long.toString(value));
             return new Concater(mFilter);
         }
 
         @Override
         public Concater le(Long value) {
             validateRestrictionValue(value);
-            mFilter.addValue(LE, Long.toString(value));
+            mFilter.addValue(OPERATOR_LE, Long.toString(value));
             return new Concater(mFilter);
         }
 
@@ -46,7 +46,7 @@ public class NodeSizeFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<Long, String> {
 
         private final NodeSizeFilter mFilter;
 

@@ -1,13 +1,15 @@
 # IntelliJ project files
 /.idea/libraries/
-/.idea/compiler.xml
-/.idea/encodings.xml
+/.idea/shelf/
+/.idea/sonarlint/
+/.idea/jarRepositories.xml
 /.idea/misc.xml
 /.idea/modules.xml
-/.idea/vcs.xml
+/.idea/sonarlint.xml
+/.idea/uiDesigner.xml
 /.idea/workspace.xml
 /target/
-/*.iml
+*.iml
 
 # Eclipse project files
 /.settings/

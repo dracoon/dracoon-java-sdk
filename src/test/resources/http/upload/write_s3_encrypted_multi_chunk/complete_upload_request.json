@@ -1,0 +1,14 @@
+{
+  "method": "put",
+  "url": "[SERVER_URL]/api/v4/nodes/files/uploads/JmrPTtmxlIG4D938/s3",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"parts\":[{\"partNumber\":1,\"partEtag\":\"3c8b5395757553139ba746a3e0a9df82\"},{\"partNumber\":2,\"partEtag\":\"445804a85d9ba038434cb1001cc5cb9d\"}],\"resolutionStrategy\":\"autorename\",\"fileName\":\"file.txt\",\"fileKey\":{\"key\":\"SJGq5RvDzoe7hr/2NK7Z5cArB5H7CFQ0XGZJiITShCNHYJx80uiE6Ya69emvV6aQQingMwhKu12/0XoFsZ2b+UVI5aHplliY1/CLOH5IPfhV4kCUybNws8N05QhpVOhLYoLv5rW3+iy5oi7Pg94SZ9uy+pBtvormZx6HWe/gtwMH1ElgvjzYdNeP97yqreQVMBAWRRkCpnImO6OEWKg7XNOc5pHsAWTmTe4FjUoiP+ZFD8s5z37Xw7FmvGReide8QQJxzYe2Qi36m8LkAYyue0rR33W9OiZXKEJGrtZzMsLZW+JiUUJS0GslJ56BW1168CnA2cTXhlQ8igW7lpfMPaGMBaoULpd+KNqQs9YHhiv3RSkVb4IM0BSANw2DtCL1NlSkJVgrtuiSYXcTarLjIcyKKXry9qAK2rtejoC7aZ++Jhi/t2H/7B6//IHdqYCEaNHs4RxeNaLjck/jNR1Zc7b4OOkI/+kqPPXo/9AaqIqhZ+KzRuOKT+eSE2R6Xvio+PO38DKr+QkE7udHLxjqtZkzLeiZOBnoafdPkJqHQZhAtLc+0H/oSf+gEP8sq13r5glzVMvHWktBaJy5plzdDp34WVfNyMh35IaIwW9mfJAk0NIrAYFTTDHewefWmNPFK6hc9HVSKsg0BIedemmnDzE5Eh4YMoNeTcwHH9pQDww=\",\"iv\":\"8O+rDR/+InRDmWxB\",\"tag\":\"V+n8HN7lArp6AWsgOVztyA==\",\"version\":\"RSA-4096/AES-256-GCM\"}}"
+  }
+}

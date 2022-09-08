@@ -1,0 +1,53 @@
+{
+  "status" : "done",
+  "node" : {
+    "id": 2,
+    "type": "file",
+    "parentId": 1,
+    "parentPath": "/Test/",
+    "name": "file.txt",
+    "fileType": "txt",
+    "mediaType": "application/octet-stream",
+    "size": 4112,
+    "classification": 2,
+    "createdAt": "2022-01-01T12:00:00Z",
+    "createdBy": {
+      "id": 1,
+      "userType": "internal",
+      "firstName": "John",
+      "lastName": "Doe",
+      "userName": "john.doe@dracoon.com",
+      "email": "john.doe@dracoon.com",
+      "avatarUuid": "61e8c2e3-4467-4985-b90d-3c0120dd029f"
+    },
+    "updatedAt": "2022-01-01T12:00:00Z",
+    "updatedBy": {
+      "id": 1,
+      "userType": "internal",
+      "firstName": "John",
+      "lastName": "Doe",
+      "userName": "john.doe@dracoon.com",
+      "email": "john.doe@dracoon.com",
+      "avatarUuid": "61e8c2e3-4467-4985-b90d-3c0120dd029f"
+    },
+    "timestampCreation": "2022-01-01T12:00:00.000Z",
+    "timestampModification": "2022-01-01T12:00:00.000Z",
+    "isFavorite": false,
+    "isEncrypted": false,
+    "cntDeletedVersions": 0,
+    "cntComments": 0,
+    "permissions": {
+      "manage": true,
+      "read": true,
+      "create": true,
+      "change": true,
+      "delete": true,
+      "manageDownloadShare": true,
+      "manageUploadShare": true,
+      "readRecycleBin": true,
+      "restoreRecycleBin": true,
+      "deleteRecycleBin": true
+    },
+    "branchVersion": 1646820826532
+  }
+}

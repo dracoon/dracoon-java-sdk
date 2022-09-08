@@ -1,29 +1,34 @@
 package com.dracoon.sdk.internal;
 
-public interface DracoonConstants {
+@SuppressWarnings({"unused", "WeakerAccess"}) // Some constants are for future usage
+public abstract class DracoonConstants {
 
-    int KIB = 1024;
-    int MIB = 1024 * KIB;
-    int GIB = 1024 * MIB;
+    private DracoonConstants() {}
 
-    long SECOND = 1000L;
-    long MINUTE = 60 * SECOND;
-    long HOUR = 60 * MINUTE;
-    long DAY = 24 * HOUR;
+    public static final int KIB = 1024;
+    public static final int MIB = 1024 * KIB;
+    public static final int GIB = 1024 * MIB;
 
-    String API_PATH = "/api/v4";
-    String API_MIN_VERSION = "4.12.0";
-    String API_MIN_PASSWORD_POLICIES = "4.13.0";
-    String API_MIN_S3_DIRECT_UPLOAD = "4.15.0";
-    String API_MIN_NEW_CRYPTO_ALGOS = "4.24.0";
-    String API_MIN_CLASSIFICATION_POLICIES = "4.30.0";
+    public static final long SECOND = 1000L;
+    public static final long MINUTE = 60 * SECOND;
+    public static final long HOUR = 60 * MINUTE;
+    public static final long DAY = 24 * HOUR;
 
-    String API_TIME_ZONE = "UTC";
-    String API_DATE_FORMAT = "yyyy-MM-dd";
-    String API_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String API_PATH = "/api/v4";
+    public static final String API_MIN_VERSION = "4.12.0";
+    // SONAR: This is not a hard-coded credential
+    public static final String API_MIN_PASSWORD_POLICIES = "4.13.0"; // NOSONAR
+    public static final String API_MIN_S3_DIRECT_UPLOAD = "4.15.0";
+    public static final String API_MIN_NEW_CRYPTO_ALGOS = "4.24.0";
+    public static final String API_MIN_CLASSIFICATION_POLICIES = "4.30.0";
 
-    String AUTHORIZATION_HEADER = "Authorization";
-    String AUTHORIZATION_TYPE = "Bearer";
-    long AUTHORIZATION_REFRESH_INTERVAL = HOUR - MINUTE;
+    public static final String API_TIME_ZONE = "UTC";
+    public static final String API_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String API_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_TYPE = "Bearer";
+
+    public static final int S3_DEFAULT_CHUNK_SIZE = 5 * DracoonConstants.MIB;
 
 }

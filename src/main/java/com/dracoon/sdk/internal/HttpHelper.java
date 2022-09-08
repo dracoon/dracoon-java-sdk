@@ -19,16 +19,12 @@ public class HttpHelper {
 
     private static final String HEADER_RETRY_AFTER = "Retry-After";
 
-    private Log mLog = new NullLog();
+    protected Log mLog = new NullLog();
 
     private boolean mIsRetryEnabled;
     private boolean mIsRateLimitingEnabled;
 
     private Executor mExecutor;
-
-    public HttpHelper() {
-
-    }
 
     public void setLog(Log log) {
         mLog = log != null ? log : new NullLog();
@@ -55,19 +51,20 @@ public class HttpHelper {
 
     // --- Methods for REST calls ---
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // Cast to Response<T> is safe
     public <T> Response<T> executeRequest(Call<T> call) throws DracoonNetIOException,
             DracoonApiException {
         try {
             return (Response<T>) executeRequestInternally(call);
-        } catch (InterruptedException e) {
+        // SONAR: Rethrowing exception might cause unknown problems
+        } catch (InterruptedException e) { // NOSONAR
             String errorText = "Server communication was interrupted.";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOInterruptedException(errorText, e);
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // Cast to Response<T> is safe
     public <T> Response<T> executeRequest(Call<T> call, Thread thread)
             throws DracoonNetIOException, DracoonApiException, InterruptedException {
         try {
@@ -86,7 +83,8 @@ public class HttpHelper {
             DracoonApiException {
         try {
             return (okhttp3.Response) executeRequestInternally(call);
-        } catch (InterruptedException e) {
+        // SONAR: Rethrowing exception might cause unknown problems
+        } catch (InterruptedException e) { // NOSONAR
             String errorText = "Server communication was interrupted.";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonNetIOInterruptedException(errorText, e);
@@ -107,7 +105,7 @@ public class HttpHelper {
 
     // --- Executor methods ---
 
-    private Object executeRequestInternally(Object call) throws DracoonNetIOException,
+    protected Object executeRequestInternally(Object call) throws DracoonNetIOException,
             DracoonApiException, InterruptedException {
         try {
             return mExecutor.execute(call);
@@ -233,10 +231,6 @@ public class HttpHelper {
 
     private class NetworkExecutor extends Executor {
 
-        public NetworkExecutor() {
-
-        }
-
         @Override
         public Object execute(Object call) throws DracoonNetIOException, InterceptedIOException,
                 InterruptedException {
@@ -267,7 +261,7 @@ public class HttpHelper {
 
     // --- Helper methods ---
 
-    private static Object executeCall(Object call) throws IOException {
+    protected static Object executeCall(Object call) throws IOException {
         if (call instanceof Call) {
             return ((Call<?>) call).execute();
         } else if (call instanceof okhttp3.Call) {
@@ -277,7 +271,7 @@ public class HttpHelper {
         }
     }
 
-    private static Object cloneCall(Object call) {
+    protected static Object cloneCall(Object call) {
         if (call instanceof Call) {
             return ((Call<?>) call).clone();
         } else if (call instanceof okhttp3.Call) {

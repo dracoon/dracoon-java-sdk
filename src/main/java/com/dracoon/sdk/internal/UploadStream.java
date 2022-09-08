@@ -36,7 +36,6 @@ import com.dracoon.sdk.internal.model.ApiS3FileUploadPart;
 import com.dracoon.sdk.internal.model.ApiS3FileUploadStatus;
 import com.dracoon.sdk.internal.model.ApiS3FileUploadUrlList;
 import com.dracoon.sdk.internal.model.ApiServerGeneralSettings;
-import com.dracoon.sdk.internal.util.StreamUtils;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
@@ -57,7 +56,6 @@ public class UploadStream extends FileUploadStream {
     private static final int BLOCK_SIZE = 2 * DracoonConstants.KIB;
     private static final long PROGRESS_UPDATE_INTERVAL = 100;
 
-    private static final int S3_DEFAULT_CHUNK_SIZE = 5 * DracoonConstants.MIB;
     private static final String S3_ETAG_HEADER = "ETag";
     private static final long S3_MIN_COMPLETE_WAIT_TIME = 500;
     private static final long S3_MAX_COMPLETE_WAIT_TIME = 5 * DracoonConstants.SECOND;
@@ -117,7 +115,7 @@ public class UploadStream extends FileUploadStream {
 
     private final DracoonClientImpl mClient;
     private final Log mLog;
-    private final DracoonService mRestService;
+    private final DracoonService mService;
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
@@ -154,10 +152,9 @@ public class UploadStream extends FileUploadStream {
             UserPublicKey userPublicKey, PlainFileKey fileKey) {
         mClient = client;
         mLog = client.getLog();
-        mRestService = client.getDracoonService();
+        mService = client.getDracoonService();
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
-        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
         mErrorParser = client.getDracoonErrorParser();
 
         mId = id;
@@ -165,6 +162,8 @@ public class UploadStream extends FileUploadStream {
         mUploadLength = length;
         mUserPublicKey = userPublicKey;
         mFileKey = fileKey;
+
+        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
@@ -180,12 +179,13 @@ public class UploadStream extends FileUploadStream {
             mIsS3Upload = checkIsS3Upload();
 
             if (mIsS3Upload) {
-                mChunkSize = mChunkSize > S3_DEFAULT_CHUNK_SIZE ? mChunkSize : S3_DEFAULT_CHUNK_SIZE;
+                mChunkSize = Math.max(mChunkSize, mClient.getS3DefaultChunkSize());
             }
 
             mUploadId = createUpload();
         } catch (InterruptedException e) {
             notifyCanceled(mId);
+            mThread.interrupt();
         } catch (DracoonException e) {
             notifyFailed(mId, e);
             throw e;
@@ -219,6 +219,7 @@ public class UploadStream extends FileUploadStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
+        assertStarted();
         assertNotCompleted();
         assertNotClosed();
 
@@ -239,6 +240,7 @@ public class UploadStream extends FileUploadStream {
             uploadData(true);
         } catch (InterruptedException e) {
             notifyCanceled(mId);
+            mThread.interrupt();
         } catch (DracoonException e) {
             notifyFailed(mId, e);
             throw new IOException("Could not write to upload stream.", e);
@@ -247,6 +249,7 @@ public class UploadStream extends FileUploadStream {
 
     @Override
     public Node complete() throws IOException {
+        assertStarted();
         assertNotCompleted();
         assertNotClosed();
 
@@ -254,6 +257,7 @@ public class UploadStream extends FileUploadStream {
             uploadData(false);
         } catch (InterruptedException e) {
             notifyCanceled(mId);
+            mThread.interrupt();
             return null;
         } catch (DracoonException e) {
             notifyFailed(mId, e);
@@ -276,6 +280,7 @@ public class UploadStream extends FileUploadStream {
             node = completeUpload(encryptedFileKey);
         } catch (InterruptedException e) {
             notifyCanceled(mId);
+            mThread.interrupt();
             return null;
         } catch (DracoonException e) {
             notifyFailed(mId, e);
@@ -301,8 +306,7 @@ public class UploadStream extends FileUploadStream {
         try {
             return Crypto.createFileEncryptionCipher(mFileKey);
         } catch (CryptoException e) {
-            String errorText = String.format("Encryption failed at upload of '%s'! %s", mId,
-                    e.getMessage());
+            String errorText = createEncryptionErrorMessage(mId, e);
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
@@ -314,13 +318,12 @@ public class UploadStream extends FileUploadStream {
             return false;
         }
 
-        Call<ApiServerGeneralSettings> call = mRestService.getServerGeneralSettings();
+        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseStandardError(response);
-            String errorText = String.format("Query of server general settings failed with '%s'!",
-                    errorCode.name());
+            String errorText = createQuerySettingsErrorMessage(errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -352,13 +355,12 @@ public class UploadStream extends FileUploadStream {
             request.directS3Upload = mIsS3Upload;
         }
 
-        Call<ApiFileUpload> call = mRestService.createFileUpload(request);
+        Call<ApiFileUpload> call = mService.createFileUpload(request);
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUploadCreateError(response);
-            String errorText = String.format("Creation of upload stream for '%s' failed with '%s'!",
-                    mId, errorCode.name());
+            String errorText = createStartUploadErrorMessage(mId, errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -401,9 +403,7 @@ public class UploadStream extends FileUploadStream {
 
     private byte[] encryptBytes(byte[] bytes, boolean isLast) throws DracoonFileIOException,
             DracoonCryptoException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        try {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             PlainDataContainer plainData = new PlainDataContainer(bytes);
             EncryptedDataContainer encData = mEncryptionCipher.processBytes(plainData);
             os.write(encData.getContent());
@@ -415,9 +415,10 @@ public class UploadStream extends FileUploadStream {
                 String encTag = CryptoUtils.byteArrayToString(encData.getTag());
                 mFileKey.setTag(encTag);
             }
+
+            return os.toByteArray();
         } catch (IllegalArgumentException | IllegalStateException | CryptoSystemException e) {
-            String errorText = String.format("Encryption failed at upload of '%s'! %s", mId,
-                    e.getMessage());
+            String errorText = createEncryptionErrorMessage(mId, e);
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);
@@ -425,11 +426,7 @@ public class UploadStream extends FileUploadStream {
             String errorText = "Buffer write failed!";
             mLog.d(LOG_TAG, errorText);
             throw new DracoonFileIOException(errorText, e);
-        } finally {
-            StreamUtils.closeStream(os);
         }
-
-        return os.toByteArray();
     }
 
     private void uploadChunk(long uploadOffset, int chunkNum, byte[] bytes)
@@ -463,13 +460,12 @@ public class UploadStream extends FileUploadStream {
 
         String contentRange = "bytes " + offset + "-" + (offset + chunk.length) + "/*";
 
-        Call<Void> call = mRestService.uploadFile(mUploadId, contentRange, body);
+        Call<Void> call = mService.uploadFile(mUploadId, contentRange, body);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUploadError(response);
-            String errorText = String.format("Upload of '%s' failed with '%s'!", mId,
-                    errorCode.name());
+            String errorText = createUploadErrorMessage(mId, errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -482,13 +478,12 @@ public class UploadStream extends FileUploadStream {
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<ApiNode> call = mRestService.completeFileUpload(mUploadId, request);
+        Call<ApiNode> call = mService.completeFileUpload(mUploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseUploadCompleteError(response);
-            String errorText = String.format("Completion of upload for '%s' failed with '%s'!", mId,
-                    errorCode.name());
+            String errorText = createCompleteUploadErrorMessage(mId, errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -512,8 +507,7 @@ public class UploadStream extends FileUploadStream {
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseS3UploadError(response);
-            String errorText = String.format("Upload of '%s' failed with '%s'!", mId,
-                    errorCode.name());
+            String errorText = createUploadErrorMessage(mId, errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -538,13 +532,12 @@ public class UploadStream extends FileUploadStream {
         request.firstPartNumber = chunkNum + 1;
         request.lastPartNumber = chunkNum + 1;
 
-        Call<ApiS3FileUploadUrlList> call = mRestService.getS3FileUploadUrls(mUploadId, request);
+        Call<ApiS3FileUploadUrlList> call = mService.getS3FileUploadUrls(mUploadId, request);
         Response<ApiS3FileUploadUrlList> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseS3UploadGetUrlsError(response);
-            String errorText = String.format("Upload of '%s' failed with '%s'!", mId,
-                    errorCode.name());
+            String errorText = createUploadErrorMessage(mId, errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -561,13 +554,12 @@ public class UploadStream extends FileUploadStream {
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<Void> call = mRestService.completeS3FileUpload(mUploadId, request);
+        Call<Void> call = mService.completeS3FileUpload(mUploadId, request);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseS3UploadCompleteError(response);
-            String errorText = String.format("Completion of upload for '%s' failed with '%s'!", mId,
-                    errorCode.name());
+            String errorText = createCompleteUploadErrorMessage(mId, errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -588,13 +580,12 @@ public class UploadStream extends FileUploadStream {
 
     private Node waitForCompleteS3Upload() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        Call<ApiS3FileUploadStatus> call = mRestService.getS3FileUploadStatus(mUploadId);
+        Call<ApiS3FileUploadStatus> call = mService.getS3FileUploadStatus(mUploadId);
         Response<ApiS3FileUploadStatus> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
             DracoonApiCode errorCode = mErrorParser.parseS3UploadStatusError(response);
-            String errorText = String.format("Completion of upload for '%s' failed with '%s'!", mId,
-                    errorCode.name());
+            String errorText = createCompleteUploadErrorMessage(mId, errorCode);
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
@@ -610,8 +601,7 @@ public class UploadStream extends FileUploadStream {
             default:
                 DracoonApiCode errorCode = mErrorParser.parseS3UploadStatusError(
                         uploadStatus.errorDetails);
-                String errorText = String.format("Completion of upload for '%s' failed with '%s'!",
-                        mId, errorCode.name());
+                String errorText = createCompleteUploadErrorMessage(mId, errorCode);
                 mLog.d(LOG_TAG, errorText);
                 throw new DracoonApiException(errorCode);
         }
@@ -627,6 +617,12 @@ public class UploadStream extends FileUploadStream {
             }
         });
         return requestBody;
+    }
+
+    private void assertStarted() throws IOException {
+        if (mUploadId == null) {
+            throw new IOException("Upload stream was not started.");
+        }
     }
 
     private void assertNotCompleted() throws IOException {
@@ -671,6 +667,31 @@ public class UploadStream extends FileUploadStream {
         for (FileUploadCallback callback : mCallbacks) {
             callback.onFailed(id, e);
         }
+    }
+
+    // --- Helper methods ---
+
+    private static String createQuerySettingsErrorMessage(DracoonApiCode errorCode) {
+        return String.format("Query of server general settings failed with '%s'!",
+                errorCode.name());
+    }
+
+    private static String createEncryptionErrorMessage(String id, Exception e) {
+        return String.format("Encryption failed at upload of '%s'! %s", id, e.getMessage());
+    }
+
+    private static String createStartUploadErrorMessage(String id, DracoonApiCode errorCode) {
+        return String.format("Creation of upload stream for '%s' failed with '%s'!", id,
+                errorCode.name());
+    }
+
+    private static String createUploadErrorMessage(String id, DracoonApiCode errorCode) {
+        return String.format("Upload of '%s' failed with '%s'!", id, errorCode.name());
+    }
+
+    private static String createCompleteUploadErrorMessage(String id, DracoonApiCode errorCode) {
+        return String.format("Completion of upload for '%s' failed with '%s'!", id,
+                errorCode.name());
     }
 
 }

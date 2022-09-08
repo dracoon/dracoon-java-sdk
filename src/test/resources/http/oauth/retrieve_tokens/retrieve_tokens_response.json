@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"token_type\":\"bearer\",\"access_token\":\"L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW\",\"refresh_token\":\"DhEg0fM0ehrlMV8RzXhpgSsSQJvmb6jM\",\"expires_in\":43200,\"scope\":\"all\"}"
+  }
+}

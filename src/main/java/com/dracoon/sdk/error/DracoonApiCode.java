@@ -132,6 +132,8 @@ public enum DracoonApiCode {
     SERVER_S3_COMMUNICATION_FAILED(-5120, "S3 communication failed."),
     SERVER_NODE_COMMENT_NOT_FOUND(-5130, "Requested node comment was not found."),
     SERVER_NODE_COMMENT_ALREADY_DELETED(-5131, "Node comment was already deleted."),
+    // Uploads
+    SERVER_UPLOAD_NOT_FOUND(-5180, "Upload could not be found."),
     // Shares
     SERVER_DL_SHARE_NOT_FOUND(-5200, "Download share could not be found."),
     SERVER_UL_SHARE_NOT_FOUND(-5201, "Upload share could not be found."),

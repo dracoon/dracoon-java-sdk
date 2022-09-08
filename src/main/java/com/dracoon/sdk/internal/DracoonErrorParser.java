@@ -11,7 +11,12 @@ import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-@SuppressWarnings({"Duplicates", "rawtypes"})
+@SuppressWarnings({"Duplicates", // Duplicate code in error parsing methods is intentional
+        "rawtypes", // Type for Response is dropped to be less verbose
+        "squid:S1301", // SONAR: Switch statements are used for better readability
+        "squid:S3776", // SONAR: Complexity of error parsing methods is accepted
+        "squid:S4144" // SONAR: Duplicate code in error parsing methods is intentional
+})
 public class DracoonErrorParser {
 
     private static final String LOG_TAG = DracoonErrorParser.class.getSimpleName();
@@ -26,10 +31,6 @@ public class DracoonErrorParser {
     }
 
     private Log mLog = new NullLog();
-
-    public DracoonErrorParser() {
-
-    }
 
     public void setLog(Log log) {
         mLog = log != null ? log : new NullLog();
@@ -296,8 +297,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case FORBIDDEN:
                 if (error.errorCode == -70020)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
@@ -453,8 +452,6 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case FORBIDDEN:
                 String avHeader = response.headers().get(HEADER_X_FORBIDDEN);
                 if (avHeader != null && avHeader.equals("403"))
@@ -462,7 +459,9 @@ public class DracoonErrorParser {
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case NOT_FOUND:
-                if (error.errorCode == -40000 || error.errorCode == -41000)
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+                else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -486,10 +485,10 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -40000 || error.errorCode == -41000)
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+                else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
@@ -507,13 +506,13 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -20501 || error.errorCode == -90034)
-                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
                 else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (error.errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case GATEWAY_TIMEOUT:
@@ -537,13 +536,13 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -20501 || error.errorCode == -90034)
-                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
                 else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (error.errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:
@@ -565,13 +564,13 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -20501 || error.errorCode == -90034)
-                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+                if (error.errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
                 else if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (error.errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             default:
@@ -634,23 +633,15 @@ public class DracoonErrorParser {
 
     public DracoonApiCode parseDownloadSharesGetError(Response response) {
         Error error = getError(response);
-
-        switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
-            default:
-                return parseStandardError(error.statusCode, error.errorCode);
-        }
+        return parseStandardError(error.statusCode, error.errorCode);
     }
 
     public DracoonApiCode parseDownloadShareDeleteError(Response response) {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
-                if (error.errorCode == -41000)
+                if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
                 else if (error.errorCode == -60000)
                     return DracoonApiCode.SERVER_DL_SHARE_NOT_FOUND;
@@ -706,21 +697,13 @@ public class DracoonErrorParser {
 
     public DracoonApiCode parseUploadSharesGetError(Response response) {
         Error error = getError(response);
-
-        switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
-            default:
-                return parseStandardError(error.statusCode, error.errorCode);
-        }
+        return parseStandardError(error.statusCode, error.errorCode);
     }
 
     public DracoonApiCode parseUploadShareDeleteError(Response response) {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(error.errorCode);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
@@ -949,17 +932,17 @@ public class DracoonErrorParser {
     }
 
     private Error getError(Response response) {
-        mLog.d(LOG_TAG, "Server API error: " + response.code());
+        mLog.d(LOG_TAG, "Server API error: " + response.code()); // NOSONAR: Won't create a constant
 
-        Error ei = new Error();
-        ei.statusCode = response.code();
+        Error error = new Error();
+        error.statusCode = response.code();
 
         ApiErrorResponse errorResponse = getApiErrorResponse(response.errorBody());
         if (errorResponse != null && errorResponse.errorCode != null) {
-            ei.errorCode = errorResponse.errorCode;
+            error.errorCode = errorResponse.errorCode;
         }
 
-        return ei;
+        return error;
     }
 
     private ApiErrorResponse getApiErrorResponse(ResponseBody responseBody) {
@@ -970,7 +953,7 @@ public class DracoonErrorParser {
         MediaType contentType = responseBody.contentType();
 
         if (contentType == null) {
-            mLog.d(LOG_TAG, "Invalid server API error response!");
+            mLog.d(LOG_TAG, "Invalid server API error response!"); // NOSONAR: Won't create a constant
             try {
                 mLog.d(LOG_TAG, responseBody.string());
             } catch (IOException e) {
@@ -995,7 +978,7 @@ public class DracoonErrorParser {
             // Nothing to do here
         }
         if (errorResponse != null) {
-            mLog.d(LOG_TAG, "Server API error response:");
+            mLog.d(LOG_TAG, "Server API error response:"); // NOSONAR: Won't create a constant
             mLog.d(LOG_TAG, errorResponse.toString());
         }
 
@@ -1009,13 +992,18 @@ public class DracoonErrorParser {
 
         mLog.d(LOG_TAG, "S3 error: " + statusCode);
 
-        return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+        switch (HttpStatus.valueOf(statusCode)) {
+            case NOT_FOUND:
+                return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+            default:
+                return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
+        }
     }
 
     public DracoonApiCode parseDownloadError(okhttp3.Response response) {
         int statusCode = response.code();
 
-        mLog.d(LOG_TAG, "Server API error: " + statusCode);
+        mLog.d(LOG_TAG, "Server API error: " + statusCode); // NOSONAR: Won't create a constant
 
         switch (HttpStatus.valueOf(statusCode)) {
             case FORBIDDEN:
@@ -1036,7 +1024,7 @@ public class DracoonErrorParser {
     public DracoonApiCode parseAvatarDownloadError(okhttp3.Response response) {
         int statusCode = response.code();
 
-        mLog.d(LOG_TAG, "Server API error: " + statusCode);
+        mLog.d(LOG_TAG, "Server API error: " + statusCode); // NOSONAR: Won't create a constant
 
         switch (HttpStatus.valueOf(statusCode)) {
             case NOT_FOUND:
@@ -1072,11 +1060,13 @@ public class DracoonErrorParser {
         int errorCode = errorResponse.errorCode != null ? errorResponse.errorCode : 0;
 
         switch (HttpStatus.valueOf(statusCode)) {
-            case BAD_REQUEST:
-                return parseValidationError(errorCode);
             case NOT_FOUND:
-                if (errorCode == -40000 || errorCode == -41000)
+                if (errorCode == -20501)
+                    return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
+                else if (errorCode == -40000 || errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
+                else if (errorCode == -90034)
+                    return DracoonApiCode.SERVER_S3_COMMUNICATION_FAILED;
                 else
                     return DracoonApiCode.SERVER_UNKNOWN_ERROR;
             case CONFLICT:

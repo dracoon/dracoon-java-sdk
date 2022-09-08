@@ -15,7 +15,7 @@ public class EncryptionStatusFilter extends Filter<String> {
     /**
      * Builder for creating new instances of {@link EncryptionStatusFilter}.
      */
-    public static class Builder extends Filter.Builder<Boolean> {
+    public static class Builder extends Filter.Builder<Boolean, String> {
 
         private final EncryptionStatusFilter mFilter;
 
@@ -26,7 +26,7 @@ public class EncryptionStatusFilter extends Filter<String> {
         @Override
         public Concater eq(Boolean value) {
             validateRestrictionValue(value);
-            mFilter.addValue(EQ, value ? "true" : "false");
+            mFilter.addValue(OPERATOR_EQ, value ? "true" : "false");
             return new Concater(mFilter);
         }
 
@@ -35,7 +35,7 @@ public class EncryptionStatusFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater {
+    public static class Concater extends Filter.Concater<Boolean, String> {
 
         private final EncryptionStatusFilter mFilter;
 

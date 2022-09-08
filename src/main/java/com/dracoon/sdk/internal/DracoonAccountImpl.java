@@ -446,7 +446,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public void setUserAvatar(byte[] avatarImage) throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        ValidatorUtils.validateByteArray("Avatar image", avatarImage, false, 1, 5 * DracoonConstants.MIB);
+        ValidatorUtils.validateByteArray("Avatar image", avatarImage, false, 1L,
+                5L * (long) DracoonConstants.MIB);
 
         Call<Void> call = mService.setUserAvatar(RequestBody.create(MediaType.parse(
                 "application/octet-stream"), avatarImage));

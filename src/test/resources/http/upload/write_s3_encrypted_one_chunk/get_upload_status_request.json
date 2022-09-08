@@ -1,0 +1,10 @@
+{
+  "method": "get",
+  "url": "[SERVER_URL]/api/v4/nodes/files/uploads/lIG4JmrPTtmxD938",
+  "headers": [
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ]
+}
