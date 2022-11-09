@@ -1,0 +1,9 @@
+{
+  "mId": 1,
+  "mName": "DRACOON GmbH",
+  "mUserAccountsUsed": 1,
+  "mUserAccountsLimit": 100,
+  "mSpaceUsed": 1024,
+  "mSpaceLimit": 1073741824,
+  "mHasEncryptionEnabled": true
+}

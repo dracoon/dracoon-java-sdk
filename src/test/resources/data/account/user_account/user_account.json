@@ -1,0 +1,17 @@
+{
+  "mId": 1,
+  "mFirstName": "John",
+  "mLastName": "Doe",
+  "mEmail": "j.doe@dracoon.com",
+  "mUsername": "j.doe@dracoon.com",
+  "mHasEncryptionEnabled": true,
+  "mHasManageableRooms": true,
+  "mNeedsToAcceptEULA": false,
+  "mNeedsToChangeUserName": false,
+  "mNeedsToChangePassword": false,
+  "mLastLoginSuccessAt": "2022-11-09T12:10:20Z",
+  "mLastLoginFailAt": "2022-09-09T12:43:12Z",
+  "mUserRoles": ["USER_MANAGER", "GROUP_MANAGER", "ROOM_MANAGER"],
+  "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d41",
+  "mHasCustomAvatar": true
+}
