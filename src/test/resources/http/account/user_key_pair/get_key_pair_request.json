@@ -1,0 +1,14 @@
+{
+  "method": "get",
+  "url": "[SERVER_URL]/api/v4/user/account/keypair",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Bearer L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ]
+}
