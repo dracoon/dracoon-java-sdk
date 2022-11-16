@@ -15,18 +15,8 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
 
     private static final String LOG_TAG = DracoonServerImpl.class.getSimpleName();
 
-    private final DracoonServerSettingsImpl mServerSettings;
-    private final DracoonServerPoliciesImpl mServerPolicies;
-
     DracoonServerImpl(DracoonClientImpl client) {
         super(client);
-
-        mServerSettings = new DracoonServerSettingsImpl(client);
-        mServerPolicies = new DracoonServerPoliciesImpl(client);
-    }
-
-    public DracoonServerSettingsImpl getServerSettingsImpl() {
-        return mServerSettings;
     }
 
     @Override
@@ -74,12 +64,12 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
 
     @Override
     public DracoonClient.ServerSettings settings() {
-        return mServerSettings;
+        return mClient.getServerSettingsImpl();
     }
 
     @Override
     public DracoonClient.ServerPolicies policies() {
-        return mServerPolicies;
+        return mClient.getServerPoliciesImpl();
     }
 
 }

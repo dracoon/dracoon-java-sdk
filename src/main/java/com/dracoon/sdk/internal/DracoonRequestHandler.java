@@ -10,7 +10,7 @@ public abstract class DracoonRequestHandler {
     protected final HttpHelper mHttpHelper;
     protected final DracoonErrorParser mErrorParser;
 
-    public DracoonRequestHandler(DracoonClientImpl client) {
+    protected DracoonRequestHandler(DracoonClientImpl client) {
         mClient = client;
         mLog = client.getLog();
         mService = client.getDracoonService();

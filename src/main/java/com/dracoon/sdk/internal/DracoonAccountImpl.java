@@ -256,7 +256,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     public UserKeyPair getPreferredUserKeyPair() throws DracoonNetIOException,
             DracoonApiException {
-        List<UserKeyPairAlgorithm> userKeyPairAlgorithms = mClient.server().settings()
+        List<UserKeyPairAlgorithm> userKeyPairAlgorithms = mClient.getServerSettingsImpl()
                 .getAvailableUserKeyPairAlgorithms();
 
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();

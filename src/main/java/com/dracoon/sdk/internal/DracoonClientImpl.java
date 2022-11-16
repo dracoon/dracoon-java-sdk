@@ -139,6 +139,8 @@ public class DracoonClientImpl extends DracoonClient {
     protected DracoonErrorParser mDracoonErrorParser;
 
     protected DracoonServerImpl mServer;
+    protected DracoonServerSettingsImpl mServerSettings;
+    protected DracoonServerPoliciesImpl mServerPolicies;
     protected DracoonAccountImpl mAccount;
     protected Users mUsers;
     protected Groups mGroups;
@@ -222,6 +224,8 @@ public class DracoonClientImpl extends DracoonClient {
         initDracoonErrorParser();
 
         mServer = new DracoonServerImpl(this);
+        mServerSettings = new DracoonServerSettingsImpl(this);
+        mServerPolicies = new DracoonServerPoliciesImpl(this);
         mAccount = new DracoonAccountImpl(this);
         mUsers = new DracoonUsersImpl(this);
         mNodes = new DracoonNodesImpl(this);
@@ -341,7 +345,7 @@ public class DracoonClientImpl extends DracoonClient {
             return;
         }
 
-        List<UserKeyPair.Version> versions = getServerSettingsImpl().getAvailableUserKeyPairVersions();
+        List<UserKeyPair.Version> versions = mServerSettings.getAvailableUserKeyPairVersions();
         boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
         if (!apiSupportsVersion) {
             throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
@@ -512,7 +516,11 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public DracoonServerSettingsImpl getServerSettingsImpl() {
-        return mServer.getServerSettingsImpl();
+        return mServerSettings;
+    }
+
+    public DracoonServerPoliciesImpl getServerPoliciesImpl() {
+        return mServerPolicies;
     }
 
     public DracoonAccountImpl getAccountImpl() {
