@@ -1,0 +1,10 @@
+{
+  "userPrivateKey": {
+    "version": "RSA4096",
+    "privateKey": "-----BEPK-----\r\ny\r\n-----EEPK-----\r\n"
+  },
+  "userPublicKey": {
+    "version": "RSA4096",
+    "publicKey": "-----BPK-----\r\ny\r\n-----EPK-----\r\n"
+  }
+}

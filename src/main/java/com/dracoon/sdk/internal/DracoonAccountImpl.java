@@ -262,9 +262,10 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
 
         for (UserKeyPairAlgorithm userKeyPairAlgorithm : userKeyPairAlgorithms) {
-            Optional<UserKeyPair> userKeyPair = userKeyPairs.stream().findAny().filter(
-                    kp -> Objects.equals(kp.getUserPrivateKey().getVersion().getValue(),
-                            userKeyPairAlgorithm.getVersion().getValue()));
+            Optional<UserKeyPair> userKeyPair = userKeyPairs.stream()
+                    .filter(kp -> Objects.equals(kp.getUserPrivateKey().getVersion().getValue(),
+                            userKeyPairAlgorithm.getVersion().getValue()))
+                    .findAny();
             if (userKeyPair.isPresent()) {
                 return userKeyPair.get();
             }
