@@ -1,5 +1,7 @@
 package com.dracoon.sdk;
 
+import java.util.Objects;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -26,6 +28,12 @@ public abstract class BaseTest {
         String s1 = sGson.toJson(o1);
         String s2 = sGson.toJson(o2);
         assertEquals(s1, s2);
+    }
+
+    protected boolean deepEquals(Object o1, Object o2) {
+        String s1 = sGson.toJson(o1);
+        String s2 = sGson.toJson(o2);
+        return Objects.equals(s1, s2);
     }
 
 }

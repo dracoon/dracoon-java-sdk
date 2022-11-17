@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -10,6 +11,7 @@ import com.dracoon.sdk.crypto.error.InvalidKeyPairException;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.UserAccount;
@@ -17,6 +19,8 @@ import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -25,6 +29,8 @@ import retrofit2.Response;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class DracoonAccountTest extends DracoonRequestHandlerTest {
@@ -623,13 +629,355 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
     // --- Check user key pair tests ---
 
-    // TODO
+    @Nested
+    class GetAndCheckUserKeyPairsTests {
+
+        private final String DATA_PATH = "/account/user_key_pair/";
+
+        @BeforeEach
+        void setup() {
+            setApiVersionNewCryptoAlgos();
+            mDracoonClientImpl.setEncryptionPassword("test");
+        }
+
+        @Test
+        void testApiRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            executeMocked(true);
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "get_key_pairs_request.json");
+        }
+
+        @Test
+        void testCryptoSdkCallsValid() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            executeMockedAndVerified();
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            List<UserKeyPair> userKeyPairs = executeMockedWithReturn();
+
+            // Assert data is correct
+            List<UserKeyPair> expectedUserKeyPairs = readData(List.class, DATA_PATH +
+                    "user_key_pairs.json");
+            assertDeepEquals(expectedUserKeyPairs, userKeyPairs);
+        }
+
+        @Test
+        void testInvalidPassword() {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            DracoonCryptoException thrown = assertThrows(DracoonCryptoException.class, () ->
+                    executeMocked(false));
+
+            // Assert correct error code
+            assertEquals(DracoonCryptoCode.INVALID_PASSWORD_ERROR, thrown.getCode());
+        }
+
+        @Test
+        void testApiError() {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseError(mDracoonErrorParser::parseUserKeyPairsQueryError, expectedCode);
+
+            // Enqueue response
+            enqueueErrorResponse();
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    executeMocked(true));
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+        @Test
+        void testCryptoSdkError() {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            assertThrows(DracoonCryptoException.class, this::executeMockedWithException);
+        }
+
+        private void enqueueOkResponse() {
+            enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
+        }
+
+        private void enqueueErrorResponse() {
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+        }
+
+        private void executeMocked(boolean ok) throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(ok);
+                mDai.getAndCheckUserKeyPairs();
+            }
+        }
+
+        private void executeMockedAndVerified() throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(true);
+                List<UserKeyPair> userKeyPairs = mDai.getAndCheckUserKeyPairs();
+                for (UserKeyPair userKeyPair : userKeyPairs) {
+                    mock.verify(() -> Crypto.checkUserKeyPair(userKeyPair,
+                            mDracoonClientImpl.getEncryptionPassword()));
+                }
+            }
+        }
+
+        private List<UserKeyPair> executeMockedWithReturn() throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(true);
+                return mDai.getAndCheckUserKeyPairs();
+            }
+        }
+
+        private void executeMockedWithException() throws Exception {
+            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
+                crypto.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenThrow(new InvalidKeyPairException());
+                mDai.getAndCheckUserKeyPairs();
+            }
+        }
+
+    }
+
+    @SuppressWarnings({
+            "unused",
+            "java:S2699" // SONAR: Assert statements are located in subclasses
+    })
+    abstract class BaseCheckUserKeyPairTests {
+
+        protected final String DATA_PATH = "/account/user_key_pair/";
+
+        @Mock
+        protected DracoonServerSettingsImpl mServerSettingsImpl;
+
+        @BeforeEach
+        void setup() throws Exception {
+            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+
+            mockGetAvailableUserKeyPairVersions();
+
+            setApiVersionNewCryptoAlgos();
+            mDracoonClientImpl.setEncryptionPassword("test");
+        }
+
+        @Test
+        void testApiRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            executeMocked(true);
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "get_key_pair_by_version_request.json");
+        }
+
+        @Test
+        void testCryptoSdkCallsValid() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            executeMockedAndVerified();
+        }
+
+        @Test
+        void testApiError() {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseError(mDracoonErrorParser::parseUserKeyPairQueryError, expectedCode);
+
+            // Enqueue response
+            enqueueErrorResponse();
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    executeMocked(true));
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+        @Test
+        void testCryptoSdkError() {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            assertThrows(DracoonCryptoException.class, this::executeMockedWithException);
+        }
+
+        protected void enqueueOkResponse() {
+            enqueueResponse(DATA_PATH + "get_key_pair_by_version_response.json");
+        }
+
+        protected void enqueueErrorResponse() {
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+        }
+
+        protected abstract void executeMocked(boolean ok) throws Exception;
+
+        protected abstract void executeMockedAndVerified() throws Exception;
+
+        protected abstract void executeMockedWithException() throws Exception;
+
+        private void mockGetAvailableUserKeyPairVersions()
+                throws Exception {
+            when(mServerSettingsImpl.getAvailableUserKeyPairVersions())
+                    .thenReturn(Collections.singletonList(UserKeyPair.Version.RSA2048));
+        }
+
+    }
+
+    @Nested
+    class GetAndCheckUserKeyPairTests extends BaseCheckUserKeyPairTests {
+
+        @Test
+        void testDataCorrect() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            UserKeyPair userKeyPair = executeMockedWithReturn();
+
+            // Assert data is correct
+            UserKeyPair expectedUserKeyPair = readData(UserKeyPair.class, DATA_PATH +
+                    "user_key_pair_2048.json");
+            assertDeepEquals(expectedUserKeyPair, userKeyPair);
+        }
+
+        @Test
+        void testInvalidPassword() {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            DracoonCryptoException thrown = assertThrows(DracoonCryptoException.class, () ->
+                    executeMocked(false));
+
+            // Assert correct error code
+            assertEquals(DracoonCryptoCode.INVALID_PASSWORD_ERROR, thrown.getCode());
+        }
+
+        @Override
+        protected void executeMocked(boolean ok) throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(ok);
+                mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            }
+        }
+
+        @Override
+        protected void executeMockedAndVerified() throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(true);
+                UserKeyPair userKeyPair = mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+                mock.verify(() -> Crypto.checkUserKeyPair(userKeyPair,
+                            mDracoonClientImpl.getEncryptionPassword()));
+            }
+        }
+
+        @Override
+        protected void executeMockedWithException() throws Exception {
+            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
+                crypto.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenThrow(new InvalidKeyPairException());
+                mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            }
+        }
+
+        private UserKeyPair executeMockedWithReturn() throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(true);
+                return mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            }
+        }
+
+    }
+
+    @Nested
+    class CheckUserKeyPairPasswordTests extends BaseCheckUserKeyPairTests {
+
+        @ParameterizedTest
+        @ValueSource(booleans = {true, false})
+        void testResult(boolean expectedOk) throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            boolean ok = executeMockedWithReturn(expectedOk);
+
+            // Assert result is correct
+            assertEquals(expectedOk, ok);
+        }
+
+        @Override
+        protected void executeMocked(boolean ok) throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(ok);
+                mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+            }
+        }
+
+        @Override
+        protected void executeMockedAndVerified() throws Exception {
+            UserKeyPair userKeyPair = readData(UserKeyPair.class, DATA_PATH +
+                "user_key_pair_2048.json");
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(true);
+                mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+                mock.verify(() -> Crypto.checkUserKeyPair(
+                        argThat(arg -> deepEquals(arg, userKeyPair)),
+                        eq(mDracoonClientImpl.getEncryptionPassword())));
+            }
+        }
+
+        @Override
+        protected void executeMockedWithException() throws Exception {
+            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
+                crypto.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenThrow(new InvalidKeyPairException());
+                mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);;
+            }
+        }
+
+        private boolean executeMockedWithReturn(boolean ok) throws Exception {
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
+                        .thenReturn(ok);
+                return mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+            }
+        }
+
+    }
 
     // --- Delete user key pair tests ---
-
-    // TODO
-
-    // --- Check user key pair password tests ---
 
     // TODO
 

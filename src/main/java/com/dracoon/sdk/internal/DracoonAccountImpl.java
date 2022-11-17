@@ -325,9 +325,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version)
             throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
-        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.toUserKeyPairVersion(version);
-        UserKeyPair userKeyPair = getUserKeyPair(userKeyPairVersion);
-        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+        return checkUserKeyPairPassword(version, encryptionPassword);
     }
 
     @Override
