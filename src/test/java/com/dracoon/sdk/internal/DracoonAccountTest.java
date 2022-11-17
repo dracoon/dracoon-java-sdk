@@ -979,7 +979,41 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
     // --- Delete user key pair tests ---
 
-    // TODO
+    @Nested
+    class DeleteUserKeyPairTests {
+
+        private final String DATA_PATH = "/account/user_key_pair/";
+
+        @Test
+        void testRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "delete_key_pair_by_version_response.json");
+
+            // Execute method to test
+            mDai.deleteUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "delete_key_pair_by_version_request.json");
+        }
+
+        @Test
+        void testError() {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseError(mDracoonErrorParser::parseUserKeyPairDeleteError, expectedCode);
+
+            // Enqueue response
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    mDai.deleteUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048));
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+    }
 
     // --- Set user profile attribute tests ---
 
