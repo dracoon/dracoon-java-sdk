@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import retrofit2.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -1017,11 +1018,132 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
     // --- Set user profile attribute tests ---
 
-    // TODO
+    @Nested
+    class SetUserProfileAttributeTests {
+
+        private final String DATA_PATH = "/account/user_profile_attribute/";
+
+        private final String TEST_KEY = "test-key";
+        private final String TEST_VALUE = "test-value";
+
+        @Test
+        void testSetRequestsValid() throws Exception {
+            executeTestRequestsValid(TEST_VALUE, "set_attribute_request.json",
+                    "set_attribute_response.json");
+        }
+
+        @Test
+        void testDeleteRequestsValid() throws Exception {
+            executeTestRequestsValid(null, "delete_attribute_request.json",
+                    "delete_attribute_response.json");
+        }
+
+        private void executeTestRequestsValid(String value, String requestFilename,
+                String responseFilename) throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + responseFilename);
+
+            // Execute method to test
+            mDai.setUserProfileAttribute(TEST_KEY, value);
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + requestFilename);
+        }
+
+        @Test
+        void testSetError() {
+            executeTestError(TEST_VALUE, mDracoonErrorParser::parseUserProfileAttributesSetError);
+        }
+
+        @Test
+        void testDeleteError() {
+            executeTestError(null, mDracoonErrorParser::parseUserProfileAttributeDeleteError);
+        }
+
+        private void executeTestError(String value,
+                Function<Response, DracoonApiCode> errorParserFunc) {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseError(errorParserFunc, expectedCode);
+
+            // Enqueue response
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    mDai.setUserProfileAttribute(TEST_KEY, value));
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+    }
 
     // --- Get user profile attribute tests ---
 
-    // TODO
+    @Nested
+    class GetUserProfileAttributeTests {
+
+        private final String DATA_PATH = "/account/user_profile_attribute/";
+
+        private final String TEST_KEY = "test-key";
+
+        @Test
+        void testRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            mDai.getUserProfileAttribute(TEST_KEY);
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "get_attribute_request.json");
+        }
+
+        @Test
+        void testNoDataCorrect() throws Exception {
+            assertNull(executeTestDataCorrect("non-existing-key"));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            assertEquals("test-value", executeTestDataCorrect(TEST_KEY));
+        }
+
+        private String executeTestDataCorrect(String key) throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            return mDai.getUserProfileAttribute(key);
+        }
+
+        @Test
+        void testError() {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseError(mDracoonErrorParser::parseUserProfileAttributesQueryError, expectedCode);
+
+            // Enqueue response
+            enqueueErrorResponse();
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    mDai.getUserProfileAttribute(TEST_KEY));
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+        private void enqueueOkResponse() {
+            enqueueResponse(DATA_PATH + "get_attribute_response.json");
+        }
+
+        private void enqueueErrorResponse() {
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+        }
+
+    }
 
     // --- Set user avatar tests ---
 
