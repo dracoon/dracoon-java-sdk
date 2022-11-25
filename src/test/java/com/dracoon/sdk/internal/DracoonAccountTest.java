@@ -26,6 +26,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import retrofit2.Response;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,6 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 class DracoonAccountTest extends DracoonRequestHandlerTest {
 
@@ -1147,15 +1149,197 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
     // --- Set user avatar tests ---
 
-    // TODO
+    @Nested
+    class SetUserAvatarTests {
+
+        private final String DATA_PATH = "/account/user_avatar/";
+
+        private final byte[] AVATAR_BYTES = "avatar".getBytes();
+
+        @Test
+        void testRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "set_avatar_response.json");
+
+            // Execute method to test
+            mDai.setUserAvatar(AVATAR_BYTES);
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "set_avatar_request.json");
+        }
+
+        @Test
+        void testError() {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseError(mDracoonErrorParser::parseUserAvatarSetError, expectedCode);
+
+            // Enqueue response
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    mDai.setUserAvatar(AVATAR_BYTES));
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+    }
 
     // --- Get user avatar tests ---
 
-    // TODO
+    @Nested
+    class GetUserAvatarTests {
+
+        private final String DATA_PATH = "/account/user_avatar/";
+
+        private final byte[] AVATAR_BYTES = "avatar".getBytes();
+
+        @Mock
+        protected AvatarDownloader mAvatarDownloader;
+
+        @BeforeEach
+        void setup() {
+            mDracoonClientImpl.setAvatarDownloader(mAvatarDownloader);
+        }
+
+        @Test
+        void testApiRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            executeMocked();
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "get_avatar_info_request.json");
+        }
+
+        @Test
+        void testDownloaderCallsValid() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            executeMockedAndVerified();
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            byte[] avatarBytes = executeMockedWithReturn();
+
+            // Assert data is correct
+            assertArrayEquals(AVATAR_BYTES, avatarBytes);
+        }
+
+        @Test
+        void testApiError() {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseStandardError(expectedCode);
+
+            // Enqueue response
+            enqueueErrorResponse();
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    mDai.getUserAvatar());
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+        @Test
+        void testDownloaderError() {
+            // Enqueue responses
+            enqueueOkResponse();
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class,
+                    this::executeMockedWithException);
+
+            // Assert correct error code
+            assertEquals(DracoonApiCode.SERVER_USER_AVATAR_NOT_FOUND, thrown.getCode());
+        }
+
+        private void executeMocked() throws Exception {
+            when(mAvatarDownloader.downloadAvatar(any()))
+                    .thenReturn(AVATAR_BYTES);
+            mDai.getUserAvatar();
+        }
+
+        private void executeMockedAndVerified() throws Exception {
+            when(mAvatarDownloader.downloadAvatar(any()))
+                    .thenReturn(AVATAR_BYTES);
+            mDai.getUserAvatar();
+            verify(mAvatarDownloader).downloadAvatar(mServerUrl +
+                    "/api/v4/downloads/avatar/1/c33e748c-d05b-4af2-90e3-1a24d79b1d41");
+        }
+
+        private void executeMockedWithException() throws Exception {
+            when(mAvatarDownloader.downloadAvatar(any()))
+                    .thenThrow(new DracoonApiException(DracoonApiCode.SERVER_USER_AVATAR_NOT_FOUND));
+            mDai.getUserAvatar();
+        }
+
+        private byte[] executeMockedWithReturn() throws Exception {
+            when(mAvatarDownloader.downloadAvatar(any()))
+                    .thenReturn(AVATAR_BYTES);
+            return mDai.getUserAvatar();
+        }
+
+        private void enqueueOkResponse() {
+            enqueueResponse(DATA_PATH + "get_avatar_info_response.json");
+        }
+
+        private void enqueueErrorResponse() {
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+        }
+
+    }
 
     // --- Delete user avatar tests ---
 
-    // TODO
+    @Nested
+    class DeleteUserAvatarTests {
+
+        private final String DATA_PATH = "/account/user_avatar/";
+
+        @Test
+        void testRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "delete_avatar_response.json");
+
+            // Execute method to test
+            mDai.deleteUserAvatar();
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "delete_avatar_request.json");
+        }
+
+        @Test
+        void testError() {
+            // Mock error parsing
+            DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
+            mockParseError(mDracoonErrorParser::parseUserAvatarDeleteError, expectedCode);
+
+            // Enqueue response
+            enqueueResponse(DATA_PATH + "precondition_failed_response.json");
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    mDai.deleteUserAvatar());
+
+            // Assert correct error code
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+    }
 
     // --- Helper methods ---
 

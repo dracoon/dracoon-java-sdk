@@ -92,4 +92,8 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mShares = shares;
     }
 
+    public void setAvatarDownloader(AvatarDownloader avatarDownloader) {
+        mAvatarDownloader = avatarDownloader;
+    }
+
 }

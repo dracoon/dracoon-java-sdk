@@ -147,6 +147,8 @@ public class DracoonClientImpl extends DracoonClient {
     protected DracoonNodesImpl mNodes;
     protected DracoonSharesImpl mShares;
 
+    protected AvatarDownloader mAvatarDownloader;
+
     protected String mApiVersion = null;
 
     public DracoonClientImpl(URL serverUrl) {
@@ -230,6 +232,8 @@ public class DracoonClientImpl extends DracoonClient {
         mUsers = new DracoonUsersImpl(this);
         mNodes = new DracoonNodesImpl(this);
         mShares = new DracoonSharesImpl(this);
+
+        mAvatarDownloader = new AvatarDownloader(this);
 
         assertApiVersionSupported();
 
@@ -533,6 +537,10 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonSharesImpl getSharesImpl() {
         return mShares;
+    }
+
+    public AvatarDownloader getAvatarDownloader() {
+        return mAvatarDownloader;
     }
 
     // --- Helper methods ---

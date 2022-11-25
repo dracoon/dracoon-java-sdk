@@ -36,12 +36,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private static final String LOG_TAG = DracoonAccountImpl.class.getSimpleName();
 
-    private final AvatarDownloader mAvatarDownloader;
-
     DracoonAccountImpl(DracoonClientImpl client) {
         super(client);
-
-        mAvatarDownloader = new AvatarDownloader(client);
     }
 
     public void pingUser() throws DracoonNetIOException, DracoonApiException {
@@ -479,7 +475,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         ApiUserAvatarInfo avatarInfoData = avatarInfoResponse.body();
         String downloadUrl = avatarInfoData != null ? avatarInfoData.avatarUri : null;
 
-        return mAvatarDownloader.downloadAvatar(downloadUrl);
+        return mClient.getAvatarDownloader().downloadAvatar(downloadUrl);
     }
 
     @Override
