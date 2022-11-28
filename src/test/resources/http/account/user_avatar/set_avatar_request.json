@@ -1,0 +1,18 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/api/v4/user/account/avatar",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Bearer L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "base64",
+    "content": "YXZhdGFy"
+  }
+}

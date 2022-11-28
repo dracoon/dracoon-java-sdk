@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/octet-stream"
+    }
+  ],
+  "body": {
+    "type": "base64",
+    "content": "YXZhdGFy"
+  }
+}

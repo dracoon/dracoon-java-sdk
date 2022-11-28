@@ -64,6 +64,14 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mServer = server;
     }
 
+    public void setServerSettingsImpl(DracoonServerSettingsImpl serverSettings) {
+        mServerSettings = serverSettings;
+    }
+
+    public void setServerPoliciesImpl(DracoonServerPoliciesImpl serverPolicies) {
+        mServerPolicies = serverPolicies;
+    }
+
     public void setAccountImpl(DracoonAccountImpl account) {
         mAccount = account;
     }
@@ -82,6 +90,10 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     public void setSharesImpl(DracoonSharesImpl shares) {
         mShares = shares;
+    }
+
+    public void setAvatarDownloader(AvatarDownloader avatarDownloader) {
+        mAvatarDownloader = avatarDownloader;
     }
 
 }

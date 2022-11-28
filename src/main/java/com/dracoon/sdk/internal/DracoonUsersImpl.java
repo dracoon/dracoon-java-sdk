@@ -9,14 +9,8 @@ import com.dracoon.sdk.internal.validator.UserValidator;
 
 public class DracoonUsersImpl extends DracoonRequestHandler implements DracoonClient.Users {
 
-    private static final String LOG_TAG = DracoonUsersImpl.class.getSimpleName();
-
-    private final AvatarDownloader mAvatarDownloader;
-
     DracoonUsersImpl(DracoonClientImpl client) {
         super(client);
-
-        mAvatarDownloader = new AvatarDownloader(client);
     }
 
     // --- Avatar methods ---
@@ -32,7 +26,7 @@ public class DracoonUsersImpl extends DracoonRequestHandler implements DracoonCl
         String downloadUrl = mClient.buildApiUrl("downloads", "avatar", Long.toString(userId),
                 avatarUuid.toString());
 
-        return mAvatarDownloader.downloadAvatar(downloadUrl);
+        return mClient.getAvatarDownloader().downloadAvatar(downloadUrl);
     }
 
 }

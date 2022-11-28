@@ -36,12 +36,8 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private static final String LOG_TAG = DracoonAccountImpl.class.getSimpleName();
 
-    private final AvatarDownloader mAvatarDownloader;
-
     DracoonAccountImpl(DracoonClientImpl client) {
         super(client);
-
-        mAvatarDownloader = new AvatarDownloader(client);
     }
 
     public void pingUser() throws DracoonNetIOException, DracoonApiException {
@@ -167,10 +163,10 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         mClient.assertApiVersionSupported();
 
         List<ApiUserKeyPair> apiUserKeyPairs;
-        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            apiUserKeyPairs = getOneUserKeyPair();
-        } else {
+        if (mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
             apiUserKeyPairs = getAllUserKeyPairs();
+        } else {
+            apiUserKeyPairs = getOneUserKeyPair();
         }
 
         ArrayList<UserKeyPair> userKeyPairs = new ArrayList<>();
@@ -182,25 +178,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             }
         }
         return userKeyPairs;
-    }
-
-    private List<ApiUserKeyPair> getOneUserKeyPair() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiUserKeyPair> call = mService.getUserKeyPair(null);
-        Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
-
-        if (existsNoUserKeyPair(response)) {
-            return Collections.emptyList();
-        }
-
-        if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairsQueryError(response);
-            String errorText = String.format("Query of user key pairs failed with '%s'!",
-                    errorCode.name());
-            mLog.d(LOG_TAG, errorText);
-            throw new DracoonApiException(errorCode);
-        }
-
-        return Collections.singletonList(response.body());
     }
 
     private List<ApiUserKeyPair> getAllUserKeyPairs() throws DracoonNetIOException, DracoonApiException {
@@ -220,6 +197,25 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
 
         return response.body();
+    }
+
+    private List<ApiUserKeyPair> getOneUserKeyPair() throws DracoonNetIOException, DracoonApiException {
+        Call<ApiUserKeyPair> call = mService.getUserKeyPair(null);
+        Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
+
+        if (existsNoUserKeyPair(response)) {
+            return Collections.emptyList();
+        }
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairsQueryError(response);
+            String errorText = String.format("Query of user key pairs failed with '%s'!",
+                    errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        return Collections.singletonList(response.body());
     }
 
     private static boolean existsNoUserKeyPair(Response<?> response) {
@@ -256,15 +252,16 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     public UserKeyPair getPreferredUserKeyPair() throws DracoonNetIOException,
             DracoonApiException {
-        List<UserKeyPairAlgorithm> userKeyPairAlgorithms = mClient.server().settings()
+        List<UserKeyPairAlgorithm> userKeyPairAlgorithms = mClient.getServerSettingsImpl()
                 .getAvailableUserKeyPairAlgorithms();
 
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
 
         for (UserKeyPairAlgorithm userKeyPairAlgorithm : userKeyPairAlgorithms) {
-            Optional<UserKeyPair> userKeyPair = userKeyPairs.stream().findAny().filter(
-                    kp -> Objects.equals(kp.getUserPrivateKey().getVersion().getValue(),
-                            userKeyPairAlgorithm.getVersion().getValue()));
+            Optional<UserKeyPair> userKeyPair = userKeyPairs.stream()
+                    .filter(kp -> Objects.equals(kp.getUserPrivateKey().getVersion().getValue(),
+                            userKeyPairAlgorithm.getVersion().getValue()))
+                    .findAny();
             if (userKeyPair.isPresent()) {
                 return userKeyPair.get();
             }
@@ -324,9 +321,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version)
             throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
-        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.toUserKeyPairVersion(version);
-        UserKeyPair userKeyPair = getUserKeyPair(userKeyPairVersion);
-        return checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+        return checkUserKeyPairPassword(version, encryptionPassword);
     }
 
     @Override
@@ -480,7 +475,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         ApiUserAvatarInfo avatarInfoData = avatarInfoResponse.body();
         String downloadUrl = avatarInfoData != null ? avatarInfoData.avatarUri : null;
 
-        return mAvatarDownloader.downloadAvatar(downloadUrl);
+        return mClient.getAvatarDownloader().downloadAvatar(downloadUrl);
     }
 
     @Override
