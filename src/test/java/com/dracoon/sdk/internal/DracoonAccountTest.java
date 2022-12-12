@@ -1354,14 +1354,4 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         return algorithm;
     }
 
-    private void mockParseStandardError(DracoonApiCode code) {
-        when(mDracoonErrorParser.parseStandardError(any(retrofit2.Response.class)))
-                .thenReturn(code);
-    }
-
-    private void mockParseError(Function<Response, DracoonApiCode> func, DracoonApiCode code) {
-        when(func.apply(any(retrofit2.Response.class)))
-                .thenReturn(code);
-    }
-
 }

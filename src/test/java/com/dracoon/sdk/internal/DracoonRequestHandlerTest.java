@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal;
 
+import java.util.function.Function;
+
 import com.dracoon.sdk.BaseHttpTest;
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonHttpConfig;
@@ -10,9 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import retrofit2.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
@@ -48,6 +53,16 @@ public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
         assertInstanceOf(DracoonApiException.class, cause);
         DracoonApiException exception = (DracoonApiException) cause;
         assertEquals(code, exception.getCode());
+    }
+
+    protected void mockParseStandardError(DracoonApiCode code) {
+        when(mDracoonErrorParser.parseStandardError(any(retrofit2.Response.class)))
+                .thenReturn(code);
+    }
+
+    protected void mockParseError(Function<Response, DracoonApiCode> func, DracoonApiCode code) {
+        when(func.apply(any(retrofit2.Response.class)))
+                .thenReturn(code);
     }
 
 }
