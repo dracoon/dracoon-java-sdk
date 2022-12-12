@@ -239,25 +239,25 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         @Test
         void testRequestsValid() throws Exception {
-            executeTestRequestsValid("get_key_pair_response.json", "get_key_pair_request.json");
+            executeTestRequestsValid("get_key_pair_request.json", "get_key_pair_response.json");
         }
 
         @Test
         void testRequestsValidNewCrypto() throws Exception {
             setApiVersionNewCryptoAlgos();
-            executeTestRequestsValid("get_key_pairs_response.json", "get_key_pairs_request.json");
+            executeTestRequestsValid("get_key_pairs_request.json", "get_key_pairs_response.json");
         }
 
         private void executeTestRequestsValid(String requestFilename, String responseFilename)
                 throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + requestFilename);
+            enqueueResponse(DATA_PATH + responseFilename);
 
             // Execute method to test
             mDai.getUserKeyPairAlgorithmVersions();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + responseFilename);
+            checkRequest(DATA_PATH + requestFilename);
         }
 
         @Test
@@ -293,10 +293,10 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             executeTestDataCorrect("get_key_pairs_response.json", "user_key_pair_algo_versions.json");
         }
 
-        private void executeTestDataCorrect(String requestFilename, String dataFilename)
+        private void executeTestDataCorrect(String responseFilename, String dataFilename)
                 throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + requestFilename);
+            enqueueResponse(DATA_PATH + responseFilename);
 
             // Execute method to test
             List<UserKeyPairAlgorithm.Version> versions = mDai.getUserKeyPairAlgorithmVersions();
@@ -521,26 +521,26 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithms);
-            executeTestRequestsValid("get_key_pair_response.json", "get_key_pair_request.json");
+            executeTestRequestsValid("get_key_pair_request.json", "get_key_pair_response.json");
         }
 
         @Test
         void testRequestsValidNewCrypto() throws Exception {
             setApiVersionNewCryptoAlgos();
             mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithmsNewCrypto);
-            executeTestRequestsValid("get_key_pairs_response.json", "get_key_pairs_request.json");
+            executeTestRequestsValid("get_key_pairs_request.json", "get_key_pairs_response.json");
         }
 
         private void executeTestRequestsValid(String requestFilename, String responseFilename)
                 throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + requestFilename);
+            enqueueResponse(DATA_PATH + responseFilename);
 
             // Execute method to test
             mDai.getPreferredUserKeyPair();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + responseFilename);
+            checkRequest(DATA_PATH + requestFilename);
         }
 
         @Test
