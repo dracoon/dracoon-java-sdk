@@ -47,6 +47,4 @@ public class ApiNode {
     public Long branchVersion;
 
     public String mediaToken;
-
-    public List<ApiNode> children;
 }
