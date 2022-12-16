@@ -4,6 +4,7 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.NodeTypeFilter;
+import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
@@ -282,6 +283,135 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testError() {
             executeTestError("node_not_found_response.json",
                     () -> mDni.getNode(NODE_PATH));
+        }
+
+    }
+
+    // --- Search nodes tests ---
+
+    private abstract class BaseSearchNodesTests extends BaseQueryNodesTests<NodeList> {
+
+        protected BaseSearchNodesTests() {
+            super(NodeList.class, "/nodes/search_nodes/");
+        }
+
+    }
+
+    @Nested
+    class SearchNodesTests extends BaseSearchNodesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("search_nodes_request.json", "search_nodes_response.json",
+                    () -> mDni.searchNodes(1L, "test"));
+        }
+
+        @Test
+        void testNoDataCorrect() throws Exception {
+            executeTestDataCorrect("search_nodes_empty_response.json", "nodes_empty.json",
+                    () -> mDni.searchNodes(1L, "test"));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("search_nodes_response.json", "nodes.json",
+                    () -> mDni.searchNodes(1L, "test"));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.getNodes(1L));
+        }
+
+    }
+
+    @Nested
+    class SearchNodesWithFiltersTests extends BaseSearchNodesTests {
+
+        private final SearchNodesFilters mFilters;
+
+        SearchNodesWithFiltersTests() {
+            mFilters = new SearchNodesFilters();
+            mFilters.addNodeTypeFilter(new NodeTypeFilter.Builder().eq(NodeType.FOLDER).or()
+                    .eq(NodeType.FILE).build());
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("search_nodes_with_filter_request.json",
+                    "search_nodes_with_filter_response.json",
+                    () -> mDni.searchNodes(2L, "test", mFilters));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("search_nodes_with_filter_response.json", "nodes_filtered.json",
+                    () -> mDni.searchNodes(2L, "test", mFilters));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.searchNodes(2L, "test", mFilters));
+        }
+
+    }
+
+    @Nested
+    class SearchNodesPagedTests extends BaseSearchNodesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("search_nodes_paged_request.json",
+                    "search_nodes_paged_response.json",
+                    () -> mDni.searchNodes(3L, "test", 1L, 2L));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("search_nodes_paged_response.json", "nodes_paged.json",
+                    () -> mDni.searchNodes(3L, "test", 1L, 2L));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.searchNodes(3L, "test", 1L, 2L));
+        }
+
+    }
+
+    @Nested
+    class SearchNodesPagedWithFiltersTests extends BaseSearchNodesTests {
+
+        private final SearchNodesFilters mFilters;
+
+        SearchNodesPagedWithFiltersTests() {
+            super();
+            mFilters = new SearchNodesFilters();
+            mFilters.addNodeTypeFilter(new NodeTypeFilter.Builder().eq(NodeType.FOLDER).or()
+                    .eq(NodeType.FILE).build());
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("search_nodes_paged_with_filter_request.json",
+                    "search_nodes_paged_with_filter_response.json",
+                    () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("search_nodes_paged_with_filter_response.json",
+                    "nodes_paged_filtered.json",
+                    () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
         }
 
     }
