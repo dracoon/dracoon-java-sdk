@@ -4,6 +4,7 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.NodeTypeFilter;
+import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,55 +25,79 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         mDni = new DracoonNodesImpl(mDracoonClientImpl);
     }
 
-    // --- Get nodes tests ---
-
-    interface GetNodesTest {
-        NodeList execute() throws Exception;
+    private interface QueryNodesTest<T> {
+        T execute() throws Exception;
     }
 
-    abstract class BaseGetNodesTests {
+    private abstract class BaseQueryNodesTests<T> {
 
-        private final String DATA_PATH = "/nodes/get_nodes/";
+        private final Class<T> mDataClass;
+        private final String mDataPath;
+
+        protected BaseQueryNodesTests(Class<T> dataClass, String dataPath) {
+            mDataClass = dataClass;
+            mDataPath = dataPath;
+        }
 
         protected void executeTestRequestsValid(String requestFilename, String responseFilename,
-                GetNodesTest test)
-                throws Exception {
+                QueryNodesTest<T> test) throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + responseFilename);
+            enqueueResponse(mDataPath + responseFilename);
 
             // Execute method to test
             test.execute();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + requestFilename);
+            checkRequest(mDataPath + requestFilename);
+        }
+
+        protected void executeTestNoData(String responseFilename, QueryNodesTest<T> test) {
+            // Enqueue response
+            enqueueResponse(mDataPath + responseFilename);
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, test::execute);
+
+            // Assert correct error code
+            assertEquals(DracoonApiCode.SERVER_NODE_NOT_FOUND, thrown.getCode());
         }
 
         protected void executeTestDataCorrect(String responseFilename, String dataFilename,
-                GetNodesTest test) throws Exception {
+                QueryNodesTest<T> test) throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + responseFilename);
+            enqueueResponse(mDataPath + responseFilename);
 
             // Execute method to test
-            NodeList nodeList = test.execute();
+            T data = test.execute();
 
             // Assert data is correct
-            NodeList expectedNodeList = readData(NodeList.class, DATA_PATH + dataFilename);
-            assertDeepEquals(expectedNodeList, nodeList);
+            T expectedData = readData(mDataClass, mDataPath + dataFilename);
+            assertDeepEquals(expectedData, data);
         }
 
-        protected void executeTestError(GetNodesTest test) {
+        protected void executeTestError(String responseFilename, QueryNodesTest<T> test) {
             // Mock error parsing
             DracoonApiCode expectedCode = DracoonApiCode.SERVER_NODE_NOT_FOUND;
             mockParseError(mDracoonErrorParser::parseNodesQueryError, expectedCode);
 
             // Enqueue response
-            enqueueResponse(DATA_PATH + "node_not_found_response.json");
+            enqueueResponse(mDataPath + responseFilename);
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, test::execute);
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
+        }
+
+    }
+
+    // --- Get nodes tests ---
+
+    private abstract class BaseGetNodesTests extends BaseQueryNodesTests<NodeList> {
+
+        protected BaseGetNodesTests() {
+            super(NodeList.class, "/nodes/get_nodes/");
         }
 
     }
@@ -100,7 +125,8 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
         @Test
         void testError() {
-            executeTestError(() -> mDni.getNodes(1L));
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.getNodes(1L));
         }
 
     }
@@ -108,10 +134,9 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
     @Nested
     class GetNodesWithFiltersTests extends BaseGetNodesTests {
 
-        private GetNodesFilters mFilters;
+        private final GetNodesFilters mFilters;
 
-        @BeforeEach
-        void setup() {
+        GetNodesWithFiltersTests() {
             mFilters = new GetNodesFilters();
             mFilters.addNodeTypeFilter(new NodeTypeFilter.Builder().eq(NodeType.FOLDER).or()
                     .eq(NodeType.FILE).build());
@@ -132,7 +157,8 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
         @Test
         void testError() {
-            executeTestError(() -> mDni.getNodes(2L, mFilters));
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.getNodes(2L, mFilters));
         }
 
     }
@@ -155,7 +181,8 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
         @Test
         void testError() {
-            executeTestError(() -> mDni.getNodes(3L, 1L, 2L));
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.getNodes(3L, 1L, 2L));
         }
 
     }
@@ -163,10 +190,10 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
     @Nested
     class GetNodesPagedWithFiltersTests extends BaseGetNodesTests {
 
-        private GetNodesFilters mFilters;
+        private final GetNodesFilters mFilters;
 
-        @BeforeEach
-        void setup() {
+        GetNodesPagedWithFiltersTests() {
+            super();
             mFilters = new GetNodesFilters();
             mFilters.addNodeTypeFilter(new NodeTypeFilter.Builder().eq(NodeType.FOLDER).or()
                     .eq(NodeType.FILE).build());
@@ -188,7 +215,73 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
         @Test
         void testError() {
-            executeTestError(() -> mDni.getNodes(4L, mFilters, 1L, 2L));
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.getNodes(4L, mFilters, 1L, 2L));
+        }
+
+    }
+
+    // --- Get node tests ---
+
+    abstract class BaseGetNodeTests extends BaseQueryNodesTests<Node> {
+
+        protected BaseGetNodeTests() {
+            super(Node.class, "/nodes/get_node/");
+        }
+
+    }
+
+    @Nested
+    class GetNodeTests extends BaseGetNodeTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_node_request.json", "get_node_response.json",
+                    () -> mDni.getNode(4L));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_node_response.json", "node.json",
+                    () -> mDni.getNode(4L));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.getNode(4L));
+        }
+
+    }
+
+    @Nested
+    class GetNodeByPathTests extends BaseGetNodeTests {
+
+        private final String NODE_PATH = "/test/test-file.jpg";
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_node_by_path_request.json",
+                    "get_node_by_path_response.json",
+                    () -> mDni.getNode(NODE_PATH));
+        }
+
+        @Test
+        void testNoData() {
+            executeTestNoData("get_node_by_path_empty_response.json",
+                    () -> mDni.getNode(NODE_PATH));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_node_by_path_response.json", "node.json",
+                    () -> mDni.getNode(NODE_PATH));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    () -> mDni.getNode(NODE_PATH));
         }
 
     }

@@ -500,22 +500,24 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         private final String DATA_PATH = "/account/user_key_pair/";
 
+        private final List<UserKeyPairAlgorithm> keyPairAlgorithms;
+        private final List<UserKeyPairAlgorithm> keyPairAlgorithmsNewCrypto;
+
         @Mock
         protected DracoonServerSettingsImpl mServerSettingsImpl;
 
-        private List<UserKeyPairAlgorithm> keyPairAlgorithms;
-        private List<UserKeyPairAlgorithm> keyPairAlgorithmsNewCrypto;
-
-        @BeforeEach
-        void setup() {
-            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
-
+        GetPreferredUserKeyPairTests() {
             keyPairAlgorithms = Arrays.asList(
                     createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA2048));
 
             keyPairAlgorithmsNewCrypto = Arrays.asList(
                     createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA4096),
                     createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA2048));
+        }
+
+        @BeforeEach
+        void setup() {
+            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
         }
 
         @Test
@@ -767,7 +769,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             "unused",
             "java:S2699" // SONAR: Assert statements are located in subclasses
     })
-    abstract class BaseCheckUserKeyPairTests {
+    private abstract class BaseCheckUserKeyPairTests {
 
         protected final String DATA_PATH = "/account/user_key_pair/";
 
