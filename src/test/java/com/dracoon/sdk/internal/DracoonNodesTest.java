@@ -5,9 +5,11 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.NodeTypeFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
+import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
+import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
@@ -538,7 +540,7 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
     private abstract class BaseDeleteNodesTests extends BaseNodesTests<Void> {
 
-        BaseDeleteNodesTests() {
+        protected BaseDeleteNodesTests() {
             super(Void.class, "/nodes/delete_nodes/");
         }
 
@@ -596,6 +598,80 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         private Void executeDeleteNode() throws Exception {
             mDni.deleteNode(4L);
             return null;
+        }
+
+    }
+
+    // --- Copy/move nodes tests ---
+
+    private abstract class BaseCopyMoveNodesTests extends BaseNodesTests<Node> {
+
+        protected BaseCopyMoveNodesTests() {
+            super(Node.class, "/nodes/copy_move_nodes/");
+        }
+
+    }
+
+    @Nested
+    class CopyNodesTests extends BaseCopyMoveNodesTests {
+
+        private CopyNodesRequest mCopyNodesRequest;
+
+        @BeforeEach
+        void setup() {
+            mCopyNodesRequest = readDataWithPath(CopyNodesRequest.class, "copy_nodes_request.json");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("copy_nodes_request.json", "copy_nodes_response.json",
+                    () -> mDni.copyNodes(mCopyNodesRequest));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("copy_nodes_response.json", "node.json",
+                    () -> mDni.copyNodes(mCopyNodesRequest));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    mDracoonErrorParser::parseNodesCopyError,
+                    DracoonApiCode.SERVER_SOURCE_NODE_NOT_FOUND,
+                    () -> mDni.copyNodes(mCopyNodesRequest));
+        }
+
+    }
+
+    @Nested
+    class MoveNodesTests extends BaseCopyMoveNodesTests {
+
+        private MoveNodesRequest mMoveNodesRequest;
+
+        @BeforeEach
+        void setup() {
+            mMoveNodesRequest = readDataWithPath(MoveNodesRequest.class, "move_nodes_request.json");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("move_nodes_request.json", "move_nodes_response.json",
+                    () -> mDni.moveNodes(mMoveNodesRequest));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("move_nodes_response.json", "node.json",
+                    () -> mDni.moveNodes(mMoveNodesRequest));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    mDracoonErrorParser::parseNodesMoveError,
+                    DracoonApiCode.SERVER_SOURCE_NODE_NOT_FOUND,
+                    () -> mDni.moveNodes(mMoveNodesRequest));
         }
 
     }
