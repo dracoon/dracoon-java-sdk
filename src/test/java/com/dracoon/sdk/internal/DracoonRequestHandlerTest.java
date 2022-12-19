@@ -1,7 +1,5 @@
 package com.dracoon.sdk.internal;
 
-import java.util.function.Function;
-
 import com.dracoon.sdk.BaseHttpTest;
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonHttpConfig;
@@ -24,6 +22,11 @@ public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
 
     private static final String USER_AGENT = "Java-SDK-Unit-Test";
     private static final String ACCESS_TOKEN = "L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW";
+
+    @FunctionalInterface
+    protected interface ErrorParserFunction {
+        DracoonApiCode apply(Response response);
+    }
 
     protected DracoonClientImplMock mDracoonClientImpl;
 
@@ -60,7 +63,7 @@ public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
                 .thenReturn(code);
     }
 
-    protected void mockParseError(Function<Response, DracoonApiCode> func, DracoonApiCode code) {
+    protected void mockParseError(ErrorParserFunction func, DracoonApiCode code) {
         when(func.apply(any(retrofit2.Response.class)))
                 .thenReturn(code);
     }

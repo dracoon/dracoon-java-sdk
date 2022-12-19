@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.error.InvalidKeyPairException;
@@ -24,7 +23,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import retrofit2.Response;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1064,8 +1062,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             executeTestError(null, mDracoonErrorParser::parseUserProfileAttributeDeleteError);
         }
 
-        private void executeTestError(String value,
-                Function<Response, DracoonApiCode> errorParserFunc) {
+        private void executeTestError(String value, ErrorParserFunction errorParserFunc) {
             // Mock error parsing
             DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
             mockParseError(errorParserFunc, expectedCode);
