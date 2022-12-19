@@ -16,12 +16,12 @@ public abstract class BaseTest {
             .disableHtmlEscaping()
             .create();
 
-    protected static byte[] readFile(String fileName) {
-        return TestUtils.readFile(FILES_DIR + fileName);
+    protected static byte[] readFile(String filePath) {
+        return TestUtils.readFile(FILES_DIR + filePath);
     }
 
-    protected static <T> T readData(Class<? extends T> clazz, String fileName) {
-        return TestUtils.readData(clazz, DATA_DIR + fileName);
+    protected static <T> T readData(Class<? extends T> clazz, String filePath) {
+        return TestUtils.readData(clazz, DATA_DIR + filePath);
     }
 
     protected void assertDeepEquals(Object o1, Object o2) {

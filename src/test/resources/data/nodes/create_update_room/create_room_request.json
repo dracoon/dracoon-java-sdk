@@ -1,0 +1,13 @@
+{
+  "mParentId": 1,
+  "mName": "test-room",
+  "mQuota": 1073741824,
+  "mNotes": "test",
+  "mHasRecycleBin": true,
+  "mRecycleBinRetentionPeriod": 21,
+  "mHasInheritPermissions": false,
+  "mAdminUserIds": [1],
+  "mAdminGroupIds": [1],
+  "mNewGroupMemberAcceptance": "AUTO_ALLOW",
+  "mClassification": "PUBLIC"
+}
