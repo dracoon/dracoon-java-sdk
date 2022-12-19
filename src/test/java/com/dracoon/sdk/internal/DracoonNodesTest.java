@@ -7,6 +7,7 @@ import com.dracoon.sdk.filter.NodeTypeFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.model.CreateFolderRequest;
 import com.dracoon.sdk.model.CreateRoomRequest;
+import com.dracoon.sdk.model.DeleteNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
@@ -529,6 +530,72 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
                     mDracoonErrorParser::parseFileUpdateError,
                     DracoonApiCode.SERVER_NODE_NOT_FOUND,
                     () -> mDni.updateFile(mUpdateFileRequest));
+        }
+
+    }
+
+    // --- Delete nodes tests ---
+
+    private abstract class BaseDeleteNodesTests extends BaseNodesTests<Void> {
+
+        BaseDeleteNodesTests() {
+            super(Void.class, "/nodes/delete_nodes/");
+        }
+
+    }
+
+    @Nested
+    class DeleteNodesTests extends BaseDeleteNodesTests {
+
+        private DeleteNodesRequest mDeleteNodesRequest;
+
+        @BeforeEach
+        void setup() {
+            mDeleteNodesRequest = readDataWithPath(DeleteNodesRequest.class,
+                    "delete_nodes_request.json");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("delete_nodes_request.json", "delete_nodes_response.json",
+                    this::executeDeleteNodes);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    mDracoonErrorParser::parseNodesDeleteError,
+                    DracoonApiCode.SERVER_NODE_NOT_FOUND,
+                    this::executeDeleteNodes);
+        }
+
+        private Void executeDeleteNodes() throws Exception {
+            mDni.deleteNodes(mDeleteNodesRequest);
+            return null;
+        }
+
+    }
+
+    @Nested
+    class DeleteNodeTests extends BaseDeleteNodesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("delete_node_request.json", "delete_node_response.json",
+                    this::executeDeleteNode);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    mDracoonErrorParser::parseNodesDeleteError,
+                    DracoonApiCode.SERVER_NODE_NOT_FOUND,
+                    this::executeDeleteNode);
+        }
+
+        private Void executeDeleteNode() throws Exception {
+            mDni.deleteNode(4L);
+            return null;
         }
 
     }
