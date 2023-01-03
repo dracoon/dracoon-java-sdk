@@ -1,9 +1,6 @@
 package com.dracoon.sdk.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
@@ -29,7 +26,6 @@ import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
-import com.dracoon.sdk.error.DracoonFileNotFoundException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.filter.FavoriteStatusFilter;
 import com.dracoon.sdk.filter.Filters;
@@ -103,6 +99,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     DracoonNodesImpl(DracoonClientImpl client) {
         super(client);
+    }
+
+    UploadThread getUploadThread(String id) {
+        return mUploads.get(id);
+    }
+
+    void putUploadThread(String id, UploadThread uploadThread) {
+        mUploads.put(id, uploadThread);
     }
 
     // --- Query methods ---
@@ -461,7 +465,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateUploadRequest(id, request, file);
 
-        InputStream is = getFileInputStream(file);
+        InputStream is = mClient.getFileStreamHelper().getFileInputStream(file);
         long length = file.length();
 
         return uploadFileInternally(id, request, is, length, true, callback);
@@ -484,7 +488,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
         PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
-        UploadThread uploadThread = new UploadThread(mClient, id, request, length, userPublicKey,
+        UploadThread uploadThread = UploadThread.create(mClient, id, request, length, userPublicKey,
                 plainFileKey, is);
         uploadThread.addCallback(callback);
 
@@ -506,7 +510,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateUploadRequest(id, request, file);
 
-        InputStream is = getFileInputStream(file);
+        InputStream is = mClient.getFileStreamHelper().getFileInputStream(file);
         long length = file.length();
 
         startUploadFileAsyncInternally(id, request, is, length, true, callback);
@@ -559,7 +563,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             }
         };
 
-        UploadThread uploadThread = new UploadThread(mClient, id, request, length, userPublicKey,
+        UploadThread uploadThread = UploadThread.create(mClient, id, request, length, userPublicKey,
                 plainFileKey, is);
         uploadThread.addCallback(callback);
         uploadThread.addCallback(internalCallback);
@@ -576,8 +580,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             return;
         }
 
-        if (uploadThread.isAlive()) {
-            uploadThread.interrupt();
+        ThreadHelper threadHelper = mClient.getThreadHelper();
+        if (threadHelper.isThreadAlive(uploadThread)) {
+            threadHelper.interruptThread(uploadThread);
         }
         mUploads.remove(id);
     }
@@ -594,7 +599,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
         // SONAR: No try-with-resources or close is needed here
-        UploadStream uploadStream = new UploadStream(mClient, id, request, length, //NOSONAR
+        UploadStream uploadStream = UploadStream.create(mClient, id, request, length, //NOSONAR
                 userPublicKey, plainFileKey);
 
         if (callback != null) {
@@ -637,7 +642,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateDownloadRequest(id, file);
 
-        OutputStream os = getFileOutputStream(file);
+        OutputStream os = mClient.getFileStreamHelper().getFileOutputStream(file);
 
         downloadFileInternally(id, nodeId, os, true, callback);
     }
@@ -678,7 +683,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         FileValidator.validateDownloadRequest(id, file);
 
-        OutputStream os = getFileOutputStream(file);
+        OutputStream os = mClient.getFileStreamHelper().getFileOutputStream(file);
 
         startDownloadFileAsyncInternally(id, nodeId, os, true, callback);
     }
@@ -747,8 +752,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             return;
         }
 
-        if (downloadThread.isAlive()) {
-            downloadThread.interrupt();
+        ThreadHelper threadHelper = mClient.getThreadHelper();
+        if (threadHelper.isThreadAlive(downloadThread)) {
+            threadHelper.interruptThread(downloadThread);
         }
         mDownloads.remove(id);
     }
@@ -1284,30 +1290,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     }
 
     // --- Helper methods ---
-
-    private static InputStream getFileInputStream(File file) throws DracoonFileIOException {
-        if (!file.exists()) {
-            throw new DracoonFileNotFoundException("File not found.");
-        }
-
-        if (!file.canRead()) {
-            throw new DracoonFileNotFoundException("File not readable.");
-        }
-
-        try {
-            return new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new DracoonFileIOException("File cannot be opened.", e);
-        }
-    }
-
-    private static OutputStream getFileOutputStream(File file) throws DracoonFileIOException {
-        try {
-            return new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new DracoonFileIOException("File cannot be opened.", e);
-        }
-    }
 
     private static void closeStream(InputStream is, boolean close) {
         if (close) {

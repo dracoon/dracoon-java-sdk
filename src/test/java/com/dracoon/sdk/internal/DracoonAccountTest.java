@@ -339,9 +339,9 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
     @Nested
     class SetUserKeyPairTests {
 
-        private final String DATA_PATH = "/account/user_key_pair/";
-
         private final String CRYPTO_PW = "test";
+
+        private final String DATA_PATH = "/account/user_key_pair/";
 
         @BeforeEach
         void setup() {
@@ -412,8 +412,8 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         }
 
         private void executeMockedWithException() throws Exception {
-            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
-                crypto.when(() -> Crypto.generateUserKeyPair(any(), any()))
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.generateUserKeyPair(any(), any()))
                         .thenThrow(new InvalidKeyPairException());
                 mDai.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
             }
@@ -482,8 +482,8 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         }
 
         private void executeMockedWithException() throws Exception {
-            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
-                crypto.when(() -> Crypto.generateUserKeyPair(any(), any()))
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.generateUserKeyPair(any(), any()))
                         .thenThrow(new InvalidKeyPairException());
                 mDai.generateUserKeyPair(UserKeyPair.Version.RSA2048, CRYPTO_PW);
             }
@@ -635,12 +635,14 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
     @Nested
     class GetAndCheckUserKeyPairsTests {
 
+        private final String CRYPTO_PW = "test";
+
         private final String DATA_PATH = "/account/user_key_pair/";
 
         @BeforeEach
         void setup() {
             setApiVersionNewCryptoAlgos();
-            mDracoonClientImpl.setEncryptionPassword("test");
+            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
         }
 
         @Test
@@ -739,8 +741,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
                         .thenReturn(true);
                 List<UserKeyPair> userKeyPairs = mDai.getAndCheckUserKeyPairs();
                 for (UserKeyPair userKeyPair : userKeyPairs) {
-                    mock.verify(() -> Crypto.checkUserKeyPair(userKeyPair,
-                            mDracoonClientImpl.getEncryptionPassword()));
+                    mock.verify(() -> Crypto.checkUserKeyPair(userKeyPair, CRYPTO_PW));
                 }
             }
         }
@@ -754,8 +755,8 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         }
 
         private void executeMockedWithException() throws Exception {
-            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
-                crypto.when(() -> Crypto.checkUserKeyPair(any(), any()))
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
                         .thenThrow(new InvalidKeyPairException());
                 mDai.getAndCheckUserKeyPairs();
             }
@@ -769,6 +770,8 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
     })
     private abstract class BaseCheckUserKeyPairTests {
 
+        protected final String CRYPTO_PW = "test";
+
         protected final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
@@ -781,7 +784,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             mockGetAvailableUserKeyPairVersions();
 
             setApiVersionNewCryptoAlgos();
-            mDracoonClientImpl.setEncryptionPassword("test");
+            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
         }
 
         @Test
@@ -898,15 +901,14 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
                 mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
                         .thenReturn(true);
                 UserKeyPair userKeyPair = mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
-                mock.verify(() -> Crypto.checkUserKeyPair(userKeyPair,
-                            mDracoonClientImpl.getEncryptionPassword()));
+                mock.verify(() -> Crypto.checkUserKeyPair(userKeyPair, CRYPTO_PW));
             }
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
-            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
-                crypto.when(() -> Crypto.checkUserKeyPair(any(), any()))
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
                         .thenThrow(new InvalidKeyPairException());
                 mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
             }
@@ -957,14 +959,14 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
                 mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
                 mock.verify(() -> Crypto.checkUserKeyPair(
                         argThat(arg -> deepEquals(arg, userKeyPair)),
-                        eq(mDracoonClientImpl.getEncryptionPassword())));
+                        eq(CRYPTO_PW)));
             }
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
-            try (MockedStatic<Crypto> crypto = Mockito.mockStatic(Crypto.class)) {
-                crypto.when(() -> Crypto.checkUserKeyPair(any(), any()))
+            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
+                mock.when(() -> Crypto.checkUserKeyPair(any(), any()))
                         .thenThrow(new InvalidKeyPairException());
                 mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);;
             }

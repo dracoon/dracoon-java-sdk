@@ -77,7 +77,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @BeforeEach
         void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 1024L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
         }
 
         @Test
@@ -125,7 +125,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @Override
         protected void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 1024L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
         }
 
         @Test
@@ -150,7 +150,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @Override
         protected void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 1024L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
         }
 
         @Test
@@ -188,7 +188,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, mBytes.length,
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, mBytes.length,
                     getUserPublicKey(), getFileKey());
             mUls.start();
 
@@ -424,7 +424,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, mBytes.length,
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, mBytes.length,
                     getUserPublicKey(), getFileKey());
             mUls.start();
 
@@ -688,7 +688,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 0, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 0, null, null);
             mUls.start();
 
             // Drop irrelevant requests
@@ -776,7 +776,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 0, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 0, null, null);
             mUls.start();
 
             // Drop irrelevant requests
@@ -916,7 +916,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @BeforeEach
         void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, "Test", request, 512L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 512L, null, null);
         }
 
         @Test
@@ -979,7 +979,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0, null, null);
             mUls.addCallback(this);
         }
 
@@ -1023,7 +1023,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 4096L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 4096L, null, null);
             mUls.addCallback(this);
         }
 
@@ -1074,7 +1074,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
             mUls.addCallback(this);
         }
 
@@ -1125,7 +1125,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
             mUls.addCallback(this);
         }
 
@@ -1239,7 +1239,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = new UploadStream(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
             mUls.addCallback(this);
         }
 

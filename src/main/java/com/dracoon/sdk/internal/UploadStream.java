@@ -148,7 +148,7 @@ public class UploadStream extends FileUploadStream {
 
     private final List<FileUploadCallback> mCallbacks = new ArrayList<>();
 
-    UploadStream(DracoonClientImpl client, String id, FileUploadRequest request, long length,
+    private UploadStream(DracoonClientImpl client, String id, FileUploadRequest request, long length,
             UserPublicKey userPublicKey, PlainFileKey fileKey) {
         mClient = client;
         mLog = client.getLog();
@@ -692,6 +692,13 @@ public class UploadStream extends FileUploadStream {
     private static String createCompleteUploadErrorMessage(String id, DracoonApiCode errorCode) {
         return String.format("Completion of upload for '%s' failed with '%s'!", id,
                 errorCode.name());
+    }
+
+    // --- Factory methods ---
+
+    public static UploadStream create(DracoonClientImpl client, String id, FileUploadRequest request,
+            long length, UserPublicKey userPublicKey, PlainFileKey fileKey) {
+        return new UploadStream(client, id, request, length, userPublicKey, fileKey);
     }
 
 }

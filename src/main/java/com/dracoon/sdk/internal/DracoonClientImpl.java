@@ -133,6 +133,9 @@ public class DracoonClientImpl extends DracoonClient {
     private OkHttpClient mHttpClient;
     protected HttpHelper mHttpHelper;
 
+    protected ThreadHelper mThreadHelper;
+    protected FileStreamHelper mFileStreamHelper;
+
     private OAuthClient mOAuthClient;
 
     protected DracoonService mDracoonService;
@@ -215,6 +218,14 @@ public class DracoonClientImpl extends DracoonClient {
         return DracoonConstants.S3_DEFAULT_CHUNK_SIZE;
     }
 
+    public ThreadHelper getThreadHelper() {
+        return mThreadHelper;
+    }
+
+    public FileStreamHelper getFileStreamHelper() {
+        return mFileStreamHelper;
+    }
+
     // --- Initialization methods ---
 
     public void init() throws DracoonNetIOException, DracoonApiException {
@@ -224,6 +235,9 @@ public class DracoonClientImpl extends DracoonClient {
         initHttpHelper();
         initDracoonService();
         initDracoonErrorParser();
+
+        mThreadHelper = new ThreadHelper();
+        mFileStreamHelper = new FileStreamHelper();
 
         mServer = new DracoonServerImpl(this);
         mServerSettings = new DracoonServerSettingsImpl(this);
