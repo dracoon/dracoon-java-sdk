@@ -109,6 +109,14 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mUploads.put(id, uploadThread);
     }
 
+    DownloadThread getDownloadThread(String id) {
+        return mDownloads.get(id);
+    }
+
+    void putDownloadThread(String id, DownloadThread downloadThread) {
+        mDownloads.put(id, downloadThread);
+    }
+
     // --- Query methods ---
 
     @Override
@@ -663,7 +671,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             DracoonCryptoException, DracoonFileIOException {
         PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
-        DownloadThread downloadThread = new DownloadThread(mClient, id, nodeId, plainFileKey, os);
+        DownloadThread downloadThread = DownloadThread.create(mClient, id, nodeId, plainFileKey, os);
         if (callback != null) {
             downloadThread.addCallback(callback);
         }
@@ -734,7 +742,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             }
         };
 
-        DownloadThread downloadThread = new DownloadThread(mClient, id, nodeId, plainFileKey, os);
+        DownloadThread downloadThread = DownloadThread.create(mClient, id, nodeId, plainFileKey, os);
         downloadThread.addCallback(stoppedCallback);
         if (callback != null) {
             downloadThread.addCallback(callback);
@@ -768,7 +776,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
         // SONAR: No try-with-resources or close is needed here
-        DownloadStream downloadStream = new DownloadStream(mClient, id, nodeId, //NOSONAR
+        DownloadStream downloadStream = DownloadStream.create(mClient, id, nodeId, //NOSONAR
                 plainFileKey);
 
         if (callback != null) {
@@ -1068,11 +1076,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encFileKeyFileKey,
+    public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encFileKey,
             UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
             throws DracoonCryptoException {
         try {
-            return Crypto.decryptFileKey(encFileKeyFileKey, userPrivateKey, userPrivateKeyPassword);
+            return Crypto.decryptFileKey(encFileKey, userPrivateKey, userPrivateKeyPassword);
         } catch (CryptoException e) {
             String errorText;
             if (nodeId != null) {

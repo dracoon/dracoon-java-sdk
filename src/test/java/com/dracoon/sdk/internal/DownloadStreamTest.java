@@ -50,7 +50,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @BeforeEach
         void setup() {
             // Create download
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 2, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, null);
         }
 
         @Test
@@ -131,7 +131,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             enqueueResponse(DATA_PATH + "create_download_url_response.json");
 
             // Create and start download
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 2, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, null);
             mDls.start();
 
             // Drop irrelevant requests
@@ -214,7 +214,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start download
             PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 2, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, fileKey);
             mDls.start();
 
             // Drop irrelevant requests
@@ -305,7 +305,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             enqueueResponse(DATA_PATH + "create_download_url_response.json");
 
             // Create and start download
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 3, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 3, null);
             mDls.start();
 
             // Drop irrelevant requests
@@ -343,7 +343,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             enqueueResponse(DATA_PATH + "create_download_url_response.json");
 
             // Create and start download
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 4, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 4, null);
             mDls.start();
 
             // Drop irrelevant requests
@@ -547,7 +547,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             enqueueResponse(DATA_PATH + "create_download_url_response.json");
 
             // Create and start download
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 5, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 5, null);
             mDls.start();
 
             // Drop irrelevant requests
@@ -758,7 +758,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start download
             PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 6, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 6, fileKey);
             mDls.start();
 
             // Drop irrelevant requests
@@ -924,7 +924,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start download
             PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 7, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 7, fileKey);
             mDls.start();
 
             // Drop irrelevant requests
@@ -1083,7 +1083,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             enqueueResponse(DATA_PATH + "create_download_url_response.json");
 
             // Create and start download
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 8, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 8, null);
             mDls.start();
 
             // Drop irrelevant requests
@@ -1133,7 +1133,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Create and start download
             PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 9, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 9, fileKey);
             mDls.start();
 
             // Drop irrelevant requests
@@ -1208,7 +1208,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         @BeforeEach
         void setup() {
-            mDls = new DownloadStream(mDracoonClientImpl, "Test", 9, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 9, null);
         }
 
         @Test
@@ -1276,7 +1276,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @BeforeEach
         void setup() {
             // Create download
-            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
             mDls.addCallback(this);
         }
 
@@ -1325,7 +1325,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             mDracoonClientImpl.setHttpConfig(httpConfig);
 
             // Create download
-            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
             mDls.addCallback(this);
         }
 
@@ -1374,7 +1374,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @BeforeEach
         void setup() {
             // Create download
-            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
             mDls.addCallback(this);
         }
 
@@ -1423,7 +1423,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Create download
             PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
             mDls.addCallback(this);
         }
 
@@ -1518,7 +1518,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         void setup() {
             // Create download
             PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = new DownloadStream(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
             mDls.addCallback(this);
         }
 

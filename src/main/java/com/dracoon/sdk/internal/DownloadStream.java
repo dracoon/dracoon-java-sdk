@@ -75,7 +75,7 @@ public class DownloadStream extends FileDownloadStream {
 
     private final List<FileDownloadCallback> mCallbacks = new ArrayList<>();
 
-    DownloadStream(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey) {
+    private DownloadStream(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey) {
         mLog = client.getLog();
         mService = client.getDracoonService();
         mHttpClient = client.getHttpClient();
@@ -586,6 +586,13 @@ public class DownloadStream extends FileDownloadStream {
 
     private static String createDownloadErrorMessage(String id, DracoonApiCode errorCode) {
         return String.format("Download of '%s' failed with '%s'!", id, errorCode.name());
+    }
+
+    // --- Factory methods ---
+
+    public static DownloadStream create(DracoonClientImpl client, String id, long nodeId,
+            PlainFileKey fileKey) {
+        return new DownloadStream(client, id, nodeId, fileKey);
     }
 
 }
