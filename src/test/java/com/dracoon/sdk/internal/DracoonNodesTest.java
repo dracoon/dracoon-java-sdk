@@ -243,7 +243,7 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
     // --- Get node tests ---
 
-    abstract class BaseGetNodeTests extends BaseNodesTests<Node> {
+    private abstract class BaseGetNodeTests extends BaseNodesTests<Node> {
 
         protected BaseGetNodeTests() {
             super(Node.class, "/nodes/get_node/");
@@ -806,6 +806,131 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testError() {
             executeTestError("node_not_found_response.json",
                     () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
+        }
+
+    }
+
+    // --- Favorites tests ---
+
+    private abstract class BaseFavoriteTests extends BaseNodesTests<Void> {
+
+        protected BaseFavoriteTests() {
+            super(Void.class, "/nodes/set_favorite/");
+        }
+
+        protected void executeTestError(String responseFilename, NodesTest<Void> test) {
+            executeTestError(responseFilename, mDracoonErrorParser::parseFavoriteMarkError,
+                    DracoonApiCode.SERVER_NODE_NOT_FOUND, test);
+        }
+
+    }
+
+    @Nested
+    class MarkFavoriteTests extends BaseFavoriteTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("mark_favorite_request.json", "mark_favorite_response.json",
+                    this::executeMarkFavorite);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    this::executeMarkFavorite);
+        }
+
+        private Void executeMarkFavorite() throws Exception {
+            mDni.markFavorite(10L);
+            return null;
+        }
+
+    }
+
+    @Nested
+    class UnMarkFavoriteTests extends BaseFavoriteTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("unmark_favorite_request.json", "unmark_favorite_response.json",
+                    this::executeUnmarkFavorite);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("node_not_found_response.json",
+                    this::executeUnmarkFavorite);
+        }
+
+        private Void executeUnmarkFavorite() throws Exception {
+            mDni.unmarkFavorite(10L);
+            return null;
+        }
+
+    }
+
+    private abstract class BaseGetFavoritesTests extends BaseNodesTests<NodeList> {
+
+        protected BaseGetFavoritesTests() {
+            super(NodeList.class, "/nodes/get_favorites/");
+        }
+
+        protected void executeTestError(String responseFilename, NodesTest<NodeList> test) {
+            executeTestError(responseFilename, mDracoonErrorParser::parseNodesQueryError,
+                    DracoonApiCode.PRECONDITION_UNKNOWN_ERROR, test);
+        }
+
+    }
+
+    @Nested
+    class GetFavoritesTests extends BaseGetFavoritesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_favorites_request.json", "get_favorites_response.json",
+                    () -> mDni.getFavorites());
+        }
+
+        @Test
+        void testNoDataCorrect() throws Exception {
+            executeTestDataCorrect("get_favorites_empty_response.json", "favorites_empty.json",
+                    () -> mDni.getFavorites());
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_favorites_response.json", "favorites.json",
+                    () -> mDni.getFavorites());
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    () -> mDni.getFavorites());
+        }
+
+    }
+
+    @Nested
+    class GetFavoritesPagedTests extends BaseGetFavoritesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_favorites_paged_request.json",
+                    "get_favorites_paged_response.json",
+                    () -> mDni.getFavorites(1L, 2L));
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_favorites_paged_response.json", "favorites_paged.json",
+                    () -> mDni.getFavorites(1L, 2L));
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    () -> mDni.getFavorites(1L, 2L));
         }
 
     }
