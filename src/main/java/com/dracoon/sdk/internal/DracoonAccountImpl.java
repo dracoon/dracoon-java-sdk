@@ -273,7 +273,12 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     public List<UserKeyPair> getAndCheckUserKeyPairs() throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
         String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
+        if (userKeyPairs.isEmpty()) {
+            throw new DracoonApiException(DracoonApiCode.SERVER_USER_KEY_PAIR_NOT_FOUND);
+        }
+
         for (UserKeyPair userKeyPair : userKeyPairs) {
             checkUserKeyPair(userKeyPair, encryptionPassword);
         }

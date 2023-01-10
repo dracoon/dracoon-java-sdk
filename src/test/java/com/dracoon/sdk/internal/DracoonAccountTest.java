@@ -711,6 +711,19 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         }
 
         @Test
+        void testErrorUserHasNoKeyPair() {
+            // Enqueue response
+            enqueueResponse(DATA_PATH + "get_key_pairs_empty_response.json");
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
+                    mDai.getAndCheckUserKeyPairs());
+
+            // Assert correct error code
+            assertEquals(DracoonApiCode.SERVER_USER_KEY_PAIR_NOT_FOUND, thrown.getCode());
+        }
+
+        @Test
         void testCryptoSdkError() {
             // Enqueue responses
             enqueueOkResponse();
