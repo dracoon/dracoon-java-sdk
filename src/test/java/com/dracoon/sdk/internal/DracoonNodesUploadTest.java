@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
@@ -45,11 +44,16 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
         }
     }
 
+    @Mock
+    protected CryptoWrapper mCryptoWrapper;
+
     private DracoonNodesImpl mDni;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
+
+        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
         mDni = new DracoonNodesImpl(mDracoonClientImpl);
     }
@@ -287,11 +291,9 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
         protected T mockAndReturnDependencyCalls(T expectedData) throws Exception {
             mockGetUserKeyPairCall(readUserKeyPairData());
 
-            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
-                mock.when(() -> Crypto.generateFileKey(any()))
-                        .thenReturn(readPlainFileKeyData());
-                return super.mockAndReturnDependencyCalls(expectedData);
-            }
+            when(mCryptoWrapper.generateFileKey(any()))
+                    .thenReturn(readPlainFileKeyData());
+            return super.mockAndReturnDependencyCalls(expectedData);
         }
 
         @Override
@@ -300,13 +302,11 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
             mockGetUserKeyPairCall(userKeyPair);
 
             PlainFileKey plainFileKey = readPlainFileKeyData();
-            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
-                mock.when(() -> Crypto.generateFileKey(any()))
-                        .thenReturn(plainFileKey);
-                super.mockAndVerifyDependencyCalls(length, userKeyPair.getUserPublicKey(),
-                        plainFileKey);
-                mock.verify(() -> Crypto.generateFileKey(plainFileKey.getVersion()));
-            }
+            when(mCryptoWrapper.generateFileKey(any()))
+                    .thenReturn(plainFileKey);
+            super.mockAndVerifyDependencyCalls(length, userKeyPair.getUserPublicKey(),
+                    plainFileKey);
+            verify(mCryptoWrapper).generateFileKey(plainFileKey.getVersion());
 
             verifyGetUserKeyPairCall();
         }
@@ -315,11 +315,9 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
         protected void mockWithExceptionDependencyCalls() throws Exception {
             mockGetUserKeyPairCall(readUserKeyPairData());
 
-            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
-                mock.when(() -> Crypto.generateFileKey(any()))
-                        .thenReturn(readPlainFileKeyData());
-                super.mockWithExceptionDependencyCalls();
-            }
+            when(mCryptoWrapper.generateFileKey(any()))
+                    .thenReturn(readPlainFileKeyData());
+            super.mockWithExceptionDependencyCalls();
         }
 
     }
@@ -1109,11 +1107,9 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
         protected void executeMocked() throws Exception {
             mockGetUserKeyPairCall(readUserKeyPairData());
 
-            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
-                mock.when(() -> Crypto.generateFileKey(any()))
-                        .thenReturn(readPlainFileKeyData());
-                super.mockDependencyCalls();
-            }
+            when(mCryptoWrapper.generateFileKey(any()))
+                    .thenReturn(readPlainFileKeyData());
+            super.mockDependencyCalls();
         }
 
         @Override
@@ -1122,12 +1118,10 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
             mockGetUserKeyPairCall(userKeyPair);
 
             PlainFileKey plainFileKey = readPlainFileKeyData();
-            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
-                mock.when(() -> Crypto.generateFileKey(any()))
-                        .thenReturn(plainFileKey);
-                super.mockAndVerifyDependencyCalls(userKeyPair.getUserPublicKey(), plainFileKey);
-                mock.verify(() -> Crypto.generateFileKey(plainFileKey.getVersion()));
-            }
+            when(mCryptoWrapper.generateFileKey(any()))
+                    .thenReturn(plainFileKey);
+            super.mockAndVerifyDependencyCalls(userKeyPair.getUserPublicKey(), plainFileKey);
+            verify(mCryptoWrapper).generateFileKey(plainFileKey.getVersion());
 
             verifyGetUserKeyPairCall();
         }
@@ -1136,11 +1130,9 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
         protected void executeMockedWithException() throws Exception {
             mockGetUserKeyPairCall(readUserKeyPairData());
 
-            try (MockedStatic<Crypto> mock = Mockito.mockStatic(Crypto.class)) {
-                mock.when(() -> Crypto.generateFileKey(any()))
-                        .thenReturn(readPlainFileKeyData());
-                super.mockWithExceptionDependencyCalls();
-            }
+            when(mCryptoWrapper.generateFileKey(any()))
+                    .thenReturn(readPlainFileKeyData());
+            super.mockWithExceptionDependencyCalls();
         }
 
     }

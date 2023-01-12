@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.CryptoUtils;
 import com.dracoon.sdk.crypto.error.BadFileException;
 import com.dracoon.sdk.crypto.error.CryptoException;
@@ -46,6 +45,7 @@ public class DownloadStream extends FileDownloadStream {
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
+    private final CryptoWrapper mCrypto;
 
     private final String mId;
     private final long mNodeId;
@@ -81,6 +81,7 @@ public class DownloadStream extends FileDownloadStream {
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+        mCrypto = client.getCryptoWrapper();
 
         mId = id;
         mNodeId = nodeId;
@@ -268,7 +269,7 @@ public class DownloadStream extends FileDownloadStream {
 
     private FileDecryptionCipher createDecryptionCipher() throws DracoonCryptoException {
         try {
-            return Crypto.createFileDecryptionCipher(mFileKey);
+            return mCrypto.createFileDecryptionCipher(mFileKey);
         } catch (IllegalArgumentException | CryptoException e) {
             String errorText = createDecryptionErrorMessage(mId, e);
             mLog.d(LOG_TAG, errorText);

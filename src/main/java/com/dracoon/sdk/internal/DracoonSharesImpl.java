@@ -56,11 +56,12 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             UserKeyPair.Version userKeyPairVersion = mClient.getServerSettingsImpl()
                     .getPreferredUserKeyPairVersion();
 
-            String userEncPw = request.getEncryptionPassword();
-            shareUserKeyPair = mClient.getAccountImpl().generateUserKeyPair(userKeyPairVersion,
-                    userEncPw);
+            CryptoWrapper crypto = mClient.getCryptoWrapper();
 
-            shareEncryptedFileKey = mClient.getNodesImpl().encryptFileKey(nodeId, plainFileKey,
+            String userEncPw = request.getEncryptionPassword();
+            shareUserKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, userEncPw);
+
+            shareEncryptedFileKey = crypto.encryptFileKey(nodeId, plainFileKey,
                     shareUserKeyPair.getUserPublicKey());
         }
 
@@ -88,12 +89,13 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().getFileKey(nodeId);
 
-        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
+        UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.determineUserKeyPairVersion(
                 encryptedFileKey.getVersion());
         UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(userKeyPairVersion);
 
-        return mClient.getNodesImpl().decryptFileKey(nodeId, encryptedFileKey,
-                userKeyPair.getUserPrivateKey(),  userPrivateKeyPassword);
+        CryptoWrapper crypto = mClient.getCryptoWrapper();
+        return crypto.decryptFileKey(nodeId, encryptedFileKey, userKeyPair.getUserPrivateKey(),
+                userPrivateKeyPassword);
     }
 
     @Override

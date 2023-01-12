@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.crypto.Crypto;
 import com.dracoon.sdk.crypto.error.CryptoException;
 import com.dracoon.sdk.crypto.error.CryptoSystemException;
 import com.dracoon.sdk.crypto.CryptoUtils;
@@ -119,6 +118,7 @@ public class UploadStream extends FileUploadStream {
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
+    private final CryptoWrapper mCrypto;
 
     private final String mId;
     private final FileUploadRequest mFileUploadRequest;
@@ -156,6 +156,7 @@ public class UploadStream extends FileUploadStream {
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+        mCrypto = client.getCryptoWrapper();
 
         mId = id;
         mFileUploadRequest = request;
@@ -267,8 +268,7 @@ public class UploadStream extends FileUploadStream {
         EncryptedFileKey encryptedFileKey = null;
         try {
             if (isEncryptedUpload()) {
-                encryptedFileKey = mClient.getNodesImpl().encryptFileKey(null, mFileKey,
-                        mUserPublicKey);
+                encryptedFileKey = mCrypto.encryptFileKey(null, mFileKey, mUserPublicKey);
             }
         } catch (DracoonException e) {
             notifyFailed(mId, e);
@@ -304,7 +304,7 @@ public class UploadStream extends FileUploadStream {
 
     private FileEncryptionCipher createEncryptionCipher() throws DracoonCryptoException {
         try {
-            return Crypto.createFileEncryptionCipher(mFileKey);
+            return mCrypto.createFileEncryptionCipher(mFileKey);
         } catch (CryptoException e) {
             String errorText = createEncryptionErrorMessage(mId, e);
             mLog.d(LOG_TAG, errorText);

@@ -12,8 +12,6 @@ import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.crypto.model.EncryptedFileKey;
-import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
@@ -23,7 +21,6 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.dracoon.sdk.internal.util.DateUtils;
-import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -133,6 +130,7 @@ public class DracoonClientImpl extends DracoonClient {
     private OkHttpClient mHttpClient;
     protected HttpHelper mHttpHelper;
 
+    protected CryptoWrapper mCryptoWrapper;
     protected ThreadHelper mThreadHelper;
     protected FileStreamHelper mFileStreamHelper;
 
@@ -218,6 +216,10 @@ public class DracoonClientImpl extends DracoonClient {
         return DracoonConstants.S3_DEFAULT_CHUNK_SIZE;
     }
 
+    public CryptoWrapper getCryptoWrapper() {
+        return mCryptoWrapper;
+    }
+
     public ThreadHelper getThreadHelper() {
         return mThreadHelper;
     }
@@ -236,6 +238,7 @@ public class DracoonClientImpl extends DracoonClient {
         initDracoonService();
         initDracoonErrorParser();
 
+        mCryptoWrapper = new CryptoWrapper(mLog);
         mThreadHelper = new ThreadHelper();
         mFileStreamHelper = new FileStreamHelper();
 
@@ -367,65 +370,6 @@ public class DracoonClientImpl extends DracoonClient {
         boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
         if (!apiSupportsVersion) {
             throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
-        }
-    }
-
-    public static UserKeyPair.Version toUserKeyPairVersion(UserKeyPairAlgorithm.Version version)
-            throws DracoonCryptoException {
-        switch (version) {
-            case RSA2048:
-                return UserKeyPair.Version.RSA2048;
-            case RSA4096:
-                return UserKeyPair.Version.RSA4096;
-            default:
-                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
-        }
-    }
-
-    public static UserKeyPairAlgorithm.Version fromUserKeyPairVersion(UserKeyPair.Version version)
-            throws DracoonCryptoException {
-        switch (version) {
-            case RSA2048:
-                return UserKeyPairAlgorithm.Version.RSA2048;
-            case RSA4096:
-                return UserKeyPairAlgorithm.Version.RSA4096;
-            default:
-                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
-        }
-    }
-
-    public static UserKeyPair.Version determineUserKeyPairVersion(EncryptedFileKey.Version version)
-            throws DracoonCryptoException {
-        switch (version) {
-            case RSA2048_AES256GCM:
-                return UserKeyPair.Version.RSA2048;
-            case RSA4096_AES256GCM:
-                return UserKeyPair.Version.RSA4096;
-            default:
-                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
-        }
-    }
-
-    public static EncryptedFileKey.Version determineEncryptedFileKeyVersion(
-            UserKeyPair.Version version) throws DracoonCryptoException {
-        switch (version) {
-            case RSA2048:
-                return EncryptedFileKey.Version.RSA2048_AES256GCM;
-            case RSA4096:
-                return EncryptedFileKey.Version.RSA4096_AES256GCM;
-            default:
-                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
-        }
-    }
-
-    public static PlainFileKey.Version determinePlainFileKeyVersion(UserKeyPair.Version version)
-            throws DracoonCryptoException {
-        switch (version) {
-            case RSA2048:
-            case RSA4096:
-                return PlainFileKey.Version.AES256GCM;
-            default:
-                throw new DracoonCryptoException(DracoonCryptoCode.INTERNAL_ERROR);
         }
     }
 

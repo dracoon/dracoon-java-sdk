@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,6 +31,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
     private static final int CHUNK_SIZE = 2;
 
+    @Mock
+    protected CryptoWrapper mCryptoWrapper;
+
     private DownloadStream mDls;
 
     @BeforeEach
@@ -38,33 +42,89 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         DracoonHttpConfig httpConfig = new DracoonHttpConfig();
         httpConfig.setChunkSize(CHUNK_SIZE);
         mDracoonClientImpl.setHttpConfig(httpConfig);
+        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
+    }
+
+    private abstract class BaseDownloadTests {
+
+        protected final String mDataPath;
+
+        protected BaseDownloadTests(String dataPath) {
+            mDataPath = dataPath;
+        }
+
+        @BeforeEach
+        void baseSetup() throws Exception {
+            setup();
+        }
+
+        protected abstract void setup() throws Exception;
+
+    }
+
+    private abstract class BaseStandardDownloadTests extends BaseDownloadTests {
+
+        protected BaseStandardDownloadTests(String dataPath) {
+            super(dataPath);
+        }
+
+        protected void mockDependencies() {
+
+        }
+
+        protected PlainFileKey getPlainFileKey() {
+            return null;
+        }
+
+    }
+
+    private abstract class BaseEncryptedDownloadTests extends BaseDownloadTests {
+
+        protected BaseEncryptedDownloadTests(String dataPath) {
+            super(dataPath);
+        }
+
+        protected void mockDependencies() throws Exception {
+            when(mCryptoWrapper.createFileDecryptionCipher(any()))
+                    .thenCallRealMethod();
+        }
+
+        protected PlainFileKey getPlainFileKey() {
+            return readData(PlainFileKey.class, mDataPath + "plain_file_key.json");
+        }
+
     }
 
     // --- Start tests ---
 
     @Nested
-    class StartTests {
+    class StartTests extends BaseStandardDownloadTests {
 
-        private final String DATA_PATH = "/download/start/";
+        StartTests() {
+            super("/download/start/");
+        }
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() {
+            // Mock dependencies
+            mockDependencies();
+
             // Create download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, getPlainFileKey());
         }
 
         @Test
         void testRequestsValid() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Start download
             mDls.start();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "get_node_request.json");
-            checkRequest(DATA_PATH + "create_download_url_request.json");
+            checkRequest(mDataPath + "get_node_request.json");
+            checkRequest(mDataPath + "create_download_url_request.json");
         }
 
         @Test
@@ -74,7 +134,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseNodesQueryError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_not_found_response.json");
+            enqueueResponse(mDataPath + "get_node_not_found_response.json");
 
             // Start download
             DracoonApiException thrown = assertThrows(DracoonApiException.class, mDls::start);
@@ -90,8 +150,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseDownloadTokenGetError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_not_found_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_not_found_response.json");
 
             // Start download
             DracoonApiException thrown = assertThrows(DracoonApiException.class, mDls::start);
@@ -120,18 +180,23 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     // --- Available tests ---
 
     @Nested
-    class AvailableStandardTests {
+    class AvailableStandardTests extends BaseStandardDownloadTests {
 
-        private final String DATA_PATH = "/download/available_standard/";
+        AvailableStandardTests() {
+            super("/download/available_standard/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -151,7 +216,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testAvailableCorrectAfterRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
 
             // Read bytes (< chunk size)
             readBytes(mDls, 8L);
@@ -165,8 +230,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testAvailableCorrectAfterReadChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
-            enqueueResponse(DATA_PATH + "download_response_2.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_2.json");
 
             // Read bytes (>= chunk size)
             readBytes(mDls, 2056L);
@@ -202,19 +267,23 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     }
 
     @Nested
-    class AvailableEncryptedTests {
+    class AvailableEncryptedTests extends BaseEncryptedDownloadTests {
 
-        private final String DATA_PATH = "/download/available_encrypted/";
+        AvailableEncryptedTests() {
+            super("/download/available_encrypted/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -234,7 +303,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testAvailableCorrectAfterRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
 
             // Read bytes (< chunk size)
             readBytes(mDls, 8L);
@@ -248,8 +317,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testAvailableCorrectAfterReadChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
-            enqueueResponse(DATA_PATH + "download_response_2.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_2.json");
 
             // Read bytes (>= chunk size)
             readBytes(mDls, 2056L);
@@ -263,7 +332,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testAvailableCorrectAfterSkip() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
 
             // Skip bytes (< chunk size)
             skipBytes(mDls, 8L);
@@ -277,8 +346,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testAvailableCorrectAfterSkipChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
-            enqueueResponse(DATA_PATH + "download_response_2.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_2.json");
 
             // Skip bytes (>= chunk size)
             skipBytes(mDls, 2056L);
@@ -294,18 +363,23 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     // --- Read tests ---
 
     @Nested
-    class ReadTests {
+    class ReadTests extends BaseStandardDownloadTests {
 
-        private final String DATA_PATH = "/download/read/";
+        ReadTests() {
+            super("/download/read/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 3, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 3, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -320,7 +394,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseDownloadError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_not_found_response.json");
+            enqueueResponse(mDataPath + "download_not_found_response.json");
 
             // Read bytes
             IOException thrown = assertThrows(IOException.class, () -> readBytes(mDls));
@@ -332,18 +406,23 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     }
 
     @Nested
-    class ReadStandardOneChunkTests {
+    class ReadStandardOneChunkTests extends BaseStandardDownloadTests {
 
-        private final String DATA_PATH = "/download/read_standard_one_chunk/";
+        ReadStandardOneChunkTests() {
+            super("/download/read_standard_one_chunk/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 4, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 4, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -354,32 +433,32 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValidRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read bytes
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read.json");
+            checkRequest(mDataPath + "download_request_read.json");
         }
 
         @Test
         void testRequestsValidSkipRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_skip_read.json");
+            enqueueResponse(mDataPath + "download_response_skip_read.json");
 
             // Skip and read bytes
             skipBytes(mDls, 128L);
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_skip_read.json");
+            checkRequest(mDataPath + "download_request_skip_read.json");
         }
 
         @Test
         void testLengthCorrectAfterRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read bytes
             long length = countReadBytes(mDls, 128L);
@@ -391,7 +470,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read bytes
             long length = countReadBytes(mDls);
@@ -403,7 +482,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterSkipRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_skip_read.json");
+            enqueueResponse(mDataPath + "download_response_skip_read.json");
 
             // Skip and read bytes
             skipBytes(mDls, 128L);
@@ -416,7 +495,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterSkipReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_skip_read.json");
+            enqueueResponse(mDataPath + "download_response_skip_read.json");
 
             // Skip and read bytes
             skipBytes(mDls, 128L);
@@ -429,7 +508,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterReadAllRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read all and read 1 byte
             readBytes(mDls);
@@ -442,7 +521,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterSkipAllRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Skip all and read 1 byte
             skipBytes(mDls);
@@ -455,47 +534,47 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testDataCorrectAfterRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read bytes
             byte[] data = readBytes(mDls, 128L);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
         @Test
         void testDataCorrectAfterReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read bytes
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
         @Test
         void testDataCorrectAfterSkipRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_skip_read.json");
+            enqueueResponse(mDataPath + "download_response_skip_read.json");
 
             // Skip and read bytes
             skipBytes(mDls, 128L);
             byte[] data = readBytes(mDls, 256L);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_read.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_read.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
         @Test
         void testDataCorrectAfterReadSkipRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read, skip and read bytes
             readBytes(mDls, 128L);
@@ -503,14 +582,14 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls, 256L);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read_skip_read.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read_skip_read.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
         @Test
         void testDataCorrectAfterReadAllRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Read all and read 1 byte
             readBytes(mDls);
@@ -523,7 +602,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testDataCorrectAfterSkipAllRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read.json");
+            enqueueResponse(mDataPath + "download_response_read.json");
 
             // Skip all and read 1 byte
             skipBytes(mDls);
@@ -536,18 +615,23 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     }
 
     @Nested
-    class ReadStandardMultiChunkTests {
+    class ReadStandardMultiChunkTests extends BaseStandardDownloadTests {
 
-        private final String DATA_PATH = "/download/read_standard_multi_chunk/";
+        ReadStandardMultiChunkTests() {
+            super("/download/read_standard_multi_chunk/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 5, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 5, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -558,40 +642,40 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValidReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_read_2.json");
-            enqueueResponse(DATA_PATH + "download_response_read_3.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_3.json");
 
             // Read bytes
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read_1.json");
-            checkRequest(DATA_PATH + "download_request_read_2.json");
-            checkRequest(DATA_PATH + "download_request_read_3.json");
+            checkRequest(mDataPath + "download_request_read_1.json");
+            checkRequest(mDataPath + "download_request_read_2.json");
+            checkRequest(mDataPath + "download_request_read_3.json");
         }
 
         @Test
         void testRequestsValidSkipReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_skip_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_skip_read_2.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_1.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_2.json");
 
             // Skip and read bytes
             skipBytes(mDls, 128L);
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_skip_read_1.json");
-            checkRequest(DATA_PATH + "download_request_skip_read_2.json");
+            checkRequest(mDataPath + "download_request_skip_read_1.json");
+            checkRequest(mDataPath + "download_request_skip_read_2.json");
         }
 
         @Test
         void testRequestsValidReadSkipReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_read_2.json");
-            enqueueResponse(DATA_PATH + "download_response_read_3.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_3.json");
 
             // Read, skip and read bytes
             readBytes(mDls, 64L);
@@ -599,16 +683,16 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read_1.json");
-            checkRequest(DATA_PATH + "download_request_read_2.json");
-            checkRequest(DATA_PATH + "download_request_read_3.json");
+            checkRequest(mDataPath + "download_request_read_1.json");
+            checkRequest(mDataPath + "download_request_read_2.json");
+            checkRequest(mDataPath + "download_request_read_3.json");
         }
 
         @Test
         void testRequestsValidReadSkipChunkReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_skip_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_2.json");
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
@@ -616,16 +700,16 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read_1.json");
-            checkRequest(DATA_PATH + "download_request_skip_read_2.json");
+            checkRequest(mDataPath + "download_request_read_1.json");
+            checkRequest(mDataPath + "download_request_skip_read_2.json");
         }
 
         @Test
         void testLengthCorrectAfterReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_read_2.json");
-            enqueueResponse(DATA_PATH + "download_response_read_3.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_3.json");
 
             // Read bytes
             long length = countReadBytes(mDls);
@@ -637,8 +721,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterSkipReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_skip_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_skip_read_2.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_1.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_2.json");
 
             // Skip and read bytes
             skipBytes(mDls, 128L);
@@ -651,9 +735,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterReadSkipReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_read_2.json");
-            enqueueResponse(DATA_PATH + "download_response_read_3.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_3.json");
 
             // Read, skip and read bytes
             readBytes(mDls, 64L);
@@ -667,8 +751,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testLengthCorrectAfterReadSkipChunkReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_skip_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_2.json");
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
@@ -682,39 +766,39 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testDataCorrectAfterReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_read_2.json");
-            enqueueResponse(DATA_PATH + "download_response_read_3.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_3.json");
 
             // Read bytes
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
         @Test
         void testDataCorrectAfterSkipReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_skip_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_skip_read_2.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_1.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_2.json");
 
             // Skip and read bytes
             skipBytes(mDls, 128L);
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
         @Test
         void testDataCorrectAfterReadSkipReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_read_2.json");
-            enqueueResponse(DATA_PATH + "download_response_read_3.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_3.json");
 
             // Read, skip and read bytes
             readBytes(mDls, 64L);
@@ -722,15 +806,15 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
         @Test
         void testDataCorrectAfterReadSkipChunkReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_read_1.json");
-            enqueueResponse(DATA_PATH + "download_response_skip_read_2.json");
+            enqueueResponse(mDataPath + "download_response_read_1.json");
+            enqueueResponse(mDataPath + "download_response_skip_read_2.json");
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
@@ -738,27 +822,31 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_chunk_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_chunk_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
     }
 
     @Nested
-    class ReadEncryptedOneChunkTests {
+    class ReadEncryptedOneChunkTests extends BaseEncryptedDownloadTests {
 
-        private final String DATA_PATH = "/download/read_encrypted_one_chunk/";
+        ReadEncryptedOneChunkTests() {
+            super("/download/read_encrypted_one_chunk/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
-            enqueueResponse(DATA_PATH + "download_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "download_response.json");
 
             // Create and start download
-            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 6, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 6, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -772,7 +860,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request.json");
+            checkRequest(mDataPath + "download_request.json");
         }
 
         @Test
@@ -782,7 +870,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request.json");
+            checkRequest(mDataPath + "download_request.json");
         }
 
         @Test
@@ -849,7 +937,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls, 128L);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -859,7 +947,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -870,7 +958,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls, 256L);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_read.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_read.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -882,7 +970,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls, 256L);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read_skip_read.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read_skip_read.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -909,22 +997,26 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     }
 
     @Nested
-    class ReadEncryptedMultiChunkTests {
+    class ReadEncryptedMultiChunkTests extends BaseEncryptedDownloadTests {
 
-        private final String DATA_PATH = "/download/read_encrypted_multi_chunk/";
+        ReadEncryptedMultiChunkTests() {
+            super("/download/read_encrypted_multi_chunk/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
-            enqueueResponse(DATA_PATH + "download_response_1.json");
-            enqueueResponse(DATA_PATH + "download_response_2.json");
-            enqueueResponse(DATA_PATH + "download_response_3.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_2.json");
+            enqueueResponse(mDataPath + "download_response_3.json");
 
             // Create and start download
-            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 7, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 7, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -938,9 +1030,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read_1.json");
-            checkRequest(DATA_PATH + "download_request_read_2.json");
-            checkRequest(DATA_PATH + "download_request_read_3.json");
+            checkRequest(mDataPath + "download_request_read_1.json");
+            checkRequest(mDataPath + "download_request_read_2.json");
+            checkRequest(mDataPath + "download_request_read_3.json");
         }
 
         @Test
@@ -950,9 +1042,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read_1.json");
-            checkRequest(DATA_PATH + "download_request_read_2.json");
-            checkRequest(DATA_PATH + "download_request_read_3.json");
+            checkRequest(mDataPath + "download_request_read_1.json");
+            checkRequest(mDataPath + "download_request_read_2.json");
+            checkRequest(mDataPath + "download_request_read_3.json");
         }
 
         @Test
@@ -963,9 +1055,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read_1.json");
-            checkRequest(DATA_PATH + "download_request_read_2.json");
-            checkRequest(DATA_PATH + "download_request_read_3.json");
+            checkRequest(mDataPath + "download_request_read_1.json");
+            checkRequest(mDataPath + "download_request_read_2.json");
+            checkRequest(mDataPath + "download_request_read_3.json");
         }
 
         @Test
@@ -976,9 +1068,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             readBytes(mDls);
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "download_request_read_1.json");
-            checkRequest(DATA_PATH + "download_request_read_2.json");
-            checkRequest(DATA_PATH + "download_request_read_3.json");
+            checkRequest(mDataPath + "download_request_read_1.json");
+            checkRequest(mDataPath + "download_request_read_2.json");
+            checkRequest(mDataPath + "download_request_read_3.json");
         }
 
         @Test
@@ -1028,7 +1120,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -1039,7 +1131,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -1051,7 +1143,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -1063,7 +1155,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
-            byte[] expectedData = readFile(DATA_PATH + "correct_data_skip_chunk_read_all.bin");
+            byte[] expectedData = readFile(mDataPath + "correct_data_skip_chunk_read_all.bin");
             assertArrayEquals(expectedData, data, "Downloaded data does not match!");
         }
 
@@ -1072,18 +1164,23 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     // --- Skip tests ---
 
     @Nested
-    class SkipStandardTests {
+    class SkipStandardTests extends BaseStandardDownloadTests {
 
-        private final String DATA_PATH = "/download/skip_standard/";
+        SkipStandardTests() {
+            super("/download/skip_standard/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 8, null);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 8, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -1107,7 +1204,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
                 "createSkipTestsTestSkippedCorrectAfterReadArguments")
         void testSkippedCorrectAfterRead(long skip, long expectedSkipped) throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
 
             // Read some bytes
             readBytes(mDls, 16L);
@@ -1121,19 +1218,23 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     }
 
     @Nested
-    class SkipEncryptedTests {
+    class SkipEncryptedTests extends BaseEncryptedDownloadTests {
 
-        private final String DATA_PATH = "/download/skip_encrypted/";
+        SkipEncryptedTests() {
+            super("/download/skip_encrypted/");
+        }
 
-        @BeforeEach
-        void setup() throws Exception {
+        @Override
+        protected void setup() throws Exception {
+            // Mock dependencies
+            mockDependencies();
+
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 9, fileKey);
+            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 9, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -1146,8 +1247,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
                 "createSkipTestsTestSkippedCorrectArguments")
         void testSkippedCorrect(long skip, long expectedSkipped) throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
-            enqueueResponse(DATA_PATH + "download_response_2.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_2.json");
 
             // Skip bytes
             long skipped = mDls.skip(skip);
@@ -1161,8 +1262,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
                 "createSkipTestsTestSkippedCorrectAfterReadArguments")
         void testSkippedCorrectAfterRead(long skip, long expectedSkipped) throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "download_response_1.json");
-            enqueueResponse(DATA_PATH + "download_response_2.json");
+            enqueueResponse(mDataPath + "download_response_1.json");
+            enqueueResponse(mDataPath + "download_response_2.json");
 
             // Read some bytes
             readBytes(mDls, 16L);
@@ -1244,11 +1345,22 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Callback tests ---
 
-    private static abstract class CallbackTests implements FileDownloadCallback {
-
-        protected final String DATA_PATH = "/download/callback/";
+    private abstract class CallbackTests extends BaseEncryptedDownloadTests
+            implements FileDownloadCallback {
 
         protected final String DOWNLOAD_ID = "Test";
+
+        protected CallbackTests() {
+            super("/download/callback/");
+        }
+
+        @Override
+        protected void setup() throws Exception {
+            mockDependencies();
+
+            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, getPlainFileKey());
+            mDls.addCallback(this);
+        }
 
         @Override
         public void onStarted(String id) {}
@@ -1273,13 +1385,6 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         private boolean mOnStartCalled = false;
         private String mOnStartId;
 
-        @BeforeEach
-        void setup() {
-            // Create download
-            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
-            mDls.addCallback(this);
-        }
-
         @Override
         public void onStarted(String id) {
             mOnStartCalled = true;
@@ -1300,8 +1405,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         private void start() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Start download
             mDls.start();
@@ -1317,16 +1422,15 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         private long mOnRunningBytesRead = 0L;
         private long mOnRunningBytesTotal = 0L;
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() throws Exception {
             // Change chunk size to be larger than internal buffer of 2KB
             DracoonHttpConfig httpConfig = new DracoonHttpConfig();
             httpConfig.setChunkSize(4);
             mDracoonClientImpl.setHttpConfig(httpConfig);
 
             // Create download
-            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
-            mDls.addCallback(this);
+            super.setup();
         }
 
         @Override
@@ -1353,9 +1457,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         private void startAndRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
-            enqueueResponse(DATA_PATH + "download_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "download_response.json");
 
             // Start download and read some bytes
             mDls.start();
@@ -1370,13 +1474,6 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         private boolean mOnFinishedCalled = false;
         private String mOnFinishedId;
-
-        @BeforeEach
-        void setup() {
-            // Create download
-            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, null);
-            mDls.addCallback(this);
-        }
 
         @Override
         public void onFinished(String id) {
@@ -1398,9 +1495,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         private void startAndReadAll() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
-            enqueueResponse(DATA_PATH + "download_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "download_response.json");
 
             // Start download and read all bytes
             mDls.start();
@@ -1415,16 +1512,14 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         private boolean mOnCanceledCalled = false;
         private String mOnCanceledId;
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() throws Exception {
             // Simulate an interrupted thread
             TestHttpHelper httpHelper = (TestHttpHelper) mDracoonClientImpl.getHttpHelper();
             httpHelper.setSimulateInterruptedThread(true);
 
             // Create download
-            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
-            mDls.addCallback(this);
+            super.setup();
         }
 
         @Override
@@ -1447,7 +1542,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         private void start() throws Exception {
             // Enqueue responses
-            enqueueIOErrorResponse(DATA_PATH + "get_node_response.json", 50L);
+            enqueueIOErrorResponse(mDataPath + "get_node_response.json", 50L);
 
             // Start download
             mDls.start();
@@ -1467,8 +1562,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         private void startAndRead() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Start download and read some bytes
             mDls.start();
@@ -1489,8 +1584,8 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
         private void startAndSkip() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Start download and skip some bytes
             mDls.start();
@@ -1513,14 +1608,6 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         private boolean mOnFailedCalled = false;
         private String mOnFailedId;
         private DracoonException mOnFailedException;
-
-        @BeforeEach
-        void setup() {
-            // Create download
-            PlainFileKey fileKey = readData(PlainFileKey.class, DATA_PATH + "plain_file_key.json");
-            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, fileKey);
-            mDls.addCallback(this);
-        }
 
         @Override
         public void onFailed(String id, DracoonException e) {
@@ -1547,7 +1634,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseNodesQueryError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_not_found_response.json");
+            enqueueResponse(mDataPath + "get_node_not_found_response.json");
 
             // Start download
             try {
@@ -1575,9 +1662,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseDownloadError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
-            enqueueResponse(DATA_PATH + "download_not_found_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "download_not_found_response.json");
 
             // Start download and read some bytes
             mDls.start();
@@ -1606,9 +1693,9 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseDownloadError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_node_response.json");
-            enqueueResponse(DATA_PATH + "create_download_url_response.json");
-            enqueueResponse(DATA_PATH + "download_not_found_response.json");
+            enqueueResponse(mDataPath + "get_node_response.json");
+            enqueueResponse(mDataPath + "create_download_url_response.json");
+            enqueueResponse(mDataPath + "download_not_found_response.json");
 
             // Start download and skip some bytes
             mDls.start();

@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.dracoon.sdk.DracoonClient;
-import com.dracoon.sdk.crypto.Crypto;
-import com.dracoon.sdk.crypto.error.CryptoException;
 import com.dracoon.sdk.crypto.error.UnknownVersionException;
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
@@ -635,9 +633,9 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         if (userPublicKey == null) {
             return null;
         }
-        PlainFileKey.Version version = DracoonClientImpl.determinePlainFileKeyVersion(
+        PlainFileKey.Version version = CryptoVersionConverter.determinePlainFileKeyVersion(
                 userPublicKey.getVersion());
-        return Crypto.generateFileKey(version);
+        return mClient.getCryptoWrapper().generateFileKey(version);
     }
 
     // --- File download methods ---
@@ -799,13 +797,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         EncryptedFileKey encFileKey = getFileKey(nodeId);
 
-        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
+        UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.determineUserKeyPairVersion(
                 encFileKey.getVersion());
         UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(
                 userKeyPairVersion);
 
-        return decryptFileKey(nodeId, encFileKey, userKeyPair.getUserPrivateKey(),
-                userPrivateKeyPassword);
+        return mClient.getCryptoWrapper().decryptFileKey(nodeId, encFileKey,
+                userKeyPair.getUserPrivateKey(), userPrivateKeyPassword);
     }
 
     // --- Search methods ---
@@ -925,6 +923,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys = new ArrayList<>();
 
+        CryptoWrapper crypto = mClient.getCryptoWrapper();
         for (ApiUserIdFileId apiUserIdFileId : apiUserIdFileIds) {
             List<UserPublicKey> userPublicKeys = usersPublicKeys.get(apiUserIdFileId.userId);
             PlainFileKey plainFileKey = plainFileKeys.get(apiUserIdFileId.fileId);
@@ -933,8 +932,8 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             }
 
             for (UserPublicKey userPublicKey : userPublicKeys) {
-                EncryptedFileKey encFileKey = encryptFileKey(apiUserIdFileId.fileId, plainFileKey,
-                        userPublicKey);
+                EncryptedFileKey encFileKey = crypto.encryptFileKey(apiUserIdFileId.fileId,
+                        plainFileKey, userPublicKey);
 
                 ApiFileKey apiFileKey = FileMapper.toApiFileKey(encFileKey);
 
@@ -1012,16 +1011,17 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, List<EncryptedFileKey>> encFilesKeys,
             Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys, String userPrivateKeyPassword)
             throws DracoonCryptoException {
+        CryptoWrapper crypto = mClient.getCryptoWrapper();
         Map<Long, PlainFileKey> plainFileKeys = new HashMap<>();
         for (Map.Entry<Long, List<EncryptedFileKey>> encFileKeys : encFilesKeys.entrySet()) {
             for (EncryptedFileKey encFileKey : encFileKeys.getValue()) {
-                UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
-                        encFileKey.getVersion());
+                UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter
+                        .determineUserKeyPairVersion(encFileKey.getVersion());
 
                 UserPrivateKey userPrivateKey = userPrivateKeys.get(userKeyPairVersion);
                 if (userPrivateKey != null) {
-                    PlainFileKey plainFileKey = decryptFileKey(null, encFileKey, userPrivateKey,
-                            userPrivateKeyPassword);
+                    PlainFileKey plainFileKey = crypto.decryptFileKey(encFileKeys.getKey(),
+                            encFileKey, userPrivateKey, userPrivateKeyPassword);
                     plainFileKeys.put(encFileKeys.getKey(), plainFileKey);
                     break;
                 }
@@ -1070,43 +1070,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         } catch (UnknownVersionException e) {
             String errorText = String.format("Query of file key for node '%d' failed! File key " +
                     "version is unknown!", nodeId);
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
-    }
-
-    public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encFileKey,
-            UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
-            throws DracoonCryptoException {
-        try {
-            return Crypto.decryptFileKey(encFileKey, userPrivateKey, userPrivateKeyPassword);
-        } catch (CryptoException e) {
-            String errorText;
-            if (nodeId != null) {
-                errorText = String.format("Decryption of file key for node '%d' failed! %s", nodeId,
-                        e.getMessage());
-            } else {
-                errorText = String.format("Decryption of file key failed! %s", e.getMessage());
-            }
-            mLog.d(LOG_TAG, errorText);
-            DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
-            throw new DracoonCryptoException(errorCode, e);
-        }
-    }
-
-    public EncryptedFileKey encryptFileKey(Long nodeId, PlainFileKey plainFileKey,
-            UserPublicKey userPublicKey) throws DracoonCryptoException {
-        try {
-            return Crypto.encryptFileKey(plainFileKey, userPublicKey);
-        } catch (CryptoException e) {
-            String errorText;
-            if (nodeId != null) {
-                errorText = String.format("Encryption of file key for node '%d' failed! %s", nodeId,
-                        e.getMessage());
-            } else {
-                errorText = String.format("Encryption of file key failed! %s", e.getMessage());
-            }
             mLog.d(LOG_TAG, errorText);
             DracoonCryptoCode errorCode = CryptoErrorParser.parseCause(e);
             throw new DracoonCryptoException(errorCode, e);

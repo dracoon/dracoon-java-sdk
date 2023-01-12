@@ -29,6 +29,9 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     private static final int CHUNK_SIZE = 2;
 
+    @Mock
+    protected CryptoWrapper mCryptoWrapper;
+
     private UploadStream mUls;
 
     @BeforeEach
@@ -37,13 +40,19 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         DracoonHttpConfig httpConfig = new DracoonHttpConfig();
         httpConfig.setChunkSize(CHUNK_SIZE);
         mDracoonClientImpl.setHttpConfig(httpConfig);
+        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
     }
 
-    private abstract class DcUploadTest {
+    private abstract class BaseUploadTests {
+
+        protected final String mDataPath;
+
+        protected BaseUploadTests(String dataPath) {
+            mDataPath = dataPath;
+        }
 
         @BeforeEach
         void baseSetup() throws Exception {
-            // Do test setup
             setup();
         }
 
@@ -51,7 +60,19 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     }
 
-    private abstract class S3UploadTest {
+    private abstract class DcUploadTest extends BaseUploadTests {
+
+        protected DcUploadTest(String dataPath) {
+            super(dataPath);
+        }
+
+    }
+
+    private abstract class S3UploadTest extends BaseUploadTests {
+
+        protected S3UploadTest(String dataPath) {
+            super(dataPath);
+        }
 
         @BeforeEach
         void baseSetup() throws Exception {
@@ -63,19 +84,19 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             setup();
         }
 
-        protected abstract void setup() throws Exception;
-
     }
 
     // --- Start tests ---
 
     @Nested
-    class StartTests {
+    class StartTests extends BaseUploadTests {
 
-        private final String DATA_PATH = "/upload/start/";
+        StartTests() {
+            super("/upload/start/");
+        }
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
         }
@@ -87,7 +108,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseUploadCreateError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_not_found_response.json");
+            enqueueResponse(mDataPath + "create_upload_not_found_response.json");
 
             // Start upload
             DracoonApiException thrown = assertThrows(DracoonApiException.class, mUls::start);
@@ -99,7 +120,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testStartAllowed() throws Exception { // NOSONAR: Test doesn't need assert statement
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Start upload
             mUls.start();
@@ -120,7 +141,9 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class StartDcTests extends DcUploadTest {
 
-        private final String DATA_PATH = "/upload/start_dc/";
+        StartDcTests() {
+            super("/upload/start_dc/");
+        }
 
         @Override
         protected void setup() {
@@ -131,13 +154,13 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Start upload
             mUls.start();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "create_upload_request.json");
+            checkRequest(mDataPath + "create_upload_request.json");
         }
 
     }
@@ -145,7 +168,9 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class StartS3Tests extends S3UploadTest {
 
-        private final String DATA_PATH = "/upload/start_s3/";
+        StartS3Tests() {
+            super("/upload/start_s3/");
+        }
 
         @Override
         protected void setup() {
@@ -156,15 +181,15 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_server_settings_response.json");
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Start upload
             mUls.start();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + "get_server_settings_request.json");
-            checkRequest(DATA_PATH + "create_upload_request.json");
+            checkRequest(mDataPath + "get_server_settings_request.json");
+            checkRequest(mDataPath + "create_upload_request.json");
         }
 
     }
@@ -175,6 +200,10 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         protected byte[] mBytes;
 
+        protected BaseWriteDcTests(String dataPath) {
+            super(dataPath);
+        }
+
         @Override
         protected void setup() throws Exception {
             // Mock dependencies
@@ -184,12 +213,12 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             mBytes = readBytes();
 
             // Enqueue responses
-            enqueueResponse(getDataPath() + "create_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, "Test", request, mBytes.length,
-                    getUserPublicKey(), getFileKey());
+                    getUserPublicKey(), getPlainFileKey());
             mUls.start();
 
             // Drop irrelevant requests
@@ -200,95 +229,78 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         }
 
-        protected abstract String getDataPath();
-
         protected byte[] readBytes() {
-            return readFile(getDataPath() + "data.bin");
+            return readFile(mDataPath + "data.bin");
         }
 
         protected abstract UserPublicKey getUserPublicKey();
 
-        protected abstract PlainFileKey getFileKey();
+        protected abstract PlainFileKey getPlainFileKey();
+
+        protected abstract EncryptedFileKey getEncryptedFileKey();
 
         protected void testNoChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(getDataPath() + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
 
             // Write bytes and complete
             mUls.complete();
 
             // Assert requests are valid
-            checkRequest(getDataPath() + "complete_upload_request.json");
+            checkRequest(mDataPath + "complete_upload_request.json");
         }
 
         protected void testOneChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(getDataPath() + "upload_response.json");
-            enqueueResponse(getDataPath() + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
 
             // Write bytes and complete
             writeBytes(mUls, mBytes);
 
             // Assert requests are valid
-            checkRequest(getDataPath() + "upload_request.json");
-            checkRequest(getDataPath() + "complete_upload_request.json");
+            checkRequest(mDataPath + "upload_request.json");
+            checkRequest(mDataPath + "complete_upload_request.json");
         }
 
         protected void testMultiChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(getDataPath() + "upload_response_1.json");
-            enqueueResponse(getDataPath() + "upload_response_2.json");
-            enqueueResponse(getDataPath() + "upload_response_3.json");
-            enqueueResponse(getDataPath() + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "upload_response_1.json");
+            enqueueResponse(mDataPath + "upload_response_2.json");
+            enqueueResponse(mDataPath + "upload_response_3.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
 
             // Write bytes and complete
             writeBytes(mUls, mBytes);
 
             // Assert requests are valid
-            checkRequest(getDataPath() + "upload_request_1.json");
-            checkRequest(getDataPath() + "upload_request_2.json");
-            checkRequest(getDataPath() + "upload_request_3.json");
-            checkRequest(getDataPath() + "complete_upload_request.json");
+            checkRequest(mDataPath + "upload_request_1.json");
+            checkRequest(mDataPath + "upload_request_2.json");
+            checkRequest(mDataPath + "upload_request_3.json");
+            checkRequest(mDataPath + "complete_upload_request.json");
         }
 
     }
 
     private abstract class BaseWriteDcStandardTests extends BaseWriteDcTests {
 
+        protected BaseWriteDcStandardTests(String dataPath) {
+            super(dataPath);
+        }
+
         @Override
         protected UserPublicKey getUserPublicKey() {
             return null;
         }
 
         @Override
-        protected PlainFileKey getFileKey() {
+        protected PlainFileKey getPlainFileKey() {
             return null;
         }
 
-    }
-
-    private abstract class BaseWriteDcEncryptedTests extends BaseWriteDcTests {
-
-        @Mock
-        protected DracoonNodesImpl mDracoonNodesImpl;
-
         @Override
-        protected void mockDependencies() throws Exception {
-            mDracoonClientImpl.setNodesImpl(mDracoonNodesImpl);
-
-            EncryptedFileKey fileKey = readData(EncryptedFileKey.class, getDataPath() +
-                    "enc_file_key.json");
-            when(mDracoonNodesImpl.encryptFileKey(any(), any(), any())).thenReturn(fileKey);
-        }
-
-        @Override
-        protected UserPublicKey getUserPublicKey() {
-            return readData(UserPublicKey.class, getDataPath() + "public_key.json");
-        }
-
-        @Override
-        protected PlainFileKey getFileKey() {
-            return readData(PlainFileKey.class, getDataPath() + "plain_file_key.json");
+        protected EncryptedFileKey getEncryptedFileKey() {
+            return null;
         }
 
     }
@@ -296,11 +308,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteDcTests extends BaseWriteDcStandardTests {
 
-        private final String DATA_PATH = "/upload/write_dc/";
-
-        @Override
-        protected String getDataPath() {
-            return DATA_PATH;
+        WriteDcTests() {
+            super("/upload/write_dc/");
         }
 
         @Override
@@ -315,7 +324,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseUploadError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "upload_failed_response.json");
+            enqueueResponse(mDataPath + "upload_failed_response.json");
 
             // Write bytes
             IOException thrown = assertThrows(IOException.class, () -> mUls.write(mBytes));
@@ -329,9 +338,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteDcEmptyFileTests extends BaseWriteDcStandardTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_dc_empty_file/";
+        WriteDcEmptyFileTests() {
+            super("/upload/write_dc_empty_file/");
         }
 
         @Override
@@ -349,9 +357,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteDcStandardOneChunkTests extends BaseWriteDcStandardTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_dc_standard_one_chunk/";
+        WriteDcStandardOneChunkTests() {
+            super("/upload/write_dc_standard_one_chunk/");
         }
 
         @Test
@@ -364,9 +371,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteDcStandardMultiChunkTests extends BaseWriteDcStandardTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_dc_standard_multi_chunk/";
+        WriteDcStandardMultiChunkTests() {
+            super("/upload/write_dc_standard_multi_chunk/");
         }
 
         @Test
@@ -376,12 +382,42 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     }
 
+    private abstract class BaseWriteDcEncryptedTests extends BaseWriteDcTests {
+
+        protected BaseWriteDcEncryptedTests(String dataPath) {
+            super(dataPath);
+        }
+
+        @Override
+        protected void mockDependencies() throws Exception {
+            when(mCryptoWrapper.createFileEncryptionCipher(any()))
+                    .thenCallRealMethod();
+            when(mCryptoWrapper.encryptFileKey(any(), any(), any()))
+                    .thenReturn(getEncryptedFileKey());
+        }
+
+        @Override
+        protected UserPublicKey getUserPublicKey() {
+            return readData(UserPublicKey.class, mDataPath + "public_key.json");
+        }
+
+        @Override
+        protected PlainFileKey getPlainFileKey() {
+            return readData(PlainFileKey.class, mDataPath + "plain_file_key.json");
+        }
+
+        @Override
+        protected EncryptedFileKey getEncryptedFileKey() {
+            return readData(EncryptedFileKey.class, mDataPath + "enc_file_key.json");
+        }
+
+    }
+
     @Nested
     class WriteDcEncryptedOneChunkTests extends BaseWriteDcEncryptedTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_dc_encrypted_one_chunk/";
+        WriteDcEncryptedOneChunkTests() {
+            super("/upload/write_dc_encrypted_one_chunk/");
         }
 
         @Test
@@ -394,9 +430,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteDcEncryptedMultiChunkTests extends BaseWriteDcEncryptedTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_dc_encrypted_multi_chunk/";
+        WriteDcEncryptedMultiChunkTests() {
+            super("/upload/write_dc_encrypted_multi_chunk/");
         }
 
         @Test
@@ -410,6 +445,10 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         protected byte[] mBytes;
 
+        protected BaseWriteS3Tests(String dataPath) {
+            super(dataPath);
+        }
+
         @Override
         protected void setup() throws Exception {
             // Mock dependencies
@@ -419,13 +458,13 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             mBytes = readBytes();
 
             // Enqueue responses
-            enqueueResponse(getDataPath() + "get_server_settings_response.json");
-            enqueueResponse(getDataPath() + "create_upload_response.json");
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, "Test", request, mBytes.length,
-                    getUserPublicKey(), getFileKey());
+                    getUserPublicKey(), getPlainFileKey());
             mUls.start();
 
             // Drop irrelevant requests
@@ -437,109 +476,92 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         }
 
-        protected abstract String getDataPath();
-
         protected byte[] readBytes() {
-            return readFile(getDataPath() + "data.bin");
+            return readFile(mDataPath + "data.bin");
         }
 
         protected abstract UserPublicKey getUserPublicKey();
 
-        protected abstract PlainFileKey getFileKey();
+        protected abstract PlainFileKey getPlainFileKey();
+
+        protected abstract EncryptedFileKey getEncryptedFileKey();
 
         protected void testNoChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(getDataPath() + "create_upload_url_response.json");
-            enqueueResponse(getDataPath() + "upload_response.json");
-            enqueueResponse(getDataPath() + "complete_upload_response.json");
-            enqueueResponse(getDataPath() + "get_upload_status_response.json");
+            enqueueResponse(mDataPath + "create_upload_url_response.json");
+            enqueueResponse(mDataPath + "upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "get_upload_status_response.json");
 
             // Write bytes and complete
             mUls.complete();
 
             // Assert requests are valid
-            checkRequest(getDataPath() + "create_upload_url_request.json");
-            checkRequest(getDataPath() + "upload_request.json");
-            checkRequest(getDataPath() + "complete_upload_request.json");
-            checkRequest(getDataPath() + "get_upload_status_request.json");
+            checkRequest(mDataPath + "create_upload_url_request.json");
+            checkRequest(mDataPath + "upload_request.json");
+            checkRequest(mDataPath + "complete_upload_request.json");
+            checkRequest(mDataPath + "get_upload_status_request.json");
         }
 
         protected void testOneChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(getDataPath() + "create_upload_url_response.json");
-            enqueueResponse(getDataPath() + "upload_response.json");
-            enqueueResponse(getDataPath() + "complete_upload_response.json");
-            enqueueResponse(getDataPath() + "get_upload_status_response.json");
+            enqueueResponse(mDataPath + "create_upload_url_response.json");
+            enqueueResponse(mDataPath + "upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "get_upload_status_response.json");
 
             // Write bytes and complete
             writeBytes(mUls, mBytes);
 
             // Assert requests are valid
-            checkRequest(getDataPath() + "create_upload_url_request.json");
-            checkRequest(getDataPath() + "upload_request.json");
-            checkRequest(getDataPath() + "complete_upload_request.json");
-            checkRequest(getDataPath() + "get_upload_status_request.json");
+            checkRequest(mDataPath + "create_upload_url_request.json");
+            checkRequest(mDataPath + "upload_request.json");
+            checkRequest(mDataPath + "complete_upload_request.json");
+            checkRequest(mDataPath + "get_upload_status_request.json");
         }
 
         protected void testMultiChunk() throws Exception {
             // Enqueue responses
-            enqueueResponse(getDataPath() + "create_upload_url_response_1.json");
-            enqueueResponse(getDataPath() + "upload_response_1.json");
-            enqueueResponse(getDataPath() + "create_upload_url_response_2.json");
-            enqueueResponse(getDataPath() + "upload_response_2.json");
-            enqueueResponse(getDataPath() + "complete_upload_response.json");
-            enqueueResponse(getDataPath() + "get_upload_status_response.json");
+            enqueueResponse(mDataPath + "create_upload_url_response_1.json");
+            enqueueResponse(mDataPath + "upload_response_1.json");
+            enqueueResponse(mDataPath + "create_upload_url_response_2.json");
+            enqueueResponse(mDataPath + "upload_response_2.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "get_upload_status_response.json");
 
             // Write bytes and complete
             writeBytes(mUls, mBytes);
 
             // Assert requests are valid
-            checkRequest(getDataPath() + "create_upload_url_request_1.json");
-            checkRequest(getDataPath() + "upload_request_1.json");
-            checkRequest(getDataPath() + "create_upload_url_request_2.json");
-            checkRequest(getDataPath() + "upload_request_2.json");
-            checkRequest(getDataPath() + "complete_upload_request.json");
-            checkRequest(getDataPath() + "get_upload_status_request.json");
+            checkRequest(mDataPath + "create_upload_url_request_1.json");
+            checkRequest(mDataPath + "upload_request_1.json");
+            checkRequest(mDataPath + "create_upload_url_request_2.json");
+            checkRequest(mDataPath + "upload_request_2.json");
+            checkRequest(mDataPath + "complete_upload_request.json");
+            checkRequest(mDataPath + "get_upload_status_request.json");
         }
 
     }
 
     private abstract class BaseWriteS3StandardTests extends BaseWriteS3Tests {
 
+        protected BaseWriteS3StandardTests(String dataPath) {
+            super(dataPath);
+        }
+
         @Override
         protected UserPublicKey getUserPublicKey() {
             return null;
         }
 
         @Override
-        protected PlainFileKey getFileKey() {
+        protected PlainFileKey getPlainFileKey() {
             return null;
         }
 
-    }
-
-    private abstract class BaseWriteS3EncryptedTests extends BaseWriteS3Tests {
-
-        @Mock
-        protected DracoonNodesImpl mDracoonNodesImpl;
-
         @Override
-        protected void mockDependencies() throws Exception {
-            mDracoonClientImpl.setNodesImpl(mDracoonNodesImpl);
-
-            EncryptedFileKey fileKey = readData(EncryptedFileKey.class, getDataPath() +
-                    "enc_file_key.json");
-            when(mDracoonNodesImpl.encryptFileKey(any(), any(), any())).thenReturn(fileKey);
-        }
-
-        @Override
-        protected UserPublicKey getUserPublicKey() {
-            return readData(UserPublicKey.class, getDataPath() + "public_key.json");
-        }
-
-        @Override
-        protected PlainFileKey getFileKey() {
-            return readData(PlainFileKey.class, getDataPath() + "plain_file_key.json");
+        protected EncryptedFileKey getEncryptedFileKey() {
+            return null;
         }
 
     }
@@ -547,11 +569,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteS3Tests extends BaseWriteS3StandardTests {
 
-        private final String DATA_PATH = "/upload/write_s3/";
-
-        @Override
-        protected String getDataPath() {
-            return DATA_PATH;
+        WriteS3Tests() {
+            super("/upload/write_s3/");
         }
 
         @Override
@@ -566,7 +585,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseS3UploadGetUrlsError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_url_failed_response.json");
+            enqueueResponse(mDataPath + "create_upload_url_failed_response.json");
 
             // Write bytes
             IOException thrown = assertThrows(IOException.class, () -> mUls.write(mBytes));
@@ -582,8 +601,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseS3UploadError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_url_response.json");
-            enqueueResponse(DATA_PATH + "upload_failed_response.json");
+            enqueueResponse(mDataPath + "create_upload_url_response.json");
+            enqueueResponse(mDataPath + "upload_failed_response.json");
 
             // Write bytes
             IOException thrown = assertThrows(IOException.class, () -> mUls.write(new byte[3073]));
@@ -597,9 +616,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteS3EmptyFileTests extends BaseWriteS3StandardTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_s3_empty_file/";
+        WriteS3EmptyFileTests() {
+            super("/upload/write_s3_empty_file/");
         }
 
         @Override
@@ -617,9 +635,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteS3StandardOneChunkTests extends BaseWriteS3StandardTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_s3_standard_one_chunk/";
+        WriteS3StandardOneChunkTests() {
+            super("/upload/write_s3_standard_one_chunk/");
         }
 
         @Test
@@ -632,9 +649,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteS3StandardMultiChunkTests extends BaseWriteS3StandardTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_s3_standard_multi_chunk/";
+        WriteS3StandardMultiChunkTests() {
+            super("/upload/write_s3_standard_multi_chunk/");
         }
 
         @Test
@@ -644,12 +660,42 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     }
 
+    private abstract class BaseWriteS3EncryptedTests extends BaseWriteS3Tests {
+
+        protected BaseWriteS3EncryptedTests(String dataPath) {
+            super(dataPath);
+        }
+
+        @Override
+        protected void mockDependencies() throws Exception {
+            when(mCryptoWrapper.createFileEncryptionCipher(any()))
+                    .thenCallRealMethod();
+            when(mCryptoWrapper.encryptFileKey(any(), any(), any()))
+                    .thenReturn(getEncryptedFileKey());
+        }
+
+        @Override
+        protected UserPublicKey getUserPublicKey() {
+            return readData(UserPublicKey.class, mDataPath + "public_key.json");
+        }
+
+        @Override
+        protected PlainFileKey getPlainFileKey() {
+            return readData(PlainFileKey.class, mDataPath + "plain_file_key.json");
+        }
+
+        @Override
+        protected EncryptedFileKey getEncryptedFileKey() {
+            return readData(EncryptedFileKey.class, mDataPath + "enc_file_key.json");
+        }
+
+    }
+
     @Nested
     class WriteS3EncryptedOneChunkTests extends BaseWriteS3EncryptedTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_s3_encrypted_one_chunk/";
+        WriteS3EncryptedOneChunkTests() {
+            super("/upload/write_s3_encrypted_one_chunk/");
         }
 
         @Test
@@ -662,9 +708,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class WriteS3EncryptedMultiChunkTests extends BaseWriteS3EncryptedTests {
 
-        @Override
-        protected String getDataPath() {
-            return "/upload/write_s3_encrypted_multi_chunk/";
+        WriteS3EncryptedMultiChunkTests() {
+            super("/upload/write_s3_encrypted_multi_chunk/");
         }
 
         @Test
@@ -679,12 +724,14 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class CompleteDcTests extends DcUploadTest {
 
-        private final String DATA_PATH = "/upload/complete_dc/";
+        CompleteDcTests() {
+            super("/upload/complete_dc/");
+        }
 
         @Override
         protected void setup() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
@@ -704,7 +751,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             Node node = mUls.complete();
 
             // Assert data is correct
-            Node expectedNode = readData(Node.class, DATA_PATH + "node.json");
+            Node expectedNode = readData(Node.class, mDataPath + "node.json");
             assertDeepEquals(expectedNode, node);
         }
 
@@ -748,7 +795,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseUploadCompleteError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "complete_upload_not_found_response.json");
+            enqueueResponse(mDataPath + "complete_upload_not_found_response.json");
 
             // Complete upload
             IOException thrown = assertThrows(IOException.class, mUls::complete);
@@ -758,7 +805,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         }
 
         private void enqueueCompleteUploadResponses() {
-            enqueueResponse(DATA_PATH + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
         }
 
     }
@@ -766,13 +813,15 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @Nested
     class CompleteS3Tests extends S3UploadTest {
 
-        private final String DATA_PATH = "/upload/complete_s3/";
+        CompleteS3Tests() {
+            super("/upload/complete_s3/");
+        }
 
         @Override
         protected void setup() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "get_server_settings_response.json");
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
@@ -795,7 +844,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             Node node = mUls.complete();
 
             // Assert data is correct
-            Node expectedNode = readData(Node.class, DATA_PATH + "node.json");
+            Node expectedNode = readData(Node.class, mDataPath + "node.json");
             assertDeepEquals(expectedNode, node);
         }
 
@@ -846,7 +895,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
             // Enqueue responses
             enqueueUploadResponses();
-            enqueueResponse(DATA_PATH + "complete_upload_not_found_response.json");
+            enqueueResponse(mDataPath + "complete_upload_not_found_response.json");
 
             // Complete upload
             IOException thrown = assertThrows(IOException.class, mUls::complete);
@@ -865,7 +914,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             // Enqueue responses
             enqueueUploadResponses();
             enqueueCompleteUploadResponses();
-            enqueueResponse(DATA_PATH + "get_upload_status_not_found_response_1.json");
+            enqueueResponse(mDataPath + "get_upload_status_not_found_response_1.json");
 
             // Complete upload
             IOException thrown = assertThrows(IOException.class, mUls::complete);
@@ -884,7 +933,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             // Enqueue responses
             enqueueUploadResponses();
             enqueueCompleteUploadResponses();
-            enqueueResponse(DATA_PATH + "get_upload_status_not_found_response_2.json");
+            enqueueResponse(mDataPath + "get_upload_status_not_found_response_2.json");
 
             // Complete upload
             IOException thrown = assertThrows(IOException.class, mUls::complete);
@@ -894,16 +943,16 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         }
 
         private void enqueueUploadResponses() {
-            enqueueResponse(DATA_PATH + "create_upload_url_response.json");
-            enqueueResponse(DATA_PATH + "upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_url_response.json");
+            enqueueResponse(mDataPath + "upload_response.json");
         }
 
         private void enqueueCompleteUploadResponses() {
-            enqueueResponse(DATA_PATH + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
         }
 
         private void enqueueGetUploadStatusResponses() {
-            enqueueResponse(DATA_PATH + "get_upload_status_response.json");
+            enqueueResponse(mDataPath + "get_upload_status_response.json");
         }
 
     }
@@ -946,9 +995,12 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
     // --- Callback tests ---
 
-    private static abstract class CallbackTests implements FileUploadCallback {
+    private abstract class CallbackTests extends BaseUploadTests
+            implements FileUploadCallback {
 
-        protected final String DATA_PATH = "/upload/callback/";
+        CallbackTests() {
+            super("/upload/callback/");
+        }
 
         protected final String UPLOAD_ID = "Test";
 
@@ -975,8 +1027,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         private boolean mOnStartCalled = false;
         private String mOnStartId;
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0, null, null);
@@ -1003,7 +1055,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         private void start() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Start upload
             mUls.start();
@@ -1019,8 +1071,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         private long mOnRunningBytesSend = 0L;
         private long mOnRunningBytesTotal = 0L;
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 4096L, null, null);
@@ -1051,8 +1103,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         private void startAndWrite() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
-            enqueueResponse(DATA_PATH + "upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
+            enqueueResponse(mDataPath + "upload_response.json");
 
             // Start upload and write some bytes
             mUls.start();
@@ -1070,8 +1122,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         private String mOnFinishedId;
         private Node mOnFinishedNode;
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
@@ -1095,14 +1147,14 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         void testOnFinishedParametersCorrect() throws Exception {
             startAndComplete();
             assertEquals(UPLOAD_ID, mOnFinishedId);
-            Node node = readData(Node.class, DATA_PATH + "node.json");
+            Node node = readData(Node.class, mDataPath + "node.json");
             assertDeepEquals(node, mOnFinishedNode);
         }
 
         private void startAndComplete() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
-            enqueueResponse(DATA_PATH + "complete_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_response.json");
 
             // Start and complete upload
             mUls.start();
@@ -1117,8 +1169,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         private boolean mOnCanceledCalled = false;
         private String mOnCanceledId;
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() {
             // Simulate an interrupted thread
             TestHttpHelper httpHelper = (TestHttpHelper) mDracoonClientImpl.getHttpHelper();
             httpHelper.setSimulateInterruptedThread(true);
@@ -1166,7 +1218,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         private void startAndWrite() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Start upload and write some bytes
             mUls.start();
@@ -1187,7 +1239,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         private void startWriteAndComplete1() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Start upload, write some bytes and complete upload
             mUls.start();
@@ -1209,8 +1261,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         private void startWriteAndComplete2() throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
-            enqueueResponse(DATA_PATH + "upload_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
+            enqueueResponse(mDataPath + "upload_response.json");
 
             // Start upload, write some bytes and complete upload
             mUls.start();
@@ -1235,8 +1287,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         private String mOnFailedId;
         private DracoonException mOnFailedException;
 
-        @BeforeEach
-        void setup() {
+        @Override
+        protected void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
@@ -1269,7 +1321,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseUploadCreateError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_not_found_response.json");
+            enqueueResponse(mDataPath + "create_upload_not_found_response.json");
 
             // Start upload
             try {
@@ -1298,8 +1350,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseUploadError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
-            enqueueResponse(DATA_PATH + "upload_failed_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
+            enqueueResponse(mDataPath + "upload_failed_response.json");
 
             // Start upload and write some bytes
             mUls.start();
@@ -1329,8 +1381,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseUploadError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
-            enqueueResponse(DATA_PATH + "upload_failed_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
+            enqueueResponse(mDataPath + "upload_failed_response.json");
 
             // Start upload, write some bytes and complete upload
             mUls.start();
@@ -1361,9 +1413,9 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             when(mDracoonErrorParser.parseUploadCompleteError(any())).thenReturn(code);
 
             // Enqueue responses
-            enqueueResponse(DATA_PATH + "create_upload_response.json");
-            enqueueResponse(DATA_PATH + "upload_response.json");
-            enqueueResponse(DATA_PATH + "complete_upload_not_found_response.json");
+            enqueueResponse(mDataPath + "create_upload_response.json");
+            enqueueResponse(mDataPath + "upload_response.json");
+            enqueueResponse(mDataPath + "complete_upload_not_found_response.json");
 
             // Start upload, write some bytes and complete upload
             mUls.start();

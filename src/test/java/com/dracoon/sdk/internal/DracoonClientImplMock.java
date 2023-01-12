@@ -58,6 +58,10 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mHttpHelper.init();
     }
 
+    public void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
+        mCryptoWrapper = cryptoWrapper;
+    }
+
     public void setThreadHelper(ThreadHelper threadHelper) {
         mThreadHelper = threadHelper;
     }
