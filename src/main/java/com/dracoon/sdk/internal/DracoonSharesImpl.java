@@ -49,7 +49,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         ShareValidator.validateCreateDownloadRequest(request, isEncrypted);
 
         UserKeyPair shareUserKeyPair = null;
-        EncryptedFileKey shareEncryptedFileKey = null;
+        EncryptedFileKey shareEncFileKey = null;
         if (isEncrypted) {
             PlainFileKey plainFileKey = getDownloadSharePlainFileKey(nodeId);
 
@@ -61,12 +61,12 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             String userEncPw = request.getEncryptionPassword();
             shareUserKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, userEncPw);
 
-            shareEncryptedFileKey = crypto.encryptFileKey(nodeId, plainFileKey,
+            shareEncFileKey = crypto.encryptFileKey(nodeId, plainFileKey,
                     shareUserKeyPair.getUserPublicKey());
         }
 
         ApiCreateDownloadShareRequest apiRequest = ShareMapper.toApiCreateDownloadShareRequest(
-                request, shareUserKeyPair, shareEncryptedFileKey);
+                request, shareUserKeyPair, shareEncFileKey);
         Call<ApiDownloadShare> call = mService.createDownloadShare(apiRequest);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
@@ -87,14 +87,14 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             DracoonNetIOException, DracoonApiException {
         String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
-        EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().getFileKey(nodeId);
+        EncryptedFileKey encFileKey = mClient.getNodesImpl().getFileKey(nodeId);
 
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.determineUserKeyPairVersion(
-                encryptedFileKey.getVersion());
+                encFileKey.getVersion());
         UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(userKeyPairVersion);
 
         CryptoWrapper crypto = mClient.getCryptoWrapper();
-        return crypto.decryptFileKey(nodeId, encryptedFileKey, userKeyPair.getUserPrivateKey(),
+        return crypto.decryptFileKey(nodeId, encFileKey, userKeyPair.getUserPrivateKey(),
                 userPrivateKeyPassword);
     }
 

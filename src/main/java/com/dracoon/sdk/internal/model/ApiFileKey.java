@@ -4,8 +4,8 @@ package com.dracoon.sdk.internal.model;
         "squid:S1104" // SONAR: Creating getter/setter for this data class in an overkill
 })
 public class ApiFileKey {
+    public String version;
     public String key;
     public String iv;
     public String tag;
-    public String version;
 }

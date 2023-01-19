@@ -869,6 +869,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public boolean generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
+        NodeValidator.validateNodeId(nodeId);
         return generateMissingFileKeysInternally(nodeId, limit);
     }
 
@@ -876,19 +877,22 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         mClient.assertApiVersionSupported();
 
+        BaseValidator.validateLimit(limit, false);
+
         List<UserKeyPair> userKeyPairs = mClient.getAccountImpl().getAndCheckUserKeyPairs();
         Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys = convertUserPrivateKeys(
                 userKeyPairs);
         String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
         boolean isFinished = false;
-        Long batchOffset = 0L;
-        Long batchLimit = 10L;
+        long batchOffset = 0L;
+        long batchMaxLimit = 10L;
         while (!isFinished) {
+            long batchLimit = Math.min(limit - batchOffset, batchMaxLimit);
             isFinished = generateMissingFileKeysBatch(userPrivateKeys,
                     userPrivateKeyPassword, nodeId, batchOffset, batchLimit);
             batchOffset = batchOffset + batchLimit;
-            if (limit != null && batchOffset > limit) {
+            if (batchOffset >= limit) {
                 break;
             }
         }
@@ -907,7 +911,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private boolean generateMissingFileKeysBatch(Map<UserKeyPair.Version,
             UserPrivateKey> userPrivateKeys, String userPrivateKeyPassword, Long nodeId,
-            Long offset, Long limit) throws DracoonNetIOException, DracoonApiException,
+            long offset, long limit) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
         ApiMissingFileKeys apiMissingFileKeys = getMissingFileKeysBatch(nodeId, offset, limit);
         if (apiMissingFileKeys.items.isEmpty()) {
@@ -948,10 +952,10 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
         setFileKeysBatch(apiUserIdFileIdFileKeys);
 
-        return false;
+        return apiMissingFileKeys.range.total <= offset + limit;
     }
 
-    private ApiMissingFileKeys getMissingFileKeysBatch(Long nodeId, Long offset, Long limit)
+    private ApiMissingFileKeys getMissingFileKeysBatch(Long nodeId, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(nodeId, offset, limit);
         Response<ApiMissingFileKeys> response = mHttpHelper.executeRequest(call);
