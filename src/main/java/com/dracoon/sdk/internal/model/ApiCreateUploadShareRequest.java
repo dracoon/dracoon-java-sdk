@@ -7,12 +7,16 @@ public class ApiCreateUploadShareRequest {
     public Long targetId;
     public String name;
     public String notes;
+    public String internalNotes;
     public ApiExpiration expiration;
+
     public Integer filesExpiryPeriod;
     public Integer maxSlots;
     public Long maxSize;
-
     public Boolean showUploadedFiles;
+
+    public Boolean showCreatorName;
+    public Boolean showCreatorUsername;
     public Boolean notifyCreator;
 
     public String password;

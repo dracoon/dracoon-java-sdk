@@ -14,7 +14,6 @@ import com.dracoon.sdk.internal.model.ApiUploadShare;
 import com.dracoon.sdk.internal.model.ApiUploadShareList;
 import com.dracoon.sdk.internal.util.EncodingUtils;
 import com.dracoon.sdk.internal.util.TextUtils;
-import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.DownloadShare;
@@ -36,6 +35,7 @@ public class ShareMapper extends BaseMapper {
         apiRequest.nodeId = request.getNodeId();
         apiRequest.name = request.getName();
         apiRequest.notes = request.getNotes();
+        apiRequest.internalNotes = request.getInternalNotes();
         Date expirationDate = request.getExpirationDate();
         if (expirationDate != null) {
             ApiExpiration apiExpiration = new ApiExpiration();
@@ -43,10 +43,10 @@ public class ShareMapper extends BaseMapper {
             apiExpiration.expireAt = expirationDate;
             apiRequest.expiration = apiExpiration;
         }
+        apiRequest.maxDownloads = request.getMaxDownloads();
         apiRequest.showCreatorName = request.showCreatorName();
         apiRequest.showCreatorUsername = request.showCreatorUserName();
         apiRequest.notifyCreator = request.notifyCreator();
-        apiRequest.maxDownloads = request.getMaxDownloads();
         apiRequest.password = request.getAccessPassword();
         if (keyPair != null) {
             apiRequest.keyPair = UserMapper.toApiUserKeyPair(keyPair);
@@ -74,13 +74,14 @@ public class ShareMapper extends BaseMapper {
         downloadShare.setNodePath(apiDownloadShare.nodePath);
         downloadShare.setName(apiDownloadShare.name);
         downloadShare.setNotes(apiDownloadShare.notes);
+        downloadShare.setInternalNotes(apiDownloadShare.internalNotes);
         downloadShare.setExpireAt(apiDownloadShare.expireAt);
+        downloadShare.setMaxDownloads(apiDownloadShare.maxDownloads);
         downloadShare.setAccessKey(apiDownloadShare.accessKey);
+        downloadShare.setCntDownloads(apiDownloadShare.cntDownloads);
         downloadShare.setShowsCreatorName(toBoolean(apiDownloadShare.showCreatorName));
         downloadShare.setShowsCreatorUserName(toBoolean(apiDownloadShare.showCreatorUsername));
         downloadShare.setNotifiesCreator(toBoolean(apiDownloadShare.notifyCreator));
-        downloadShare.setMaxDownloads(apiDownloadShare.maxDownloads);
-        downloadShare.setCntDownloads(apiDownloadShare.cntDownloads);
         downloadShare.setCreatedAt(apiDownloadShare.createdAt);
         downloadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiDownloadShare.createdBy));
         downloadShare.setIsProtected(toBoolean(apiDownloadShare.isProtected));
@@ -126,6 +127,7 @@ public class ShareMapper extends BaseMapper {
         apiRequest.targetId = request.getTargetNodeId();
         apiRequest.name = request.getName();
         apiRequest.notes = request.getNotes();
+        apiRequest.internalNotes = request.getInternalNotes();
         Date expirationDate = request.getExpirationDate();
         if (expirationDate != null) {
             ApiExpiration apiExpiration = new ApiExpiration();
@@ -134,10 +136,12 @@ public class ShareMapper extends BaseMapper {
             apiRequest.expiration = apiExpiration;
         }
         apiRequest.filesExpiryPeriod = request.getFilesExpirationPeriod();
-        apiRequest.showUploadedFiles = request.showUploadedFiles();
-        apiRequest.notifyCreator = request.notifyCreator();
         apiRequest.maxSlots = request.getMaxUploads();
         apiRequest.maxSize = request.getMaxQuota();
+        apiRequest.showUploadedFiles = request.showUploadedFiles();
+        apiRequest.showCreatorName = request.showCreatorName();
+        apiRequest.showCreatorUsername = request.showCreatorUserName();
+        apiRequest.notifyCreator = request.notifyCreator();
         apiRequest.password = request.getAccessPassword();
         apiRequest.sendMail = request.sendEmail();
         apiRequest.mailRecipients = TextUtils.join(request.getEmailRecipients());
@@ -159,15 +163,18 @@ public class ShareMapper extends BaseMapper {
         uploadShare.setTargetNodePath(apiUploadShare.targetPath);
         uploadShare.setName(apiUploadShare.name);
         uploadShare.setNotes(apiUploadShare.notes);
+        uploadShare.setInternalNotes(apiUploadShare.internalNotes);
         uploadShare.setExpireAt(apiUploadShare.expireAt);
         uploadShare.setFilesExpirePeriod(apiUploadShare.filesExpiryPeriod);
         uploadShare.setMaxUploads(apiUploadShare.maxSlots);
         uploadShare.setMaxQuota(apiUploadShare.maxSize);
-        uploadShare.setAccessKey(apiUploadShare.accessKey);
         uploadShare.setShowsUploadedFiles(toBoolean(apiUploadShare.showUploadedFiles));
-        uploadShare.setNotifiesCreator(toBoolean(apiUploadShare.notifyCreator));
+        uploadShare.setAccessKey(apiUploadShare.accessKey);
         uploadShare.setCntUploads(apiUploadShare.cntUploads);
         uploadShare.setCntFiles(apiUploadShare.cntFiles);
+        uploadShare.setShowsCreatorName(toBoolean(apiUploadShare.showCreatorName));
+        uploadShare.setShowsCreatorUserName(toBoolean(apiUploadShare.showCreatorUsername));
+        uploadShare.setNotifiesCreator(toBoolean(apiUploadShare.notifyCreator));
         uploadShare.setCreatedAt(apiUploadShare.createdAt);
         uploadShare.setCreatedBy(UserMapper.fromApiUserInfo(apiUploadShare.createdBy));
         uploadShare.setIsProtected(toBoolean(apiUploadShare.isProtected));

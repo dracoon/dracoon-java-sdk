@@ -7,12 +7,14 @@ public class ApiCreateDownloadShareRequest {
     public Long nodeId;
     public String name;
     public String notes;
+    public String internalNotes;
     public ApiExpiration expiration;
+
+    public Integer maxDownloads;
 
     public Boolean showCreatorName;
     public Boolean showCreatorUsername;
     public Boolean notifyCreator;
-    public Integer maxDownloads;
 
     public String password;
     public ApiUserKeyPair keyPair;

@@ -11,15 +11,16 @@ public class ApiDownloadShare {
     public String nodePath;
     public String name;
     public String notes;
+    public String internalNotes;
     public Date expireAt;
+    public Integer maxDownloads;
 
     public String accessKey;
+    public Integer cntDownloads;
 
     public Boolean showCreatorName;
     public Boolean showCreatorUsername;
     public Boolean notifyCreator;
-    public Integer maxDownloads;
-    public Integer cntDownloads;
 
     public Date createdAt;
     public ApiUserInfo createdBy;

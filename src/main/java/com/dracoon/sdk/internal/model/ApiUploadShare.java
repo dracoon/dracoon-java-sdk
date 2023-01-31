@@ -11,17 +11,20 @@ public class ApiUploadShare {
     public String targetPath;
     public String name;
     public String notes;
+    public String internalNotes;
     public Date expireAt;
     public Integer filesExpiryPeriod;
     public Integer maxSlots;
     public Long maxSize;
+    public Boolean showUploadedFiles;
 
     public String accessKey;
-
-    public Boolean showUploadedFiles;
-    public Boolean notifyCreator;
     public Integer cntUploads;
     public Integer cntFiles;
+
+    public Boolean showCreatorName;
+    public Boolean showCreatorUsername;
+    public Boolean notifyCreator;
 
     public Date createdAt;
     public ApiUserInfo createdBy;

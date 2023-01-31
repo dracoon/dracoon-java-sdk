@@ -14,13 +14,19 @@ public class CreateUploadShareRequest {
     private Long mTargetNodeId;
     private String mName;
     private String mNotes;
+    private String mInternalNotes;
     private Date mExpirationDate;
     private Integer mFilesExpirationPeriod;
-    private Boolean mShowUploadedFiles;
-    private Boolean mNotifyCreator;
     private Integer mMaxUploads;
     private Long mMaxQuota;
+    private Boolean mShowUploadedFiles;
+
+    private Boolean mShowCreatorName;
+    private Boolean mShowCreatorUserName;
+    private Boolean mNotifyCreator;
+
     private String mAccessPassword;
+
     private Boolean mSendEmail;
     private List<String> mEmailRecipients;
     private String mEmailSubject;
@@ -60,6 +66,15 @@ public class CreateUploadShareRequest {
     }
 
     /**
+     * Returns the internal notes of the new upload share.
+     *
+     * @return the internal notes
+     */
+    public String getInternalNotes() {
+        return mInternalNotes;
+    }
+
+    /**
      * Returns the expiration date of the new upload share.
      *
      * @return the expiration date
@@ -78,25 +93,6 @@ public class CreateUploadShareRequest {
     }
 
     /**
-     * Returns <code>true</code> if already uploaded files will be shown for the new upload share.
-     *
-     * @return <code>true</code> if already uploaded files will be shown; <code>false</code>
-     * otherwise
-     */
-    public Boolean showUploadedFiles() {
-        return mShowUploadedFiles;
-    }
-
-    /**
-     * Returns <code>true</code> if creator will be notified at uploads to the new upload share.
-     *
-     * @return <code>true</code> if creator will be notified; <code>false</code> otherwise
-     */
-    public Boolean notifyCreator() {
-        return mNotifyCreator;
-    }
-
-    /**
      * Returns the maximum number of uploads for the new upload share.
      *
      * @return the maximum number of uploads
@@ -109,6 +105,43 @@ public class CreateUploadShareRequest {
      * @return the maximum number of bytes
      */
     public Long getMaxQuota() {return mMaxQuota;}
+
+    /**
+     * Returns <code>true</code> if already uploaded files will be shown for the new upload share.
+     *
+     * @return <code>true</code> if already uploaded files will be shown; <code>false</code>
+     * otherwise
+     */
+    public Boolean showUploadedFiles() {
+        return mShowUploadedFiles;
+    }
+
+    /**
+     * Returns <code>true</code> if creator's name will be shown for the new upload share.
+     *
+     * @return <code>true</code> if creator's name will be shown; <code>false</code> otherwise
+     */
+    public Boolean showCreatorName() {
+        return mShowCreatorName;
+    }
+
+    /**
+     * Returns <code>true</code> if creator's user name will be shown for the new upload share.
+     *
+     * @return <code>true</code> if creator's user name will be shown; <code>false</code> otherwise
+     */
+    public Boolean showCreatorUserName() {
+        return mShowCreatorUserName;
+    }
+
+    /**
+     * Returns <code>true</code> if creator will be notified at uploads to the new upload share.
+     *
+     * @return <code>true</code> if creator will be notified; <code>false</code> otherwise
+     */
+    public Boolean notifyCreator() {
+        return mNotifyCreator;
+    }
 
     /**
      * Returns the access password of the new upload share.
@@ -232,6 +265,18 @@ public class CreateUploadShareRequest {
         }
 
         /**
+         * Sets the internal notes of the new upload share.
+         *
+         * @param internalNotes The internal notes.
+         *
+         * @return a reference to this object
+         */
+        public Builder internalNotes(String internalNotes) {
+            mRequest.mInternalNotes = internalNotes;
+            return this;
+        }
+
+        /**
          * Sets the expiration date of the new upload share.
          *
          * @param expirationDate The expiration date.
@@ -256,6 +301,30 @@ public class CreateUploadShareRequest {
         }
 
         /**
+         * Sets the maximum number of uploads for the new upload share.
+         *
+         * @param maxUploads The maximum number of uploads. (Number must be positive.)
+         *
+         * @return a reference to this object
+         */
+        public Builder maxUploads(Integer maxUploads) {
+            mRequest.mMaxUploads = maxUploads;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of bytes which can be uploaded with the new upload share.
+         *
+         * @param maxQuota The maximum number of bytes. (Number must be positive.)
+         *
+         * @return a reference to this object
+         */
+        public Builder maxQuota(Long maxQuota) {
+            mRequest.mMaxQuota = maxQuota;
+            return this;
+        }
+
+        /**
          * Enables/disables if already uploaded files will be shown for the new upload share.
          *
          * @param showUploadedFiles <code>true</code> to enable that already uploaded files will be
@@ -265,6 +334,32 @@ public class CreateUploadShareRequest {
          */
         public Builder showUploadedFiles(Boolean showUploadedFiles) {
             mRequest.mShowUploadedFiles = showUploadedFiles;
+            return this;
+        }
+
+        /**
+         * Enables/disables if the creator's name will be shown for the new upload share.
+         *
+         * @param showCreatorName <code>true</code> to enable that creator's name will be shown;
+         *                        otherwise <code>false</code>.
+         *
+         * @return a reference to this object
+         */
+        public Builder showCreatorName(Boolean showCreatorName) {
+            mRequest.mShowCreatorName = showCreatorName;
+            return this;
+        }
+
+        /**
+         * Enables/disables if the creator's user name will be shown for the new upload share.
+         *
+         * @param showCreatorUserName <code>true</code> to enable that creator's user name will be
+         *                            shown; otherwise <code>false</code>.
+         *
+         * @return a reference to this object
+         */
+        public Builder showCreatorUserName(Boolean showCreatorUserName) {
+            mRequest.mShowCreatorUserName = showCreatorUserName;
             return this;
         }
 
@@ -290,30 +385,6 @@ public class CreateUploadShareRequest {
          */
         public Builder accessPassword(String accessPassword) {
             mRequest.mAccessPassword = accessPassword;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of uploads for the new upload share.
-         *
-         * @param maxUploads The maximum number of uploads. (Number must be positive.)
-         *
-         * @return a reference to this object
-         */
-        public Builder maxUploads(Integer maxUploads) {
-            mRequest.mMaxUploads = maxUploads;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of bytes which can be uploaded with the new upload share.
-         *
-         * @param maxQuota The maximum number of bytes. (Number must be positive.)
-         *
-         * @return a reference to this object
-         */
-        public Builder maxQuota(Long maxQuota) {
-            mRequest.mMaxQuota = maxQuota;
             return this;
         }
 

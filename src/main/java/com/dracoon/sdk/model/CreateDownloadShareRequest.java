@@ -14,13 +14,17 @@ public class CreateDownloadShareRequest {
     private Long mNodeId;
     private String mName;
     private String mNotes;
+    private String mInternalNotes;
     private Date mExpirationDate;
+    private Integer mMaxDownloads;
+
     private Boolean mShowCreatorName;
     private Boolean mShowCreatorUserName;
     private Boolean mNotifyCreator;
-    private Integer mMaxDownloads;
+
     private String mAccessPassword;
     private String mEncryptionPassword;
+
     private Boolean mSendEmail;
     private List<String> mEmailRecipients;
     private String mEmailSubject;
@@ -60,12 +64,30 @@ public class CreateDownloadShareRequest {
     }
 
     /**
+     * Returns the internal notes of the new download share.
+     *
+     * @return the internal notes
+     */
+    public String getInternalNotes() {
+        return mInternalNotes;
+    }
+
+    /**
      * Returns the expiration date of the new download share.
      *
      * @return the expiration date
      */
     public Date getExpirationDate() {
         return mExpirationDate;
+    }
+
+    /**
+     * Returns the maximum number of downloads for the new download share.
+     *
+     * @return the maximum number of downloads
+     */
+    public Integer getMaxDownloads() {
+        return mMaxDownloads;
     }
 
     /**
@@ -93,15 +115,6 @@ public class CreateDownloadShareRequest {
      */
     public Boolean notifyCreator() {
         return mNotifyCreator;
-    }
-
-    /**
-     * Returns the maximum number of downloads for the new download share.
-     *
-     * @return the maximum number of downloads
-     */
-    public Integer getMaxDownloads() {
-        return mMaxDownloads;
     }
 
     /**
@@ -234,6 +247,18 @@ public class CreateDownloadShareRequest {
         }
 
         /**
+         * Sets the internal notes of the new download share.
+         *
+         * @param internalNotes The internal notes.
+         *
+         * @return a reference to this object
+         */
+        public Builder internalNotes(String internalNotes) {
+            mRequest.mInternalNotes = internalNotes;
+            return this;
+        }
+
+        /**
          * Sets the expiration date of the new download share.
          *
          * @param expirationDate The expiration date.
@@ -242,6 +267,18 @@ public class CreateDownloadShareRequest {
          */
         public Builder expirationDate(Date expirationDate) {
             mRequest.mExpirationDate = expirationDate;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of downloads for the new download share.
+         *
+         * @param maxDownloads The maximum number of downloads. (Number must be positive.)
+         *
+         * @return a reference to this object
+         */
+        public Builder maxDownloads(Integer maxDownloads) {
+            mRequest.mMaxDownloads = maxDownloads;
             return this;
         }
 
@@ -281,18 +318,6 @@ public class CreateDownloadShareRequest {
          */
         public Builder notifyCreator(Boolean notifyCreator) {
             mRequest.mNotifyCreator = notifyCreator;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of downloads for the new download share.
-         *
-         * @param maxDownloads The maximum number of downloads. (Number must be positive.)
-         *
-         * @return a reference to this object
-         */
-        public Builder maxDownloads(Integer maxDownloads) {
-            mRequest.mMaxDownloads = maxDownloads;
             return this;
         }
 
