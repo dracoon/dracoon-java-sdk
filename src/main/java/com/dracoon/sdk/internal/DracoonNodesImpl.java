@@ -1249,7 +1249,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    // --- Media methods ---
+    // --- Media URL methods ---
 
     @Override
     public URL buildMediaUrl(String mediaToken, int width, int height) {

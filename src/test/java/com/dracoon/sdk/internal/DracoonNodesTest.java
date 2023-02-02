@@ -1,5 +1,7 @@
 package com.dracoon.sdk.internal;
 
+import java.net.URL;
+
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.filter.GetNodesFilters;
@@ -931,6 +933,20 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testError() {
             executeTestError("precondition_failed_response.json",
                     () -> mDni.getFavorites(1L, 2L));
+        }
+
+    }
+
+    // --- Media URL tests ---
+
+    @Nested
+    class BuildMediaUrlTests {
+
+        @Test
+        void testResultCorrect() throws Exception {
+            URL expectedMediaUrl = new URL(mServerUrl.toString() + "/mediaserver/image/xxx/800x600");
+            URL mediaUrl = mDni.buildMediaUrl("xxx", 800, 600);
+            assertEquals(expectedMediaUrl, mediaUrl);
         }
 
     }
