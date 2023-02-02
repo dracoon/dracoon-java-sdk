@@ -1,0 +1,14 @@
+{
+  "method": "get",
+  "url": "[SERVER_URL]/api/v4/nodes/search?search_string=test-file.jpg&parent_id=0&depth_level=-1&filter=parentPath:eq:/test/",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Bearer L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ]
+}

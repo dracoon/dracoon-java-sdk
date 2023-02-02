@@ -1,0 +1,6 @@
+{
+  "version": "RSA2048_AES256GCM",
+  "key": "efk_f3_u3_key",
+  "iv": "efk_f3_u3_iv",
+  "tag": "efk_f3_u3_tag"
+}

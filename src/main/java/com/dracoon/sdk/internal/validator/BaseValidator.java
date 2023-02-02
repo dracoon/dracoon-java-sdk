@@ -144,6 +144,10 @@ public class BaseValidator {
         ValidatorUtils.validatePositiveNumber("Period", period, true);
     }
 
+    public static void validateLimit(Integer limit, boolean nullable) {
+        ValidatorUtils.validatePositiveNumber("limit", limit, nullable);
+    }
+
     public static void validateRange(Long offset, Long limit, boolean nullable) {
         ValidatorUtils.validateNotNegative("offset", offset, nullable);
         ValidatorUtils.validatePositiveNumber("limit", limit, nullable);

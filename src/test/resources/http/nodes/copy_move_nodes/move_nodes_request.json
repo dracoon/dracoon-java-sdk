@@ -1,0 +1,18 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/api/v4/nodes/5/move_to",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Bearer L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"nodeIds\":[2,3,4],\"items\":[{\"id\":2},{\"id\":3},{\"id\":4}],\"resolutionStrategy\":\"autorename\"}"
+  }
+}

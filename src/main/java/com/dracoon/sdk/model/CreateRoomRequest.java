@@ -75,7 +75,7 @@ public class CreateRoomRequest {
     }
 
     /**
-     * Returns the recycle bin retention period of the new room.
+     * Returns the recycle bin retention period (in days) of the new room.
      *
      * @return the recycle bin retention period
      */
@@ -211,7 +211,7 @@ public class CreateRoomRequest {
         }
 
         /**
-         * Sets the recycle bin retention period of the new room.
+         * Sets the recycle bin retention period (in days) of the new room.
          *
          * @param recycleBinRetentionPeriod The recycle bin retention period. (Period must be
          *                                  positive.)

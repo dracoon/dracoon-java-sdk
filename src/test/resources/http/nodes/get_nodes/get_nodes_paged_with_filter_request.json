@@ -1,0 +1,14 @@
+{
+  "method": "get",
+  "url": "[SERVER_URL]/api/v4/nodes?parent_id=4&depth_level=0&filter=type:eq:folder:file&offset=1&limit=2",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Bearer L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ]
+}

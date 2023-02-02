@@ -34,13 +34,13 @@ public class UploadThread extends Thread {
 
     private final List<FileUploadCallback> mCallbacks = new ArrayList<>();
 
-    public UploadThread(DracoonClientImpl client, String id, FileUploadRequest request, long length,
+    private UploadThread(DracoonClientImpl client, String id, FileUploadRequest request, long length,
             UserPublicKey userPublicKey, PlainFileKey fileKey, InputStream inputStream) {
         mLog = client.getLog();
 
         mId = id;
 
-        mUploadStream = new UploadStream(client, id, request, length, userPublicKey, fileKey);
+        mUploadStream = UploadStream.create(client, id, request, length, userPublicKey, fileKey);
         mInputStream = inputStream;
     }
 
@@ -137,6 +137,13 @@ public class UploadThread extends Thread {
         for (FileUploadCallback callback : mCallbacks) {
             callback.onFailed(id, e);
         }
+    }
+
+    // --- Factory methods ---
+
+    public static UploadThread create(DracoonClientImpl client, String id, FileUploadRequest request,
+            long length, UserPublicKey userPublicKey, PlainFileKey fileKey, InputStream inputStream) {
+        return new UploadThread(client, id, request, length, userPublicKey, fileKey, inputStream);
     }
 
 }

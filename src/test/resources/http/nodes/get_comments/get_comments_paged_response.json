@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"range\":{\"offset\":1,\"limit\":2,\"total\":3},\"items\":[{\"id\":2,\"text\":\"Comment 2\",\"createdAt\":\"2022-01-02T01:00:00Z\",\"createdBy\":{\"id\":1,\"userType\":\"internal\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"userName\":\"j.doe\",\"email\":\"j.doe@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d41\"},\"updatedAt\":\"2022-01-02T02:00:00Z\",\"updatedBy\":{\"id\":2,\"userType\":\"deleted\",\"firstName\":\"Max\",\"lastName\":\"Muster\",\"userName\":\"m.muster\",\"email\":\"m.muster@dracoon.com\",\"avatarUuid\":\"550e8400-e29b-11d4-a716-446655440000\"},\"isChanged\":true,\"isDeleted\":false},{\"id\":3,\"text\":\"Comment 3\",\"createdAt\":\"2022-01-03T01:00:00Z\",\"createdBy\":{\"id\":1,\"userType\":\"internal\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"userName\":\"j.doe\",\"email\":\"j.doe@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d41\"},\"updatedAt\":\"2022-01-03T02:00:00Z\",\"updatedBy\":{\"id\":2,\"userType\":\"deleted\",\"firstName\":\"Max\",\"lastName\":\"Muster\",\"userName\":\"m.muster\",\"email\":\"m.muster@dracoon.com\",\"avatarUuid\":\"550e8400-e29b-11d4-a716-446655440000\"},\"isChanged\":false,\"isDeleted\":false}]}"
+  }
+}

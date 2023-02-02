@@ -58,6 +58,18 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mHttpHelper.init();
     }
 
+    public void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
+        mCryptoWrapper = cryptoWrapper;
+    }
+
+    public void setThreadHelper(ThreadHelper threadHelper) {
+        mThreadHelper = threadHelper;
+    }
+
+    public void setFileStreamHelper(FileStreamHelper fileStreamHelper) {
+        mFileStreamHelper = fileStreamHelper;
+    }
+
     // --- Methods to set internal handlers ---
 
     public void setServerImpl(DracoonServerImpl server) {

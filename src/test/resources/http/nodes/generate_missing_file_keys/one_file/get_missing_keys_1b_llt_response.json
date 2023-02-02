@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"range\":{\"offset\":0,\"limit\":4,\"total\":8},\"items\":[{\"fileId\":1,\"userId\":1},{\"fileId\":1,\"userId\":2},{\"fileId\":1,\"userId\":3},{\"fileId\":1,\"userId\":4}],\"users\":[{\"id\":1,\"publicKeyContainer\":{\"version\":\"A\",\"publicKey\":\"upk_1\"}},{\"id\":2,\"publicKeyContainer\":{\"version\":\"RSA-4096\",\"publicKey\":\"upk_2\"}},{\"id\":3,\"publicKeyContainer\":{\"version\":\"A\",\"publicKey\":\"upk_3\"}},{\"id\":4,\"publicKeyContainer\":{\"version\":\"RSA-4096\",\"publicKey\":\"upk_4\"}}],\"files\":[{\"id\":1,\"fileKeyContainer\":{\"version\":\"A\",\"key\":\"efk_f1_key\",\"iv\":\"efk_f1_iv\",\"tag\":\"efk_f1_tag\"}}]}"
+  }
+}

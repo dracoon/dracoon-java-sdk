@@ -49,23 +49,24 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         ShareValidator.validateCreateDownloadRequest(request, isEncrypted);
 
         UserKeyPair shareUserKeyPair = null;
-        EncryptedFileKey shareEncryptedFileKey = null;
+        EncryptedFileKey shareEncFileKey = null;
         if (isEncrypted) {
             PlainFileKey plainFileKey = getDownloadSharePlainFileKey(nodeId);
 
             UserKeyPair.Version userKeyPairVersion = mClient.getServerSettingsImpl()
                     .getPreferredUserKeyPairVersion();
 
-            String userEncPw = request.getEncryptionPassword();
-            shareUserKeyPair = mClient.getAccountImpl().generateUserKeyPair(userKeyPairVersion,
-                    userEncPw);
+            CryptoWrapper crypto = mClient.getCryptoWrapper();
 
-            shareEncryptedFileKey = mClient.getNodesImpl().encryptFileKey(nodeId, plainFileKey,
+            String userEncPw = request.getEncryptionPassword();
+            shareUserKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, userEncPw);
+
+            shareEncFileKey = crypto.encryptFileKey(nodeId, plainFileKey,
                     shareUserKeyPair.getUserPublicKey());
         }
 
         ApiCreateDownloadShareRequest apiRequest = ShareMapper.toApiCreateDownloadShareRequest(
-                request, shareUserKeyPair, shareEncryptedFileKey);
+                request, shareUserKeyPair, shareEncFileKey);
         Call<ApiDownloadShare> call = mService.createDownloadShare(apiRequest);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
@@ -86,14 +87,15 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             DracoonNetIOException, DracoonApiException {
         String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
-        EncryptedFileKey encryptedFileKey = mClient.getNodesImpl().getFileKey(nodeId);
+        EncryptedFileKey encFileKey = mClient.getNodesImpl().getFileKey(nodeId);
 
-        UserKeyPair.Version userKeyPairVersion = DracoonClientImpl.determineUserKeyPairVersion(
-                encryptedFileKey.getVersion());
+        UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.determineUserKeyPairVersion(
+                encFileKey.getVersion());
         UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(userKeyPairVersion);
 
-        return mClient.getNodesImpl().decryptFileKey(nodeId, encryptedFileKey,
-                userKeyPair.getUserPrivateKey(),  userPrivateKeyPassword);
+        CryptoWrapper crypto = mClient.getCryptoWrapper();
+        return crypto.decryptFileKey(nodeId, encFileKey, userKeyPair.getUserPrivateKey(),
+                userPrivateKeyPassword);
     }
 
     @Override

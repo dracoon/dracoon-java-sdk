@@ -1,0 +1,53 @@
+{
+  "mId": 3,
+  "mType": "FOLDER",
+  "mParentId": 1,
+  "mParentPath": "/test/",
+  "mName": "test-folder",
+  "mSize": 17100345,
+  "mClassification": "INTERNAL",
+  "mCreatedAt": "2022-01-02T01:00:00Z",
+  "mCreatedBy": {
+    "mId": 1,
+    "mUserType": "INTERNAL",
+    "mFirstName": "John",
+    "mLastName": "Doe",
+    "mUsername": "j.doe",
+    "mEmail": "j.doe@dracoon.com",
+    "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d41"
+  },
+  "mUpdatedAt": "2022-01-02T02:00:00Z",
+  "mUpdatedBy": {
+    "mId": 2,
+    "mUserType": "DELETED",
+    "mFirstName": "Max",
+    "mLastName": "Muster",
+    "mUsername": "m.muster",
+    "mEmail": "m.muster@dracoon.com",
+    "mAvatarUuid": "550e8400-e29b-11d4-a716-446655440000"
+  },
+  "mOriginalCreatedAt": "2022-01-02T00:30:00Z",
+  "mOriginalModifiedAt": "2022-01-02T01:30:00Z",
+  "mHasInheritPermissions": false,
+  "mPermissions": {
+    "mManage": true,
+    "mRead": true,
+    "mCreate": true,
+    "mChange": true,
+    "mDelete": true,
+    "mManageDownloadShare": true,
+    "mManageUploadShare": true,
+    "mReadRecycleBin": true,
+    "mRestoreRecycleBin": true,
+    "mDeleteRecycleBin": true
+  },
+  "mIsFavorite": true,
+  "mIsEncrypted": false,
+  "mCntChildFolders": 1,
+  "mCntChildFiles": 3,
+  "mCntDeletedVersions": 1,
+  "mCntComments": 0,
+  "mCntDownloadShares": 0,
+  "mCntUploadShares": 1,
+  "mBranchVersion": 1634654101271
+}

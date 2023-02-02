@@ -1,0 +1,9 @@
+{
+  "mId": 2,
+  "mRecycleBinRetentionPeriod": 21,
+  "mHasInheritPermissions": false,
+  "mAdminUserIds": [1],
+  "mAdminGroupIds": [1],
+  "mNewGroupMemberAcceptance": "AUTO_ALLOW",
+  "mClassification": "PUBLIC"
+}

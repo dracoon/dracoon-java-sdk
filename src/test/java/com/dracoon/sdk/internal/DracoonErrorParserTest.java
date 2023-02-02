@@ -716,7 +716,7 @@ class DracoonErrorParserTest {
     @MethodSource("createTestParseNodeCommentsGetErrorArguments")
     void testParseNodeCommentsGetError(int code, Integer errorCode, DracoonApiCode result) {
         assertEquals(result, executeParseMethod(code, errorCode,
-                mErrorParser::parseNodeCommentsGetError));
+                mErrorParser::parseNodeCommentsQueryError));
     }
 
     @SuppressWarnings("unused")
