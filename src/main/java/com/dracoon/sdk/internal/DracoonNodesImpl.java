@@ -1171,7 +1171,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         Response<ApiNodeCommentList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseNodeCommentsGetError(response);
+            DracoonApiCode errorCode = mErrorParser.parseNodeCommentsQueryError(response);
             String errorText = String.format("Query of node comments for node '%d' failed with '%s'!",
                     nodeId, errorCode.name());
             mLog.d(LOG_TAG, errorText);

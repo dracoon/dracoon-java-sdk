@@ -797,7 +797,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseNodeCommentsGetError(Response response) {
+    public DracoonApiCode parseNodeCommentsQueryError(Response response) {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
