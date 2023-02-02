@@ -250,6 +250,14 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>com/dracoon/sdk/internal/model/*.class</exclude>
+                        <exclude>com/dracoon/sdk/internal/DracoonService.class</exclude>
+                        <exclude>com/dracoon/sdk/internal/NullLog.class</exclude>
+                        <exclude>com/dracoon/sdk/Log.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
