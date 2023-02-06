@@ -1,0 +1,22 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/oauth/token",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Basic cVBZbHVVM1M6cm1PVTBHVkw="
+    },
+    {
+      "name": "content-type",
+      "value": "application/x-www-form-urlencoded"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "grant_type=authorization_code&code=4lHrris4kqh8zAZgcLcb&redirect_uri=http%3A%2F%2Flocalhost%3A10000"
+  }
+}

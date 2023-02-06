@@ -1,7 +1,10 @@
 package com.dracoon.sdk;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +46,27 @@ public class OAuthHelper {
      * @return the authorization URL
      */
     public static String createAuthorizationUrl(URL serverUrl, String clientId, String state) {
+        return createAuthorizationUrlInternally(serverUrl, clientId, state, null);
+    }
+
+    /**
+     * Creates the authorization URL which must be open in the user's browser.
+     *
+     * @param serverUrl   The URL of the Dracoon server.
+     * @param clientId    The ID of the OAuth client.
+     * @param state       The state identifier which is used to track running authorizations.
+     * @param redirectUri The redirect URI which is used to receive the authorization callback.
+     *
+     * @return the authorization URL
+     */
+    public static String createAuthorizationUrl(URL serverUrl, String clientId, String state,
+            URI redirectUri) {
+        ValidatorUtils.validateNotNull("Redirect URI", redirectUri);
+        return createAuthorizationUrlInternally(serverUrl, clientId, state, redirectUri);
+    }
+
+    private static String createAuthorizationUrlInternally(URL serverUrl, String clientId,
+            String state, URI redirectUri) {
         ValidatorUtils.validateServerURL(serverUrl);
         ValidatorUtils.validateString("Client ID", clientId, false);
         ValidatorUtils.validateString("State", state, false);
@@ -58,6 +82,17 @@ public class OAuthHelper {
                 .append(clientId);
         urlBuilder.append("&state=")
                 .append(state);
+        if (redirectUri != null) {
+            try {
+                String encodedRedirectUri = URLEncoder.encode(redirectUri.toString(),
+                        StandardCharsets.UTF_8.toString());
+                urlBuilder.append("&redirect_uri=")
+                        .append(encodedRedirectUri);
+            } catch (UnsupportedEncodingException e) {
+                // A failed encoding is ignored
+            }
+        }
+
         return urlBuilder.toString();
     }
 

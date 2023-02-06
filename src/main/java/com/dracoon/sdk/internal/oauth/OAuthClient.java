@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.oauth;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
@@ -113,12 +114,18 @@ public class OAuthClient {
 
     public OAuthTokens retrieveTokens(String code) throws DracoonNetIOException,
             DracoonApiException {
+        return retrieveTokens(code, null);
+    }
+
+    public OAuthTokens retrieveTokens(String code, URI redirectUri) throws DracoonNetIOException,
+            DracoonApiException {
         String auth = Credentials.basic(mClientId, mClientSecret);
+        String redirUri = redirectUri != null ? redirectUri.toString() : null;
 
         mLog.i(LOG_TAG, "Trying to retrieve OAuth tokens ...");
 
         Call<OAuthTokens> call = mOAuthService.getOAuthToken(auth,
-                OAuthConstants.OAuthGrantTypes.AUTHORIZATION_CODE, code);
+                OAuthConstants.OAuthGrantTypes.AUTHORIZATION_CODE, code, redirUri);
         Response<OAuthTokens> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
