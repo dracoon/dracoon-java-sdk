@@ -71,52 +71,6 @@ class OAuthHelperTest {
 
     }
 
-    @Nested
-    class CreateAuthorizationUrlWithUserAgentInfoTests {
-
-        @Test
-        void testAuthorizationUrlCorrect() {
-            String url = OAuthHelper.createAuthorizationUrl(sDefaultServerUrl, "prgj5uzb",
-                    "b0fQ8iGQUONL4BHt", "dGVzdA==");
-
-            assertEquals("https://dracoon.team/oauth/authorize?"
-                    + "response_type=code&"
-                    + "client_id=prgj5uzb&"
-                    + "state=b0fQ8iGQUONL4BHt&"
-                    + "user_agent_info=dGVzdA==",
-                    url);
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.dracoon.sdk.OAuthHelperTest#createTestServerUrlValidationArguments")
-        void testServerUrlValidation(URL serverUrl) {
-            assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    serverUrl, "prgj", "b0fQ8iGQUONL4BHt", "dGVzdA=="));
-        }
-
-        @ParameterizedTest
-        @NullAndEmptySource
-        void testClientIdValidation(String clientId) {
-            assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    sDefaultServerUrl, clientId, "b0fQ8iGQ", "dGVzdA=="));
-        }
-
-        @ParameterizedTest
-        @NullAndEmptySource
-        void testStateValidation(String state) {
-            assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    sDefaultServerUrl, "prgj", state, "dGVzdA=="));
-        }
-
-        @ParameterizedTest
-        @NullAndEmptySource
-        void testUserAgentInfoValidation(String userAgentInfo) {
-            assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    sDefaultServerUrl, "prgj", "b0fQ8iGQ", userAgentInfo));
-        }
-
-    }
-
     @SuppressWarnings("unused")
     private static Stream<Arguments> createTestServerUrlValidationArguments()
             throws MalformedURLException {
