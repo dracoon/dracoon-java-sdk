@@ -1,26 +1,19 @@
 package com.dracoon.sdk.filter;
 
-/**
- * Filter for restricting API requests by user ID.
- */
-public class UserIdFilter extends Filter<String> {
+abstract class UserIdFilter extends Filter<String> {
 
-    private static final String NAME = "userId";
     private static final Type TYPE = Type.MULTI_VALUE;
 
-    private UserIdFilter() {
-        super(NAME, TYPE);
+    protected UserIdFilter(String name) {
+        super(name, TYPE);
     }
 
-    /**
-     * Builder for creating new instances of {@link UserIdFilter}.
-     */
-    public static class Builder extends Filter.Builder<Long, String> {
+    protected static class Builder extends Filter.Builder<Long, String> {
 
         private final UserIdFilter mFilter;
 
-        public Builder() {
-            mFilter = new UserIdFilter();
+        protected Builder(UserIdFilter filter) {
+            mFilter = filter;
         }
 
         @Override
