@@ -5,11 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
-import com.dracoon.sdk.crypto.model.UserKeyPair;
-import com.dracoon.sdk.error.DracoonApiCode;
-import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -44,7 +38,7 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
     }
 
     @Mock
-    protected CryptoWrapper mCryptoWrapper;
+    protected FileKeyFetcher mFileKeyFetcher;
 
     private DracoonNodesImpl mDni;
 
@@ -52,48 +46,21 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
+        mDracoonClientImpl.setFileKeyFetcher(mFileKeyFetcher);
 
         mDni = new DracoonNodesImpl(mDracoonClientImpl);
     }
 
-    private abstract class BaseTests {
-
-        protected final String CRYPTO_PW = "test";
+    private static abstract class BaseTests {
 
         protected final String mDataPath;
-
-        @Mock
-        protected DracoonAccountImpl mDracoonAccountImpl;
 
         protected BaseTests(String dataPath) {
             mDataPath = dataPath;
         }
 
-        @BeforeEach
-        protected void setup() {
-            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
-            mDracoonClientImpl.setAccountImpl(mDracoonAccountImpl);
-        }
-
-        protected UserKeyPair readUserKeyPairData() {
-            return readData(UserKeyPair.class, mDataPath + "user_key_pair_2048.json");
-        }
-
-        protected EncryptedFileKey readEncFileKeyData() {
-            return readData(EncryptedFileKey.class, mDataPath + "enc_file_key.json");
-        }
-
         protected PlainFileKey readPlainFileKeyData() {
             return readData(PlainFileKey.class, mDataPath + "plain_file_key.json");
-        }
-
-        protected void mockGetUserKeyPairCall(UserKeyPair userKeyPair) throws Exception {
-            when(mDracoonAccountImpl.getAndCheckUserKeyPair(any())).thenReturn(userKeyPair);
-        }
-
-        protected void verifyGetUserKeyPairCall() throws Exception {
-            verify(mDracoonAccountImpl).getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
         }
 
     }
@@ -125,62 +92,16 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         @BeforeEach
         protected void setup() {
-            super.setup();
             mDracoonClientImpl.setFileStreamHelper(mFileStreamHelper);
         }
 
         @Test
-        void testApiRequestsValid() throws Exception {
-            // Enqueue responses
-            enqueueOkResponses();
-
-            // Execute method to test
-            executeMocked();
-
-            // Assert requests are valid
-            checkRequests();
-        }
-
-        @Test
         void testDependencyCallsValid() throws Exception {
-            // Enqueue responses
-            enqueueOkResponses();
-
-            // Execute method to test
             executeMockedAndVerified();
         }
 
-        @Test
-        void testApiError() {
-            // Mock error parsing
-            DracoonApiCode expectedCode = DracoonApiCode.SERVER_NODE_NOT_FOUND;
-            mockParseError(mDracoonErrorParser::parseNodesQueryError, expectedCode);
-
-            // Enqueue response
-            enqueueResponse(mDataPath + "node_not_found_response.json");
-
-            // Execute method to test
-            DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    this::executeTestApiError);
-
-            // Assert correct error code
-            assertEquals(expectedCode, thrown.getCode());
-        }
-
-        void executeTestDependencyError() {
-            // Enqueue responses
-            enqueueOkResponses();
-
-            // Execute method to test
+        protected void executeTestDependencyError() {
             assertThrows(DracoonNetIOException.class, this::executeMockedWithException);
-        }
-
-        protected void enqueueOkResponses() {
-            enqueueResponse(mDataPath + "get_node_response.json");
-        }
-
-        protected void checkRequests() throws Exception {
-            checkRequest(mDataPath + "get_node_request.json");
         }
 
         protected abstract void executeMocked() throws Exception;
@@ -189,9 +110,7 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         protected abstract void executeMockedWithException() throws Exception;
 
-        protected abstract void executeTestApiError() throws Exception;
-
-        protected void mockDependencyCalls() throws Exception {
+        protected void executeMockedDownloadThread() throws Exception {
             try (MockedStatic<DownloadThread> mock = Mockito.mockStatic(DownloadThread.class)) {
                 mock.when(() -> DownloadThread.create(any(), anyString(), anyLong(), any(), any()))
                         .thenReturn(mDownloadThread);
@@ -199,11 +118,11 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
             }
         }
 
-        protected void mockAndVerifyDependencyCalls() throws Exception {
-            mockAndVerifyDependencyCalls(null);
+        protected void executeMockedAndVerifiedDownloadThread() throws Exception {
+            executeMockedAndVerifiedDownloadThread(null);
         }
 
-        protected void mockAndVerifyDependencyCalls(PlainFileKey fileKey) throws Exception {
+        protected void executeMockedAndVerifiedDownloadThread(PlainFileKey fileKey) throws Exception {
             try (MockedStatic<DownloadThread> mock = Mockito.mockStatic(DownloadThread.class)) {
                 mock.when(() -> DownloadThread.create(any(), anyString(), anyLong(), any(), any()))
                         .thenReturn(mDownloadThread);
@@ -215,7 +134,7 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
             verifyDownloadThreadCall();
         }
 
-        protected void mockWithExceptionDependencyCalls() throws Exception {
+        protected void executeMockedWithExceptionDownloadThread() throws Exception {
             mockDownloadThreadCallException();
 
             try (MockedStatic<DownloadThread> mock = Mockito.mockStatic(DownloadThread.class)) {
@@ -256,51 +175,23 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
         }
 
         @Override
-        protected void enqueueOkResponses() {
-            super.enqueueOkResponses();
-            enqueueResponse(mDataPath + "get_file_key_response.json");
+        protected void executeMockedDownloadThread() throws Exception {
+            when(mFileKeyFetcher.getPlainFileKey(anyLong())).thenReturn(readPlainFileKeyData());
+            super.executeMockedDownloadThread();
         }
 
         @Override
-        protected void checkRequests() throws Exception {
-            super.checkRequests();
-            checkRequest(mDataPath + "get_file_key_request.json");
-        }
-
-        @Override
-        protected void mockDependencyCalls() throws Exception {
-            mockGetUserKeyPairCall(readUserKeyPairData());
-
-            when(mCryptoWrapper.decryptFileKey(any(), any(), any(), any()))
-                    .thenReturn(readPlainFileKeyData());
-            super.mockDependencyCalls();
-        }
-
-        @Override
-        protected void mockAndVerifyDependencyCalls() throws Exception {
-            UserKeyPair userKeyPair = readUserKeyPairData();
-            mockGetUserKeyPairCall(userKeyPair);
-
+        protected void executeMockedAndVerifiedDownloadThread() throws Exception {
             PlainFileKey plainFileKey = readPlainFileKeyData();
-            when(mCryptoWrapper.decryptFileKey(any(), any(), any(), any()))
-                    .thenReturn(plainFileKey);
-            super.mockAndVerifyDependencyCalls(plainFileKey);
-            verify(mCryptoWrapper).decryptFileKey(
-                    eq(2L),
-                    argThat(arg -> deepEquals(arg, readEncFileKeyData())),
-                    eq(userKeyPair.getUserPrivateKey()),
-                    eq(CRYPTO_PW));
-
-            verifyGetUserKeyPairCall();
+            when(mFileKeyFetcher.getPlainFileKey(anyLong())).thenReturn(plainFileKey);
+            super.executeMockedAndVerifiedDownloadThread(plainFileKey);
+            verify(mFileKeyFetcher).getPlainFileKey(2L);
         }
 
         @Override
-        protected void mockWithExceptionDependencyCalls() throws Exception {
-            mockGetUserKeyPairCall(readUserKeyPairData());
-
-            when(mCryptoWrapper.decryptFileKey(any(), any(), any(), any()))
-                    .thenReturn(readPlainFileKeyData());
-            super.mockWithExceptionDependencyCalls();
+        protected void executeMockedWithExceptionDownloadThread() throws Exception {
+            when(mFileKeyFetcher.getPlainFileKey(anyLong())).thenReturn(readPlainFileKeyData());
+            super.executeMockedWithExceptionDownloadThread();
         }
 
     }
@@ -368,26 +259,20 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
         @Override
         protected void executeMocked() throws Exception {
             mockGetFileStreamCall();
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
             mockGetFileStreamCall();
-            mockAndVerifyDependencyCalls();
+            executeMockedAndVerifiedDownloadThread();
             verifyGetFileStreamCall();
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
             mockGetFileStreamCall();
-            mockWithExceptionDependencyCalls();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            mockGetFileStreamCall();
-            executeDownload();
+            executeMockedWithExceptionDownloadThread();
         }
 
         private void mockGetFileStreamCall() throws Exception {
@@ -413,26 +298,20 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
         @Override
         protected void executeMocked() throws Exception {
             mockGetFileStreamCall();
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
             mockGetFileStreamCall();
-            mockAndVerifyDependencyCalls();
+            executeMockedAndVerifiedDownloadThread();
             verifyGetFileStreamCall();
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
             mockGetFileStreamCall();
-            mockWithExceptionDependencyCalls();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            mockGetFileStreamCall();
-            executeDownload();
+            executeMockedWithExceptionDownloadThread();
         }
 
         private void mockGetFileStreamCall() throws Exception {
@@ -455,22 +334,17 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         @Override
         protected void executeMocked() throws Exception {
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
-            mockAndVerifyDependencyCalls();
+            executeMockedAndVerifiedDownloadThread();
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
-            mockWithExceptionDependencyCalls();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            executeDownload();
+            executeMockedWithExceptionDownloadThread();
         }
 
         @Override
@@ -485,22 +359,17 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         @Override
         protected void executeMocked() throws Exception {
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
-            mockAndVerifyDependencyCalls();
+            executeMockedAndVerifiedDownloadThread();
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
-            mockWithExceptionDependencyCalls();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            executeDownload();
+            executeMockedWithExceptionDownloadThread();
         }
 
         @Override
@@ -517,9 +386,6 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         @Test
         void testDownloadThreadExists() throws Exception {
-            // Enqueue responses
-            enqueueOkResponses();
-
             // Execute method to test
             executeMocked();
 
@@ -540,9 +406,6 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         private void executeTestDownloadThreadExists(
                 Consumer<FileDownloadCallback> callbackConsumer) throws Exception {
-            // Enqueue responses
-            enqueueOkResponses();
-
             // Execute method to test
             executeMockedWithCallback(callbackConsumer);
 
@@ -568,9 +431,6 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         private void executeTestDownloadThreadIsRemoved(
                 Consumer<FileDownloadCallback> callbackConsumer) throws Exception {
-            // Enqueue responses
-            enqueueOkResponses();
-
             // Execute method to test
             executeMockedWithCallback(callbackConsumer);
 
@@ -637,20 +497,14 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
         @Override
         protected void executeMocked() throws Exception {
             mockGetFileStreamCall();
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
             mockGetFileStreamCall();
-            mockAndVerifyDependencyCalls();
+            executeMockedAndVerifiedDownloadThread();
             verifyGetFileStreamCall();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            mockGetFileStreamCall();
-            executeDownload();
         }
 
         private void mockGetFileStreamCall() throws Exception {
@@ -676,20 +530,14 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
         @Override
         protected void executeMocked() throws Exception {
             mockGetFileStreamCall();
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
             mockGetFileStreamCall();
-            mockAndVerifyDependencyCalls();
+            executeMockedAndVerifiedDownloadThread();
             verifyGetFileStreamCall();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            mockGetFileStreamCall();
-            executeDownload();
         }
 
         private void mockGetFileStreamCall() throws Exception {
@@ -712,17 +560,12 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         @Override
         protected void executeMocked() throws Exception {
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
-            mockAndVerifyDependencyCalls();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            executeDownload();
+            executeMockedAndVerifiedDownloadThread();
         }
 
         @Override
@@ -741,17 +584,12 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         @Override
         protected void executeMocked() throws Exception {
-            mockDependencyCalls();
+            executeMockedDownloadThread();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
-            mockAndVerifyDependencyCalls();
-        }
-
-        @Override
-        protected void executeTestApiError() throws Exception {
-            executeDownload();
+            executeMockedAndVerifiedDownloadThread();
         }
 
         @Override
@@ -852,58 +690,13 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
         }
 
         @Test
-        void testApiRequestsValid() throws Exception {
-            // Enqueue responses
-            enqueueOkResponses();
-
-            // Execute method to test
-            executeMocked();
-
-            // Assert requests are valid
-            checkRequests();
-        }
-
-        @Test
         void testDependencyCallsValid() throws Exception {
-            // Enqueue responses
-            enqueueOkResponses();
-
-            // Execute method to test
             executeMockedAndVerified();
         }
 
         @Test
-        void testApiError() {
-            // Mock error parsing
-            DracoonApiCode expectedCode = DracoonApiCode.SERVER_NODE_NOT_FOUND;
-            mockParseError(mDracoonErrorParser::parseNodesQueryError, expectedCode);
-
-            // Enqueue response
-            enqueueResponse(mDataPath + "node_not_found_response.json");
-
-            // Execute method to test
-            DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    this::executeCreateDownloadStream);
-
-            // Assert correct error code
-            assertEquals(expectedCode, thrown.getCode());
-        }
-
-        @Test
         void testDependencyError() {
-            // Enqueue responses
-            enqueueOkResponses();
-
-            // Execute method to test
             assertThrows(DracoonNetIOException.class, this::executeMockedWithException);
-        }
-
-        protected void enqueueOkResponses() {
-            enqueueResponse(mDataPath + "get_node_response.json");
-        }
-
-        protected void checkRequests() throws Exception {
-            checkRequest(mDataPath + "get_node_request.json");
         }
 
         protected abstract void executeMocked() throws Exception;
@@ -912,7 +705,7 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         protected abstract void executeMockedWithException() throws Exception;
 
-        protected void mockDependencyCalls() throws Exception {
+        protected void executeMockedDownloadStream() throws Exception {
             try (MockedStatic<DownloadStream> mock = Mockito.mockStatic(DownloadStream.class)) {
                 mock.when(() -> DownloadStream.create(any(), anyString(), anyLong(), any()))
                         .thenReturn(mDownloadStream);
@@ -920,11 +713,11 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
             }
         }
 
-        protected void mockAndVerifyDependencyCalls() throws Exception {
-            mockAndVerifyDependencyCalls(null);
+        protected void executeMockedAndVerifiedDownloadStream() throws Exception {
+            executeMockedAndVerifiedDownloadStream(null);
         }
 
-        protected void mockAndVerifyDependencyCalls(PlainFileKey fileKey) throws Exception {
+        protected void executeMockedAndVerifiedDownloadStream(PlainFileKey fileKey) throws Exception {
             try (MockedStatic<DownloadStream> mock = Mockito.mockStatic(DownloadStream.class)) {
                 mock.when(() -> DownloadStream.create(any(), anyString(), anyLong(), any()))
                         .thenReturn(mDownloadStream);
@@ -936,7 +729,7 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
             verify(mDownloadStream).start();
         }
 
-        protected void mockWithExceptionDependencyCalls() throws Exception {
+        protected void executedMockedWithExceptionDownloadStream() throws Exception {
             doThrow(new DracoonNetIOException()).when(mDownloadStream).start();
 
             try (MockedStatic<DownloadStream> mock = Mockito.mockStatic(DownloadStream.class)) {
@@ -961,17 +754,17 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         @Override
         protected void executeMocked() throws Exception {
-            mockDependencyCalls();
+            executeMockedDownloadStream();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
-            mockAndVerifyDependencyCalls();
+            executeMockedAndVerifiedDownloadStream();
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
-            mockWithExceptionDependencyCalls();
+            executedMockedWithExceptionDownloadStream();
         }
 
     }
@@ -984,51 +777,23 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
         }
 
         @Override
-        protected void enqueueOkResponses() {
-            super.enqueueOkResponses();
-            enqueueResponse(mDataPath + "get_file_key_response.json");
-        }
-
-        @Override
-        protected void checkRequests() throws Exception {
-            super.checkRequests();
-            checkRequest(mDataPath + "get_file_key_request.json");
-        }
-
-        @Override
         protected void executeMocked() throws Exception {
-            mockGetUserKeyPairCall(readUserKeyPairData());
-
-            when(mCryptoWrapper.decryptFileKey(any(), any(), any(), any()))
-                    .thenReturn(readPlainFileKeyData());
-            super.mockDependencyCalls();
+            when(mFileKeyFetcher.getPlainFileKey(anyLong())).thenReturn(readPlainFileKeyData());
+            executeMockedDownloadStream();
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
-            UserKeyPair userKeyPair = readUserKeyPairData();
-            mockGetUserKeyPairCall(userKeyPair);
-
             PlainFileKey plainFileKey = readPlainFileKeyData();
-            when(mCryptoWrapper.decryptFileKey(any(), any(), any(), any()))
-                    .thenReturn(plainFileKey);
-            super.mockAndVerifyDependencyCalls(plainFileKey);
-            verify(mCryptoWrapper).decryptFileKey(
-                    eq(2L),
-                    argThat(arg -> deepEquals(arg, readEncFileKeyData())),
-                    eq(userKeyPair.getUserPrivateKey()),
-                    eq(CRYPTO_PW));
-
-            verifyGetUserKeyPairCall();
+            when(mFileKeyFetcher.getPlainFileKey(anyLong())).thenReturn(plainFileKey);
+            executeMockedAndVerifiedDownloadStream(plainFileKey);
+            verify(mFileKeyFetcher).getPlainFileKey(2L);
         }
 
         @Override
         protected void executeMockedWithException() throws Exception {
-            mockGetUserKeyPairCall(readUserKeyPairData());
-
-            when(mCryptoWrapper.decryptFileKey(any(), any(), any(), any()))
-                    .thenReturn(readPlainFileKeyData());
-            super.mockWithExceptionDependencyCalls();
+            when(mFileKeyFetcher.getPlainFileKey(anyLong())).thenReturn(readPlainFileKeyData());
+            executedMockedWithExceptionDownloadStream();
         }
 
     }

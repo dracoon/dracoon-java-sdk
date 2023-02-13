@@ -104,6 +104,14 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mShares = shares;
     }
 
+    public void setFileKeyFetcher(FileKeyFetcher fileKeyFetcher) {
+        mFileKeyFetcher = fileKeyFetcher;
+    }
+
+    public void setFileKeyGenerator(FileKeyGenerator fileKeyGenerator) {
+        mFileKeyGenerator = fileKeyGenerator;
+    }
+
     public void setAvatarDownloader(AvatarDownloader avatarDownloader) {
         mAvatarDownloader = avatarDownloader;
     }

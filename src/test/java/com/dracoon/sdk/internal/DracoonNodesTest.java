@@ -22,9 +22,15 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
@@ -808,6 +814,94 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testError() {
             executeTestError("node_not_found_response.json",
                     () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
+        }
+
+    }
+
+    // --- Generate missing file keys tests ---
+
+    @SuppressWarnings("unused")
+    private abstract class BaseGenerateMissingFileKeysTests {
+
+        @Mock
+        protected FileKeyGenerator mFileKeyGenerator;
+
+        protected Long mNodeId = null;
+        protected Integer mLimit = null;
+
+        @BeforeEach
+        protected void setup() {
+            mDracoonClientImpl.setFileKeyGenerator(mFileKeyGenerator);
+
+            setParams();
+        }
+
+        @Test
+        void testDependencyCallsValid() throws Exception {
+            when(mFileKeyGenerator.generateMissingFileKeys(any(), any()))
+                    .thenReturn(true);
+
+            executeGenerateMissingFileKeys();
+
+            verify(mFileKeyGenerator).generateMissingFileKeys(mNodeId, mLimit);
+        }
+
+        @ParameterizedTest
+        @ValueSource(booleans = {true, false})
+        void testReturnCorrect(boolean expectedResult) throws Exception {
+            when(mFileKeyGenerator.generateMissingFileKeys(any(), any()))
+                    .thenReturn(expectedResult);
+
+            boolean result = executeGenerateMissingFileKeys();
+
+            assertEquals(expectedResult, result);
+        }
+
+        @Test
+        void testDependencyError() throws Exception {
+            DracoonApiCode expectedCode = DracoonApiCode.SERVER_USER_FILE_KEY_NOT_FOUND;
+            when(mFileKeyGenerator.generateMissingFileKeys(any(), any()))
+                    .thenThrow(new DracoonApiException(expectedCode));
+
+            DracoonApiException thrown = assertThrows(DracoonApiException.class,
+                    this::executeGenerateMissingFileKeys);
+
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+        protected abstract void setParams();
+
+        protected abstract boolean executeGenerateMissingFileKeys() throws Exception;
+
+    }
+
+    @Nested
+    class GenerateMissingFileKeysAllFilesTests extends BaseGenerateMissingFileKeysTests {
+
+        @Override
+        protected void setParams() {
+            mNodeId = 1L;
+            mLimit = 5;
+        }
+
+        @Override
+        protected boolean executeGenerateMissingFileKeys() throws Exception {
+            return mDni.generateMissingFileKeys(mNodeId, mLimit);
+        }
+
+    }
+
+    @Nested
+    class GenerateMissingFileKeysOneFileTests extends BaseGenerateMissingFileKeysTests {
+
+        @Override
+        protected void setParams() {
+            mLimit = 5;
+        }
+
+        @Override
+        protected boolean executeGenerateMissingFileKeys() throws Exception {
+            return mDni.generateMissingFileKeys(mLimit);
         }
 
     }

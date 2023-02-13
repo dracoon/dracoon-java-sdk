@@ -7,8 +7,6 @@ import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
-import com.dracoon.sdk.error.DracoonCryptoCode;
-import com.dracoon.sdk.error.DracoonCryptoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,10 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
+public class FileKeyGeneratorTest extends DracoonRequestHandlerTest {
 
     private static abstract class MultiAnswer<T> implements Answer<T> {
 
@@ -41,7 +38,10 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
-    private DracoonNodesImpl mDni;
+    @Mock
+    protected DracoonAccountImpl mDracoonAccountImpl;
+
+    private FileKeyGenerator mFkg;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -49,76 +49,10 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDni = new DracoonNodesImpl(mDracoonClientImpl);
+        mDracoonClientImpl.setAccountImpl(mDracoonAccountImpl);
+
+        mFkg = new FileKeyGenerator(mDracoonClientImpl);
     }
-
-    // --- Get file key tests ---
-
-    @Nested
-    class GetFileKeyTests {
-
-        private final String DATA_PATH = "/nodes/get_file_key/";
-
-        @Test
-        void testRequestsValid() throws Exception {
-            // Enqueue response
-            enqueueResponse(DATA_PATH + "get_file_key_response.json");
-
-            // Execute method to test
-            mDni.getFileKey(4L);
-
-            // Assert request are valid
-            checkRequest(DATA_PATH + "get_file_key_request.json");
-        }
-
-        @Test
-        void testDataCorrect() throws Exception {
-            // Enqueue response
-            enqueueResponse(DATA_PATH + "get_file_key_response.json");
-
-            // Execute method to test
-            EncryptedFileKey encFileKey = mDni.getFileKey(4L);
-
-            // Assert data is correct
-            EncryptedFileKey expectedEncFileKey = readData(EncryptedFileKey.class, DATA_PATH +
-                    "enc_file_key.json");
-            assertDeepEquals(expectedEncFileKey, encFileKey);
-        }
-
-        @Test
-        void testError() {
-            // Mock error parsing
-            DracoonApiCode expectedCode = DracoonApiCode.SERVER_USER_FILE_KEY_NOT_FOUND;
-            mockParseError(mDracoonErrorParser::parseFileKeyQueryError, expectedCode);
-
-            // Enqueue response
-            enqueueResponse(DATA_PATH + "file_key_not_found_response.json");
-
-            // Execute method to test
-            DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    () -> mDni.getFileKey(4L));
-
-            // Assert correct error code
-            assertEquals(expectedCode, thrown.getCode());
-        }
-
-        @Test
-        void testErrorUnknownVersion() {
-            // Enqueue response
-            enqueueResponse(DATA_PATH + "file_key_unknown_version_response.json");
-
-            // Execute method to test
-            DracoonCryptoException thrown = assertThrows(DracoonCryptoException.class,
-                    () -> mDni.getFileKey(4L));
-
-            // Assert correct error code
-            DracoonCryptoCode expectedCode = DracoonCryptoCode.UNKNOWN_ALGORITHM_VERSION_ERROR;
-            assertEquals(expectedCode, thrown.getCode());
-        }
-
-    }
-
-    // --- Generate missing file keys tests ---
 
     @SuppressWarnings("unused")
     private abstract class BaseGenerateMissingFileKeysTests {
@@ -127,9 +61,6 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
 
         protected final String mDataPath;
 
-        @Mock
-        protected DracoonAccountImpl mDracoonAccountImpl;
-
         protected BaseGenerateMissingFileKeysTests(String dataPath) {
             mDataPath = dataPath;
         }
@@ -137,7 +68,6 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
         @BeforeEach
         protected void setup() {
             mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
-            mDracoonClientImpl.setAccountImpl(mDracoonAccountImpl);
         }
 
         // --- Tests: No missing keys ---
@@ -493,17 +423,13 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
                     .thenReturn(Arrays.asList(userKeyPairs));
         }
 
-        protected void verifyGetUserKeyPairsCall() throws Exception {
-            verify(mDracoonAccountImpl).getAndCheckUserKeyPairs();
-        }
-
         protected void mockCryptoCalls(int[] pfkDataNums, int[] efkDataNums) throws Exception {
             if (pfkDataNums.length > 0) {
                 when(mCryptoWrapper.decryptFileKey(any(), any(), any(), any()))
                         .thenAnswer(new MultiAnswer<PlainFileKey>() {
                             @Override
                             protected PlainFileKey getItem(int index) {
-                                return getPlainFileKey(pfkDataNums[index]);
+                                return readPlainFileKeyData(pfkDataNums[index]);
                             }
                         });
             }
@@ -512,18 +438,18 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
                         .thenAnswer(new MultiAnswer<EncryptedFileKey>() {
                             @Override
                             protected EncryptedFileKey getItem(int index) {
-                                return getEncryptedFileKey(efkDataNums[index]);
+                                return readEncFileKeyData(efkDataNums[index]);
                             }
                         });
             }
         }
 
-        private PlainFileKey getPlainFileKey(int pfkDataNum) {
+        private PlainFileKey readPlainFileKeyData(int pfkDataNum) {
             return readData(PlainFileKey.class, String.format("%splain_file_key_%d.json",
                     mDataPath, pfkDataNum));
         }
 
-        private EncryptedFileKey getEncryptedFileKey(int efkDataNum) {
+        private EncryptedFileKey readEncFileKeyData(int efkDataNum) {
             return readData(EncryptedFileKey.class, String.format("%senc_file_key_%d.json",
                     mDataPath, efkDataNum));
         }
@@ -534,7 +460,7 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
     class GenerateMissingFileKeysAllFilesTests extends BaseGenerateMissingFileKeysTests {
 
         GenerateMissingFileKeysAllFilesTests() {
-            super("/nodes/generate_missing_file_keys/all_files/");
+            super("/file_keys/generate_missing_file_keys/all_files/");
         }
 
         // Execute test with:
@@ -597,7 +523,7 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
 
         @Override
         protected boolean executeGenerateMissingFileKeys(int limit) throws Exception {
-            return mDni.generateMissingFileKeys(limit);
+            return mFkg.generateMissingFileKeys(null, limit);
         }
 
     }
@@ -606,7 +532,7 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
     class GenerateMissingFileKeysOneFileTests extends BaseGenerateMissingFileKeysTests {
 
         GenerateMissingFileKeysOneFileTests() {
-            super("/nodes/generate_missing_file_keys/one_file/");
+            super("/file_keys/generate_missing_file_keys/one_file/");
         }
 
         // Execute test with:
@@ -669,7 +595,7 @@ public class DracoonNodesFileKeysTest extends DracoonRequestHandlerTest {
 
         @Override
         protected boolean executeGenerateMissingFileKeys(int limit) throws Exception {
-            return mDni.generateMissingFileKeys(1L, limit);
+            return mFkg.generateMissingFileKeys(1L, limit);
         }
 
     }
