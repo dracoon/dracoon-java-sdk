@@ -24,6 +24,11 @@ public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
     private static final String ACCESS_TOKEN = "L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW";
 
     @FunctionalInterface
+    protected interface Executable {
+        void execute() throws Exception;
+    }
+
+    @FunctionalInterface
     protected interface ErrorParserFunction {
         DracoonApiCode apply(Response response);
     }
