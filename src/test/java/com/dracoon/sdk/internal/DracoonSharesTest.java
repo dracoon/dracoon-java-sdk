@@ -6,10 +6,15 @@ import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.filter.GetDownloadSharesFilter;
+import com.dracoon.sdk.filter.GetUploadSharesFilter;
+import com.dracoon.sdk.filter.NodeIdFilter;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.DownloadShare;
+import com.dracoon.sdk.model.DownloadShareList;
 import com.dracoon.sdk.model.UploadShare;
+import com.dracoon.sdk.model.UploadShareList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -282,6 +287,162 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
 
     }
 
+    // --- Get download shares tests ---
+
+    @SuppressWarnings("unused")
+    private abstract class BaseGetDownloadSharesTests extends BaseSharesTests<DownloadShareList> {
+
+        protected BaseGetDownloadSharesTests() {
+            super(DownloadShareList.class, "/shares/get_download_shares/");
+        }
+
+        protected void executeTestError(String responseFilename, SharesTest<DownloadShareList> test) {
+            executeTestError(responseFilename, mDracoonErrorParser::parseDownloadSharesQueryError,
+                    DracoonApiCode.PRECONDITION_UNKNOWN_ERROR, test);
+        }
+
+        protected abstract DownloadShareList getDownloadShares() throws Exception;
+
+    }
+
+    @Nested
+    class GetDownloadSharesTests extends BaseGetDownloadSharesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_dl_shares_request.json", "get_dl_shares_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testNoDataCorrect() throws Exception {
+            executeTestDataCorrect("get_dl_shares_empty_response.json", "dl_shares_empty.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_dl_shares_response.json", "dl_shares.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Override
+        protected DownloadShareList getDownloadShares() throws Exception {
+            return mDsi.getDownloadShares();
+        }
+
+    }
+
+    @Nested
+    class GetDownloadSharesWithFiltersTests extends BaseGetDownloadSharesTests {
+
+        private final GetDownloadSharesFilter mFilters;
+
+        GetDownloadSharesWithFiltersTests() {
+            mFilters = new GetDownloadSharesFilter();
+            mFilters.addNodeIdFilter(new NodeIdFilter.Builder().eq(3L).build());
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_dl_shares_with_filter_request.json",
+                    "get_dl_shares_with_filter_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_dl_shares_with_filter_response.json",
+                    "dl_shares_filtered.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Override
+        protected DownloadShareList getDownloadShares() throws Exception {
+            return mDsi.getDownloadShares(mFilters);
+        }
+
+    }
+
+    @Nested
+    class GetDownloadSharesPagedTests extends BaseGetDownloadSharesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_dl_shares_paged_request.json",
+                    "get_dl_shares_paged_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_dl_shares_paged_response.json", "dl_shares_paged.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Override
+        protected DownloadShareList getDownloadShares() throws Exception {
+            return mDsi.getDownloadShares(1L, 2L);
+        }
+
+    }
+
+    @Nested
+    class GetDownloadSharesPagedWithFiltersTests extends BaseGetDownloadSharesTests {
+
+        private final GetDownloadSharesFilter mFilters;
+
+        GetDownloadSharesPagedWithFiltersTests() {
+            super();
+            mFilters = new GetDownloadSharesFilter();
+            mFilters.addNodeIdFilter(new NodeIdFilter.Builder().eq(3L).build());
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_dl_shares_paged_with_filter_request.json",
+                    "get_dl_shares_paged_with_filter_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_dl_shares_paged_with_filter_response.json",
+                    "dl_shares_paged_filtered.json",
+                    this::getDownloadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getDownloadShares);
+        }
+
+        @Override
+        protected DownloadShareList getDownloadShares() throws Exception {
+            return mDsi.getDownloadShares(mFilters, 1L, 2L);
+        }
+
+    }
+
     // --- Create upload share tests ---
 
     @Nested
@@ -317,6 +478,162 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
                     mDracoonErrorParser::parseUploadShareCreateError,
                     DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND,
                     () -> mDsi.createUploadShare(mCreateUploadShareRequest));
+        }
+
+    }
+
+    // --- Get upload shares tests ---
+
+    @SuppressWarnings("unused")
+    private abstract class BaseGetUploadSharesTests extends BaseSharesTests<UploadShareList> {
+
+        protected BaseGetUploadSharesTests() {
+            super(UploadShareList.class, "/shares/get_upload_shares/");
+        }
+
+        protected void executeTestError(String responseFilename, SharesTest<UploadShareList> test) {
+            executeTestError(responseFilename, mDracoonErrorParser::parseUploadSharesQueryError,
+                    DracoonApiCode.PRECONDITION_UNKNOWN_ERROR, test);
+        }
+
+        protected abstract UploadShareList getUploadShares() throws Exception;
+
+    }
+
+    @Nested
+    class GetUploadSharesTests extends BaseGetUploadSharesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_ul_shares_request.json", "get_ul_shares_response.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testNoDataCorrect() throws Exception {
+            executeTestDataCorrect("get_ul_shares_empty_response.json", "ul_shares_empty.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_ul_shares_response.json", "ul_shares.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getUploadShares);
+        }
+
+        @Override
+        protected UploadShareList getUploadShares() throws Exception {
+            return mDsi.getUploadShares();
+        }
+
+    }
+
+    @Nested
+    class GetUploadSharesWithFiltersTests extends BaseGetUploadSharesTests {
+
+        private final GetUploadSharesFilter mFilters;
+
+        GetUploadSharesWithFiltersTests() {
+            mFilters = new GetUploadSharesFilter();
+            mFilters.addNodeIdFilter(new NodeIdFilter.Builder().eq(3L).build());
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_ul_shares_with_filter_request.json",
+                    "get_ul_shares_with_filter_response.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_ul_shares_with_filter_response.json",
+                    "ul_shares_filtered.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getUploadShares);
+        }
+
+        @Override
+        protected UploadShareList getUploadShares() throws Exception {
+            return mDsi.getUploadShares(mFilters);
+        }
+
+    }
+
+    @Nested
+    class GetUploadSharesPagedTests extends BaseGetUploadSharesTests {
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_ul_shares_paged_request.json",
+                    "get_ul_shares_paged_response.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_ul_shares_paged_response.json", "ul_shares_paged.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getUploadShares);
+        }
+
+        @Override
+        protected UploadShareList getUploadShares() throws Exception {
+            return mDsi.getUploadShares(1L, 2L);
+        }
+
+    }
+
+    @Nested
+    class GetUploadSharesPagedWithFiltersTests extends BaseGetUploadSharesTests {
+
+        private final GetUploadSharesFilter mFilters;
+
+        GetUploadSharesPagedWithFiltersTests() {
+            super();
+            mFilters = new GetUploadSharesFilter();
+            mFilters.addNodeIdFilter(new NodeIdFilter.Builder().eq(3L).build());
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_ul_shares_paged_with_filter_request.json",
+                    "get_ul_shares_paged_with_filter_response.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_ul_shares_paged_with_filter_response.json",
+                    "ul_shares_paged_filtered.json",
+                    this::getUploadShares);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("precondition_failed_response.json",
+                    this::getUploadShares);
+        }
+
+        @Override
+        protected UploadShareList getUploadShares() throws Exception {
+            return mDsi.getUploadShares(mFilters, 1L, 2L);
         }
 
     }
