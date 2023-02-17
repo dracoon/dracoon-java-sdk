@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,8 +45,8 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
 
     private abstract class BaseSharesTests<T> {
 
-        private final Class<T> mDataClass;
-        private final String mDataPath;
+        protected final Class<T> mDataClass;
+        protected final String mDataPath;
 
         protected BaseSharesTests(Class<T> dataClass, String dataPath) {
             mDataClass = dataClass;
@@ -102,6 +103,27 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
 
         protected <DT> DT readDataWithPath(Class<? extends DT> clazz, String filename) {
             return readData(clazz, mDataPath + filename);
+        }
+
+    }
+
+    private abstract class BaseShareQrCodeTests extends BaseSharesTests<byte[]> {
+
+        protected BaseShareQrCodeTests(String dataPath) {
+            super(byte[].class, dataPath);
+        }
+
+        protected void executeTestDataCorrect(String responseFilename, String dataFilename,
+                SharesTest<byte[]> test) throws Exception {
+            // Enqueue responses
+            enqueueResponse(mDataPath + responseFilename);
+
+            // Execute method to test
+            byte[] data = test.execute();
+
+            // Assert data is correct
+            byte[] expectedData = readFile(mDataPath + dataFilename);
+            assertArrayEquals(expectedData, data);
         }
 
     }
@@ -443,6 +465,41 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
 
     }
 
+    // --- Get download share QR code tests ---
+
+    @Nested
+    class GetDownloadShareQrCodeTests extends BaseShareQrCodeTests {
+
+        GetDownloadShareQrCodeTests() {
+            super("/shares/get_download_share_qr/");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_dl_share_qr_request.json", "get_dl_share_qr_response.json",
+                    this::getDownloadShareQrCode);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_dl_share_qr_response.json", "dl_share_qr.png",
+                    this::getDownloadShareQrCode);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("share_not_found_response.json",
+                    mDracoonErrorParser::parseDownloadSharesQueryError,
+                    DracoonApiCode.SERVER_DL_SHARE_NOT_FOUND,
+                    this::getDownloadShareQrCode);
+        }
+
+        private byte[] getDownloadShareQrCode() throws Exception {
+            return mDsi.getDownloadShareQrCode(1L);
+        }
+
+    }
+
     // --- Create upload share tests ---
 
     @Nested
@@ -634,6 +691,41 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
         @Override
         protected UploadShareList getUploadShares() throws Exception {
             return mDsi.getUploadShares(mFilters, 1L, 2L);
+        }
+
+    }
+
+    // --- Get upload share QR code tests ---
+
+    @Nested
+    class GetUploadShareQrCodeTests extends BaseShareQrCodeTests {
+
+        GetUploadShareQrCodeTests() {
+            super("/shares/get_upload_share_qr/");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("get_ul_share_qr_request.json", "get_ul_share_qr_response.json",
+                    this::getUploadShareQrCode);
+        }
+
+        @Test
+        void testDataCorrect() throws Exception {
+            executeTestDataCorrect("get_ul_share_qr_response.json", "ul_share_qr.png",
+                    this::getUploadShareQrCode);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("share_not_found_response.json",
+                    mDracoonErrorParser::parseUploadSharesQueryError,
+                    DracoonApiCode.SERVER_UL_SHARE_NOT_FOUND,
+                    this::getUploadShareQrCode);
+        }
+
+        private byte[] getUploadShareQrCode() throws Exception {
+            return mDsi.getUploadShareQrCode(1L);
         }
 
     }
