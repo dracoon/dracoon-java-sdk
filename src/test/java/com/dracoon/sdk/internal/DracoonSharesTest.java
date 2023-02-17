@@ -500,6 +500,36 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
 
     }
 
+    // --- Delete download share tests ---
+
+    @Nested
+    class DeleteDownloadShareTests extends BaseSharesTests<Void> {
+
+        DeleteDownloadShareTests() {
+            super(Void.class, "/shares/delete_download_share/");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("delete_dl_share_request.json", "delete_dl_share_response.json",
+                    this::executeDeleteDownloadShare);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("share_not_found_response.json",
+                    mDracoonErrorParser::parseDownloadShareDeleteError,
+                    DracoonApiCode.SERVER_DL_SHARE_NOT_FOUND,
+                    this::executeDeleteDownloadShare);
+        }
+
+        private Void executeDeleteDownloadShare() throws Exception {
+            mDsi.deleteDownloadShare(2L);
+            return null;
+        }
+
+    }
+
     // --- Create upload share tests ---
 
     @Nested
@@ -726,6 +756,36 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
 
         private byte[] getUploadShareQrCode() throws Exception {
             return mDsi.getUploadShareQrCode(1L);
+        }
+
+    }
+
+    // --- Delete upload share tests ---
+
+    @Nested
+    class DeleteUploadShareTests extends BaseSharesTests<Void> {
+
+        DeleteUploadShareTests() {
+            super(Void.class, "/shares/delete_upload_share/");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            executeTestRequestsValid("delete_ul_share_request.json", "delete_ul_share_response.json",
+                    this::executeDeleteUploadShare);
+        }
+
+        @Test
+        void testError() {
+            executeTestError("share_not_found_response.json",
+                    mDracoonErrorParser::parseUploadShareDeleteError,
+                    DracoonApiCode.SERVER_UL_SHARE_NOT_FOUND,
+                    this::executeDeleteUploadShare);
+        }
+
+        private Void executeDeleteUploadShare() throws Exception {
+            mDsi.deleteUploadShare(2L);
+            return null;
         }
 
     }
