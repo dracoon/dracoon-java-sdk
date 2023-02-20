@@ -1,0 +1,69 @@
+{
+  "mOffset": 1,
+  "mLimit": 2,
+  "mTotal": 3,
+  "mItems": [
+    {
+      "mId": 2,
+      "mTargetNodeId": 1,
+      "mTargetNodePath": "/test",
+      "mName": "test-ul-share-2",
+      "mNotes": "note 2",
+      "mInternalNotes": "internal note 2",
+      "mExpireAt": "2030-01-02T00:00:00Z",
+      "mFilesExpirePeriod": 2,
+      "mMaxUploads": 20,
+      "mMaxQuota": 2048,
+      "mShowsUploadedFiles": true,
+      "mAccessKey": "acc-key-2",
+      "mCntUploads": 4,
+      "mCntFiles": 1,
+      "mShowsCreatorName": false,
+      "mShowsCreatorUserName": true,
+      "mNotifiesCreator": false,
+      "mCreatedAt": "2023-01-02T00:00:00Z",
+      "mCreatedBy": {
+        "mId": 2,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John2",
+        "mLastName": "Doe2",
+        "mUsername": "j.doe2",
+        "mEmail": "j.doe2@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d42"
+      },
+      "mIsProtected": true,
+      "mIsEncrypted": false
+    },
+    {
+      "mId": 3,
+      "mTargetNodeId": 1,
+      "mTargetNodePath": "/test",
+      "mName": "test-ul-share-3",
+      "mNotes": "note 3",
+      "mInternalNotes": "internal note 3",
+      "mExpireAt": "2030-01-03T00:00:00Z",
+      "mFilesExpirePeriod": 1,
+      "mMaxUploads": 30,
+      "mMaxQuota": 4096,
+      "mShowsUploadedFiles": false,
+      "mAccessKey": "acc-key-3",
+      "mCntUploads": 3,
+      "mCntFiles": 0,
+      "mShowsCreatorName": false,
+      "mShowsCreatorUserName": false,
+      "mNotifiesCreator": true,
+      "mCreatedAt": "2023-01-03T00:00:00Z",
+      "mCreatedBy": {
+        "mId": 3,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John3",
+        "mLastName": "Doe3",
+        "mUsername": "j.doe3",
+        "mEmail": "j.doe3@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d43"
+      },
+      "mIsProtected": false,
+      "mIsEncrypted": true
+    }
+  ]
+}

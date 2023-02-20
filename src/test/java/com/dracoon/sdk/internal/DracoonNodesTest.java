@@ -22,9 +22,15 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
@@ -111,6 +117,7 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
     // --- Get nodes tests ---
 
+    @SuppressWarnings("unused")
     private abstract class BaseGetNodesTests extends BaseNodesTests<NodeList> {
 
         protected BaseGetNodesTests() {
@@ -122,6 +129,8 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
                     DracoonApiCode.SERVER_NODE_NOT_FOUND, test);
         }
 
+        protected abstract NodeList getNodes() throws Exception;
+
     }
 
     @Nested
@@ -130,25 +139,30 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_nodes_request.json", "get_nodes_response.json",
-                    () -> mDni.getNodes(1L));
+                    this::getNodes);
         }
 
         @Test
         void testNoDataCorrect() throws Exception {
             executeTestDataCorrect("get_nodes_empty_response.json", "nodes_empty.json",
-                    () -> mDni.getNodes(1L));
+                    this::getNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_nodes_response.json", "nodes.json",
-                    () -> mDni.getNodes(1L));
+                    this::getNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.getNodes(1L));
+                    this::getNodes);
+        }
+
+        @Override
+        protected NodeList getNodes() throws Exception {
+            return mDni.getNodes(1L);
         }
 
     }
@@ -168,19 +182,24 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_nodes_with_filter_request.json",
                     "get_nodes_with_filter_response.json",
-                    () -> mDni.getNodes(2L, mFilters));
+                    this::getNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_nodes_with_filter_response.json", "nodes_filtered.json",
-                    () -> mDni.getNodes(2L, mFilters));
+                    this::getNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.getNodes(2L, mFilters));
+                    this::getNodes);
+        }
+
+        @Override
+        protected NodeList getNodes() throws Exception {
+            return mDni.getNodes(2L, mFilters);
         }
 
     }
@@ -192,19 +211,24 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_nodes_paged_request.json",
                     "get_nodes_paged_response.json",
-                    () -> mDni.getNodes(3L, 1L, 2L));
+                    this::getNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_nodes_paged_response.json", "nodes_paged.json",
-                    () -> mDni.getNodes(3L, 1L, 2L));
+                    this::getNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.getNodes(3L, 1L, 2L));
+                    this::getNodes);
+        }
+
+        @Override
+        protected NodeList getNodes() throws Exception {
+            return mDni.getNodes(3L, 1L, 2L);
         }
 
     }
@@ -225,26 +249,32 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_nodes_paged_with_filter_request.json",
                     "get_nodes_paged_with_filter_response.json",
-                    () -> mDni.getNodes(4L, mFilters, 1L, 2L));
+                    this::getNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_nodes_paged_with_filter_response.json",
                     "nodes_paged_filtered.json",
-                    () -> mDni.getNodes(4L, mFilters, 1L, 2L));
+                    this::getNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.getNodes(4L, mFilters, 1L, 2L));
+                    this::getNodes);
+        }
+
+        @Override
+        protected NodeList getNodes() throws Exception {
+            return mDni.getNodes(4L, mFilters, 1L, 2L);
         }
 
     }
 
     // --- Get node tests ---
 
+    @SuppressWarnings("unused")
     private abstract class BaseGetNodeTests extends BaseNodesTests<Node> {
 
         protected BaseGetNodeTests() {
@@ -260,6 +290,8 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
                     DracoonApiCode.SERVER_NODE_NOT_FOUND, test);
         }
 
+        protected abstract Node getNode() throws Exception;
+
     }
 
     @Nested
@@ -268,19 +300,24 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_node_request.json", "get_node_response.json",
-                    () -> mDni.getNode(4L));
+                    this::getNode);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_node_response.json", "node.json",
-                    () -> mDni.getNode(4L));
+                    this::getNode);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.getNode(4L));
+                    this::getNode);
+        }
+
+        @Override
+        protected Node getNode() throws Exception {
+            return mDni.getNode(4L);
         }
 
     }
@@ -288,31 +325,34 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
     @Nested
     class GetNodeByPathTests extends BaseGetNodeTests {
 
-        private final String NODE_PATH = "/test/test-file.jpg";
-
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_node_by_path_request.json",
                     "get_node_by_path_response.json",
-                    () -> mDni.getNode(NODE_PATH));
+                    this::getNode);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_node_by_path_response.json", "node.json",
-                    () -> mDni.getNode(NODE_PATH));
+                    this::getNode);
         }
 
         @Test
         void testNoDataError() {
             executeTestNoDataError("get_node_by_path_empty_response.json",
-                    () -> mDni.getNode(NODE_PATH));
+                    this::getNode);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.getNode(NODE_PATH));
+                    this::getNode);
+        }
+
+        @Override
+        protected Node getNode() throws Exception {
+            return mDni.getNode("/test/test-file.jpg");
         }
 
     }
@@ -680,6 +720,7 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
     // --- Search nodes tests ---
 
+    @SuppressWarnings("unused")
     private abstract class BaseSearchNodesTests extends BaseNodesTests<NodeList> {
 
         protected BaseSearchNodesTests() {
@@ -691,6 +732,8 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
                     DracoonApiCode.SERVER_NODE_NOT_FOUND, test);
         }
 
+        protected abstract NodeList searchNodes() throws Exception;
+
     }
 
     @Nested
@@ -699,25 +742,30 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("search_nodes_request.json", "search_nodes_response.json",
-                    () -> mDni.searchNodes(1L, "test"));
+                    this::searchNodes);
         }
 
         @Test
         void testNoDataCorrect() throws Exception {
             executeTestDataCorrect("search_nodes_empty_response.json", "nodes_empty.json",
-                    () -> mDni.searchNodes(1L, "test"));
+                    this::searchNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("search_nodes_response.json", "nodes.json",
-                    () -> mDni.searchNodes(1L, "test"));
+                    this::searchNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.getNodes(1L));
+                    this::searchNodes);
+        }
+
+        @Override
+        protected NodeList searchNodes() throws Exception {
+            return mDni.searchNodes(1L, "test");
         }
 
     }
@@ -737,19 +785,24 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("search_nodes_with_filter_request.json",
                     "search_nodes_with_filter_response.json",
-                    () -> mDni.searchNodes(2L, "test", mFilters));
+                    this::searchNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("search_nodes_with_filter_response.json", "nodes_filtered.json",
-                    () -> mDni.searchNodes(2L, "test", mFilters));
+                    this::searchNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.searchNodes(2L, "test", mFilters));
+                    this::searchNodes);
+        }
+
+        @Override
+        protected NodeList searchNodes() throws Exception {
+            return mDni.searchNodes(2L, "test", mFilters);
         }
 
     }
@@ -761,19 +814,24 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("search_nodes_paged_request.json",
                     "search_nodes_paged_response.json",
-                    () -> mDni.searchNodes(3L, "test", 1L, 2L));
+                    this::searchNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("search_nodes_paged_response.json", "nodes_paged.json",
-                    () -> mDni.searchNodes(3L, "test", 1L, 2L));
+                    this::searchNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.searchNodes(3L, "test", 1L, 2L));
+                    this::searchNodes);
+        }
+
+        @Override
+        protected NodeList searchNodes() throws Exception {
+            return mDni.searchNodes(3L, "test", 1L, 2L);
         }
 
     }
@@ -794,20 +852,113 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("search_nodes_paged_with_filter_request.json",
                     "search_nodes_paged_with_filter_response.json",
-                    () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
+                    this::searchNodes);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("search_nodes_paged_with_filter_response.json",
                     "nodes_paged_filtered.json",
-                    () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
+                    this::searchNodes);
         }
 
         @Test
         void testError() {
             executeTestError("node_not_found_response.json",
-                    () -> mDni.searchNodes(4L, "test", mFilters, 1L, 2L));
+                    this::searchNodes);
+        }
+
+        @Override
+        protected NodeList searchNodes() throws Exception {
+            return mDni.searchNodes(4L, "test", mFilters, 1L, 2L);
+        }
+
+    }
+
+    // --- Generate missing file keys tests ---
+
+    @SuppressWarnings("unused")
+    private abstract class BaseGenerateMissingFileKeysTests {
+
+        @Mock
+        protected FileKeyGenerator mFileKeyGenerator;
+
+        protected Long mNodeId = null;
+        protected Integer mLimit = null;
+
+        @BeforeEach
+        protected void setup() {
+            mDracoonClientImpl.setFileKeyGenerator(mFileKeyGenerator);
+
+            setParams();
+        }
+
+        @Test
+        void testDependencyCallsValid() throws Exception {
+            when(mFileKeyGenerator.generateMissingFileKeys(any(), any()))
+                    .thenReturn(true);
+
+            executeGenerateMissingFileKeys();
+
+            verify(mFileKeyGenerator).generateMissingFileKeys(mNodeId, mLimit);
+        }
+
+        @ParameterizedTest
+        @ValueSource(booleans = {true, false})
+        void testReturnCorrect(boolean expectedResult) throws Exception {
+            when(mFileKeyGenerator.generateMissingFileKeys(any(), any()))
+                    .thenReturn(expectedResult);
+
+            boolean result = executeGenerateMissingFileKeys();
+
+            assertEquals(expectedResult, result);
+        }
+
+        @Test
+        void testDependencyError() throws Exception {
+            DracoonApiCode expectedCode = DracoonApiCode.SERVER_USER_FILE_KEY_NOT_FOUND;
+            when(mFileKeyGenerator.generateMissingFileKeys(any(), any()))
+                    .thenThrow(new DracoonApiException(expectedCode));
+
+            DracoonApiException thrown = assertThrows(DracoonApiException.class,
+                    this::executeGenerateMissingFileKeys);
+
+            assertEquals(expectedCode, thrown.getCode());
+        }
+
+        protected abstract void setParams();
+
+        protected abstract boolean executeGenerateMissingFileKeys() throws Exception;
+
+    }
+
+    @Nested
+    class GenerateMissingFileKeysAllFilesTests extends BaseGenerateMissingFileKeysTests {
+
+        @Override
+        protected void setParams() {
+            mNodeId = 1L;
+            mLimit = 5;
+        }
+
+        @Override
+        protected boolean executeGenerateMissingFileKeys() throws Exception {
+            return mDni.generateMissingFileKeys(mNodeId, mLimit);
+        }
+
+    }
+
+    @Nested
+    class GenerateMissingFileKeysOneFileTests extends BaseGenerateMissingFileKeysTests {
+
+        @Override
+        protected void setParams() {
+            mLimit = 5;
+        }
+
+        @Override
+        protected boolean executeGenerateMissingFileKeys() throws Exception {
+            return mDni.generateMissingFileKeys(mLimit);
         }
 
     }
@@ -871,6 +1022,7 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
 
     }
 
+    @SuppressWarnings("unused")
     private abstract class BaseGetFavoritesTests extends BaseNodesTests<NodeList> {
 
         protected BaseGetFavoritesTests() {
@@ -882,6 +1034,8 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
                     DracoonApiCode.PRECONDITION_UNKNOWN_ERROR, test);
         }
 
+        protected abstract NodeList getFavorites() throws Exception;
+
     }
 
     @Nested
@@ -890,25 +1044,30 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_favorites_request.json", "get_favorites_response.json",
-                    () -> mDni.getFavorites());
+                    this::getFavorites);
         }
 
         @Test
         void testNoDataCorrect() throws Exception {
             executeTestDataCorrect("get_favorites_empty_response.json", "favorites_empty.json",
-                    () -> mDni.getFavorites());
+                    this::getFavorites);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_favorites_response.json", "favorites.json",
-                    () -> mDni.getFavorites());
+                    this::getFavorites);
         }
 
         @Test
         void testError() {
             executeTestError("precondition_failed_response.json",
-                    () -> mDni.getFavorites());
+                    this::getFavorites);
+        }
+
+        @Override
+        protected NodeList getFavorites() throws Exception {
+            return mDni.getFavorites();
         }
 
     }
@@ -920,19 +1079,24 @@ public class DracoonNodesTest extends DracoonRequestHandlerTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("get_favorites_paged_request.json",
                     "get_favorites_paged_response.json",
-                    () -> mDni.getFavorites(1L, 2L));
+                    this::getFavorites);
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("get_favorites_paged_response.json", "favorites_paged.json",
-                    () -> mDni.getFavorites(1L, 2L));
+                    this::getFavorites);
         }
 
         @Test
         void testError() {
             executeTestError("precondition_failed_response.json",
-                    () -> mDni.getFavorites(1L, 2L));
+                    this::getFavorites);
+        }
+
+        @Override
+        protected NodeList getFavorites() throws Exception {
+            return mDni.getFavorites(1L, 2L);
         }
 
     }

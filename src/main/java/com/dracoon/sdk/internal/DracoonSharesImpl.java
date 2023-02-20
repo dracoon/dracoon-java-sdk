@@ -44,15 +44,14 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         long nodeId = request.getNodeId();
 
-        boolean isEncrypted = mClient.getNodesImpl().isNodeEncrypted(nodeId);
+        PlainFileKey plainFileKey = mClient.getFileKeyFetcher().getPlainFileKey(nodeId);
 
+        boolean isEncrypted = plainFileKey != null;
         ShareValidator.validateCreateDownloadRequest(request, isEncrypted);
 
         UserKeyPair shareUserKeyPair = null;
         EncryptedFileKey shareEncFileKey = null;
-        if (isEncrypted) {
-            PlainFileKey plainFileKey = getDownloadSharePlainFileKey(nodeId);
-
+        if (plainFileKey != null) {
             UserKeyPair.Version userKeyPairVersion = mClient.getServerSettingsImpl()
                     .getPreferredUserKeyPairVersion();
 
@@ -81,21 +80,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         ApiDownloadShare data = response.body();
 
         return ShareMapper.fromApiDownloadShare(data);
-    }
-
-    private PlainFileKey getDownloadSharePlainFileKey(long nodeId) throws DracoonCryptoException,
-            DracoonNetIOException, DracoonApiException {
-        String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
-
-        EncryptedFileKey encFileKey = mClient.getNodesImpl().getFileKey(nodeId);
-
-        UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.determineUserKeyPairVersion(
-                encFileKey.getVersion());
-        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(userKeyPairVersion);
-
-        CryptoWrapper crypto = mClient.getCryptoWrapper();
-        return crypto.decryptFileKey(nodeId, encFileKey, userKeyPair.getUserPrivateKey(),
-                userPrivateKeyPassword);
     }
 
     @Override
@@ -132,7 +116,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         Response<ApiDownloadShareList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseDownloadSharesGetError(response);
+            DracoonApiCode errorCode = mErrorParser.parseDownloadSharesQueryError(response);
             String errorText = String.format("Query of download shares failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -154,7 +138,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseDownloadSharesGetError(response);
+            DracoonApiCode errorCode = mErrorParser.parseDownloadSharesQueryError(response);
             String errorText = String.format("Query of download share QR code failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -239,7 +223,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         Response<ApiUploadShareList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseUploadSharesGetError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadSharesQueryError(response);
             String errorText = String.format("Query of upload shares failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
@@ -261,7 +245,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseUploadSharesGetError(response);
+            DracoonApiCode errorCode = mErrorParser.parseUploadSharesQueryError(response);
             String errorText = String.format("Query of upload share QR code failed with '%s'!",
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);

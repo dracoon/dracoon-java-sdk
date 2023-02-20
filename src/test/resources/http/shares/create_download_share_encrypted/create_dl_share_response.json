@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"id\":1,\"nodeId\":3,\"nodePath\":\"/test/dl-share.txt\",\"name\":\"test-dl-share\",\"notes\":\"note\",\"internalNotes\":\"internal note\",\"expireAt\":\"2030-01-01T00:00:00Z\",\"maxDownloads\":5,\"accessKey\":\"acc-key\",\"cntDownloads\":4,\"showCreatorName\":true,\"showCreatorUsername\":false,\"notifyCreator\":true,\"createdAt\":\"2023-01-01T00:00:00Z\",\"createdBy\":{\"id\":1,\"userType\":\"internal\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"userName\":\"j.doe\",\"email\":\"j.doe@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d41\"},\"isProtected\":true,\"isEncrypted\":false}"
+  }
+}

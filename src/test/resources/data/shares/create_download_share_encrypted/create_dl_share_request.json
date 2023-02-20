@@ -1,0 +1,18 @@
+{
+  "mNodeId": 3,
+  "mName": "test-dl-share",
+  "mNotes": "note",
+  "mInternalNotes": "internal note",
+  "mExpirationDate": "2030-01-01T00:00:00Z",
+  "mMaxDownloads": 5,
+  "mShowCreatorName": true,
+  "mShowCreatorUserName": false,
+  "mNotifyCreator": true,
+  "mEncryptionPassword": "enc-pw",
+  "mSendEmail": true,
+  "mEmailRecipients": ["user@dracoon.com"],
+  "mEmailSubject": "email subject",
+  "mEmailBody": "email body",
+  "mSendSms": true,
+  "mSmsRecipients": ["+490000000000"]
+}

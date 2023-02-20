@@ -1,0 +1,88 @@
+{
+  "mOffset": 0,
+  "mLimit": 0,
+  "mTotal": 3,
+  "mItems": [
+    {
+      "mId": 1,
+      "mNodeId": 3,
+      "mNodePath": "/test/dl-share-1.txt",
+      "mName": "test-dl-share-1",
+      "mNotes": "note 1",
+      "mInternalNotes": "internal note 1",
+      "mExpireAt": "2030-01-01T00:00:00Z",
+      "mMaxDownloads": 5,
+      "mAccessKey": "acc-key-1",
+      "mCntDownloads": 4,
+      "mShowsCreatorName": false,
+      "mShowsCreatorUserName": false,
+      "mNotifiesCreator": false,
+      "mCreatedAt": "2023-01-01T00:00:00Z",
+      "mCreatedBy": {
+        "mId": 1,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John1",
+        "mLastName": "Doe1",
+        "mUsername": "j.doe1",
+        "mEmail": "j.doe1@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d41"
+      },
+      "mIsProtected": false,
+      "mIsEncrypted": false
+    },
+    {
+      "mId": 2,
+      "mNodeId": 3,
+      "mNodePath": "/test/dl-share-2.txt",
+      "mName": "test-dl-share-2",
+      "mNotes": "note 2",
+      "mInternalNotes": "internal note 2",
+      "mExpireAt": "2030-01-02T00:00:00Z",
+      "mMaxDownloads": 6,
+      "mAccessKey": "acc-key-2",
+      "mCntDownloads": 3,
+      "mShowsCreatorName": true,
+      "mShowsCreatorUserName": false,
+      "mNotifiesCreator": true,
+      "mCreatedAt": "2023-01-02T00:00:00Z",
+      "mCreatedBy": {
+        "mId": 2,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John2",
+        "mLastName": "Doe2",
+        "mUsername": "j.doe2",
+        "mEmail": "j.doe2@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d42"
+      },
+      "mIsProtected": true,
+      "mIsEncrypted": false
+    },
+    {
+      "mId": 3,
+      "mNodeId": 3,
+      "mNodePath": "/test/dl-share-3.txt",
+      "mName": "test-dl-share-3",
+      "mNotes": "note 3",
+      "mInternalNotes": "internal note 3",
+      "mExpireAt": "2030-01-03T00:00:00Z",
+      "mMaxDownloads": 7,
+      "mAccessKey": "acc-key-3",
+      "mCntDownloads": 2,
+      "mShowsCreatorName": false,
+      "mShowsCreatorUserName": true,
+      "mNotifiesCreator": false,
+      "mCreatedAt": "2023-01-03T00:00:00Z",
+      "mCreatedBy": {
+        "mId": 3,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John3",
+        "mLastName": "Doe3",
+        "mUsername": "j.doe3",
+        "mEmail": "j.doe3@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d43"
+      },
+      "mIsProtected": false,
+      "mIsEncrypted": true
+    }
+  ]
+}

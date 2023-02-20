@@ -1,0 +1,6 @@
+{
+  "version": "AES256GCM",
+  "key": "pfk_key",
+  "iv": "pfk_iv",
+  "tag": "pfk_tag"
+}

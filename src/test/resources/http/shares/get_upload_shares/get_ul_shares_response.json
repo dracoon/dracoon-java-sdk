@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"range\":{\"offset\":0,\"limit\":0,\"total\":3},\"items\":[{\"id\":1,\"targetId\":1,\"targetPath\":\"/test\",\"name\":\"test-ul-share-1\",\"notes\":\"note 1\",\"internalNotes\":\"internal note 1\",\"expireAt\":\"2030-01-01T00:00:00Z\",\"filesExpiryPeriod\":3,\"maxSlots\":10,\"maxSize\":1024,\"showUploadedFiles\":false,\"accessKey\":\"acc-key-1\",\"cntUploads\":5,\"cntFiles\":2,\"showCreatorName\":true,\"showCreatorUsername\":false,\"notifyCreator\":false,\"createdAt\":\"2023-01-01T00:00:00Z\",\"createdBy\":{\"id\":1,\"userType\":\"internal\",\"firstName\":\"John1\",\"lastName\":\"Doe1\",\"userName\":\"j.doe1\",\"email\":\"j.doe1@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d41\"},\"isProtected\":false,\"isEncrypted\":false},{\"id\":2,\"targetId\":1,\"targetPath\":\"/test\",\"name\":\"test-ul-share-2\",\"notes\":\"note 2\",\"internalNotes\":\"internal note 2\",\"expireAt\":\"2030-01-02T00:00:00Z\",\"filesExpiryPeriod\":2,\"maxSlots\":20,\"maxSize\":2048,\"showUploadedFiles\":true,\"accessKey\":\"acc-key-2\",\"cntUploads\":4,\"cntFiles\":1,\"showCreatorName\":false,\"showCreatorUsername\":true,\"notifyCreator\":false,\"createdAt\":\"2023-01-02T00:00:00Z\",\"createdBy\":{\"id\":2,\"userType\":\"internal\",\"firstName\":\"John2\",\"lastName\":\"Doe2\",\"userName\":\"j.doe2\",\"email\":\"j.doe2@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d42\"},\"isProtected\":true,\"isEncrypted\":false},{\"id\":3,\"targetId\":1,\"targetPath\":\"/test\",\"name\":\"test-ul-share-3\",\"notes\":\"note 3\",\"internalNotes\":\"internal note 3\",\"expireAt\":\"2030-01-03T00:00:00Z\",\"filesExpiryPeriod\":1,\"maxSlots\":30,\"maxSize\":4096,\"showUploadedFiles\":false,\"accessKey\":\"acc-key-3\",\"cntUploads\":3,\"cntFiles\":0,\"showCreatorName\":false,\"showCreatorUsername\":false,\"notifyCreator\":true,\"createdAt\":\"2023-01-03T00:00:00Z\",\"createdBy\":{\"id\":3,\"userType\":\"internal\",\"firstName\":\"John3\",\"lastName\":\"Doe3\",\"userName\":\"j.doe3\",\"email\":\"j.doe3@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d43\"},\"isProtected\":false,\"isEncrypted\":true}]}"
+  }
+}

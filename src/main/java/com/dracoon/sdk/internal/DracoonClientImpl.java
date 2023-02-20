@@ -148,6 +148,8 @@ public class DracoonClientImpl extends DracoonClient {
     protected DracoonNodesImpl mNodes;
     protected DracoonSharesImpl mShares;
 
+    protected FileKeyFetcher mFileKeyFetcher;
+    protected FileKeyGenerator mFileKeyGenerator;
     protected AvatarDownloader mAvatarDownloader;
 
     protected String mApiVersion = null;
@@ -250,6 +252,8 @@ public class DracoonClientImpl extends DracoonClient {
         mNodes = new DracoonNodesImpl(this);
         mShares = new DracoonSharesImpl(this);
 
+        mFileKeyFetcher = new FileKeyFetcher(this);
+        mFileKeyGenerator = new FileKeyGenerator(this);
         mAvatarDownloader = new AvatarDownloader(this);
 
         assertApiVersionSupported();
@@ -495,6 +499,14 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonSharesImpl getSharesImpl() {
         return mShares;
+    }
+
+    public FileKeyFetcher getFileKeyFetcher() {
+        return mFileKeyFetcher;
+    }
+
+    public FileKeyGenerator getFileKeyGenerator() {
+        return mFileKeyGenerator;
     }
 
     public AvatarDownloader getAvatarDownloader() {
