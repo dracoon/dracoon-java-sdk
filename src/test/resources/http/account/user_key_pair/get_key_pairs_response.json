@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "[{\"privateKeyContainer\":{\"version\":\"A\",\"privateKey\":\"-----BEPK-----\\r\\nx\\r\\n-----EEPK-----\\r\\n\"},\"publicKeyContainer\":{\"version\":\"A\",\"publicKey\":\"-----BPK-----\\r\\nx\\r\\n-----EPK-----\\r\\n\"}},{\"privateKeyContainer\":{\"version\":\"RSA-4096\",\"privateKey\":\"-----BEPK-----\\r\\ny\\r\\n-----EEPK-----\\r\\n\"},\"publicKeyContainer\":{\"version\":\"RSA-4096\",\"publicKey\":\"-----BPK-----\\r\\ny\\r\\n-----EPK-----\\r\\n\"}}]"
+  }
+}

@@ -15,15 +15,16 @@ public class DownloadShare {
     private String mNodePath;
     private String mName;
     private String mNotes;
+    private String mInternalNotes;
     private Date mExpireAt;
+    private Integer mMaxDownloads;
 
     private String mAccessKey;
+    private Integer mCntDownloads;
 
     private Boolean mShowsCreatorName;
     private Boolean mShowsCreatorUserName;
     private Boolean mNotifiesCreator;
-    private Integer mMaxDownloads;
-    private Integer mCntDownloads;
 
     private Date mCreatedAt;
     private UserInfo mCreatedBy;
@@ -122,7 +123,26 @@ public class DownloadShare {
     }
 
     /**
-     * Returns the expire date of the download share, if download share has a expire date.
+     * Returns the internal notes which are attached to the download share, if download share has
+     * internal notes.
+     *
+     * @return the internal notes, or <code>null</code>
+     */
+    public String getInternalNotes() {
+        return mInternalNotes;
+    }
+
+    /**
+     * Sets the internal notes which are attached to the download share.
+     *
+     * @param internalNotes The internal notes.
+     */
+    public void setInternalNotes(String internalNotes) {
+        mInternalNotes = internalNotes;
+    }
+
+    /**
+     * Returns the expire date of the download share, if download share has an expire date.
      *
      * @return the expire date, or <code>null</code>
      */
@@ -137,6 +157,24 @@ public class DownloadShare {
      */
     public void setExpireAt(Date expireAt) {
         mExpireAt = expireAt;
+    }
+
+    /**
+     * Returns the maximum number of downloads of the download share.
+     *
+     * @return the maximum number of downloads
+     */
+    public Integer getMaxDownloads() {
+        return mMaxDownloads;
+    }
+
+    /**
+     * Sets the maximum number of downloads of the download share.
+     *
+     * @param maxDownloads The maximum number of downloads.
+     */
+    public void setMaxDownloads(Integer maxDownloads) {
+        mMaxDownloads = maxDownloads;
     }
 
     /**
@@ -155,6 +193,24 @@ public class DownloadShare {
      */
     public void setAccessKey(String accessKey) {
         mAccessKey = accessKey;
+    }
+
+    /**
+     * Returns the current number of downloads of the download share.
+     *
+     * @return the current number of downloads
+     */
+    public Integer getCntDownloads() {
+        return mCntDownloads;
+    }
+
+    /**
+     * Sets the current number of downloads of the download share.
+     *
+     * @param cntDownloads The current number of downloads.
+     */
+    public void setCntDownloads(Integer cntDownloads) {
+        mCntDownloads = cntDownloads;
     }
 
     /**
@@ -212,42 +268,6 @@ public class DownloadShare {
      */
     public void setNotifiesCreator(Boolean notifiesCreator) {
         mNotifiesCreator = notifiesCreator;
-    }
-
-    /**
-     * Returns the maximum number of downloads of the download share.
-     *
-     * @return the maximum number of downloads
-     */
-    public Integer getMaxDownloads() {
-        return mMaxDownloads;
-    }
-
-    /**
-     * Sets the maximum number of downloads of the download share.
-     *
-     * @param maxDownloads The maximum number of downloads.
-     */
-    public void setMaxDownloads(Integer maxDownloads) {
-        mMaxDownloads = maxDownloads;
-    }
-
-    /**
-     * Returns the current number of downloads of the download share.
-     *
-     * @return the current number of downloads
-     */
-    public Integer getCntDownloads() {
-        return mCntDownloads;
-    }
-
-    /**
-     * Sets the current number of downloads of the download share.
-     *
-     * @param cntDownloads The current number of downloads.
-     */
-    public void setCntDownloads(Integer cntDownloads) {
-        mCntDownloads = cntDownloads;
     }
 
     /**

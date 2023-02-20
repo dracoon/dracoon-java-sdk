@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"dataUrl\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAA2CAYAAACMRWrdAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAABW0lEQVRo3u1aQQ7DMAhrpv3/y9kpl0gIY9PDgJxadSFRDMaQrb33fgqOz1N0fM/DWosycAC/50cd4cy37EX3Ux+x6EmrCKHrsvvpg5gXc9YJ3jGCxi6LiDe/H2LssJCz2C47VgcxFTk0743yUBGL+vqNhMeOb7FnP8RY37e0nseOHhLsfsoitrLrMRS5yWMqYlFWiiITjR2UNa31J495WjD7u2qvHyuyWk9lNU+5oPb7KY+sShlVDseexXLRbli/vmIUOVQjsvnNypsWgvURQ0806+SzKnHrd31ZUc0rlh1VW3rs2IcV1f6fp0zYjnG02ujLiqxKZytotY6bnkdWvkH7iqiHeO9zB82qcrYLpfYd5w5arbOi2pFVNP0QU08y2nXy6is29uZGU0UmWqF7MerZG8TY/JZ9F43mx+nds3USGkOqZ/RlRfX/F5bvs70UlA3v9aYe+7dRFrEfCXd3iHtO3D8AAAAASUVORK5CYII=\"}"
+  }
+}

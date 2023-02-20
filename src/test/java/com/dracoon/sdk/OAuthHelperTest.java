@@ -21,13 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OAuthHelperTest {
 
-    private static URL sDefaultServerUrl;
+    private static final URL sDefaultServerUrl;
+    private static final URI sDefaultRedirectUri;
 
     static {
         try {
             sDefaultServerUrl = new URL("https://dracoon.team");
-        } catch (MalformedURLException e) {
-            // Nothing to do here
+            sDefaultRedirectUri = URI.create("http://localhost:10000");
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid test data!");
         }
     }
 
@@ -72,18 +74,18 @@ class OAuthHelperTest {
     }
 
     @Nested
-    class CreateAuthorizationUrlWithUserAgentInfoTests {
+    class CreateAuthorizationUrlWithRedirectUriTests {
 
         @Test
         void testAuthorizationUrlCorrect() {
             String url = OAuthHelper.createAuthorizationUrl(sDefaultServerUrl, "prgj5uzb",
-                    "b0fQ8iGQUONL4BHt", "dGVzdA==");
+                    "b0fQ8iGQUONL4BHt", sDefaultRedirectUri);
 
             assertEquals("https://dracoon.team/oauth/authorize?"
                     + "response_type=code&"
                     + "client_id=prgj5uzb&"
                     + "state=b0fQ8iGQUONL4BHt&"
-                    + "user_agent_info=dGVzdA==",
+                    + "redirect_uri=http%3A%2F%2Flocalhost%3A10000",
                     url);
         }
 
@@ -91,28 +93,27 @@ class OAuthHelperTest {
         @MethodSource("com.dracoon.sdk.OAuthHelperTest#createTestServerUrlValidationArguments")
         void testServerUrlValidation(URL serverUrl) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    serverUrl, "prgj", "b0fQ8iGQUONL4BHt", "dGVzdA=="));
+                    serverUrl, "prgj", "b0fQ8iGQUONL4BHt", sDefaultRedirectUri));
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         void testClientIdValidation(String clientId) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    sDefaultServerUrl, clientId, "b0fQ8iGQ", "dGVzdA=="));
+                    sDefaultServerUrl, clientId, "b0fQ8iGQ", sDefaultRedirectUri));
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         void testStateValidation(String state) {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    sDefaultServerUrl, "prgj", state, "dGVzdA=="));
+                    sDefaultServerUrl, "prgj", state, sDefaultRedirectUri));
         }
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void testUserAgentInfoValidation(String userAgentInfo) {
+        @Test
+        void testRedirectUriValidation() {
             assertThrows(IllegalArgumentException.class, () -> OAuthHelper.createAuthorizationUrl(
-                    sDefaultServerUrl, "prgj", "b0fQ8iGQ", userAgentInfo));
+                    sDefaultServerUrl, "prgj", "b0fQ8iGQ", null));
         }
 
     }

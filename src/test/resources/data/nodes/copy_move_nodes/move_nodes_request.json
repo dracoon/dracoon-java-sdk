@@ -1,0 +1,15 @@
+{
+  "mTargetNodeId": 5,
+  "mSourceNodes": [
+    {
+      "mId": 2
+    },
+    {
+      "mId": 3
+    },
+    {
+      "mId": 4
+    }
+  ],
+  "mResolutionStrategy": "AUTO_RENAME"
+}

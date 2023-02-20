@@ -15,7 +15,7 @@ public class Logger implements Log {
     public static final int WARN = 3;
     public static final int ERROR = 4;
 
-    private int mLevel;
+    private final int mLevel;
 
     public Logger(int level) {
         mLevel = level;
@@ -77,7 +77,7 @@ public class Logger implements Log {
     public void e(String tag, String msg, Throwable tr) {
         if (mLevel <= ERROR) {
             e(tag, msg);
-            tr.printStackTrace(System.err);
+            tr.printStackTrace(System.out);
         }
     }
 

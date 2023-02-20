@@ -58,10 +58,30 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mHttpHelper.init();
     }
 
+    public void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
+        mCryptoWrapper = cryptoWrapper;
+    }
+
+    public void setThreadHelper(ThreadHelper threadHelper) {
+        mThreadHelper = threadHelper;
+    }
+
+    public void setFileStreamHelper(FileStreamHelper fileStreamHelper) {
+        mFileStreamHelper = fileStreamHelper;
+    }
+
     // --- Methods to set internal handlers ---
 
     public void setServerImpl(DracoonServerImpl server) {
         mServer = server;
+    }
+
+    public void setServerSettingsImpl(DracoonServerSettingsImpl serverSettings) {
+        mServerSettings = serverSettings;
+    }
+
+    public void setServerPoliciesImpl(DracoonServerPoliciesImpl serverPolicies) {
+        mServerPolicies = serverPolicies;
     }
 
     public void setAccountImpl(DracoonAccountImpl account) {
@@ -82,6 +102,18 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     public void setSharesImpl(DracoonSharesImpl shares) {
         mShares = shares;
+    }
+
+    public void setFileKeyFetcher(FileKeyFetcher fileKeyFetcher) {
+        mFileKeyFetcher = fileKeyFetcher;
+    }
+
+    public void setFileKeyGenerator(FileKeyGenerator fileKeyGenerator) {
+        mFileKeyGenerator = fileKeyGenerator;
+    }
+
+    public void setAvatarDownloader(AvatarDownloader avatarDownloader) {
+        mAvatarDownloader = avatarDownloader;
     }
 
 }

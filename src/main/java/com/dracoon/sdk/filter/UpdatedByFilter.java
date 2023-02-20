@@ -3,56 +3,21 @@ package com.dracoon.sdk.filter;
 /**
  * Filter for restricting API requests by updater's user name.
  */
-public class UpdatedByFilter extends Filter<String> {
+public class UpdatedByFilter extends UserNameFilter {
 
     private static final String NAME = "updatedBy";
-    private static final Type TYPE = Type.MULTI_VALUE;
 
     private UpdatedByFilter() {
-        super(NAME, TYPE);
+        super(NAME);
     }
 
     /**
      * Builder for creating new instances of {@link UpdatedByFilter}.
      */
-    public static class Builder extends Filter.Builder<String, String> {
-
-        private final UpdatedByFilter mFilter;
+    public static class Builder extends UserNameFilter.Builder {
 
         public Builder() {
-            mFilter = new UpdatedByFilter();
-        }
-
-        @Override
-        public Concater eq(String value) {
-            validateRestrictionValue(value);
-            mFilter.addValue(OPERATOR_EQ, value);
-            return new Concater(mFilter);
-        }
-
-        @Override
-        public Concater cn(String value) {
-            validateRestrictionValue(value);
-            mFilter.addValue(OPERATOR_CN, value);
-            return new Concater(mFilter);
-        }
-
-    }
-
-    /**
-     * Class for adding further filter restrictions.
-     */
-    public static class Concater extends Filter.Concater<String, String> {
-
-        private final UpdatedByFilter mFilter;
-
-        Concater(UpdatedByFilter filter) {
-            mFilter = filter;
-        }
-
-        @Override
-        public UpdatedByFilter build() {
-            return mFilter;
+            super(new UpdatedByFilter());
         }
 
     }

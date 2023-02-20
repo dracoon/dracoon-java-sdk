@@ -16,7 +16,8 @@ public interface OAuthService {
     @POST(OAUTH_PATH + OAUTH_TOKEN_PATH)
     Call<OAuthTokens> getOAuthToken(@Header("Authorization") String authorization,
             @Field("grant_type") String grantType,
-            @Field("code") String code);
+            @Field("code") String code,
+            @Field("redirect_uri") String redirectUri);
 
     @FormUrlEncoded
     @POST(OAUTH_PATH + OAUTH_TOKEN_PATH)

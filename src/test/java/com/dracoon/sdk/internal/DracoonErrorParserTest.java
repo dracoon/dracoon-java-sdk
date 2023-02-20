@@ -561,7 +561,7 @@ class DracoonErrorParserTest {
     @MethodSource("createBaseTestArguments")
     void testParseDownloadSharesGetError(int code, Integer errorCode, DracoonApiCode result) {
         assertEquals(result, executeParseMethod(code, errorCode,
-                mErrorParser::parseDownloadSharesGetError));
+                mErrorParser::parseDownloadSharesQueryError));
     }
 
     @SuppressWarnings("unused")
@@ -612,7 +612,7 @@ class DracoonErrorParserTest {
     @MethodSource("createBaseTestArguments")
     void testParseUploadSharesGetError(int code, Integer errorCode, DracoonApiCode result) {
         assertEquals(result, executeParseMethod(code, errorCode,
-                mErrorParser::parseUploadSharesGetError));
+                mErrorParser::parseUploadSharesQueryError));
     }
 
     @SuppressWarnings("unused")
@@ -716,7 +716,7 @@ class DracoonErrorParserTest {
     @MethodSource("createTestParseNodeCommentsGetErrorArguments")
     void testParseNodeCommentsGetError(int code, Integer errorCode, DracoonApiCode result) {
         assertEquals(result, executeParseMethod(code, errorCode,
-                mErrorParser::parseNodeCommentsGetError));
+                mErrorParser::parseNodeCommentsQueryError));
     }
 
     @SuppressWarnings("unused")

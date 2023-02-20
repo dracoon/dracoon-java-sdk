@@ -31,13 +31,13 @@ public class DownloadThread extends Thread {
 
     private final List<FileDownloadCallback> mCallbacks = new ArrayList<>();
 
-    public DownloadThread(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey,
+    private DownloadThread(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey,
             OutputStream outputStream) {
         mLog = client.getLog();
 
         mId = id;
 
-        mDownloadStream = new DownloadStream(client, id, nodeId, fileKey);
+        mDownloadStream = DownloadStream.create(client, id, nodeId, fileKey);
         mOutputStream = outputStream;
     }
 
@@ -128,6 +128,13 @@ public class DownloadThread extends Thread {
         for (FileDownloadCallback callback : mCallbacks) {
             callback.onFailed(id, e);
         }
+    }
+
+    // --- Factory methods ---
+
+    public static DownloadThread create(DracoonClientImpl client, String id, long nodeId,
+            PlainFileKey fileKey, OutputStream outputStream) {
+        return new DownloadThread(client, id, nodeId, fileKey, outputStream);
     }
 
 }

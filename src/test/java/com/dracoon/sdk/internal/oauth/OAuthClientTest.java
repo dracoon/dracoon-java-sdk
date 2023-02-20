@@ -1,5 +1,6 @@
 package com.dracoon.sdk.internal.oauth;
 
+import java.net.URI;
 import java.util.stream.Stream;
 
 import com.dracoon.sdk.BaseHttpTest;
@@ -39,16 +40,20 @@ class OAuthClientTest extends BaseHttpTest {
 
     // --- Tests for retrieving tokens ---
 
-    @Nested
-    class RetrieveTokensTests {
+    @SuppressWarnings("unused")
+    private abstract class BaseRetrieveTokensTests {
 
-        private final String DATA_PATH = "/oauth/retrieve_tokens/";
+        protected final String mDataPath;
+
+        protected BaseRetrieveTokensTests(String dataPath) {
+            mDataPath = dataPath;
+        }
 
         @Test
         void testRequestValid() throws Exception {
             retrieveTokens();
 
-            checkRequest(DATA_PATH + "retrieve_tokens_request.json");
+            checkRequest(mDataPath + "retrieve_tokens_request.json");
         }
 
         @Test
@@ -63,10 +68,7 @@ class OAuthClientTest extends BaseHttpTest {
             assertEquals("all", tokens.scope);
         }
 
-        private OAuthTokens retrieveTokens() throws Exception {
-            enqueueResponse(DATA_PATH + "retrieve_tokens_response.json");
-            return mOAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb");
-        }
+        protected abstract OAuthTokens retrieveTokens() throws Exception;
 
         @ParameterizedTest
         @MethodSource("com.dracoon.sdk.internal.oauth.OAuthClientTest#"+
@@ -95,6 +97,37 @@ class OAuthClientTest extends BaseHttpTest {
                 Arguments.of("/oauth/common/internal_error_response.json",
                         DracoonApiCode.AUTH_UNKNOWN_ERROR)
         );
+    }
+
+    @Nested
+    class RetrieveTokensTests extends BaseRetrieveTokensTests {
+
+        RetrieveTokensTests() {
+            super("/oauth/retrieve_tokens/");
+        }
+
+        @Override
+        protected OAuthTokens retrieveTokens() throws Exception {
+            enqueueResponse(mDataPath + "retrieve_tokens_response.json");
+            return mOAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb");
+        }
+
+    }
+
+    @Nested
+    class RetrieveTokensWithRedirectUriTests extends BaseRetrieveTokensTests {
+
+        RetrieveTokensWithRedirectUriTests() {
+            super("/oauth/retrieve_tokens_with_redirect_uri/");
+        }
+
+        @Override
+        protected OAuthTokens retrieveTokens() throws Exception {
+            enqueueResponse(mDataPath + "retrieve_tokens_response.json");
+            return mOAuthClient.retrieveTokens("4lHrris4kqh8zAZgcLcb",
+                    URI.create("http://localhost:10000"));
+        }
+
     }
 
     // --- Tests for refreshing tokens ---

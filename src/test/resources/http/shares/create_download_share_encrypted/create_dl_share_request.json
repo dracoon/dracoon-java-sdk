@@ -1,0 +1,18 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/api/v4/shares/downloads",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Bearer L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"nodeId\":3,\"name\":\"test-dl-share\",\"notes\":\"note\",\"internalNotes\":\"internal note\",\"expiration\":{\"expireAt\":\"2030-01-01T00:00:00\",\"enableExpiration\":true},\"maxDownloads\":5,\"showCreatorName\":true,\"showCreatorUsername\":false,\"notifyCreator\":true,\"keyPair\":{\"privateKeyContainer\":{\"version\":\"RSA-4096\",\"privateKey\":\"-----BEPK-----\\r\\nx\\r\\n-----EEPK-----\\r\\n\"},\"publicKeyContainer\":{\"version\":\"RSA-4096\",\"publicKey\":\"-----BPK-----\\r\\nx\\r\\n-----EPK-----\\r\\n\"}},\"fileKey\":{\"version\":\"RSA-4096/AES-256-GCM\",\"key\":\"efk_key\",\"iv\":\"efk_iv\",\"tag\":\"efk_tag\"},\"sendMail\":true,\"mailRecipients\":\"user@dracoon.com\",\"mailSubject\":\"email subject\",\"mailBody\":\"email body\",\"sendSms\":true,\"smsRecipients\":\"+490000000000\"}"
+  }
+}

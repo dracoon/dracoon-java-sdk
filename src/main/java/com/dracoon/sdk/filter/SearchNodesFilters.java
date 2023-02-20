@@ -18,11 +18,19 @@ public class SearchNodesFilters extends Filters {
         mFilters.add(filter);
     }
 
+    public void addCreatedByIdFilter(CreatedByIdFilter filter) {
+        mFilters.add(filter);
+    }
+
     public void addCreatedAtFilter(CreatedAtFilter filter) {
         mFilters.add(filter);
     }
 
     public void addUpdatedByFilter(UpdatedByFilter filter) {
+        mFilters.add(filter);
+    }
+
+    public void addUpdatedByIdFilter(UpdatedByIdFilter filter) {
         mFilters.add(filter);
     }
 

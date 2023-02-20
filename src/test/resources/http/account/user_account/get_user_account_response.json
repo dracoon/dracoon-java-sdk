@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"j.doe@dracoon.com\",\"userName\":\"j.doe@dracoon.com\",\"login\":\"j.doe@dracoon.com\",\"isEncryptionEnabled\":true,\"hasManageableRooms\":true,\"needsToAcceptEULA\":false,\"needsToChangeUserName\":false,\"needsToChangePassword\":false,\"mustSetEmail\":false,\"lastLoginSuccessAt\":\"2022-11-09T12:10:20Z\",\"lastLoginFailAt\":\"2022-09-09T12:43:12Z\",\"userRoles\":{\"items\":[{\"id\":2,\"name\":\"USER_MANAGER\"},{\"id\":3,\"name\":\"GROUP_MANAGER\"},{\"id\":4,\"name\":\"ROOM_MANAGER\"}]}}"
+  }
+}

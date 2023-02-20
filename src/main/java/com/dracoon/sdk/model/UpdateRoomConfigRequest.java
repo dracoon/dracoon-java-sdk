@@ -35,7 +35,7 @@ public class UpdateRoomConfigRequest {
     }
 
     /**
-     * Returns the recycle bin retention period of the new room.
+     * Returns the recycle bin retention period (in days) of the new room.
      *
      * @return the recycle bin retention period
      */
@@ -115,7 +115,7 @@ public class UpdateRoomConfigRequest {
         }
 
         /**
-         * Sets the new recycle bin retention period of the room.
+         * Sets the new recycle bin retention period (in days) of the room.
          *
          * @param recycleBinRetentionPeriod The new recycle bin retention period. (Period must be
          *                                  positive.)

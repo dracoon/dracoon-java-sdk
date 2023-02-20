@@ -10,15 +10,28 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import retrofit2.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
 
     private static final String USER_AGENT = "Java-SDK-Unit-Test";
     private static final String ACCESS_TOKEN = "L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW";
+
+    @FunctionalInterface
+    protected interface Executable {
+        void execute() throws Exception;
+    }
+
+    @FunctionalInterface
+    protected interface ErrorParserFunction {
+        DracoonApiCode apply(Response response);
+    }
 
     protected DracoonClientImplMock mDracoonClientImpl;
 
@@ -48,6 +61,16 @@ public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
         assertInstanceOf(DracoonApiException.class, cause);
         DracoonApiException exception = (DracoonApiException) cause;
         assertEquals(code, exception.getCode());
+    }
+
+    protected void mockParseStandardError(DracoonApiCode code) {
+        when(mDracoonErrorParser.parseStandardError(any(retrofit2.Response.class)))
+                .thenReturn(code);
+    }
+
+    protected void mockParseError(ErrorParserFunction func, DracoonApiCode code) {
+        when(func.apply(any(retrofit2.Response.class)))
+                .thenReturn(code);
     }
 
 }

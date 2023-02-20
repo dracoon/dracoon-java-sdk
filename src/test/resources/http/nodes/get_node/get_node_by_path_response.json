@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"range\":{\"offset\":0,\"limit\":0,\"total\":1},\"items\":[{\"id\":4,\"type\":\"file\",\"parentId\":1,\"parentPath\":\"/test/\",\"name\":\"test-file.jpg\",\"fileType\":\"jpg\",\"mediaType\":\"image/jpeg\",\"size\":28103,\"classification\":3,\"notes\":\"note\",\"hash\":\"e43fe25c64bd65c053c92f7a3f2bfdb0\",\"expireAt\":\"2030-01-03T00:00:00Z\",\"createdAt\":\"2022-01-03T01:00:00Z\",\"createdBy\":{\"id\":1,\"userType\":\"internal\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"userName\":\"j.doe\",\"email\":\"j.doe@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d41\"},\"updatedAt\":\"2022-01-03T02:00:00Z\",\"updatedBy\":{\"id\":2,\"userType\":\"deleted\",\"firstName\":\"Max\",\"lastName\":\"Muster\",\"userName\":\"m.muster\",\"email\":\"m.muster@dracoon.com\",\"avatarUuid\":\"550e8400-e29b-11d4-a716-446655440000\"},\"timestampCreation\":\"2022-01-03T00:30:00Z\",\"timestampModification\":\"2022-01-03T01:30:00Z\",\"permissions\":{\"manage\":true,\"read\":true,\"create\":true,\"change\":true,\"delete\":true,\"manageDownloadShare\":true,\"manageUploadShare\":true,\"readRecycleBin\":true,\"restoreRecycleBin\":true,\"deleteRecycleBin\":true},\"isFavorite\":false,\"isEncrypted\":false,\"cntDeletedVersions\":0,\"cntComments\":2,\"cntDownloadShares\":1,\"cntUploadShares\":0,\"branchVersion\":1558372658919,\"mediaToken\":\"c3RhZ2luZy5kcmFjb29uLmNvbQ==.Mzg2Nnw2MzE2NDl8MjRhMmVlZDA4ZWEyMGZlYWEyMmI3ODdjNzQ4ZjQ4MGQxNGU4ZTY5ZTZhM2U5OGU4MjA3Zjc4YTRmYTBjMDc3MQ==\"}]}"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "method": "post",
+  "url": "[SERVER_URL]/api/v4/shares/uploads",
+  "headers": [
+    {
+      "name": "authorization",
+      "value": "Bearer L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW"
+    },
+    {
+      "name": "user-agent",
+      "value": "Java-SDK-Unit-Test"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"targetId\":1,\"name\":\"test-ul-share\",\"notes\":\"note\",\"internalNotes\":\"internal note\",\"expiration\":{\"expireAt\":\"2030-01-01T00:00:00\",\"enableExpiration\":true},\"filesExpiryPeriod\":3,\"maxSlots\":10,\"maxSize\":1024,\"showUploadedFiles\":true,\"showCreatorName\":true,\"showCreatorUsername\":false,\"notifyCreator\":true,\"password\":\"acc-pw\",\"sendMail\":true,\"mailRecipients\":\"user@dracoon.com\",\"mailSubject\":\"email subject\",\"mailBody\":\"email body\",\"sendSms\":true,\"smsRecipients\":\"+490000000000\"}"
+  }
+}

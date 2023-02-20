@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"range\":{\"offset\":0,\"limit\":0,\"total\":3},\"items\":[{\"id\":1,\"nodeId\":3,\"nodePath\":\"/test/dl-share-1.txt\",\"name\":\"test-dl-share-1\",\"notes\":\"note 1\",\"internalNotes\":\"internal note 1\",\"expireAt\":\"2030-01-01T00:00:00Z\",\"maxDownloads\":5,\"accessKey\":\"acc-key-1\",\"cntDownloads\":4,\"showCreatorName\":false,\"showCreatorUsername\":false,\"notifyCreator\":false,\"createdAt\":\"2023-01-01T00:00:00Z\",\"createdBy\":{\"id\":1,\"userType\":\"internal\",\"firstName\":\"John1\",\"lastName\":\"Doe1\",\"userName\":\"j.doe1\",\"email\":\"j.doe1@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d41\"},\"isProtected\":false,\"isEncrypted\":false},{\"id\":2,\"nodeId\":3,\"nodePath\":\"/test/dl-share-2.txt\",\"name\":\"test-dl-share-2\",\"notes\":\"note 2\",\"internalNotes\":\"internal note 2\",\"expireAt\":\"2030-01-02T00:00:00Z\",\"maxDownloads\":6,\"accessKey\":\"acc-key-2\",\"cntDownloads\":3,\"showCreatorName\":true,\"showCreatorUsername\":false,\"notifyCreator\":true,\"createdAt\":\"2023-01-02T00:00:00Z\",\"createdBy\":{\"id\":2,\"userType\":\"internal\",\"firstName\":\"John2\",\"lastName\":\"Doe2\",\"userName\":\"j.doe2\",\"email\":\"j.doe2@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d42\"},\"isProtected\":true,\"isEncrypted\":false},{\"id\":3,\"nodeId\":3,\"nodePath\":\"/test/dl-share-3.txt\",\"name\":\"test-dl-share-3\",\"notes\":\"note 3\",\"internalNotes\":\"internal note 3\",\"expireAt\":\"2030-01-03T00:00:00Z\",\"maxDownloads\":7,\"accessKey\":\"acc-key-3\",\"cntDownloads\":2,\"showCreatorName\":false,\"showCreatorUsername\":true,\"notifyCreator\":false,\"createdAt\":\"2023-01-03T00:00:00Z\",\"createdBy\":{\"id\":3,\"userType\":\"internal\",\"firstName\":\"John3\",\"lastName\":\"Doe3\",\"userName\":\"j.doe3\",\"email\":\"j.doe3@dracoon.com\",\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d43\"},\"isProtected\":false,\"isEncrypted\":true}]}"
+  }
+}

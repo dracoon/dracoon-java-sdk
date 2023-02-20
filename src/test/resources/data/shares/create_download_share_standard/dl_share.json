@@ -1,0 +1,27 @@
+{
+  "mId": 1,
+  "mNodeId": 3,
+  "mNodePath": "/test/dl-share.txt",
+  "mName": "test-dl-share",
+  "mNotes": "note",
+  "mInternalNotes": "internal note",
+  "mExpireAt": "2030-01-01T00:00:00Z",
+  "mMaxDownloads": 5,
+  "mAccessKey": "acc-key",
+  "mCntDownloads": 4,
+  "mShowsCreatorName": true,
+  "mShowsCreatorUserName": false,
+  "mNotifiesCreator": true,
+  "mCreatedAt": "2023-01-01T00:00:00Z",
+  "mCreatedBy": {
+    "mId": 1,
+    "mUserType": "INTERNAL",
+    "mFirstName": "John",
+    "mLastName": "Doe",
+    "mUsername": "j.doe",
+    "mEmail": "j.doe@dracoon.com",
+    "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d41"
+  },
+  "mIsProtected": true,
+  "mIsEncrypted": false
+}

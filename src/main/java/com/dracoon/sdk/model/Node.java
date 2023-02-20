@@ -546,7 +546,7 @@ public class Node {
     }
 
     /**
-     * Returns the recycle bin retention period of the node, if node is a room.
+     * Returns the recycle bin retention period (in days) of the node, if node is a room.
      *
      * @return the recycle bin retention period, or <code>null</code>
      */
@@ -555,7 +555,7 @@ public class Node {
     }
 
     /**
-     * Sets the recycle bin retention period of the node.
+     * Sets the recycle bin retention period (in days) of the node.
      *
      * @param recycleBinRetentionPeriod The recycle bin retention period.
      */

@@ -631,7 +631,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseDownloadSharesGetError(Response response) {
+    public DracoonApiCode parseDownloadSharesQueryError(Response response) {
         Error error = getError(response);
         return parseStandardError(error.statusCode, error.errorCode);
     }
@@ -695,7 +695,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseUploadSharesGetError(Response response) {
+    public DracoonApiCode parseUploadSharesQueryError(Response response) {
         Error error = getError(response);
         return parseStandardError(error.statusCode, error.errorCode);
     }
@@ -797,7 +797,7 @@ public class DracoonErrorParser {
         }
     }
 
-    public DracoonApiCode parseNodeCommentsGetError(Response response) {
+    public DracoonApiCode parseNodeCommentsQueryError(Response response) {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {

@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "headers": [
+    {
+      "name": "content-type",
+      "value": "application/json;charset=UTF-8"
+    }
+  ],
+  "body": {
+    "type": "text",
+    "content": "{\"avatarUuid\":\"c33e748c-d05b-4af2-90e3-1a24d79b1d41\",\"isCustomAvatar\":true}"
+  }
+}

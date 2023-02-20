@@ -1,0 +1,21 @@
+{
+  "mTargetNodeId": 1,
+  "mName": "test-ul-share",
+  "mNotes": "note",
+  "mInternalNotes": "internal note",
+  "mExpirationDate": "2030-01-01T00:00:00Z",
+  "mFilesExpirationPeriod": 3,
+  "mMaxUploads": 10,
+  "mMaxQuota": 1024,
+  "mShowUploadedFiles": true,
+  "mShowCreatorName": true,
+  "mShowCreatorUserName": false,
+  "mNotifyCreator": true,
+  "mAccessPassword": "acc-pw",
+  "mSendEmail": true,
+  "mEmailRecipients": ["user@dracoon.com"],
+  "mEmailSubject": "email subject",
+  "mEmailBody": "email body",
+  "mSendSms": true,
+  "mSmsRecipients": ["+490000000000"]
+}

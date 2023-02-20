@@ -15,17 +15,20 @@ public class UploadShare {
     private String mTargetNodePath;
     private String mName;
     private String mNotes;
+    private String mInternalNotes;
     private Date mExpireAt;
     private Integer mFilesExpirePeriod;
     private Integer mMaxUploads;
     private Long mMaxQuota;
+    private Boolean mShowsUploadedFiles;
 
     private String mAccessKey;
-
-    private Boolean mShowsUploadedFiles;
-    private Boolean mNotifiesCreator;
     private Integer mCntUploads;
     private Integer mCntFiles;
+
+    private Boolean mShowsCreatorName;
+    private Boolean mShowsCreatorUserName;
+    private Boolean mNotifiesCreator;
 
     private Date mCreatedAt;
     private UserInfo mCreatedBy;
@@ -34,7 +37,7 @@ public class UploadShare {
     private Boolean mIsEncrypted;
 
     /**
-     * Returns the ID of the up share.
+     * Returns the ID of the upload share.
      *
      * @return the ID
      */
@@ -43,7 +46,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the ID of the up share.
+     * Sets the ID of the upload share.
      *
      * @param id The ID.
      */
@@ -52,7 +55,7 @@ public class UploadShare {
     }
 
     /**
-     * Returns the target node ID of the up share.
+     * Returns the target node ID of the upload share.
      *
      * @return the target node ID
      */
@@ -61,7 +64,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the target node ID of the up share.
+     * Sets the target node ID of the upload share.
      *
      * @param targetNodeId The target node ID.
      */
@@ -70,7 +73,7 @@ public class UploadShare {
     }
 
     /**
-     * Returns the target node path of the up share.
+     * Returns the target node path of the upload share.
      *
      * @return the target node path
      */
@@ -79,7 +82,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the target node path of the up share.
+     * Sets the target node path of the upload share.
      *
      * @param targetNodePath The target node path.
      */
@@ -88,7 +91,7 @@ public class UploadShare {
     }
 
     /**
-     * Returns the name of the up share, if up share has a name.
+     * Returns the name of the upload share, if upload share has a name.
      *
      * @return the name, or <code>null</code>
      */
@@ -97,7 +100,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the name of the up share.
+     * Sets the name of the upload share.
      *
      * @param name The name.
      */
@@ -106,7 +109,7 @@ public class UploadShare {
     }
 
     /**
-     * Returns the notes which are attached to the up share, if up share has notes.
+     * Returns the notes which are attached to the upload share, if upload share has notes.
      *
      * @return the notes, or <code>null</code>
      */
@@ -115,7 +118,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the notes which are attached to the up share.
+     * Sets the notes which are attached to the upload share.
      *
      * @param notes The notes.
      */
@@ -124,7 +127,26 @@ public class UploadShare {
     }
 
     /**
-     * Returns the expire date of the up share, if up share has a expire date.
+     * Returns the internal notes which are attached to the upload share, if upload share has
+     * internal notes.
+     *
+     * @return the internal notes, or <code>null</code>
+     */
+    public String getInternalNotes() {
+        return mInternalNotes;
+    }
+
+    /**
+     * Sets the internal notes which are attached to the upload share.
+     *
+     * @param internalNotes The internal notes.
+     */
+    public void setInternalNotes(String internalNotes) {
+        mInternalNotes = internalNotes;
+    }
+
+    /**
+     * Returns the expire date of the upload share, if upload share has an expire date.
      *
      * @return the expire date, or <code>null</code>
      */
@@ -133,7 +155,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the expire date of the up share.
+     * Sets the expire date of the upload share.
      *
      * @param expireAt The expire date.
      */
@@ -152,7 +174,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the expire period of files of the up share.
+     * Sets the expire period of files of the upload share.
      *
      * @param filesExpirePeriod The expire period of files.
      */
@@ -161,21 +183,39 @@ public class UploadShare {
     }
 
     /**
-     * Returns the access key of the up share.
+     * Returns the maximum number of uploads of the upload share.
      *
-     * @return the access key
+     * @return the maximum number of uploads
      */
-    public String getAccessKey() {
-        return mAccessKey;
+    public Integer getMaxUploads() {
+        return mMaxUploads;
     }
 
     /**
-     * Sets the access key of the up share.
+     * Sets the maximum number of uploads of the upload share.
      *
-     * @param accessKey The access key.
+     * @param maxUploads The maximum number of uploads.
      */
-    public void setAccessKey(String accessKey) {
-        mAccessKey = accessKey;
+    public void setMaxUploads(Integer maxUploads) {
+        this.mMaxUploads = maxUploads;
+    }
+
+    /**
+     * Returns the maximum number of bytes which can be uploaded by this upload share.
+     *
+     * @return the maximum number of bytes
+     */
+    public Long getMaxQuota() {
+        return mMaxQuota;
+    }
+
+    /**
+     * Sets the maximum number of bytes which can be uploaded by this upload share.
+     *
+     * @param maxQuota The maximum number of bytes.
+     */
+    public void setMaxQuota(Long maxQuota) {
+        this.mMaxQuota = maxQuota;
     }
 
     /**
@@ -198,22 +238,21 @@ public class UploadShare {
     }
 
     /**
-     * Returns <code>true</code> if creator is notified at ups of the up share.
+     * Returns the access key of the upload share.
      *
-     * @return <code>true</code> if creator is notified; <code>false</code> otherwise
+     * @return the access key
      */
-    public Boolean notifiesCreator() {
-        return mNotifiesCreator;
+    public String getAccessKey() {
+        return mAccessKey;
     }
 
     /**
-     * Sets if creator is notified at ups of the up share.
+     * Sets the access key of the upload share.
      *
-     * @param notifiesCreator <code>true</code> if creator is notified; otherwise
-     *                        <code>false</code>.
+     * @param accessKey The access key.
      */
-    public void setNotifiesCreator(Boolean notifiesCreator) {
-        mNotifiesCreator = notifiesCreator;
+    public void setAccessKey(String accessKey) {
+        mAccessKey = accessKey;
     }
 
     /**
@@ -253,7 +292,64 @@ public class UploadShare {
     }
 
     /**
-     * Returns the creation date of the up share.
+     * Returns <code>true</code> if creator's name is shown for the upload share.
+     *
+     * @return <code>true</code> if creator's name is shown; <code>false</code> otherwise
+     */
+    public Boolean showsCreatorName() {
+        return mShowsCreatorName;
+    }
+
+    /**
+     * Sets if creator's name is shown for the upload share.
+     *
+     * @param showsCreatorName <code>true</code> if creator's name is shown; otherwise
+     *                         <code>false</code>.
+     */
+    public void setShowsCreatorName(Boolean showsCreatorName) {
+        mShowsCreatorName = showsCreatorName;
+    }
+
+    /**
+     * Returns <code>true</code> if creator's user name is shown for the upload share.
+     *
+     * @return <code>true</code> if creator's user name is shown; <code>false</code> otherwise
+     */
+    public Boolean showsCreatorUserName() {
+        return mShowsCreatorUserName;
+    }
+
+    /**
+     * Sets if creator's user name is shown for the upload share.
+     *
+     * @param showsCreatorUserName <code>true</code> if creator's user name is shown; otherwise
+     *                             <code>false</code>.
+     */
+    public void setShowsCreatorUserName(Boolean showsCreatorUserName) {
+        mShowsCreatorUserName = showsCreatorUserName;
+    }
+
+    /**
+     * Returns <code>true</code> if creator is notified at ups of the upload share.
+     *
+     * @return <code>true</code> if creator is notified; <code>false</code> otherwise
+     */
+    public Boolean notifiesCreator() {
+        return mNotifiesCreator;
+    }
+
+    /**
+     * Sets if creator is notified at ups of the upload share.
+     *
+     * @param notifiesCreator <code>true</code> if creator is notified; otherwise
+     *                        <code>false</code>.
+     */
+    public void setNotifiesCreator(Boolean notifiesCreator) {
+        mNotifiesCreator = notifiesCreator;
+    }
+
+    /**
+     * Returns the creation date of the upload share.
      *
      * @return the creation date
      */
@@ -262,7 +358,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets the creation date of the up share.
+     * Sets the creation date of the upload share.
      *
      * @param createdAt The creation date.
      */
@@ -271,7 +367,7 @@ public class UploadShare {
     }
 
     /**
-     * Returns information about the user who created the up share.
+     * Returns information about the user who created the upload share.
      *
      * @return information about the user
      */
@@ -280,7 +376,7 @@ public class UploadShare {
     }
 
     /**
-     * Sets information about the user who created the up share.
+     * Sets information about the user who created the upload share.
      *
      * @param createdBy Information about the user.
      */
@@ -289,18 +385,18 @@ public class UploadShare {
     }
 
     /**
-     * Returns <code>true</code> if up share node is protected.
+     * Returns <code>true</code> if upload share node is protected.
      *
-     * @return <code>true</code> if up share node is protected; <code>false</code> otherwise
+     * @return <code>true</code> if upload share node is protected; <code>false</code> otherwise
      */
     public Boolean isProtected() {
         return mIsProtected;
     }
 
     /**
-     * Sets if up share node is protected.
+     * Sets if upload share node is protected.
      *
-     * @param isProtected <code>true</code> if up share node is protected; <code>false</code>
+     * @param isProtected <code>true</code> if upload share node is protected; <code>false</code>
      *                    otherwise.
      */
     public void setIsProtected(Boolean isProtected) {
@@ -308,57 +404,22 @@ public class UploadShare {
     }
 
     /**
-     * Returns <code>true</code> if up share node is encrypted.
+     * Returns <code>true</code> if upload share node is encrypted.
      *
-     * @return <code>true</code> if up share node is encrypted; <code>false</code> otherwise
+     * @return <code>true</code> if upload share node is encrypted; <code>false</code> otherwise
      */
     public Boolean isEncrypted() {
         return mIsEncrypted;
     }
 
     /**
-     * Sets if up share node is encrypted.
+     * Sets if upload share node is encrypted.
      *
-     * @param isEncrypted <code>true</code> if up share node is encrypted; <code>false</code>
+     * @param isEncrypted <code>true</code> if upload share node is encrypted; <code>false</code>
      *                    otherwise.
      */
     public void setIsEncrypted(Boolean isEncrypted) {
         mIsEncrypted = isEncrypted;
     }
 
-    /**
-     * Returns the maximum number of uploads of the uploads share.
-     *
-     * @return the maximum number of uploads
-     */
-    public Integer getMaxUploads() {
-        return mMaxUploads;
-    }
-
-    /**
-     * Sets the maximum number of uploads of the upload share.
-     *
-     * @param maxUploads The maximum number of uploads.
-     */
-    public void setMaxUploads(Integer maxUploads) {
-        this.mMaxUploads = maxUploads;
-    }
-
-    /**
-     * Returns the maximum number of bytes which can be uploaded by this upload share.
-     *
-     * @return the maximum number of bytes
-     */
-    public Long getMaxQuota() {
-        return mMaxQuota;
-    }
-
-    /**
-     * Sets the maximum number of bytes which can be uploaded by this upload share.
-     *
-     * @param maxQuota The maximum number of bytes.
-     */
-    public void setMaxQuota(Long maxQuota) {
-        this.mMaxQuota = maxQuota;
-    }
 }

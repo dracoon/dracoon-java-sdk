@@ -7,7 +7,7 @@ public class GetDownloadSharesFilter extends Filters {
         mFilters.add(filter);
     }
 
-    public void addUserIdFilter(UserIdFilter filter) {
+    public void addCreatedByIdFilter(CreatedByIdFilter filter) {
         validateSingleFilter(filter);
         mFilters.add(filter);
     }

@@ -760,7 +760,7 @@ public class DracoonExamples {
                 .expirationDate(new Date(1861916400000L))
                 .showCreatorName(true)
                 .notifyCreator(true)
-                .accessPassword("secret")
+                .accessPassword("Lni+36D8fq")
                 .build();
 
         DownloadShare dlShare = client.shares().createDownloadShare(request);
@@ -777,7 +777,7 @@ public class DracoonExamples {
                 .expirationDate(new Date(1861916400000L))
                 .showCreatorName(true)
                 .notifyCreator(true)
-                .encryptionPassword("secret")
+                .encryptionPassword("Lni+36D8fq")
                 .build();
 
         DownloadShare dlShare = client.shares().createDownloadShare(request);
@@ -822,11 +822,12 @@ public class DracoonExamples {
                 .notes("This is a note.")
                 .expirationDate(new Date(1861916400000L))
                 .filesExpirationPeriod(10)
-                .showUploadedFiles(true)
-                .notifyCreator(true)
-                .accessPassword("secret")
                 .maxUploads(5)
                 .maxQuota(10240L)
+                .showUploadedFiles(true)
+                .showCreatorName(true)
+                .notifyCreator(true)
+                .accessPassword("Lni+36D8fq")
                 .build();
 
         UploadShare ulShare = client.shares().createUploadShare(request);

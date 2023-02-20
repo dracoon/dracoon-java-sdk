@@ -1,0 +1,85 @@
+{
+  "mOffset": 0,
+  "mLimit": 0,
+  "mTotal": 3,
+  "mItems": [
+    {
+      "mId": 1,
+      "mText": "Comment 1",
+      "mCreatedAt": "2022-01-01T01:00:00Z",
+      "mCreatedBy": {
+        "mId": 1,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John",
+        "mLastName": "Doe",
+        "mUsername": "j.doe",
+        "mEmail": "j.doe@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d41"
+      },
+      "mUpdatedAt": "2022-01-01T02:00:00Z",
+      "mUpdatedBy": {
+        "mId": 2,
+        "mUserType": "DELETED",
+        "mFirstName": "Max",
+        "mLastName": "Muster",
+        "mUsername": "m.muster",
+        "mEmail": "m.muster@dracoon.com",
+        "mAvatarUuid": "550e8400-e29b-11d4-a716-446655440000"
+      },
+      "mWasChanged": false,
+      "mWasDeleted": true
+    },
+    {
+      "mId": 2,
+      "mText": "Comment 2",
+      "mCreatedAt": "2022-01-02T01:00:00Z",
+      "mCreatedBy": {
+        "mId": 1,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John",
+        "mLastName": "Doe",
+        "mUsername": "j.doe",
+        "mEmail": "j.doe@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d41"
+      },
+      "mUpdatedAt": "2022-01-02T02:00:00Z",
+      "mUpdatedBy": {
+        "mId": 2,
+        "mUserType": "DELETED",
+        "mFirstName": "Max",
+        "mLastName": "Muster",
+        "mUsername": "m.muster",
+        "mEmail": "m.muster@dracoon.com",
+        "mAvatarUuid": "550e8400-e29b-11d4-a716-446655440000"
+      },
+      "mWasChanged": true,
+      "mWasDeleted": false
+    },
+    {
+      "mId": 3,
+      "mText": "Comment 3",
+      "mCreatedAt": "2022-01-03T01:00:00Z",
+      "mCreatedBy": {
+        "mId": 1,
+        "mUserType": "INTERNAL",
+        "mFirstName": "John",
+        "mLastName": "Doe",
+        "mUsername": "j.doe",
+        "mEmail": "j.doe@dracoon.com",
+        "mAvatarUuid": "c33e748c-d05b-4af2-90e3-1a24d79b1d41"
+      },
+      "mUpdatedAt": "2022-01-03T02:00:00Z",
+      "mUpdatedBy": {
+        "mId": 2,
+        "mUserType": "DELETED",
+        "mFirstName": "Max",
+        "mLastName": "Muster",
+        "mUsername": "m.muster",
+        "mEmail": "m.muster@dracoon.com",
+        "mAvatarUuid": "550e8400-e29b-11d4-a716-446655440000"
+      },
+      "mWasChanged": false,
+      "mWasDeleted": false
+    }
+  ]
+}
