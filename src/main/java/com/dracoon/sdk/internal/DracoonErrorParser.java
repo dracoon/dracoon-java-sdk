@@ -317,8 +317,13 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                return parseNodePermissionError(error.errorCode,
-                        DracoonApiCode.PERMISSION_CREATE_ERROR);
+                if (error.errorCode == -40764)
+                    return DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS;
+                else if (error.errorCode == -40765)
+                    return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+                else
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_CREATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40014)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
@@ -364,8 +369,13 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                return parseNodePermissionError(error.errorCode,
-                        DracoonApiCode.PERMISSION_UPDATE_ERROR);
+                if (error.errorCode == -40764)
+                    return DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS;
+                else if (error.errorCode == -40765)
+                    return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+                else
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_UPDATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40014)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
@@ -564,8 +574,13 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(error.statusCode)) {
             case FORBIDDEN:
-                return parseNodePermissionError(error.errorCode,
-                        DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
+                if (error.errorCode == -40764)
+                    return DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS;
+                else if (error.errorCode == -40765)
+                    return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+                else
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
             default:

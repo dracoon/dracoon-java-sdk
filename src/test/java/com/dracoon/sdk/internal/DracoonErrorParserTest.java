@@ -376,6 +376,8 @@ class DracoonErrorParserTest {
                         DracoonApiCode.VALIDATION_CAN_NOT_COPY_NODE_TO_OWN_PLACE_WITHOUT_RENAME),
                 new TestArguments(400, -41303,
                         DracoonApiCode.VALIDATION_CAN_NOT_COPY_NODE_TO_OWN_PLACE_WITHOUT_RENAME),
+                new TestArguments(403, -40764, DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS),
+                new TestArguments(403, -40765, DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED),
                 new TestArguments(403, -70020, DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR),
                 new TestArguments(403,      0, DracoonApiCode.PERMISSION_CREATE_ERROR),
                 new TestArguments(404, -40014, DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY),
@@ -406,6 +408,8 @@ class DracoonErrorParserTest {
                 new TestArguments(400, -41054, DracoonApiCode.VALIDATION_NODES_NOT_IN_SAME_PARENT),
                 new TestArguments(400, -41200, DracoonApiCode.VALIDATION_PATH_TOO_LONG),
                 new TestArguments(400, -41302, DracoonApiCode.VALIDATION_CAN_NOT_MOVE_NODE_TO_OWN_PLACE),
+                new TestArguments(403, -40764, DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS),
+                new TestArguments(403, -40765, DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED),
                 new TestArguments(403, -70020, DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR),
                 new TestArguments(403,      0, DracoonApiCode.PERMISSION_UPDATE_ERROR),
                 new TestArguments(404, -40014, DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY),
@@ -559,7 +563,9 @@ class DracoonErrorParserTest {
     private static Stream<Arguments> createTestParseDownloadTokenGetErrorArguments() {
         return createArguments(
                 getBaseTestArguments(),
-                new TestArguments(404, 0, DracoonApiCode.SERVER_FILE_NOT_FOUND));
+                new TestArguments(403, -40764, DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS),
+                new TestArguments(403, -40765, DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED),
+                new TestArguments(404,      0, DracoonApiCode.SERVER_FILE_NOT_FOUND));
     }
 
     @ParameterizedTest
