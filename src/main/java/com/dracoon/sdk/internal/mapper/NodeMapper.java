@@ -13,6 +13,7 @@ import com.dracoon.sdk.internal.model.ApiNodeComment;
 import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiNodeList;
 import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
+import com.dracoon.sdk.internal.model.ApiVirusProtectionInfo;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateNodeCommentRequest;
@@ -24,6 +25,7 @@ import com.dracoon.sdk.model.NodeCommentList;
 import com.dracoon.sdk.model.NodeList;
 import com.dracoon.sdk.model.NodeType;
 import com.dracoon.sdk.model.UpdateNodeCommentRequest;
+import com.dracoon.sdk.model.VirusScanInfo;
 
 public class NodeMapper extends BaseMapper {
 
@@ -98,6 +100,9 @@ public class NodeMapper extends BaseMapper {
         node.setBranchVersion(apiNode.branchVersion);
 
         node.setMediaToken(apiNode.mediaToken);
+        if (apiNode.virusProtectionInfo != null) {
+            node.setVirusScanInfo(fromApiVirusScanProtectionInfo(apiNode.virusProtectionInfo));
+        }
 
         return node;
     }
@@ -190,6 +195,21 @@ public class NodeMapper extends BaseMapper {
         ApiUpdateNodeCommentRequest apiRequest = new ApiUpdateNodeCommentRequest();
         apiRequest.text = request.getText();
         return apiRequest;
+    }
+
+    private static VirusScanInfo fromApiVirusScanProtectionInfo(
+            ApiVirusProtectionInfo apiVirusProtectionInfo) {
+        if (apiVirusProtectionInfo == null) {
+            return null;
+        }
+
+        VirusScanInfo virusScanInfo = new VirusScanInfo();
+        if (apiVirusProtectionInfo.verdict != null) {
+            virusScanInfo.setVerdict(VirusScanInfo.Verdict.getByValue(
+                    apiVirusProtectionInfo.verdict.toLowerCase()));
+        }
+        virusScanInfo.setLastScannedAt(apiVirusProtectionInfo.lastCheckedAt);
+        return virusScanInfo;
     }
 
 }
