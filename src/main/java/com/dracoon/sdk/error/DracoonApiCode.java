@@ -11,6 +11,7 @@ public enum DracoonApiCode {
     API_NOT_FOUND(-1, "API could not be found. (Wrong server URL?)"),
     API_VERSION_NOT_SUPPORTED(-2, "API versions < " + DracoonConstants.API_MIN_VERSION +
             " are not supported."),
+    API_VERSION_NOT_SUFFICIENT(-3, "API version is not sufficient."),
 
     // General
     AUTH_UNKNOWN_ERROR(-1000, "An authentication/authorization error occurred."),
