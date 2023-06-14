@@ -1,0 +1,24 @@
+{
+  "mItems": [
+    {
+      "mNodeId": 1,
+      "mVirusScanInfo": {
+        "mVerdict": "IN_PROGRESS"
+      }
+    },
+    {
+      "mNodeId": 2,
+      "mVirusScanInfo": {
+        "mVerdict": "CLEAN",
+        "mLastScannedAt": "2023-06-13T00:00:00Z"
+      }
+    },
+    {
+      "mNodeId": 3,
+      "mVirusScanInfo": {
+        "mVerdict": "MALICIOUS",
+        "mLastScannedAt": "2023-06-14T00:00:00Z"
+      }
+    }
+  ]
+}

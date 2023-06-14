@@ -34,6 +34,9 @@ import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
+import com.dracoon.sdk.model.FileVirusScanInfo;
+import com.dracoon.sdk.model.FileVirusScanInfoList;
+import com.dracoon.sdk.model.GetFilesVirusScanInfoRequest;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeComment;
@@ -1012,6 +1015,34 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         void deleteNodeComment(long commentId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves virus scan information for files.
+         *
+         * @param request The request with node IDs of files for which virus scan information should
+         *                be retrieved.
+         *
+         * @return list of file virus scan information
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        FileVirusScanInfoList getFilesVirusScanInformation(GetFilesVirusScanInfoRequest request)
+                throws DracoonNetIOException, DracoonApiException;
+
+        /**
+         * Retrieves virus scan information for a file.
+         *
+         * @param nodeId The node ID of the file for which virus scan information should be
+         *               retrieved.
+         *
+         * @return file virus scan information
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        FileVirusScanInfo getFileVirusScanInformation(long nodeId) throws DracoonNetIOException,
+                DracoonApiException;
 
         /**
          * Builds a media URL. The URL can be used to get a thumbnail or preview image for a node.

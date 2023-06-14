@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.dracoon.sdk.DracoonClient;
@@ -32,11 +34,13 @@ import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiDeleteNodesRequest;
+import com.dracoon.sdk.internal.model.ApiGetNodesVirusProtectionInfoRequest;
 import com.dracoon.sdk.internal.model.ApiMoveNodesRequest;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeComment;
 import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiNodeVirusProtectionInfo;
 import com.dracoon.sdk.internal.model.ApiUpdateFileRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
@@ -58,6 +62,9 @@ import com.dracoon.sdk.model.FileDownloadStream;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.FileUploadStream;
+import com.dracoon.sdk.model.FileVirusScanInfo;
+import com.dracoon.sdk.model.FileVirusScanInfoList;
+import com.dracoon.sdk.model.GetFilesVirusScanInfoRequest;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeComment;
@@ -955,6 +962,57 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
+    }
+
+    // --- Virus scanning methods ---
+
+    @Override
+    public FileVirusScanInfoList getFilesVirusScanInformation(GetFilesVirusScanInfoRequest request)
+            throws DracoonNetIOException, DracoonApiException {
+        mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
+
+        NodeValidator.validateGetVirusScanInfoRequest(request);
+
+        return getFilesVirusScanInformationInternally(request.getIds());
+    }
+
+    @Override
+    public FileVirusScanInfo getFileVirusScanInformation(long nodeId) throws DracoonNetIOException,
+            DracoonApiException {
+        mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
+
+        NodeValidator.validateNodeId(nodeId);
+
+        FileVirusScanInfoList fileVirusScanInfoList = getFilesVirusScanInformationInternally(
+                Collections.singletonList(nodeId));
+
+        if (fileVirusScanInfoList == null) {
+            return null;
+        }
+
+        return !fileVirusScanInfoList.getItems().isEmpty() ? fileVirusScanInfoList.getItems().get(0)
+                : null;
+    }
+
+    private FileVirusScanInfoList getFilesVirusScanInformationInternally(List<Long> nodeIds)
+            throws DracoonNetIOException, DracoonApiException {
+        ApiGetNodesVirusProtectionInfoRequest request = new ApiGetNodesVirusProtectionInfoRequest();
+        request.nodeIds = nodeIds;
+
+        Call<List<ApiNodeVirusProtectionInfo>> call = mService.getNodesVirusProtectionInfo(request);
+        Response<List<ApiNodeVirusProtectionInfo>> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseNodesVirusProtectionInfoGetError(response);
+            String errorText = String.format("Retrieval of virus scan info of nodes %s failed " +
+                    "with '%s'!", nodeIds, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+
+        List<ApiNodeVirusProtectionInfo> data = response.body();
+
+        return NodeMapper.fromApiNodeVirusProtectionInfos(data);
     }
 
     // --- Media URL methods ---

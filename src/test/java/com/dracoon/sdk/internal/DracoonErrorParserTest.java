@@ -818,6 +818,23 @@ class DracoonErrorParserTest {
                 mErrorParser::parseNodeCommentDeleteError));
     }
 
+    @SuppressWarnings("unused")
+    private static Stream<Arguments> createTestParseNodesVirusProtectionInfoGetErrorArguments() {
+        return createArguments(
+                getBaseTestArguments(),
+                new TestArguments(400, -41002, DracoonApiCode.VALIDATION_NODE_NOT_A_FILE),
+                new TestArguments(404, -40000, DracoonApiCode.SERVER_NODE_NOT_FOUND),
+                new TestArguments(404, -41000, DracoonApiCode.SERVER_NODE_NOT_FOUND),
+                new TestArguments(404,      0, DracoonApiCode.SERVER_UNKNOWN_ERROR));
+    }
+
+    @ParameterizedTest
+    @MethodSource("createTestParseNodesVirusProtectionInfoGetErrorArguments")
+    void testParseNodesVirusProtectionInfoGetError(int code, Integer errorCode, DracoonApiCode result) {
+        assertEquals(result, executeParseMethod(code, errorCode,
+                mErrorParser::parseNodesVirusProtectionInfoGetError));
+    }
+
     // --- OkHttp error response parsing tests ---
 
     @SuppressWarnings("unused")

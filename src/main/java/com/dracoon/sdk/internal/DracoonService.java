@@ -11,8 +11,10 @@ import com.dracoon.sdk.internal.model.ApiCreateFolderRequest;
 import com.dracoon.sdk.internal.model.ApiCreateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiCreateRoomRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;
+import com.dracoon.sdk.internal.model.ApiGetNodesVirusProtectionInfoRequest;
 import com.dracoon.sdk.internal.model.ApiNodeComment;
 import com.dracoon.sdk.internal.model.ApiNodeCommentList;
+import com.dracoon.sdk.internal.model.ApiNodeVirusProtectionInfo;
 import com.dracoon.sdk.internal.model.ApiServerClassificationPolicies;
 import com.dracoon.sdk.internal.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;
@@ -240,6 +242,10 @@ public interface DracoonService {
 
     @DELETE(API_PATH + "/nodes/comments/{comment_id}")
     Call<Void> deleteNodeComment(@Path("comment_id") Long commentId);
+
+    @POST(API_PATH + "/nodes/files/generate_verdict_info")
+    Call<List<ApiNodeVirusProtectionInfo>> getNodesVirusProtectionInfo(
+            @Body ApiGetNodesVirusProtectionInfoRequest request);
 
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Body ApiCreateDownloadShareRequest request);

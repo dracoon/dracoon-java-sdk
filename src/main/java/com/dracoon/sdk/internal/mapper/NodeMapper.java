@@ -1,6 +1,7 @@
 package com.dracoon.sdk.internal.mapper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.dracoon.sdk.internal.model.ApiCopyNode;
 import com.dracoon.sdk.internal.model.ApiCopyNodesRequest;
@@ -12,12 +13,15 @@ import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.model.ApiNodeComment;
 import com.dracoon.sdk.internal.model.ApiNodeCommentList;
 import com.dracoon.sdk.internal.model.ApiNodeList;
+import com.dracoon.sdk.internal.model.ApiNodeVirusProtectionInfo;
 import com.dracoon.sdk.internal.model.ApiUpdateNodeCommentRequest;
 import com.dracoon.sdk.internal.model.ApiVirusProtectionInfo;
 import com.dracoon.sdk.model.Classification;
 import com.dracoon.sdk.model.CopyNodesRequest;
 import com.dracoon.sdk.model.CreateNodeCommentRequest;
 import com.dracoon.sdk.model.DeleteNodesRequest;
+import com.dracoon.sdk.model.FileVirusScanInfo;
+import com.dracoon.sdk.model.FileVirusScanInfoList;
 import com.dracoon.sdk.model.MoveNodesRequest;
 import com.dracoon.sdk.model.Node;
 import com.dracoon.sdk.model.NodeComment;
@@ -210,6 +214,39 @@ public class NodeMapper extends BaseMapper {
         }
         virusScanInfo.setLastScannedAt(apiVirusProtectionInfo.lastCheckedAt);
         return virusScanInfo;
+    }
+
+    public static FileVirusScanInfoList fromApiNodeVirusProtectionInfos(
+            List<ApiNodeVirusProtectionInfo> apiNodeVirusProtectionInfos) {
+        if (apiNodeVirusProtectionInfos == null) {
+            return null;
+        }
+
+        FileVirusScanInfoList fileVirusScanInfoList = new FileVirusScanInfoList();
+        ArrayList<FileVirusScanInfo> items = new ArrayList<>();
+        for (ApiNodeVirusProtectionInfo apiNodeVirusProtectionInfo : apiNodeVirusProtectionInfos) {
+            items.add(NodeMapper.fromApiNodeVirusProtectionInfo(apiNodeVirusProtectionInfo));
+        }
+        fileVirusScanInfoList.setItems(items);
+        return fileVirusScanInfoList;
+    }
+
+    private static FileVirusScanInfo fromApiNodeVirusProtectionInfo(
+            ApiNodeVirusProtectionInfo apiNodeVirusProtectionInfo) {
+        if (apiNodeVirusProtectionInfo == null) {
+            return null;
+        }
+
+        FileVirusScanInfo fileVirusScanInfo = new FileVirusScanInfo();
+        fileVirusScanInfo.setNodeId(apiNodeVirusProtectionInfo.nodeId);
+        VirusScanInfo virusScanInfo = new VirusScanInfo();
+        if (apiNodeVirusProtectionInfo.verdict != null) {
+            virusScanInfo.setVerdict(VirusScanInfo.Verdict.getByValue(
+                    apiNodeVirusProtectionInfo.verdict.toLowerCase()));
+        }
+        virusScanInfo.setLastScannedAt(apiNodeVirusProtectionInfo.lastCheckedAt);
+        fileVirusScanInfo.setVirusScanInfo(virusScanInfo);
+        return fileVirusScanInfo;
     }
 
 }
