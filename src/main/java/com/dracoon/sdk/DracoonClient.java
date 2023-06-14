@@ -1045,6 +1045,16 @@ public abstract class DracoonClient {
                 DracoonApiException;
 
         /**
+         * Deletes a malicious file.
+         *
+         * @param nodeId The node ID of the file which should be deleted.
+         *
+         * @throws DracoonNetIOException If a network error occurred.
+         * @throws DracoonApiException   If the API responded with an error.
+         */
+        void deleteMaliciousFile(long nodeId) throws DracoonNetIOException, DracoonApiException;
+
+        /**
          * Builds a media URL. The URL can be used to get a thumbnail or preview image for a node.
          *
          * @param mediaToken The media token for the node.

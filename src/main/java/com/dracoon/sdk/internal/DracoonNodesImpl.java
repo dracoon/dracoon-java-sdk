@@ -1015,6 +1015,24 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNodeVirusProtectionInfos(data);
     }
 
+    @Override
+    public void deleteMaliciousFile(long nodeId) throws DracoonNetIOException, DracoonApiException {
+        mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
+
+        NodeValidator.validateNodeId(nodeId);
+
+        Call<Void> call = mService.deleteMaliciousFile(nodeId);
+        Response<Void> response = mHttpHelper.executeRequest(call);
+
+        if (!response.isSuccessful()) {
+            DracoonApiCode errorCode = mErrorParser.parseMaliciousFileDeleteError(response);
+            String errorText = String.format("Deletion of malicious file '%d' failed with '%s'!",
+                    nodeId, errorCode.name());
+            mLog.d(LOG_TAG, errorText);
+            throw new DracoonApiException(errorCode);
+        }
+    }
+
     // --- Media URL methods ---
 
     @Override

@@ -247,6 +247,9 @@ public interface DracoonService {
     Call<List<ApiNodeVirusProtectionInfo>> getNodesVirusProtectionInfo(
             @Body ApiGetNodesVirusProtectionInfoRequest request);
 
+    @DELETE(API_PATH + "/nodes/malicious_files/{malicious_file_id}")
+    Call<Void> deleteMaliciousFile(@Path("malicious_file_id") Long maliciousFileId);
+
     @POST(API_PATH + "/shares/downloads")
     Call<ApiDownloadShare> createDownloadShare(@Body ApiCreateDownloadShareRequest request);
 

@@ -895,6 +895,28 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseMaliciousFileDeleteError(Response response) {
+        Error error = getError(response);
+
+        switch (HttpStatus.valueOf(error.statusCode)) {
+            case BAD_REQUEST:
+                if (error.errorCode == -41002)
+                    return DracoonApiCode.VALIDATION_NODE_NOT_A_FILE;
+                else
+                    return parseValidationError(error.errorCode);
+            case FORBIDDEN:
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_DELETE_ERROR);
+            case NOT_FOUND:
+                if (error.errorCode == -40000 || error.errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(error.statusCode, error.errorCode);
+        }
+    }
+
     private DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:

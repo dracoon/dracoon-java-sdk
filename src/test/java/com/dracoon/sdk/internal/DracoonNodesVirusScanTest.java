@@ -155,4 +155,44 @@ public class DracoonNodesVirusScanTest extends DracoonRequestHandlerTest {
 
     }
 
+    @Nested
+    class DeleteMaliciousFileTests {
+
+        private final String DATA_PATH = "/nodes/delete_malicious_file/";
+
+        @Test
+        void testRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueResponse(DATA_PATH + "delete_malicious_file_response.json");
+
+            // Execute method to test
+            executeDeleteMaliciousFile();
+
+            // Assert requests are valid
+            checkRequest(DATA_PATH + "delete_malicious_file_request.json");
+        }
+
+        @Test
+        void testError() {
+            // Mock error parsing
+            mockParseError(mDracoonErrorParser::parseMaliciousFileDeleteError,
+                    DracoonApiCode.SERVER_NODE_NOT_FOUND);
+
+            // Enqueue response
+            enqueueResponse(DATA_PATH + "node_not_found_response.json");
+
+            // Execute method to test
+            DracoonApiException thrown = assertThrows(DracoonApiException.class,
+                    this::executeDeleteMaliciousFile);
+
+            // Assert correct error code
+            assertEquals(DracoonApiCode.SERVER_NODE_NOT_FOUND, thrown.getCode());
+        }
+
+        private void executeDeleteMaliciousFile() throws Exception {
+            mDni.deleteMaliciousFile(5L);
+        }
+
+    }
+
 }
