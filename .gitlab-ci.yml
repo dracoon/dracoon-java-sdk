@@ -108,7 +108,7 @@ deploy development:
     - job: sonar
       artifacts: false
   except:
-    - main
+    - tags
   script:
     - mvn -Pdevelopment deploy -DskipTests
 
@@ -120,7 +120,7 @@ deploy release:
     - job: sonar
       artifacts: false
   only:
-    - main
+    - tags
   script:
     - mvn -Prelease deploy -DskipTests
 
@@ -132,7 +132,7 @@ rollout:
     - job: sonar
       artifacts: false
   only:
-    - main
+    - tags
   when: manual
   script:
     - mvn -Prollout deploy -DskipTests -Dgpg.keyname=$SONATYPE_OSSRH_SIGN_KEY_NAME -Dgpg.passphrase=$SONATYPE_OSSRH_SIGN_KEY_PASSPHRASE
