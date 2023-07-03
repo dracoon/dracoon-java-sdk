@@ -76,8 +76,6 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         @BeforeEach
         void baseSetup() throws Exception {
-            // Overwrite API version to allow S3 upload
-            mDracoonClientImpl.setApiVersion(DracoonConstants.API_MIN_S3_DIRECT_UPLOAD);
             // Overwrite S3 default chunk size to smaller chunks
             mDracoonClientImpl.setS3DefaultChunkSize(3 * DracoonConstants.KIB);
             // Do test setup
@@ -97,8 +95,24 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         @Override
         protected void setup() {
+            // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
             mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
+
+            // Enqueue responses
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
+        }
+
+        @Test
+        void testRequestsValid() throws Exception {
+            // Enqueue responses
+            enqueueResponse(mDataPath + "create_upload_response.json");
+
+            // Start upload
+            mUls.start();
+
+            // Assert requests are valid
+            checkRequest(mDataPath + "get_server_settings_request.json");
         }
 
         @Test
@@ -154,12 +168,14 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @Test
         void testRequestsValid() throws Exception {
             // Enqueue responses
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
             enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Start upload
             mUls.start();
 
             // Assert requests are valid
+            dropRequest();
             checkRequest(mDataPath + "create_upload_request.json");
         }
 
@@ -188,7 +204,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             mUls.start();
 
             // Assert requests are valid
-            checkRequest(mDataPath + "get_server_settings_request.json");
+            dropRequest();
             checkRequest(mDataPath + "create_upload_request.json");
         }
 
@@ -213,6 +229,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             mBytes = readBytes();
 
             // Enqueue responses
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
             enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Create and start upload
@@ -222,6 +239,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
             mUls.start();
 
             // Drop irrelevant requests
+            dropRequest();
             dropRequest();
         }
 
@@ -731,6 +749,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         @Override
         protected void setup() throws Exception {
             // Enqueue responses
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
             enqueueResponse(mDataPath + "create_upload_response.json");
 
             // Create and start upload
@@ -1003,6 +1022,15 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
         }
 
         protected final String UPLOAD_ID = "Test";
+
+        @BeforeEach
+        void baseSetup() throws Exception {
+            // Do test setup
+            setup();
+
+            // Enqueue responses
+            enqueueResponse(mDataPath + "get_server_settings_response.json");
+        }
 
         @Override
         public void onStarted(String id) {}
