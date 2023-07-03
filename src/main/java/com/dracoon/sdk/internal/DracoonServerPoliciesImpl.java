@@ -9,7 +9,6 @@ import com.dracoon.sdk.internal.model.ApiServerClassificationPolicies;
 import com.dracoon.sdk.internal.model.ApiServerPasswordPolicies;
 import com.dracoon.sdk.model.ClassificationPolicies;
 import com.dracoon.sdk.model.PasswordPolicies;
-import com.dracoon.sdk.model.ShareClassificationPolicies;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -61,9 +60,6 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
     public ClassificationPolicies getClassificationPolicies() throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();
-        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_CLASSIFICATION_POLICIES)) {
-            return getFallbackClassificationPolicies();
-        }
 
         Call<ApiServerClassificationPolicies> call = mService.getServerClassificationPolicies();
         Response<ApiServerClassificationPolicies> response = mHttpHelper.executeRequest(call);
@@ -79,12 +75,6 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
         ApiServerClassificationPolicies data = response.body();
 
         return ServerMapper.fromApiClassificationPolicies(data);
-    }
-
-    private ClassificationPolicies getFallbackClassificationPolicies() {
-        ClassificationPolicies policies = new ClassificationPolicies();
-        policies.setShareClassificationPolicies(new ShareClassificationPolicies());
-        return policies;
     }
 
 }
