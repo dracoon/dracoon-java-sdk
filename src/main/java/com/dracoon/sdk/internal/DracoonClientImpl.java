@@ -363,13 +363,6 @@ public class DracoonClientImpl extends DracoonClient {
             throw new IllegalArgumentException("Version can't be null.");
         }
 
-        if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            if (version != UserKeyPair.Version.RSA2048) {
-                throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
-            }
-            return;
-        }
-
         List<UserKeyPair.Version> versions = mServerSettings.getAvailableUserKeyPairVersions();
         boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
         if (!apiSupportsVersion) {

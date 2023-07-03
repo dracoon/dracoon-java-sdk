@@ -16,7 +16,6 @@ public abstract class DracoonConstants {
 
     public static final String API_PATH = "/api/v4";
     public static final String API_MIN_VERSION = "4.33.0";
-    public static final String API_MIN_NEW_CRYPTO_ALGOS = "4.24.0";
     public static final String API_MIN_CLASSIFICATION_POLICIES = "4.30.0";
 
     public static final String API_TIME_ZONE = "UTC";

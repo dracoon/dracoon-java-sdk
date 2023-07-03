@@ -27,15 +27,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
     private static final String LOG_TAG = DracoonServerSettingsImpl.class.getSimpleName();
 
     private static final UserKeyPair.Version FALLBACK_USER_KEY_PAIR_VERSION =
-            UserKeyPair.Version.RSA2048;
-
-    private static final UserKeyPairAlgorithm sFallbackUserKeyPairAlgorithm;
-
-    static {
-        sFallbackUserKeyPairAlgorithm = new UserKeyPairAlgorithm();
-        sFallbackUserKeyPairAlgorithm.setVersion(UserKeyPairAlgorithm.Version.RSA2048);
-        sFallbackUserKeyPairAlgorithm.setState(UserKeyPairAlgorithm.State.REQUIRED);
-    }
+            UserKeyPair.Version.RSA4096;
 
     DracoonServerSettingsImpl(DracoonClientImpl client) {
         super(client);
@@ -87,10 +79,6 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
             DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            return Collections.singletonList(sFallbackUserKeyPairAlgorithm);
-        }
-
         List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
 
         List<UserKeyPairAlgorithm> algorithms = new ArrayList<>();
@@ -112,10 +100,6 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
     public List<UserKeyPair.Version> getAvailableUserKeyPairVersions() throws DracoonNetIOException,
             DracoonApiException {
         mClient.assertApiVersionSupported();
-
-        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            return Collections.singletonList(FALLBACK_USER_KEY_PAIR_VERSION);
-        }
 
         List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
 

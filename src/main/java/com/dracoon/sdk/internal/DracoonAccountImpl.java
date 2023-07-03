@@ -148,12 +148,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     private List<UserKeyPair> getUserKeyPairs() throws DracoonNetIOException, DracoonApiException {
         mClient.assertApiVersionSupported();
 
-        List<ApiUserKeyPair> apiUserKeyPairs;
-        if (mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            apiUserKeyPairs = getAllUserKeyPairs();
-        } else {
-            apiUserKeyPairs = getOneUserKeyPair();
-        }
+        List<ApiUserKeyPair> apiUserKeyPairs = getAllUserKeyPairs();
 
         ArrayList<UserKeyPair> userKeyPairs = new ArrayList<>();
         for (ApiUserKeyPair apiUserKeyPair : apiUserKeyPairs) {
@@ -183,25 +178,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
 
         return response.body();
-    }
-
-    private List<ApiUserKeyPair> getOneUserKeyPair() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiUserKeyPair> call = mService.getUserKeyPair(null);
-        Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
-
-        if (existsNoUserKeyPair(response)) {
-            return Collections.emptyList();
-        }
-
-        if (!response.isSuccessful()) {
-            DracoonApiCode errorCode = mErrorParser.parseUserKeyPairsQueryError(response);
-            String errorText = String.format("Query of user key pairs failed with '%s'!",
-                    errorCode.name());
-            mLog.d(LOG_TAG, errorText);
-            throw new DracoonApiException(errorCode);
-        }
-
-        return Collections.singletonList(response.body());
     }
 
     private static boolean existsNoUserKeyPair(Response<?> response) {
