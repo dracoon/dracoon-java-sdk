@@ -36,8 +36,6 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
     @Override
     public ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
@@ -56,8 +54,6 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
 
     @Override
     public ServerDefaults getDefaults() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiServerDefaults> call = mService.getServerDefaults();
         Response<ApiServerDefaults> response = mHttpHelper.executeRequest(call);
 
@@ -77,8 +73,6 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
     @Override
     public List<UserKeyPairAlgorithm> getAvailableUserKeyPairAlgorithms() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
 
         List<UserKeyPairAlgorithm> algorithms = new ArrayList<>();
@@ -99,8 +93,6 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
 
     public List<UserKeyPair.Version> getAvailableUserKeyPairVersions() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
 
         List<UserKeyPair.Version> versions = new ArrayList<>();

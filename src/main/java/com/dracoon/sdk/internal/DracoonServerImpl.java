@@ -46,8 +46,6 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
 
     @Override
     public Date getTime() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiServerTime> call = mService.getServerTime();
         Response<ApiServerTime> response = mHttpHelper.executeRequest(call);
 

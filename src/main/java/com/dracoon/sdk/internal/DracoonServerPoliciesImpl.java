@@ -24,8 +24,6 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
     @Override
     public PasswordPolicies getEncryptionPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         ApiServerPasswordPolicies passwordPolicies = getPasswordPolicies();
         return ServerMapper.fromApiEncryptionPasswordPolicies(
                 passwordPolicies.encryptionPasswordPolicies);
@@ -34,8 +32,6 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
     @Override
     public PasswordPolicies getSharesPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         ApiServerPasswordPolicies passwordPolicies = getPasswordPolicies();
         return ServerMapper.fromApiSharesPasswordPolicies(passwordPolicies.sharesPasswordPolicies);
     }
@@ -59,8 +55,6 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
     @Override
     public ClassificationPolicies getClassificationPolicies() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiServerClassificationPolicies> call = mService.getServerClassificationPolicies();
         Response<ApiServerClassificationPolicies> response = mHttpHelper.executeRequest(call);
 

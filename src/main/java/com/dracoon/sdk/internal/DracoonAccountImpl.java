@@ -52,8 +52,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiUserAccount> accountCall = mService.getUserAccount();
         Response<ApiUserAccount> accountResponse = mHttpHelper.executeRequest(accountCall);
 
@@ -85,8 +83,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiCustomerAccount> call = mService.getCustomerAccount();
         Response<ApiCustomerAccount> response = mHttpHelper.executeRequest(call);
 
@@ -106,8 +102,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     @Override
     public List<UserKeyPairAlgorithm.Version> getUserKeyPairAlgorithmVersions()
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        mClient.assertApiVersionSupported();
-
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
 
         ArrayList<UserKeyPairAlgorithm.Version> versions = new ArrayList<>();
@@ -121,8 +115,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     @Override
     public void setUserKeyPair(UserKeyPairAlgorithm.Version version) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
 
         mClient.assertUserKeyPairVersionSupported(userKeyPairVersion);
@@ -146,8 +138,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     private List<UserKeyPair> getUserKeyPairs() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         List<ApiUserKeyPair> apiUserKeyPairs = getAllUserKeyPairs();
 
         ArrayList<UserKeyPair> userKeyPairs = new ArrayList<>();
@@ -186,7 +176,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private UserKeyPair getUserKeyPair(UserKeyPair.Version userKeyPairVersion)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        mClient.assertApiVersionSupported();
         mClient.assertUserKeyPairVersionSupported(userKeyPairVersion);
 
         Call<ApiUserKeyPair> call = mService.getUserKeyPair(userKeyPairVersion.getValue());
@@ -267,8 +256,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     @Override
     public void deleteUserKeyPair(UserKeyPairAlgorithm.Version version) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
 
         mClient.assertUserKeyPairVersionSupported(userKeyPairVersion);
@@ -341,8 +328,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private void setUserProfileAttributes(ApiUserProfileAttributes profileAttributes)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<Void> call = mService.setUserProfileAttributes(profileAttributes);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
@@ -357,8 +342,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private ApiUserProfileAttributes getUserProfileAttributes() throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiUserProfileAttributes> call = mService.getUserProfileAttributes();
         Response<ApiUserProfileAttributes> response = mHttpHelper.executeRequest(call);
 
@@ -375,8 +358,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private void deleteUserProfileAttribute(String key) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<Void> call = mService.deleteUserProfileAttribute(key);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
@@ -395,8 +376,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public void setUserAvatar(byte[] avatarImage) throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         ValidatorUtils.validateByteArray("Avatar image", avatarImage, false, 1L,
                 5L * (long) DracoonConstants.MIB);
 
@@ -415,8 +394,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public byte[] getUserAvatar() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<ApiUserAvatarInfo> avatarInfoCall = mService.getUserAvatarInfo();
         Response<ApiUserAvatarInfo> avatarInfoResponse = mHttpHelper.executeRequest(avatarInfoCall);
 
@@ -436,8 +413,6 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     @Override
     public void deleteUserAvatar() throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<Void> call = mService.deleteUserAvatar();
         Response<Void> response = mHttpHelper.executeRequest(call);
 
