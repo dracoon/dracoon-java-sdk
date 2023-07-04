@@ -8,7 +8,7 @@ A library to access the Dracoon REST API.
 
 #### Minimum Requirements
 
-Java 8 or newer
+Java 11 or newer
 
 #### Download
 
@@ -43,20 +43,6 @@ Note that you also need to include the following dependencies:
 6. Square OkIo: https://mvnrepository.com/artifact/com.squareup.okio/okio
 7. Square Retrofit: https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
 8. Square Retrofit Gson Converter: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-gson
-
-#### Java JCE Setup
-
-**IMPORTANT FOR JAVA VERSION 8 (<162):**
-
-You need to install the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy
-Files. Otherwise you'll get an exception about key length or an exception when parsing PKCS private
-keys.
-
-The Unlimited Strength Jurisdiction Policy Files can be found here:
-- Java 8: https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
-
-For Java 9 and above, the Unlimited Strength Jurisdiction Policy Files are no longer needed.
-(For more information see: https://stackoverflow.com/questions/1179672)
 
 #### Usage on Android
 

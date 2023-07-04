@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="dracoon-sdk" target="8" />
+      <module name="dracoon-sdk" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
