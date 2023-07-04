@@ -19,7 +19,7 @@ Add this dependency to your pom.xml:
 <dependency>
     <groupId>com.dracoon</groupId>
     <artifactId>dracoon-sdk</artifactId>
-    <version>2.5.5</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@ Add this dependency to your pom.xml:
 
 Add this dependency to your build.gradle:
 ```groovy
-compile 'com.dracoon:dracoon-sdk:2.5.5'
+compile 'com.dracoon:dracoon-sdk:3.0.0'
 ```
 
 ##### JAR import
