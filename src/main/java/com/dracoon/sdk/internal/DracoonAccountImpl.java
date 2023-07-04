@@ -117,7 +117,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             DracoonNetIOException, DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
 
-        mClient.assertUserKeyPairVersionSupported(userKeyPairVersion);
+        mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
 
         String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
         CryptoWrapper crypto = mClient.getCryptoWrapper();
@@ -176,7 +176,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private UserKeyPair getUserKeyPair(UserKeyPair.Version userKeyPairVersion)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        mClient.assertUserKeyPairVersionSupported(userKeyPairVersion);
+        mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
 
         Call<ApiUserKeyPair> call = mService.getUserKeyPair(userKeyPairVersion.getValue());
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
@@ -258,7 +258,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             DracoonNetIOException, DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
 
-        mClient.assertUserKeyPairVersionSupported(userKeyPairVersion);
+        mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
 
         Call<Void> call = mService.deleteUserKeyPair(userKeyPairVersion.getValue());
         Response<Void> response = mHttpHelper.executeRequest(call);
