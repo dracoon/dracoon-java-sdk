@@ -15,7 +15,7 @@ public class VirusScanInfo {
      */
     public enum Verdict {
 
-        NO_SCANNING("no_scanning"),
+        NO_SCANNING("not_scanning"),
         IN_PROGRESS("in_progress"),
         CLEAN("clean"),
         MALICIOUS("malicious");
