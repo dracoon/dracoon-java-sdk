@@ -32,7 +32,7 @@ public class OAuthClient {
     private final String mClientSecret;
 
     private Log mLog = new NullLog();
-    private DracoonHttpConfig mHttpConfig;
+    private DracoonHttpConfig mHttpConfig = new DracoonHttpConfig();
     private OkHttpClient mHttpClient;
 
     private OAuthService mOAuthService;
@@ -50,7 +50,7 @@ public class OAuthClient {
     }
 
     public void setHttpConfig(DracoonHttpConfig httpConfig) {
-        mHttpConfig = httpConfig;
+        mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
     }
 
     // --- Initialization methods ---

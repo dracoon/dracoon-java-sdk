@@ -1332,7 +1332,6 @@ public abstract class DracoonClient {
     public static class Builder {
 
         private final DracoonClientImpl mClient;
-        private DracoonHttpConfig mHttpConfig;
 
         /**
          * Constructs a new builder for a specific Dracoon server.
@@ -1342,7 +1341,6 @@ public abstract class DracoonClient {
         public Builder(URL serverUrl) {
             ValidatorUtils.validateServerURL(serverUrl);
             mClient = new DracoonClientImpl(serverUrl);
-            mHttpConfig = new DracoonHttpConfig();
         }
 
         /**
@@ -1389,16 +1387,16 @@ public abstract class DracoonClient {
          * @return a reference to this object
          */
         public Builder httpConfig(DracoonHttpConfig httpConfig) {
-            mHttpConfig = httpConfig;
+            mClient.setHttpConfig(httpConfig);
             return this;
         }
 
         /**
          * Creates a new {@link DracoonClient} instance with the supplied configuration.<br>
          * <br>
-         * Beside creating a new instance, this methods does some pre-flight checks. It checks if
+         * Beside creating a new instance, this method does some pre-flight checks. It checks if
          * the server API version is supported by the SDK. Furthermore, if authorization data was
-         * provided, new OAuth tokens are retrieved and a authorization check is made. (Afterwards,
+         * provided, new OAuth tokens are retrieved and an authorization check is made. (Afterwards,
          * the current authorization data can be retrieved via {@link DracoonClient#getAuth()}.)
          *
          * @return a new {@link DracoonClient} instance
@@ -1407,8 +1405,9 @@ public abstract class DracoonClient {
          * @throws DracoonApiException   If the API responded with an error.
          */
         public DracoonClient build() throws DracoonNetIOException, DracoonApiException {
-            mClient.setHttpConfig(mHttpConfig);
             mClient.init();
+            mClient.checkApiVersionSupported();
+            mClient.retrieveAuthTokens();
             return mClient;
         }
 

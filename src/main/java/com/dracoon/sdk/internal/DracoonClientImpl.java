@@ -126,7 +126,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     protected Log mLog = new NullLog();
 
-    private DracoonHttpConfig mHttpConfig;
+    private DracoonHttpConfig mHttpConfig = new DracoonHttpConfig();
     private OkHttpClient mHttpClient;
     protected HttpHelper mHttpHelper;
 
@@ -195,7 +195,7 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public void setHttpConfig(DracoonHttpConfig httpConfig) {
-        mHttpConfig = httpConfig;
+        mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
     }
 
     public OkHttpClient getHttpClient() {
@@ -232,7 +232,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     // --- Initialization methods ---
 
-    public void init() throws DracoonNetIOException, DracoonApiException {
+    public void init() {
         initOAuthClient();
 
         initHttpClient();
@@ -255,10 +255,6 @@ public class DracoonClientImpl extends DracoonClient {
         mFileKeyFetcher = new FileKeyFetcher(this);
         mFileKeyGenerator = new FileKeyGenerator(this);
         mAvatarDownloader = new AvatarDownloader(this);
-
-        assertApiVersionSupported();
-
-        retrieveAuthTokens();
     }
 
     protected void initOAuthClient() {
@@ -347,7 +343,7 @@ public class DracoonClientImpl extends DracoonClient {
         mDracoonErrorParser.setLog(mLog);
     }
 
-    public void assertApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
+    public void checkApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
         if (mApiVersion != null) {
             return;
         }
@@ -357,17 +353,10 @@ public class DracoonClientImpl extends DracoonClient {
         }
     }
 
-    public void assertUserKeyPairVersionSupported(UserKeyPair.Version version)
+    public void checkUserKeyPairVersionSupported(UserKeyPair.Version version)
             throws DracoonNetIOException, DracoonApiException {
         if (version == null) {
             throw new IllegalArgumentException("Version can't be null.");
-        }
-
-        if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS)) {
-            if (version != UserKeyPair.Version.RSA2048) {
-                throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
-            }
-            return;
         }
 
         List<UserKeyPair.Version> versions = mServerSettings.getAvailableUserKeyPairVersions();
@@ -411,7 +400,7 @@ public class DracoonClientImpl extends DracoonClient {
         return true;
     }
 
-    private void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
+    public void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
         if (mAuth == null || !mAuth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
             return;
         }

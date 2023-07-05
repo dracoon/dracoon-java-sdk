@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/dracoon/dracoon-java-sdk.svg?branch=master)](https://travis-ci.org/dracoon/)
+[![Build Status](https://travis-ci.com/dracoon/dracoon-java-sdk.svg?branch=main)](https://travis-ci.org/dracoon/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.dracoon/dracoon-sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.dracoon/dracoon-sdk)
 # Dracoon Java SDK
 
@@ -8,7 +8,7 @@ A library to access the Dracoon REST API.
 
 #### Minimum Requirements
 
-Java 8 or newer
+Java 11 or newer
 
 #### Download
 
@@ -19,7 +19,7 @@ Add this dependency to your pom.xml:
 <dependency>
     <groupId>com.dracoon</groupId>
     <artifactId>dracoon-sdk</artifactId>
-    <version>2.5.5</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@ Add this dependency to your pom.xml:
 
 Add this dependency to your build.gradle:
 ```groovy
-compile 'com.dracoon:dracoon-sdk:2.5.5'
+compile 'com.dracoon:dracoon-sdk:3.0.0'
 ```
 
 ##### JAR import
@@ -43,20 +43,6 @@ Note that you also need to include the following dependencies:
 6. Square OkIo: https://mvnrepository.com/artifact/com.squareup.okio/okio
 7. Square Retrofit: https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
 8. Square Retrofit Gson Converter: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-gson
-
-#### Java JCE Setup
-
-**IMPORTANT FOR JAVA VERSION 8 (<162):**
-
-You need to install the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy
-Files. Otherwise you'll get an exception about key length or an exception when parsing PKCS private
-keys.
-
-The Unlimited Strength Jurisdiction Policy Files can be found here:
-- Java 8: https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
-
-For Java 9 and above, the Unlimited Strength Jurisdiction Policy Files are no longer needed.
-(For more information see: https://stackoverflow.com/questions/1179672)
 
 #### Usage on Android
 

@@ -7,7 +7,7 @@
 
     <groupId>com.dracoon</groupId>
     <artifactId>dracoon-sdk</artifactId>
-    <version>2.5.5</version>
+    <version>3.0.0</version>
 
     <name>Dracoon SDK</name>
     <description>The Dracoon SDK for Java.</description>
@@ -42,26 +42,25 @@
 
     <properties>
         <!-- general -->
-        <java-version>8</java-version>
+        <java-version>11</java-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.timestamp>${maven.build.timestamp}</project.build.timestamp>
 
         <!-- plugin versions -->
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+        <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
         <maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
-        <maven-dependency-check-plugin.version>7.1.1</maven-dependency-check-plugin.version>
+        <maven-dependency-check-plugin.version>7.4.4</maven-dependency-check-plugin.version>
         <maven-sonar-plugin.version>3.9.1.2184</maven-sonar-plugin.version>
-        <maven-deploy-plugin.version>3.0.0-M2</maven-deploy-plugin.version>
+        <maven-deploy-plugin.version>3.1.0</maven-deploy-plugin.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-        <maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
+        <maven-nexus-staging-plugin.version>1.6.13</maven-nexus-staging-plugin.version>
 
         <!-- dependencies versions -->
         <dracoon-crypto-sdk.version>2.0.3</dracoon-crypto-sdk.version>
         <gson.version>2.9.0</gson.version>
-        <kotlin-stdlib.version>1.7.10</kotlin-stdlib.version>
         <okhttp.version>4.10.0</okhttp.version>
         <retrofit.version>2.9.0</retrofit.version>
 
@@ -80,8 +79,10 @@
         <sonar.branch.name>unknown</sonar.branch.name> <!-- Overwritten by GitLab pipeline -->
         <sonar.sources>src/main/java/</sonar.sources>
         <sonar.tests>src/test/java/</sonar.tests>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dependencyCheck.htmlReportPath>target/dependency-check-reports/dependency-check-report.html</sonar.dependencyCheck.htmlReportPath>
         <sonar.dependencyCheck.jsonReportPath>target/dependency-check-reports/dependency-check-report.json</sonar.dependencyCheck.jsonReportPath>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
 
     <dependencies>
@@ -94,11 +95,6 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-            <version>${kotlin-stdlib.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -278,6 +274,8 @@
                         <format>HTML</format>
                         <format>JSON</format>
                     </formats>
+                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                    <suppressionFile>dependency-check-suppressions.xml</suppressionFile>
                 </configuration>
             </plugin>
             <plugin>

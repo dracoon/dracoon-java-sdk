@@ -18,8 +18,6 @@ public class DracoonUsersImpl extends DracoonRequestHandler implements DracoonCl
     @Override
     public byte[] getUserAvatar(long userId, UUID avatarUuid) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         UserValidator.validateUserId(userId);
         UserValidator.validateAvatarUuid(avatarUuid);
 

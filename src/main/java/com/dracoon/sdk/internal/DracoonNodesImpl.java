@@ -128,8 +128,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private NodeList getNodesInternally(long parentNodeId, Filters filters, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateParentNodeId(parentNodeId);
         BaseValidator.validateRange(offset, limit, true);
 
@@ -152,8 +150,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public Node getNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateNodeId(nodeId);
 
         Call<ApiNode> call = mService.getNode(nodeId);
@@ -174,8 +170,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public Node getNode(String nodePath) throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateNodePath(nodePath);
 
         int slashPos = nodePath.lastIndexOf('/');
@@ -211,8 +205,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node createRoom(CreateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         RoomValidator.validateCreateRequest(request);
 
         ApiCreateRoomRequest apiRequest = RoomMapper.toApiCreateRoomRequest(request);
@@ -235,8 +227,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         RoomValidator.validateUpdateRequest(request);
 
         ApiUpdateRoomRequest apiRequest = RoomMapper.toApiUpdateRoomRequest(request);
@@ -259,8 +249,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateRoomConfig(UpdateRoomConfigRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         RoomValidator.validateUpdateConfigRequest(request);
 
         ApiUpdateRoomConfigRequest apiRequest = RoomMapper.toApiUpdateRoomConfigRequest(request);
@@ -285,8 +273,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node createFolder(CreateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         FolderValidator.validateCreateRequest(request);
 
         ApiCreateFolderRequest apiRequest = FolderMapper.toApiCreateFolderRequest(request);
@@ -309,8 +295,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateFolder(UpdateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         FolderValidator.validateUpdateRequest(request);
 
         ApiUpdateFolderRequest apiRequest = FolderMapper.toApiUpdateFolderRequest(request);
@@ -335,8 +319,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node updateFile(UpdateFileRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateUpdateRequest(request);
 
         ApiUpdateFileRequest apiRequest = FileMapper.toApiUpdateFileRequest(request);
@@ -361,8 +343,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void deleteNodes(DeleteNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateDeleteRequest(request);
 
         ApiDeleteNodesRequest apiRequest = NodeMapper.toApiDeleteNodesRequest(request);
@@ -380,8 +360,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public void deleteNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateNodeId(nodeId);
 
         Call<Void> call = mService.deleteNode(nodeId);
@@ -399,8 +377,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node copyNodes(CopyNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateCopyRequest(request);
 
         ApiCopyNodesRequest apiRequest = NodeMapper.toApiCopyNodesRequest(request);
@@ -424,8 +400,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public Node moveNodes(MoveNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateMoveRequest(request);
 
         ApiMoveNodesRequest apiRequest = NodeMapper.toApiMoveNodesRequest(request);
@@ -452,8 +426,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public Node uploadFile(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = mClient.getFileStreamHelper().getFileInputStream(file);
@@ -466,8 +438,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public Node uploadFile(String id, FileUploadRequest request, InputStream is, long length,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateUploadRequest(id, request, is);
 
         return uploadFileInternally(id, request, is, length, false, callback);
@@ -497,8 +467,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startUploadFileAsync(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateUploadRequest(id, request, file);
 
         InputStream is = mClient.getFileStreamHelper().getFileInputStream(file);
@@ -511,8 +479,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startUploadFileAsync(String id, FileUploadRequest request, InputStream is,
             long length, FileUploadCallback callback) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateUploadRequest(id, request, is);
 
         startUploadFileAsyncInternally(id, request, is, length, false, callback);
@@ -582,8 +548,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public FileUploadStream createFileUploadStream(String id, FileUploadRequest request, long length,
             FileUploadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateUploadRequest(request);
 
         UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
@@ -629,8 +593,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void downloadFile(String id, long nodeId, File file, FileDownloadCallback callback)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateDownloadRequest(id, file);
 
         OutputStream os = mClient.getFileStreamHelper().getFileOutputStream(file);
@@ -642,8 +604,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void downloadFile(String id, long nodeId, OutputStream os, FileDownloadCallback callback)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateDownloadRequest(id, os);
 
         downloadFileInternally(id, nodeId, os, false, callback);
@@ -670,8 +630,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startDownloadFileAsync(String id, long nodeId, File file,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException, DracoonFileIOException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateDownloadRequest(id, file);
 
         OutputStream os = mClient.getFileStreamHelper().getFileOutputStream(file);
@@ -683,8 +641,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public void startDownloadFileAsync(String id, long nodeId, OutputStream os,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
-        mClient.assertApiVersionSupported();
-
         FileValidator.validateDownloadRequest(id, os);
 
         startDownloadFileAsyncInternally(id, nodeId, os, false, callback);
@@ -754,8 +710,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     public FileDownloadStream createFileDownloadStream(String id, long nodeId,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
-        mClient.assertApiVersionSupported();
-
         PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
         // SONAR: No try-with-resources or close is needed here
@@ -805,8 +759,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     private NodeList searchNodesInternally(long parentNodeId, String searchString,
             SearchNodesFilters filters, Long offset, Long limit) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateSearchRequest(parentNodeId, searchString);
         BaseValidator.validateRange(offset, limit, true);
 
@@ -845,7 +797,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private boolean generateMissingFileKeysInternally(Long nodeId, Integer limit)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        mClient.assertApiVersionSupported();
         return mClient.getFileKeyGenerator().generateMissingFileKeys(nodeId, limit);
     }
 
@@ -853,8 +804,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public void markFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateNodeId(nodeId);
 
         Call<Void> call = mService.markFavorite(nodeId);
@@ -873,8 +822,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     @Override
     public void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateNodeId(nodeId);
 
         Call<Void> call = mService.unmarkFavorite(nodeId);
@@ -931,8 +878,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     private NodeCommentList getNodeCommentsInternally(long nodeId, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateNodeId(nodeId);
         BaseValidator.validateRange(offset, limit, true);
 
@@ -954,8 +899,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public NodeComment createNodeComment(CreateNodeCommentRequest request)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateCreateCommentRequest(request);
 
         ApiCreateNodeCommentRequest apiRequest = NodeMapper.toApiCreateNodeCommentRequest(request);
@@ -978,8 +921,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public NodeComment updateNodeComment(UpdateNodeCommentRequest request)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         NodeValidator.validateUpdateCommentRequest(request);
 
         ApiUpdateNodeCommentRequest apiRequest = NodeMapper.toApiUpdateNodeCommentRequest(request);
@@ -1002,8 +943,6 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
     @Override
     public void deleteNodeComment(long commentId)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         BaseValidator.validateCommentId(commentId);
 
         Call<Void> call = mService.deleteNodeComment(commentId);

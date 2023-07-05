@@ -15,12 +15,7 @@ public abstract class DracoonConstants {
     public static final long DAY = 24 * HOUR;
 
     public static final String API_PATH = "/api/v4";
-    public static final String API_MIN_VERSION = "4.12.0";
-    // SONAR: This is not a hard-coded credential
-    public static final String API_MIN_PASSWORD_POLICIES = "4.13.0"; // NOSONAR
-    public static final String API_MIN_S3_DIRECT_UPLOAD = "4.15.0";
-    public static final String API_MIN_NEW_CRYPTO_ALGOS = "4.24.0";
-    public static final String API_MIN_CLASSIFICATION_POLICIES = "4.30.0";
+    public static final String API_MIN_VERSION = "4.33.0";
 
     public static final String API_TIME_ZONE = "UTC";
     public static final String API_DATE_FORMAT = "yyyy-MM-dd";

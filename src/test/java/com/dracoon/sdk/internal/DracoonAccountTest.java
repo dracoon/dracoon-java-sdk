@@ -238,39 +238,18 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         @Test
         void testRequestsValid() throws Exception {
-            executeTestRequestsValid("get_key_pair_request.json", "get_key_pair_response.json");
-        }
-
-        @Test
-        void testRequestsValidNewCrypto() throws Exception {
-            setApiVersionNewCryptoAlgos();
-            executeTestRequestsValid("get_key_pairs_request.json", "get_key_pairs_response.json");
-        }
-
-        private void executeTestRequestsValid(String requestFilename, String responseFilename)
-                throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + responseFilename);
+            enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
             mDai.getUserKeyPairAlgorithmVersions();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + requestFilename);
+            checkRequest(DATA_PATH + "get_key_pairs_request.json");
         }
 
         @Test
         void testNoDataCorrect() throws Exception {
-            executeTestNoDataCorrect();
-        }
-
-        @Test
-        void testNoDataCorrectNewCrypto() throws Exception {
-            setApiVersionNewCryptoAlgos();
-            executeTestNoDataCorrect();
-        }
-
-        private void executeTestNoDataCorrect() throws Exception {
             // Enqueue response
             enqueueResponse(DATA_PATH + "not_found_response.json");
 
@@ -283,41 +262,20 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         @Test
         void testDataCorrect() throws Exception {
-            executeTestDataCorrect("get_key_pair_response.json", "user_key_pair_algo_version.json");
-        }
-
-        @Test
-        void testDataCorrectNewCrypto() throws Exception {
-            setApiVersionNewCryptoAlgos();
-            executeTestDataCorrect("get_key_pairs_response.json", "user_key_pair_algo_versions.json");
-        }
-
-        private void executeTestDataCorrect(String responseFilename, String dataFilename)
-                throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + responseFilename);
+            enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
             List<UserKeyPairAlgorithm.Version> versions = mDai.getUserKeyPairAlgorithmVersions();
 
             // Assert data is correct
             List<UserKeyPairAlgorithm.Version> expectedVersions = readData(List.class, DATA_PATH +
-                    dataFilename);
+                    "user_key_pair_algo_versions.json");
             assertDeepEquals(expectedVersions, versions);
         }
 
         @Test
         void testError() {
-            executeTestError();
-        }
-
-        @Test
-        void testErrorNewCrypto() {
-            setApiVersionNewCryptoAlgos();
-            executeTestError();
-        }
-
-        private void executeTestError() {
             // Mock error parsing
             DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
             mockParseError(mDracoonErrorParser::parseUserKeyPairsQueryError, expectedCode);
@@ -344,8 +302,15 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         private final String DATA_PATH = "/account/user_key_pair/";
 
+        @Mock
+        protected DracoonServerSettingsImpl mServerSettingsImpl;
+
         @BeforeEach
-        void setup() {
+        void setup() throws Exception {
+            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+
+            mockGetAvailableUserKeyPairVersions();
+
             mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
         }
 
@@ -422,6 +387,12 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             enqueueResponse(DATA_PATH + "precondition_failed_response.json");
         }
 
+        private void mockGetAvailableUserKeyPairVersions()
+                throws Exception {
+            when(mServerSettingsImpl.getAvailableUserKeyPairVersions())
+                    .thenReturn(Collections.singletonList(UserKeyPair.Version.RSA2048));
+        }
+
     }
 
     // --- Get preferred user key pair tests ---
@@ -431,91 +402,44 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         private final String DATA_PATH = "/account/user_key_pair/";
 
-        private final List<UserKeyPairAlgorithm> keyPairAlgorithms;
-        private final List<UserKeyPairAlgorithm> keyPairAlgorithmsNewCrypto;
-
         @Mock
         protected DracoonServerSettingsImpl mServerSettingsImpl;
 
-        GetPreferredUserKeyPairTests() {
-            keyPairAlgorithms = Arrays.asList(
-                    createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA2048));
-
-            keyPairAlgorithmsNewCrypto = Arrays.asList(
-                    createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA4096),
-                    createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA2048));
-        }
-
         @BeforeEach
-        void setup() {
+        void setup() throws Exception {
             mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+
+            mockGetAvailableUserKeyPairAlgorithms();
         }
 
         @Test
         void testRequestsValid() throws Exception {
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithms);
-            executeTestRequestsValid("get_key_pair_request.json", "get_key_pair_response.json");
-        }
-
-        @Test
-        void testRequestsValidNewCrypto() throws Exception {
-            setApiVersionNewCryptoAlgos();
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithmsNewCrypto);
-            executeTestRequestsValid("get_key_pairs_request.json", "get_key_pairs_response.json");
-        }
-
-        private void executeTestRequestsValid(String requestFilename, String responseFilename)
-                throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + responseFilename);
+            enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
             mDai.getPreferredUserKeyPair();
 
             // Assert requests are valid
-            checkRequest(DATA_PATH + requestFilename);
+            checkRequest(DATA_PATH + "get_key_pairs_request.json");
         }
 
         @Test
         void testDataCorrect() throws Exception {
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithms);
-            executeTestDataCorrect("get_key_pair_response.json", "user_key_pair_2048.json");
-        }
-
-        @Test
-        void testDataCorrectNewCrypto() throws Exception {
-            setApiVersionNewCryptoAlgos();
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithmsNewCrypto);
-            executeTestDataCorrect("get_key_pairs_response.json", "user_key_pair_4096.json");
-        }
-
-        private void executeTestDataCorrect(String requestFilename, String dataFilename)
-                throws Exception {
             // Enqueue responses
-            enqueueResponse(DATA_PATH + requestFilename);
+            enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
             UserKeyPair userKeyPair = mDai.getPreferredUserKeyPair();
 
             // Assert data is correct
-            UserKeyPair expectedUserKeyPair = readData(UserKeyPair.class, DATA_PATH + dataFilename);
+            UserKeyPair expectedUserKeyPair = readData(UserKeyPair.class, DATA_PATH +
+                    "user_key_pair_4096.json");
             assertDeepEquals(expectedUserKeyPair, userKeyPair);
         }
 
         @Test
-        void testError() throws Exception {
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithms);
-            executeTestError();
-        }
-
-        @Test
-        void testErrorNewCrypto() throws Exception {
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithms);
-            setApiVersionNewCryptoAlgos();
-            executeTestError();
-        }
-
-        private void executeTestError() {
+        void testError() {
             // Mock error parsing
             DracoonApiCode expectedCode = DracoonApiCode.PRECONDITION_UNKNOWN_ERROR;
             mockParseError(mDracoonErrorParser::parseUserKeyPairsQueryError, expectedCode);
@@ -532,19 +456,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         }
 
         @Test
-        void testErrorUserHasNoKeyPair() throws Exception {
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithms);
-            executeTestErrorUserHasNoKeyPair();
-        }
-
-        @Test
-        void testErrorUserHasNoKeyPairNewCrypto() throws Exception {
-            setApiVersionNewCryptoAlgos();
-            mockGetAvailableUserKeyPairAlgorithms(keyPairAlgorithmsNewCrypto);
-            executeTestErrorUserHasNoKeyPair();
-        }
-
-        private void executeTestErrorUserHasNoKeyPair() {
+        void testErrorUserHasNoKeyPair() {
             // Enqueue response
             enqueueResponse(DATA_PATH + "not_found_response.json");
 
@@ -556,9 +468,12 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             assertEquals(DracoonApiCode.SERVER_USER_KEY_PAIR_NOT_FOUND, thrown.getCode());
         }
 
-        private void mockGetAvailableUserKeyPairAlgorithms(List<UserKeyPairAlgorithm> algorithms)
+        private void mockGetAvailableUserKeyPairAlgorithms()
                 throws Exception {
-            when(mServerSettingsImpl.getAvailableUserKeyPairAlgorithms()).thenReturn(algorithms);
+            when(mServerSettingsImpl.getAvailableUserKeyPairAlgorithms())
+                    .thenReturn(Arrays.asList(
+                            createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA4096),
+                            createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA2048)));
         }
 
     }
@@ -574,7 +489,6 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         @BeforeEach
         void setup() {
-            setApiVersionNewCryptoAlgos();
             mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
         }
 
@@ -725,7 +639,6 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
             mockGetAvailableUserKeyPairVersions();
 
-            setApiVersionNewCryptoAlgos();
             mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
         }
 
@@ -926,6 +839,16 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         private final String DATA_PATH = "/account/user_key_pair/";
 
+        @Mock
+        protected DracoonServerSettingsImpl mServerSettingsImpl;
+
+        @BeforeEach
+        void setup() throws Exception {
+            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+
+            mockGetAvailableUserKeyPairVersions();
+        }
+
         @Test
         void testRequestsValid() throws Exception {
             // Enqueue responses
@@ -953,6 +876,12 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
+        }
+
+        private void mockGetAvailableUserKeyPairVersions()
+                throws Exception {
+            when(mServerSettingsImpl.getAvailableUserKeyPairVersions())
+                    .thenReturn(Collections.singletonList(UserKeyPair.Version.RSA2048));
         }
 
     }
@@ -1280,10 +1209,6 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
     }
 
     // --- Helper methods ---
-
-    private void setApiVersionNewCryptoAlgos() {
-        mDracoonClientImpl.setApiVersion(DracoonConstants.API_MIN_NEW_CRYPTO_ALGOS);
-    }
 
     private UserKeyPairAlgorithm createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version version) {
         UserKeyPairAlgorithm algorithm = new UserKeyPairAlgorithm();

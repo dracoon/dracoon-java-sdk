@@ -314,10 +314,6 @@ public class UploadStream extends FileUploadStream {
     }
 
     private boolean checkIsS3Upload() throws DracoonNetIOException, DracoonApiException {
-        if (!mClient.isApiVersionGreaterEqual(DracoonConstants.API_MIN_S3_DIRECT_UPLOAD)) {
-            return false;
-        }
-
         Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 

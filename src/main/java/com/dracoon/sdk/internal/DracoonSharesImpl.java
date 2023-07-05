@@ -40,8 +40,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     @Override
     public DownloadShare createDownloadShare(CreateDownloadShareRequest request)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        mClient.assertApiVersionSupported();
-
         long nodeId = request.getNodeId();
 
         PlainFileKey plainFileKey = mClient.getFileKeyFetcher().getPlainFileKey(nodeId);
@@ -107,8 +105,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
     private DownloadShareList getDownloadSharesInternally(Filters filters, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
@@ -130,8 +126,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     @Override
     public byte[] getDownloadShareQrCode(long shareId) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         BaseValidator.validateShareId(shareId);
 
         Call<ApiDownloadShare> call = mService.getDownloadShareQR(shareId);
@@ -151,8 +145,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     @Override
     public void deleteDownloadShare(long shareId) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<Void> call = mService.deleteDownloadShare(shareId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
@@ -168,8 +160,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     @Override
     public UploadShare createUploadShare(CreateUploadShareRequest request)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         ShareValidator.validateCreateUploadRequest(request);
 
         ApiCreateUploadShareRequest apiRequest = ShareMapper.toApiCreateUploadShareRequest(request);
@@ -214,8 +204,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
     private UploadShareList getUploadSharesInternally(Filters filters, Long offset, Long limit)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
@@ -237,8 +225,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
     @Override
     public byte[] getUploadShareQrCode(long shareId) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         BaseValidator.validateShareId(shareId);
 
         Call<ApiUploadShare> call = mService.getUploadShareQR(shareId);
@@ -257,8 +243,6 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
     @Override
     public void deleteUploadShare(long shareId) throws DracoonNetIOException, DracoonApiException {
-        mClient.assertApiVersionSupported();
-
         Call<Void> call = mService.deleteUploadShare(shareId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
