@@ -137,10 +137,8 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(error.statusCode)) {
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_READ_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_READ_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
@@ -163,10 +161,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_CREATE_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_CREATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_ROOM_NOT_FOUND;
@@ -193,10 +189,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_UPDATE_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_UPDATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_ROOM_NOT_FOUND;
@@ -219,10 +213,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_CREATE_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_CREATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
@@ -245,10 +237,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_UPDATE_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_UPDATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_FOLDER_NOT_FOUND;
@@ -277,10 +267,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_UPDATE_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_UPDATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40751)
                     return DracoonApiCode.SERVER_FILE_NOT_FOUND;
@@ -298,10 +286,8 @@ public class DracoonErrorParser {
 
         switch (HttpStatus.valueOf(error.statusCode)) {
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_DELETE_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_DELETE_ERROR);
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_NODE_NOT_FOUND;
             default:
@@ -331,10 +317,13 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
+                if (error.errorCode == -40764)
+                    return DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS;
+                else if (error.errorCode == -40765)
+                    return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
                 else
-                    return DracoonApiCode.PERMISSION_CREATE_ERROR;
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_CREATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40014)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
@@ -380,10 +369,13 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
+                if (error.errorCode == -40764)
+                    return DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS;
+                else if (error.errorCode == -40765)
+                    return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
                 else
-                    return DracoonApiCode.PERMISSION_UPDATE_ERROR;
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_UPDATE_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40014)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
@@ -423,10 +415,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_CREATE_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_CREATE_ERROR);
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND;
             case GATEWAY_TIMEOUT:
@@ -457,7 +447,8 @@ public class DracoonErrorParser {
                 if (avHeader != null && avHeader.equals("403"))
                     return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
                 else
-                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -20501)
                     return DracoonApiCode.SERVER_UPLOAD_NOT_FOUND;
@@ -582,6 +573,14 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
+            case FORBIDDEN:
+                if (error.errorCode == -40764)
+                    return DracoonApiCode.SERVER_VIRUS_SCAN_IN_PROGRESS;
+                else if (error.errorCode == -40765)
+                    return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
+                else
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
             default:
@@ -612,10 +611,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_MANAGE_DL_SHARES_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_MANAGE_DL_SHARES_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
@@ -640,6 +637,9 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
+            case FORBIDDEN:
+                return parsePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_MANAGE_DL_SHARES_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
@@ -674,10 +674,8 @@ public class DracoonErrorParser {
                 else
                     return parseValidationError(error.errorCode);
             case FORBIDDEN:
-                if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_MANAGE_UL_SHARES_ERROR;
+                return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_MANAGE_UL_SHARES_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
@@ -704,6 +702,9 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
+            case FORBIDDEN:
+                return parsePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_MANAGE_DL_SHARES_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_NODE_NOT_FOUND;
@@ -720,6 +721,9 @@ public class DracoonErrorParser {
         Error error = getError(response);
 
         switch (HttpStatus.valueOf(error.statusCode)) {
+            case FORBIDDEN:
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40751)
                     return DracoonApiCode.SERVER_FILE_NOT_FOUND;
@@ -741,6 +745,9 @@ public class DracoonErrorParser {
                     return DracoonApiCode.VALIDATION_ROOM_NOT_ENCRYPTED;
                 else
                     return parseValidationError(error.errorCode);
+            case FORBIDDEN:
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40000 || error.errorCode == -41000)
                     return DracoonApiCode.SERVER_ROOM_NOT_FOUND;
@@ -767,10 +774,9 @@ public class DracoonErrorParser {
             case FORBIDDEN:
                 if (error.errorCode == -40761)
                     return DracoonApiCode.VALIDATION_USER_HAS_NO_FILE_KEY;
-                else if (error.errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
                 else
-                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+                    return parseNodePermissionError(error.errorCode,
+                            DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
             case NOT_FOUND:
                 if (error.errorCode == -40751)
                     return DracoonApiCode.SERVER_FILE_NOT_FOUND;
@@ -870,6 +876,47 @@ public class DracoonErrorParser {
         }
     }
 
+    public DracoonApiCode parseNodesVirusProtectionInfoGetError(Response response) {
+        Error error = getError(response);
+
+        switch (HttpStatus.valueOf(error.statusCode)) {
+            case BAD_REQUEST:
+                if (error.errorCode == -41002)
+                    return DracoonApiCode.VALIDATION_NODE_NOT_A_FILE;
+                else
+                    return parseValidationError(error.errorCode);
+            case NOT_FOUND:
+                if (error.errorCode == -40000 || error.errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(error.statusCode, error.errorCode);
+        }
+    }
+
+    public DracoonApiCode parseMaliciousFileDeleteError(Response response) {
+        Error error = getError(response);
+
+        switch (HttpStatus.valueOf(error.statusCode)) {
+            case BAD_REQUEST:
+                if (error.errorCode == -41002)
+                    return DracoonApiCode.VALIDATION_NODE_NOT_A_FILE;
+                else
+                    return parseValidationError(error.errorCode);
+            case FORBIDDEN:
+                return parseNodePermissionError(error.errorCode,
+                        DracoonApiCode.PERMISSION_DELETE_ERROR);
+            case NOT_FOUND:
+                if (error.errorCode == -40000 || error.errorCode == -41000)
+                    return DracoonApiCode.SERVER_NODE_NOT_FOUND;
+                else
+                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+            default:
+                return parseStandardError(error.statusCode, error.errorCode);
+        }
+    }
+
     private DracoonApiCode parseStandardError(int statusCode, int errorCode) {
         switch (HttpStatus.valueOf(statusCode)) {
             case BAD_REQUEST:
@@ -882,16 +929,7 @@ public class DracoonErrorParser {
             case PAYMENT_REQUIRED:
                 return DracoonApiCode.PRECONDITION_PAYMENT_REQUIRED;
             case FORBIDDEN:
-                if (errorCode == -10003 || errorCode == -10007)
-                    return DracoonApiCode.AUTH_USER_LOCKED;
-                else if (errorCode == -10004)
-                    return DracoonApiCode.AUTH_USER_EXPIRED;
-                else if (errorCode == -10005)
-                    return DracoonApiCode.AUTH_USER_TEMPORARY_LOCKED;
-                else if (errorCode == -70020)
-                    return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
-                else
-                    return DracoonApiCode.PERMISSION_UNKNOWN_ERROR;
+                return parsePermissionError(errorCode, DracoonApiCode.PERMISSION_UNKNOWN_ERROR);
             case PRECONDITION_FAILED:
                 if (errorCode == -10103)
                     return DracoonApiCode.PRECONDITION_MUST_ACCEPT_EULA;
@@ -929,6 +967,24 @@ public class DracoonErrorParser {
             return DracoonApiCode.VALIDATION_FIELD_NOT_BETWEEN_0_10;
         else
             return DracoonApiCode.VALIDATION_UNKNOWN_ERROR;
+    }
+
+    private DracoonApiCode parseNodePermissionError(int errorCode, DracoonApiCode defaultResult) {
+        if (errorCode == -70020)
+            return DracoonApiCode.VALIDATION_USER_HAS_NO_KEY_PAIR;
+        else
+            return parsePermissionError(errorCode, defaultResult);
+    }
+
+    private DracoonApiCode parsePermissionError(int errorCode, DracoonApiCode defaultResult) {
+        if (errorCode == -10003 || errorCode == -10007)
+            return DracoonApiCode.AUTH_USER_LOCKED;
+        else if (errorCode == -10004)
+            return DracoonApiCode.AUTH_USER_EXPIRED;
+        else if (errorCode == -10005)
+            return DracoonApiCode.AUTH_USER_TEMPORARY_LOCKED;
+        else
+            return defaultResult;
     }
 
     private Error getError(Response response) {
@@ -1011,7 +1067,7 @@ public class DracoonErrorParser {
                 if (avHeader != null && avHeader.equals("403"))
                     return DracoonApiCode.SERVER_MALICIOUS_FILE_DETECTED;
                 else
-                    return DracoonApiCode.SERVER_UNKNOWN_ERROR;
+                    return DracoonApiCode.PERMISSION_UNKNOWN_ERROR;
             case NOT_FOUND:
                 return DracoonApiCode.SERVER_FILE_NOT_FOUND;
             case MALICIOUS_FILE_DETECTED:

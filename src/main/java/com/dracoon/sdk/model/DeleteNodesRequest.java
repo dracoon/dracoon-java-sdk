@@ -17,7 +17,7 @@ public class DeleteNodesRequest {
     }
 
     /**
-     * Returns node IDs of nodes which should be deleted.
+     * Returns IDs of nodes which should be deleted.
      *
      * @return The node IDs.
      */
@@ -38,7 +38,7 @@ public class DeleteNodesRequest {
         /**
          * Constructs a new builder.
          *
-         * @param ids The node IDs of the nodes which should be deleted.
+         * @param ids The IDs of nodes which should be deleted.
          */
         public Builder(List<Long> ids) {
             mRequest = new DeleteNodesRequest();
