@@ -11,6 +11,7 @@ public enum DracoonApiCode {
     API_NOT_FOUND(-1, "API could not be found. (Wrong server URL?)"),
     API_VERSION_NOT_SUPPORTED(-2, "API versions < " + DracoonConstants.API_MIN_VERSION +
             " are not supported."),
+    API_VERSION_NOT_SUFFICIENT(-3, "API version is not sufficient."),
 
     // General
     AUTH_UNKNOWN_ERROR(-1000, "An authentication/authorization error occurred."),
@@ -61,6 +62,7 @@ public enum DracoonApiCode {
     VALIDATION_EXPIRATION_DATE_TOO_LATE(-3103, "Expiration date is too late. Max year is limited " +
             "to 9999."),
     VALIDATION_NODE_ALREADY_EXISTS(-3104, "A node with the same name already exits."),
+    VALIDATION_NODE_NOT_A_FILE(-3105, "Node is not a file."),
     VALIDATION_NODES_NOT_IN_SAME_PARENT(-3108, "Folders/files must be in same parent."),
     VALIDATION_CAN_NOT_COPY_NODE_TO_OWN_PLACE_WITHOUT_RENAME(-3109, "A node can\'t be copied to " +
             "its own place without renaming."),
@@ -116,7 +118,8 @@ public enum DracoonApiCode {
     SERVER_UNKNOWN_ERROR(-5000, "A server error occurred."),
     SERVER_TOO_MANY_REQUESTS(-5001, "Too many requests in a given amount of time."),
     SERVER_CRYPTO_VERSION_NOT_SUPPORTED(-5010, "Crypto version not supported."),
-    SERVER_MALICIOUS_FILE_DETECTED(-5090, "Malicious file detected."),
+    SERVER_VIRUS_SCAN_IN_PROGRESS(-5090, "Virus scan in progress."),
+    SERVER_MALICIOUS_FILE_DETECTED(-5091, "Malicious file detected."),
     // Nodes
     SERVER_NODE_NOT_FOUND(-5100, "Requested room/folder/file was not found."),
     SERVER_ROOM_NOT_FOUND(-5101, "Requested room was not found."),

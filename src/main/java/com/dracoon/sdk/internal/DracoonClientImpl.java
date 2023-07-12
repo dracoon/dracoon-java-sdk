@@ -353,16 +353,10 @@ public class DracoonClientImpl extends DracoonClient {
         }
     }
 
-    public void checkUserKeyPairVersionSupported(UserKeyPair.Version version)
-            throws DracoonNetIOException, DracoonApiException {
-        if (version == null) {
-            throw new IllegalArgumentException("Version can't be null.");
-        }
-
-        List<UserKeyPair.Version> versions = mServerSettings.getAvailableUserKeyPairVersions();
-        boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
-        if (!apiSupportsVersion) {
-            throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
+    public void checkApiVersionGreaterEqual(String apiVersion) throws DracoonNetIOException,
+            DracoonApiException {
+        if (!isApiVersionGreaterEqual(apiVersion)) {
+            throw new DracoonApiException(DracoonApiCode.API_VERSION_NOT_SUFFICIENT);
         }
     }
 
@@ -398,6 +392,19 @@ public class DracoonClientImpl extends DracoonClient {
         }
 
         return true;
+    }
+
+    public void checkUserKeyPairVersionSupported(UserKeyPair.Version version)
+            throws DracoonNetIOException, DracoonApiException {
+        if (version == null) {
+            throw new IllegalArgumentException("Version can't be null.");
+        }
+
+        List<UserKeyPair.Version> versions = mServerSettings.getAvailableUserKeyPairVersions();
+        boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
+        if (!apiSupportsVersion) {
+            throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
+        }
     }
 
     public void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {

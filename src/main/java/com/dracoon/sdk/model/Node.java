@@ -52,6 +52,7 @@ public class Node {
     private Long mBranchVersion;
 
     private String mMediaToken;
+    private VirusScanInfo mVirusScanInfo;
 
     /**
      * Returns the ID of the node.
@@ -372,7 +373,7 @@ public class Node {
     /**
      * Sets the original creation date of the node.
      *
-     * @param originalCreatedAt The the original creation date.
+     * @param originalCreatedAt The original creation date.
      */
     public void setOriginalCreatedAt(Date originalCreatedAt) {
         mOriginalCreatedAt = originalCreatedAt;
@@ -391,7 +392,7 @@ public class Node {
     /**
      * Sets the original modification date of the node.
      *
-     * @param originalModifiedAt The the original modification date.
+     * @param originalModifiedAt The original modification date.
      */
     public void setOriginalModifiedAt(Date originalModifiedAt) {
         mOriginalModifiedAt = originalModifiedAt;
@@ -658,6 +659,24 @@ public class Node {
      */
     public void setMediaToken(String mMediaToken) {
         this.mMediaToken = mMediaToken;
+    }
+
+    /**
+     * Returns information about the virus scan of the node, if the node is a file.
+     *
+     * @return the information about the virus scan
+     */
+    public VirusScanInfo getVirusScanInfo() {
+        return mVirusScanInfo;
+    }
+
+    /**
+     * Sets information about the virus scan of the node.
+     *
+     * @param virusScanInfo The information about the virus scan.
+     */
+    public void setVirusScanInfo(VirusScanInfo virusScanInfo) {
+        mVirusScanInfo = virusScanInfo;
     }
 
 }

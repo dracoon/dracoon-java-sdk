@@ -46,4 +46,5 @@ public class ApiNode {
     public Long branchVersion;
 
     public String mediaToken;
+    public ApiVirusProtectionInfo virusProtectionInfo;
 }
