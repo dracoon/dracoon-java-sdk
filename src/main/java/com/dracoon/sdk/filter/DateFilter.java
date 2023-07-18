@@ -12,26 +12,26 @@ abstract class DateFilter extends Filter<String> {
         super(name, TYPE);
     }
 
-    protected static class Builder extends Filter.Builder<Date, String> {
+    protected static class Builder<T extends DateFilter> extends Filter.Builder<Date, String> {
 
-        private final DateFilter mFilter;
+        private final T mFilter;
 
-        protected Builder(DateFilter filter) {
+        protected Builder(T filter) {
             mFilter = filter;
         }
 
         @Override
-        public Concater ge(Date value) {
+        public Concater<T> ge(Date value) {
             validateRestrictionValue(value);
             mFilter.addValue(OPERATOR_GE, DateUtils.formatDate(value));
-            return new Concater(mFilter);
+            return new Concater<>(mFilter);
         }
 
         @Override
-        public Concater le(Date value) {
+        public Concater<T> le(Date value) {
             validateRestrictionValue(value);
             mFilter.addValue(OPERATOR_LE, DateUtils.formatDate(value));
-            return new Concater(mFilter);
+            return new Concater<>(mFilter);
         }
 
     }
@@ -39,21 +39,21 @@ abstract class DateFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater<Date, String> {
+    public static class Concater<T extends DateFilter> extends Filter.Concater<Date, String> {
 
-        private final DateFilter mFilter;
+        private final T mFilter;
 
-        Concater(DateFilter filter) {
+        Concater(T filter) {
             mFilter = filter;
         }
 
         @Override
-        public Builder and() {
-            return new Builder(mFilter);
+        public Builder<T> and() {
+            return new Builder<>(mFilter);
         }
 
         @Override
-        public DateFilter build() {
+        public T build() {
             return mFilter;
         }
 

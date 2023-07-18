@@ -8,19 +8,19 @@ abstract class UserIdFilter extends Filter<String> {
         super(name, TYPE);
     }
 
-    protected static class Builder extends Filter.Builder<Long, String> {
+    protected static class Builder<T extends UserIdFilter> extends Filter.Builder<Long, String> {
 
-        private final UserIdFilter mFilter;
+        private final T mFilter;
 
-        protected Builder(UserIdFilter filter) {
+        protected Builder(T filter) {
             mFilter = filter;
         }
 
         @Override
-        public Concater eq(Long value) {
+        public Concater<T> eq(Long value) {
             validateRestrictionValue(value);
             mFilter.addValue(OPERATOR_EQ, Long.toString(value));
-            return new Concater(mFilter);
+            return new Concater<>(mFilter);
         }
 
     }
@@ -28,16 +28,16 @@ abstract class UserIdFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater<Long, String> {
+    public static class Concater<T extends UserIdFilter> extends Filter.Concater<Long, String> {
 
-        private final UserIdFilter mFilter;
+        private final T mFilter;
 
-        Concater(UserIdFilter filter) {
+        Concater(T filter) {
             mFilter = filter;
         }
 
         @Override
-        public UserIdFilter build() {
+        public T build() {
             return mFilter;
         }
 

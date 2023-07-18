@@ -14,7 +14,7 @@ public class CreatedAtFilter extends DateFilter {
     /**
      * Builder for creating new instances of {@link CreatedAtFilter}.
      */
-    public static class Builder extends DateFilter.Builder {
+    public static class Builder extends DateFilter.Builder<CreatedAtFilter> {
 
         public Builder() {
             super(new CreatedAtFilter());
