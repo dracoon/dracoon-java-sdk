@@ -8,26 +8,26 @@ abstract class UserNameFilter extends Filter<String> {
         super(name, TYPE);
     }
 
-    protected static class Builder extends Filter.Builder<String, String> {
+    protected static class Builder<T extends UserNameFilter> extends Filter.Builder<String, String> {
 
-        private final UserNameFilter mFilter;
+        private final T mFilter;
 
-        protected Builder(UserNameFilter filter) {
+        protected Builder(T filter) {
             mFilter = filter;
         }
 
         @Override
-        public Concater eq(String value) {
+        public Concater<T> eq(String value) {
             validateRestrictionValue(value);
             mFilter.addValue(OPERATOR_EQ, value);
-            return new Concater(mFilter);
+            return new Concater<>(mFilter);
         }
 
         @Override
-        public Concater cn(String value) {
+        public Concater<T> cn(String value) {
             validateRestrictionValue(value);
             mFilter.addValue(OPERATOR_CN, value);
-            return new Concater(mFilter);
+            return new Concater<>(mFilter);
         }
 
     }
@@ -35,16 +35,16 @@ abstract class UserNameFilter extends Filter<String> {
     /**
      * Class for adding further filter restrictions.
      */
-    public static class Concater extends Filter.Concater<String, String> {
+    public static class Concater<T extends UserNameFilter> extends Filter.Concater<String, String> {
 
-        private final UserNameFilter mFilter;
+        private final T mFilter;
 
-        Concater(UserNameFilter filter) {
+        Concater(T filter) {
             mFilter = filter;
         }
 
         @Override
-        public UserNameFilter build() {
+        public T build() {
             return mFilter;
         }
 

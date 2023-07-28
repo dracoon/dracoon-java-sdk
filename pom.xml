@@ -7,7 +7,7 @@
 
     <groupId>com.dracoon</groupId>
     <artifactId>dracoon-sdk</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
 
     <name>Dracoon SDK</name>
     <description>The Dracoon SDK for Java.</description>
