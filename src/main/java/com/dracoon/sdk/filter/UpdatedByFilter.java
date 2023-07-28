@@ -14,7 +14,7 @@ public class UpdatedByFilter extends UserNameFilter {
     /**
      * Builder for creating new instances of {@link UpdatedByFilter}.
      */
-    public static class Builder extends UserNameFilter.Builder {
+    public static class Builder extends UserNameFilter.Builder<UpdatedByFilter> {
 
         public Builder() {
             super(new UpdatedByFilter());

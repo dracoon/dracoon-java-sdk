@@ -14,7 +14,7 @@ public class CreatedByIdFilter extends UserIdFilter {
     /**
      * Builder for creating new instances of {@link CreatedByIdFilter}.
      */
-    public static class Builder extends UserIdFilter.Builder {
+    public static class Builder extends UserIdFilter.Builder<CreatedByIdFilter> {
 
         public Builder() {
             super(new CreatedByIdFilter());
