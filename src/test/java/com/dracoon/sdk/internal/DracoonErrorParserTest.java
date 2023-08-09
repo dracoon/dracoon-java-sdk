@@ -75,9 +75,12 @@ class DracoonErrorParserTest {
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> createTestParseServerInfoQueryErrorArguments() {
-        return extendTestArguments(
-                createBaseTestArguments(),
-                Arguments.of(404, null, DracoonApiCode.API_NOT_FOUND));
+        return Stream.of(
+                Arguments.of(301, null, DracoonApiCode.API_NOT_FOUND),
+                Arguments.of(302, null, DracoonApiCode.API_NOT_FOUND),
+                Arguments.of(401, null, DracoonApiCode.API_NOT_FOUND),
+                Arguments.of(403, null, DracoonApiCode.API_NOT_FOUND),
+                Arguments.of(500,   null, DracoonApiCode.SERVER_UNKNOWN_ERROR));
     }
 
     @ParameterizedTest
@@ -870,17 +873,24 @@ class DracoonErrorParserTest {
 
     private DracoonApiCode executeParseMethod(int code, Integer errorCode,
             Function<Response, DracoonApiCode> function) {
-        Response errorResponse;
-        if (errorCode == null) {
-            errorResponse = createErrorResponse(code);
+        Response response;
+        if (code < 400) {
+            response = createResponse(code);
+        } else if (errorCode == null) {
+            response = createErrorResponse(code);
         } else {
-            errorResponse = createErrorResponse(code, errorCode);
+            response = createErrorResponse(code, errorCode);
         }
-        return function.apply(errorResponse);
+        return function.apply(response);
+    }
+
+    private static Response createResponse(int code) {
+        ResponseBody responseBody = createEmptyJsonResponseBody();
+        return Response.error(responseBody, createOkHttpResponse(code, responseBody));
     }
 
     private static Response createErrorResponse(int code) {
-        return Response.error(code, ResponseBody.create("", MediaType.parse("application/json")));
+        return Response.error(code, createEmptyJsonResponseBody());
     }
 
     private static Response createErrorResponse(int code, Integer errorCode) {
@@ -889,28 +899,22 @@ class DracoonErrorParserTest {
         Gson gson = sGsonBuilder.create();
         String json = gson.toJson(errorResponse);
 
-        return Response.error(code, ResponseBody.create(json, MediaType.parse("application/json")));
+        return Response.error(code, createJsonResponseBody(json));
     }
 
     private DracoonApiCode executeOkHttpParseMethod(int code, Integer errorCode,
             Function<okhttp3.Response, DracoonApiCode> function) {
-        okhttp3.Response errorResponse;
+        okhttp3.Response response;
         if (errorCode == null) {
-            errorResponse = createOkHttpErrorResponse(code);
+            response = createOkHttpErrorResponse(code);
         } else {
-            errorResponse = createOkHttpErrorResponse(code, errorCode);
+            response = createOkHttpErrorResponse(code, errorCode);
         }
-        return function.apply(errorResponse);
+        return function.apply(response);
     }
 
     private static okhttp3.Response createOkHttpErrorResponse(int code) {
-        return new okhttp3.Response.Builder()
-                .protocol(Protocol.HTTP_1_0)
-                .request(new Request.Builder().get().url("http://localhost").build())
-                .code(code)
-                .message("")
-                .body(ResponseBody.create("", MediaType.parse("application/json")))
-                .build();
+        return createOkHttpResponse(code, createEmptyJsonResponseBody());
     }
 
     private static okhttp3.Response createOkHttpErrorResponse(int code, Integer errorCode) {
@@ -919,13 +923,25 @@ class DracoonErrorParserTest {
         Gson gson = sGsonBuilder.create();
         String json = gson.toJson(errorResponse);
 
+        return createOkHttpResponse(code, createJsonResponseBody(json));
+    }
+
+    private static okhttp3.Response createOkHttpResponse(int code, ResponseBody body) {
         return new okhttp3.Response.Builder()
                 .protocol(Protocol.HTTP_1_0)
                 .request(new Request.Builder().get().url("http://localhost").build())
                 .code(code)
                 .message("")
-                .body(ResponseBody.create(json, MediaType.parse("application/json")))
+                .body(body)
                 .build();
+    }
+
+    private static ResponseBody createEmptyJsonResponseBody() {
+        return createJsonResponseBody("");
+    }
+
+    private static ResponseBody createJsonResponseBody(String json) {
+        return ResponseBody.create(json, MediaType.parse("application/json"));
     }
 
     private static ApiErrorResponse createApiErrorResponse(int code, Integer errorCode) {
