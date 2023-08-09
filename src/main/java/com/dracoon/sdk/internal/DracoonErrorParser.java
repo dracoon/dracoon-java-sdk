@@ -44,7 +44,11 @@ public class DracoonErrorParser {
     }
 
     public DracoonApiCode parseServerInfoQueryError(Response response) {
-        if (HttpStatus.valueOf(response.code()) == HttpStatus.NOT_FOUND) {
+        HttpStatus statusCode = HttpStatus.valueOf(response.code());
+        if (statusCode.is3xxRedirection() ||
+                statusCode == HttpStatus.UNAUTHORIZED ||
+                statusCode == HttpStatus.FORBIDDEN ||
+                statusCode == HttpStatus.NOT_FOUND) {
             return DracoonApiCode.API_NOT_FOUND;
         }
 
