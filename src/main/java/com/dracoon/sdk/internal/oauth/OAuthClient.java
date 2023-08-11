@@ -68,6 +68,7 @@ public class OAuthClient {
         builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
         builder.writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS);
         builder.retryOnConnectionFailure(true);
+        builder.followRedirects(false);
         if (mHttpConfig.isProxyEnabled()) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
                     mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
