@@ -62,13 +62,14 @@
         <dracoon-crypto-sdk.version>2.0.3</dracoon-crypto-sdk.version>
         <gson.version>2.9.0</gson.version>
         <kotlin-stdlib.version>1.7.10</kotlin-stdlib.version>
-        <okhttp.version>4.10.0</okhttp.version>
+        <okhttp.version>4.11.0</okhttp.version>
+        <okio.version>3.5.0</okio.version>
         <retrofit.version>2.9.0</retrofit.version>
 
         <!-- test dependencies versions -->
         <junit.version>5.8.2</junit.version>
         <mockito.version>4.6.1</mockito.version>
-        <mockwebserver.version>4.10.0</mockwebserver.version>
+        <mockwebserver.version>4.11.0</mockwebserver.version>
 
         <!-- sonar -->
         <sonar.host.url>https://${sonar.domain}</sonar.host.url>
@@ -104,6 +105,11 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio</artifactId>
+            <version>${okio.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.retrofit2</groupId>
