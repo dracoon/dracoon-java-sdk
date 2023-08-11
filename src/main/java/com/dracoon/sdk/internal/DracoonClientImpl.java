@@ -300,6 +300,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     protected void initDracoonService() {
         OkHttpClient httpClient = mHttpClient.newBuilder()
+                .followRedirects(false)
                 .addInterceptor(mAuthInterceptor)
                 .build();
 
