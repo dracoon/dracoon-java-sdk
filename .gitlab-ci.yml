@@ -1,3 +1,6 @@
+variables:
+  ALLOW_QUALITY_GATE_FAILURE: 'false'
+
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -17,10 +20,6 @@ stages:
 image:
   name: maven:3-eclipse-temurin-21
 
-cache:
-  paths:
-    - .m2/repository
-
 .job-template:
   secrets:
     ARTIFACTORY_DOMAIN:
@@ -32,11 +31,14 @@ cache:
     ARTIFACTORY_PASSWORD:
       vault: Artifactory/user-write-password@Build-Environment
       file: false
+    DEPENDENCY_CHECK_NIST_NVD_API_KEY:
+      vault: nist-nvd/api-key@Build-Environment
+      file: false
     SONAR_DOMAIN:
       vault: Sonar/domain@Build-Environment
       file: false
-    SONAR_LOGIN:
-      vault: Sonar/access-key@Build-Environment
+    SONAR_TOKEN:
+      vault: Sonar/token@Build-Environment
       file: false
     SONATYPE_OSSRH_SIGN_KEY_NAME:
       vault: sonatype-ossrh-signing/name@Build-Environment
@@ -56,8 +58,11 @@ cache:
     SONATYPE_OSSRH_REPO_TOKEN:
       vault: sonatype-ossrh-repository/token@Build-Environment
       file: false
+  cache:
+    key: maven-repository
+    paths:
+      - .m2/repository
   before_script:
-    - ./configure_gnupg.sh
     - ./configure_maven.sh
 
 build:
@@ -73,7 +78,7 @@ unit test:
   extends: .job-template
   stage: test
   needs:
-    - build
+    - job: build
   script:
     - mvn test
     - mvn jacoco:report
@@ -91,9 +96,14 @@ dependencies check:
   extends: .job-template
   stage: report
   needs:
-    - build
+    - job: build
   script:
     - mvn dependency-check:check
+  cache:
+    - !reference [.job-template, cache]
+    - key: dependency-check-data
+      paths:
+        - target/dependency-check-data
   artifacts:
     paths:
       - target/dependency-check-reports
@@ -102,20 +112,26 @@ sonar:
   extends: .job-template
   stage: analyze
   needs:
-    - build
-    - unit test
-    - dependencies check
+    - job: build
+    - job: unit test
+    - job: dependencies check
   script:
-    - mvn -Dsonar.scm.revision=$CI_COMMIT_SHORT_SHA -Dsonar.branch.name=$CI_COMMIT_REF_NAME sonar:sonar
+    - mvn -Dsonar.scm.revision=$CI_COMMIT_SHA -Dsonar.branch.name=$CI_COMMIT_REF_NAME sonar:sonar
+  rules:
+    - if: $ALLOW_QUALITY_GATE_FAILURE == 'true' || ($CI_COMMIT_TAG == null && $CI_COMMIT_REF_NAME != 'dracoon_server')
+      when: on_success
+      allow_failure: true
+    - allow_failure: false
 
 deploy development:
   extends: .job-template
   stage: deploy
   needs:
-    - build
-    - unit test
+    - job: build
+    - job: sonar
+      artifacts: false
   except:
-    - dracoon_server
+    - tags
   script:
     - mvn -Pdevelopment deploy -DskipTests
 
@@ -123,10 +139,11 @@ deploy release:
   extends: .job-template
   stage: deploy
   needs:
-    - build
-    - unit test
+    - job: build
+    - job: sonar
+      artifacts: false
   only:
-    - dracoon_server
+    - tags
   script:
     - mvn -Prelease deploy -DskipTests
 
@@ -134,10 +151,12 @@ rollout:
   extends: .job-template
   stage: rollout
   needs:
-    - build
-    - unit test
+    - job: build
+    - job: sonar
+      artifacts: false
   only:
-    - dracoon_server
+    - tags
   when: manual
   script:
+    - ./configure_gnupg.sh
     - mvn -Prollout deploy -DskipTests -Dgpg.keyname=$SONATYPE_OSSRH_SIGN_KEY_NAME -Dgpg.passphrase=$SONATYPE_OSSRH_SIGN_KEY_PASSPHRASE
