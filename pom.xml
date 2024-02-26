@@ -288,6 +288,8 @@
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <configuration>
+                    <nvdApiKey>${dependencyCheck.nistNvdApiKey}</nvdApiKey>
+                    <dataDirectory>target/dependency-check-data</dataDirectory>
                     <outputDirectory>target/dependency-check-reports</outputDirectory>
                     <formats>
                         <format>HTML</format>
