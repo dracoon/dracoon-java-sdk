@@ -405,7 +405,8 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             when(mCryptoWrapper.generateUserKeyPair(any(), any()))
                     .thenReturn(userKeyPair);
             mDai.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
-            verify(mCryptoWrapper).generateUserKeyPair(UserKeyPair.Version.RSA2048, CRYPTO_PW);
+            verify(mCryptoWrapper).generateUserKeyPair(UserKeyPair.Version.RSA2048,
+                    CRYPTO_PW.toCharArray());
         }
 
         private void executeMockedWithException() throws Exception {
@@ -688,7 +689,8 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
                     .thenReturn(true);
             List<UserKeyPair> userKeyPairs = mDai.getAndCheckUserKeyPairs();
             for (UserKeyPair userKeyPair : userKeyPairs) {
-                verify(mCryptoWrapper).checkUserKeyPairPassword(userKeyPair, CRYPTO_PW);
+                verify(mCryptoWrapper).checkUserKeyPairPassword(userKeyPair,
+                        CRYPTO_PW.toCharArray());
             }
         }
 
@@ -846,7 +848,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(true);
             UserKeyPair userKeyPair = mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
-            verify(mCryptoWrapper).checkUserKeyPairPassword(userKeyPair, CRYPTO_PW);
+            verify(mCryptoWrapper).checkUserKeyPairPassword(userKeyPair, CRYPTO_PW.toCharArray());
         }
 
         @Override
@@ -901,7 +903,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
             mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
             verify(mCryptoWrapper).checkUserKeyPairPassword(
                     argThat(arg -> deepEquals(arg, userKeyPair)),
-                    eq(CRYPTO_PW));
+                    eq(CRYPTO_PW.toCharArray()));
         }
 
         @Override

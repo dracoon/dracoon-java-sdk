@@ -78,7 +78,7 @@ public class DracoonExamples {
 
     private static final UserKeyPairAlgorithm.Version ENCRYPTION_VERSION =
             UserKeyPairAlgorithm.Version.RSA2048;
-    private static final String ENCRYPTION_PASSWORD = "encryption-password";
+    private static final String ENCRYPTION_PASSWORD = "crypto-pw";
 
     public static void main(String[] args) throws Exception {
         DracoonAuth auth = new DracoonAuth(ACCESS_TOKEN);

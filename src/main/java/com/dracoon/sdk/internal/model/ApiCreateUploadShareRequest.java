@@ -19,7 +19,7 @@ public class ApiCreateUploadShareRequest {
     public Boolean showCreatorUsername;
     public Boolean notifyCreator;
 
-    public String password;
+    public char[] password;
 
     public Boolean sendMail;
     public String mailRecipients;

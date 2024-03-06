@@ -8,6 +8,6 @@
   ],
   "body": {
     "type": "text",
-    "content": "{\"range\":{\"offset\":10,\"limit\":2,\"total\":12},\"items\":[{\"fileId\":1,\"userId\":11},{\"fileId\":1,\"userId\":12}],\"users\":[{\"id\":11,\"publicKeyContainer\":{\"version\":\"A\",\"publicKey\":\"upk_11\"}},{\"id\":12,\"publicKeyContainer\":{\"version\":\"RSA-4096\",\"publicKey\":\"upk_12\"}}],\"files\":[{\"id\":1,\"fileKeyContainer\":{\"version\":\"A\",\"key\":\"efk_f1_key\",\"iv\":\"efk_f1_iv\",\"tag\":\"efk_f1_tag\"}}]}"
+    "content": "{\"range\":{\"offset\":10,\"limit\":2,\"total\":12},\"items\":[{\"fileId\":1,\"userId\":11},{\"fileId\":1,\"userId\":12}],\"users\":[{\"id\":11,\"publicKeyContainer\":{\"version\":\"A\",\"publicKey\":\"upk_11\"}},{\"id\":12,\"publicKeyContainer\":{\"version\":\"RSA-4096\",\"publicKey\":\"upk_12\"}}],\"files\":[{\"id\":1,\"fileKeyContainer\":{\"version\":\"A\",\"key\":\"ZWZrX2YxX2tleQ==\",\"iv\":\"ZWZrX2YxX2l2\",\"tag\":\"ZWZrX2YxX3RhZw==\"}}]}"
   }
 }

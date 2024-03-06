@@ -13,6 +13,6 @@
   ],
   "body": {
     "type": "text",
-    "content": "{\"items\":[{\"userId\":1,\"fileId\":4,\"fileKey\":{\"version\":\"A\",\"key\":\"efk_f4_u1_key\",\"iv\":\"efk_f4_u1_iv\",\"tag\":\"efk_f4_u1_tag\"}}]}"
+    "content": "{\"items\":[{\"userId\":1,\"fileId\":4,\"fileKey\":{\"version\":\"A\",\"key\":\"ZWZrX2Y0X3UxX2tleQ==\",\"iv\":\"ZWZrX2Y0X3UxX2l2\",\"tag\":\"ZWZrX2Y0X3UxX3RhZw==\"}}]}"
   }
 }

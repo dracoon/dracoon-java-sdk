@@ -13,6 +13,6 @@
   ],
   "body": {
     "type": "text",
-    "content": "{\"items\":[{\"userId\":11,\"fileId\":1,\"fileKey\":{\"version\":\"A\",\"key\":\"efk_f1_u11_key\",\"iv\":\"efk_f1_u11_iv\",\"tag\":\"efk_f1_u11_tag\"}},{\"userId\":12,\"fileId\":1,\"fileKey\":{\"version\":\"RSA-4096/AES-256-GCM\",\"key\":\"efk_f1_u12_key\",\"iv\":\"efk_f1_u12_iv\",\"tag\":\"efk_f1_u12_tag\"}}]}"
+    "content": "{\"items\":[{\"userId\":11,\"fileId\":1,\"fileKey\":{\"version\":\"A\",\"key\":\"ZWZrX2YxX3UxMV9rZXk=\",\"iv\":\"ZWZrX2YxX3UxMV9pdg==\",\"tag\":\"ZWZrX2YxX3UxMV90YWc=\"}},{\"userId\":12,\"fileId\":1,\"fileKey\":{\"version\":\"RSA-4096/AES-256-GCM\",\"key\":\"ZWZrX2YxX3UxMl9rZXk=\",\"iv\":\"ZWZrX2YxX3UxMl9pdg==\",\"tag\":\"ZWZrX2YxX3UxMl90YWc=\"}}]}"
   }
 }
