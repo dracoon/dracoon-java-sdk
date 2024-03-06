@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 class CryptoWrapperTest extends BaseTest {
 
-    private final String CRYPTO_PW = "test";
+    private final char[] CRYPTO_PW = {'t','e','s','t'};
 
     private CryptoWrapper mCrypto;
 

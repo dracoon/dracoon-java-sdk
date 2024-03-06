@@ -39,7 +39,7 @@ class FileKeyFetcher {
             return null;
         }
 
-        String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
         EncryptedFileKey encFileKey = getFileKey(nodeId);
 

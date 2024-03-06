@@ -1,6 +1,6 @@
 {
   "version": "AES256GCM",
-  "key": "pfk_4_key",
-  "iv": "pfk_4_iv",
-  "tag": "pfk_4_tag"
+  "key": "cGZrXzRfa2V5",
+  "iv": "cGZrXzRfaXY=",
+  "tag": "cGZrXzRfdGFn"
 }

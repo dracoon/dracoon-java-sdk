@@ -22,8 +22,8 @@ public class CreateDownloadShareRequest {
     private Boolean mShowCreatorUserName;
     private Boolean mNotifyCreator;
 
-    private String mAccessPassword;
-    private String mEncryptionPassword;
+    private char[] mAccessPassword;
+    private char[] mEncryptionPassword;
 
     private Boolean mSendEmail;
     private List<String> mEmailRecipients;
@@ -122,7 +122,7 @@ public class CreateDownloadShareRequest {
      *
      * @return the access password
      */
-    public String getAccessPassword() {
+    public char[] getAccessPassword() {
         return mAccessPassword;
     }
 
@@ -131,7 +131,7 @@ public class CreateDownloadShareRequest {
      *
      * @return the encryption password
      */
-    public String getEncryptionPassword() {
+    public char[] getEncryptionPassword() {
         return mEncryptionPassword;
     }
 
@@ -201,8 +201,8 @@ public class CreateDownloadShareRequest {
      * - Show creator user name:  {@link #showCreatorUserName(Boolean)}<br>
      * - Notify creator:          {@link #notifyCreator(Boolean)}<br>
      * - Max downloads:           {@link #maxDownloads(Integer)}<br>
-     * - Access Password:         {@link #accessPassword(String)}<br>
-     * - Encryption Password:     {@link #encryptionPassword(String)}<br>
+     * - Access Password:         {@link #accessPassword(char[])}<br>
+     * - Encryption Password:     {@link #encryptionPassword(char[])}<br>
      * - Email notification data: {@link #sendEmail(List, String, String)}<br>
      * - SMS notification data:   {@link #sendSms(List)}
      */
@@ -328,7 +328,7 @@ public class CreateDownloadShareRequest {
          *
          * @return a reference to this object
          */
-        public Builder accessPassword(String accessPassword) {
+        public Builder accessPassword(char[] accessPassword) {
             mRequest.mAccessPassword = accessPassword;
             return this;
         }
@@ -340,7 +340,7 @@ public class CreateDownloadShareRequest {
          *
          * @return a reference to this object
          */
-        public Builder encryptionPassword(String encryptionPassword) {
+        public Builder encryptionPassword(char[] encryptionPassword) {
             mRequest.mEncryptionPassword = encryptionPassword;
             return this;
         }

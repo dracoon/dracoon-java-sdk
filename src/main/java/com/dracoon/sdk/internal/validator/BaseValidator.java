@@ -80,12 +80,12 @@ public class BaseValidator {
         ValidatorUtils.validateId("Comment ID", commentId);
     }
 
-    protected static void validateAccessPassword(String password) {
-        ValidatorUtils.validateString("Access password", password, false);
+    protected static void validateAccessPassword(char[] password) {
+        ValidatorUtils.validateCharArray("Access password", password, false);
     }
 
-    protected static void validateEncryptionPassword(String password) {
-        ValidatorUtils.validateString("Encryption password", password, false);
+    protected static void validateEncryptionPassword(char[] password) {
+        ValidatorUtils.validateCharArray("Encryption password", password, false);
     }
 
     protected static void validateMaxDownloads(Integer maxDownloads) {

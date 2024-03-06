@@ -291,7 +291,7 @@ public abstract class DracoonClient {
          * @throws DracoonApiException    If the API responded with an error.
          */
         boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version,
-                String encryptionPassword) throws DracoonCryptoException, DracoonNetIOException,
+                char[] encryptionPassword) throws DracoonCryptoException, DracoonNetIOException,
                 DracoonApiException;
 
         /**
@@ -1309,14 +1309,14 @@ public abstract class DracoonClient {
      *
      * @return password
      */
-    public abstract String getEncryptionPassword();
+    public abstract char[] getEncryptionPassword();
 
     /**
      * Sets the client's encryption password.
      *
      * @param encryptionPassword The password.
      */
-    public abstract void setEncryptionPassword(String encryptionPassword);
+    public abstract void setEncryptionPassword(char[] encryptionPassword);
 
     /**
      * Get Server handler.
@@ -1403,7 +1403,7 @@ public abstract class DracoonClient {
          *
          * @return a reference to this object
          */
-        public Builder encryptionPassword(String encryptionPassword) {
+        public Builder encryptionPassword(char[] encryptionPassword) {
             mClient.setEncryptionPassword(encryptionPassword);
             return this;
         }

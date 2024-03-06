@@ -49,7 +49,7 @@ public class FileKeyFetcherTest extends DracoonRequestHandlerTest {
     @Nested
     class GetFileKeyTests {
 
-        private final String CRYPTO_PW = "test";
+        private final char[] CRYPTO_PW = {'t','e','s','t'};
 
         private final String DATA_PATH = "/file_keys/get_file_key/";
 

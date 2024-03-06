@@ -286,7 +286,7 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
             verify(mDracoonServerSettingsImpl).getPreferredUserKeyPairVersion();
         }
 
-        private void verifyGenerateUserKeyPair(String password) throws Exception {
+        private void verifyGenerateUserKeyPair(char[] password) throws Exception {
             verify(mCryptoWrapper).generateUserKeyPair(UserKeyPair.Version.RSA4096, password);
         }
 
