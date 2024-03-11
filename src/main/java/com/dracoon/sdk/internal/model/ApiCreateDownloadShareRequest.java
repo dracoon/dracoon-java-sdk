@@ -16,7 +16,7 @@ public class ApiCreateDownloadShareRequest {
     public Boolean showCreatorUsername;
     public Boolean notifyCreator;
 
-    public String password;
+    public char[] password;
     public ApiUserKeyPair keyPair;
     public ApiFileKey fileKey;
 

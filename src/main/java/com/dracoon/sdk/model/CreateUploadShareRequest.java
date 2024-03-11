@@ -25,7 +25,7 @@ public class CreateUploadShareRequest {
     private Boolean mShowCreatorUserName;
     private Boolean mNotifyCreator;
 
-    private String mAccessPassword;
+    private char[] mAccessPassword;
 
     private Boolean mSendEmail;
     private List<String> mEmailRecipients;
@@ -148,7 +148,7 @@ public class CreateUploadShareRequest {
      *
      * @return the access password
      */
-    public String getAccessPassword() {
+    public char[] getAccessPassword() {
         return mAccessPassword;
     }
 
@@ -219,7 +219,7 @@ public class CreateUploadShareRequest {
      * - Maximum quota:              {@link #maxQuota(Long)}<br>
      * - Show uploaded files:        {@link #showUploadedFiles(Boolean)}<br>
      * - Notify creator:             {@link #notifyCreator(Boolean)}<br>
-     * - Access Password:            {@link #accessPassword(String)}<br>
+     * - Access Password:            {@link #accessPassword(char[])}<br>
      * - Email notification data:    {@link #sendEmail(List, String, String)}<br>
      * - SMS notification data:      {@link #sendSms(List)}
      */
@@ -383,7 +383,7 @@ public class CreateUploadShareRequest {
          *
          * @return a reference to this object
          */
-        public Builder accessPassword(String accessPassword) {
+        public Builder accessPassword(char[] accessPassword) {
             mRequest.mAccessPassword = accessPassword;
             return this;
         }

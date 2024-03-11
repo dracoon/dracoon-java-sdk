@@ -2,6 +2,7 @@ package com.dracoon.sdk;
 
 import java.util.Objects;
 
+import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -14,6 +15,7 @@ public abstract class BaseTest {
 
     private static final Gson sGson = new GsonBuilder()
             .disableHtmlEscaping()
+            .registerTypeAdapter(GsonCharArrayTypeAdapter.TYPE, new GsonCharArrayTypeAdapter())
             .create();
 
     protected static byte[] readFile(String filePath) {

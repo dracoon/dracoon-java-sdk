@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.crypto.CryptoUtils;
 import com.dracoon.sdk.crypto.error.BadFileException;
 import com.dracoon.sdk.crypto.error.CryptoException;
 import com.dracoon.sdk.crypto.error.CryptoSystemException;
@@ -251,7 +250,7 @@ public class DownloadStream extends FileDownloadStream {
 
         long bufferSize = mDownloadBuffer.size();
         if (isEncryptedDownload() && mIsDecryptionStarted && !mIsDecryptionFinished) {
-            bufferSize = bufferSize + mFileKey.getIv().length();
+            bufferSize = bufferSize + mFileKey.getTag().length;
         }
 
         long remaining = mDownloadLength - mDownloadOffset + bufferSize;
@@ -506,8 +505,7 @@ public class DownloadStream extends FileDownloadStream {
             os.write(plainData.getContent());
 
             if (isLast) {
-                byte[] encTag = CryptoUtils.stringToByteArray(mFileKey.getTag());
-                encData = new EncryptedDataContainer(null, encTag);
+                encData = new EncryptedDataContainer(null, mFileKey.getTag());
                 plainData = mDecryptionCipher.doFinal(encData);
                 mIsDecryptionFinished = true;
                 os.write(plainData.getContent());

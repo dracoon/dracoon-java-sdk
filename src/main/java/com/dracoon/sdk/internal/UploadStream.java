@@ -8,7 +8,6 @@ import java.util.List;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.crypto.error.CryptoException;
 import com.dracoon.sdk.crypto.error.CryptoSystemException;
-import com.dracoon.sdk.crypto.CryptoUtils;
 import com.dracoon.sdk.crypto.FileEncryptionCipher;
 import com.dracoon.sdk.crypto.model.EncryptedDataContainer;
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
@@ -407,9 +406,7 @@ public class UploadStream extends FileUploadStream {
             if (isLast) {
                 encData = mEncryptionCipher.doFinal();
                 os.write(encData.getContent());
-
-                String encTag = CryptoUtils.byteArrayToString(encData.getTag());
-                mFileKey.setTag(encTag);
+                mFileKey.setTag(encData.getTag());
             }
 
             return os.toByteArray();

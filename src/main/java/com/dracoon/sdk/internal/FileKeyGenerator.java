@@ -55,7 +55,7 @@ class FileKeyGenerator {
         List<UserKeyPair> userKeyPairs = mClient.getAccountImpl().getAndCheckUserKeyPairs();
         Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys = convertUserPrivateKeys(
                 userKeyPairs);
-        String userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
 
         boolean isFinished = false;
         long batchOffset = 0L;
@@ -83,7 +83,7 @@ class FileKeyGenerator {
     }
 
     private boolean generateMissingFileKeysBatch(Map<UserKeyPair.Version,
-            UserPrivateKey> userPrivateKeys, String userPrivateKeyPassword, Long nodeId,
+            UserPrivateKey> userPrivateKeys, char[] userPrivateKeyPassword, Long nodeId,
             long offset, long limit) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
         ApiMissingFileKeys apiMissingFileKeys = getMissingFileKeysBatch(nodeId, offset, limit);
@@ -186,7 +186,7 @@ class FileKeyGenerator {
     }
 
     private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, List<EncryptedFileKey>> encFilesKeys,
-            Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys, String userPrivateKeyPassword)
+            Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys, char[] userPrivateKeyPassword)
             throws DracoonCryptoException {
         CryptoWrapper crypto = mClient.getCryptoWrapper();
         Map<Long, PlainFileKey> plainFileKeys = new HashMap<>();

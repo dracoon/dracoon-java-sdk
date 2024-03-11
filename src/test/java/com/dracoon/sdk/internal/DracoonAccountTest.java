@@ -298,7 +298,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
     @Nested
     class SetUserKeyPairTests {
 
-        private final String CRYPTO_PW = "test";
+        private final char[] CRYPTO_PW = {'t','e','s','t'};
 
         private final String DATA_PATH = "/account/user_key_pair/";
 
@@ -483,7 +483,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
     @Nested
     class GetAndCheckUserKeyPairsTests {
 
-        private final String CRYPTO_PW = "test";
+        private final char[] CRYPTO_PW = {'t','e','s','t'};
 
         private final String DATA_PATH = "/account/user_key_pair/";
 
@@ -626,7 +626,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
     })
     private abstract class BaseCheckUserKeyPairTests {
 
-        protected final String CRYPTO_PW = "test";
+        protected final char[] CRYPTO_PW = {'t','e','s','t'};
 
         protected final String DATA_PATH = "/account/user_key_pair/";
 

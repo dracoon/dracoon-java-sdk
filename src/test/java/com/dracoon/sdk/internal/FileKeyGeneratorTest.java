@@ -57,7 +57,7 @@ public class FileKeyGeneratorTest extends DracoonRequestHandlerTest {
     @SuppressWarnings("unused")
     private abstract class BaseGenerateMissingFileKeysTests {
 
-        protected final String CRYPTO_PW = "test";
+        protected final char[] CRYPTO_PW = {'t','e','s','t'};
 
         protected final String mDataPath;
 

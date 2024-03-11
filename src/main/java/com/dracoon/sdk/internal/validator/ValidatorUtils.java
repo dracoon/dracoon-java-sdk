@@ -87,6 +87,16 @@ public class ValidatorUtils {
         }
     }
 
+    public static void validateCharArray(String name, char[] chars, boolean nullable) {
+        if (nullable && chars == null) {
+            return;
+        }
+        validateNotNull(name, chars);
+        if (chars.length == 0) {
+            throw new IllegalArgumentException(name + " cannot be empty.");
+        }
+    }
+
     // --- Byte array validation methods ---
 
     public static void validateByteArray(String name, byte[] bytes, boolean nullable, long min,

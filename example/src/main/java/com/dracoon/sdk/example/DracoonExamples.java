@@ -78,7 +78,9 @@ public class DracoonExamples {
 
     private static final UserKeyPairAlgorithm.Version ENCRYPTION_VERSION =
             UserKeyPairAlgorithm.Version.RSA2048;
-    private static final String ENCRYPTION_PASSWORD = "encryption-password";
+
+    // We use a character array instead of a String to be able to clear sensitive secrets
+    private static final char[] ENCRYPTION_PASSWORD = {'c','r','y','p','t','o','-','p','w'};
 
     public static void main(String[] args) throws Exception {
         DracoonAuth auth = new DracoonAuth(ACCESS_TOKEN);
@@ -289,7 +291,7 @@ public class DracoonExamples {
     }
 
     private static void checkUserKeyPairPassword(DracoonClient client,
-            UserKeyPairAlgorithm.Version version, String password) throws DracoonException {
+            UserKeyPairAlgorithm.Version version, char[] password) throws DracoonException {
         boolean isPasswordValid = client.account().checkUserKeyPairPassword(version, password);
         System.out.println("Valid encryption password: " + isPasswordValid);
     }
@@ -760,7 +762,7 @@ public class DracoonExamples {
                 .expirationDate(new Date(1861916400000L))
                 .showCreatorName(true)
                 .notifyCreator(true)
-                .accessPassword("Lni+36D8fq")
+                .accessPassword(new char[]{'L','n','i','+','3','6','D','8','f','q'})
                 .build();
 
         DownloadShare dlShare = client.shares().createDownloadShare(request);
@@ -777,7 +779,7 @@ public class DracoonExamples {
                 .expirationDate(new Date(1861916400000L))
                 .showCreatorName(true)
                 .notifyCreator(true)
-                .encryptionPassword("Lni+36D8fq")
+                .encryptionPassword(new char[]{'L','n','i','+','3','6','D','8','f','q'})
                 .build();
 
         DownloadShare dlShare = client.shares().createDownloadShare(request);
@@ -827,7 +829,7 @@ public class DracoonExamples {
                 .showUploadedFiles(true)
                 .showCreatorName(true)
                 .notifyCreator(true)
-                .accessPassword("Lni+36D8fq")
+                .accessPassword(new char[]{'L','n','i','+','3','6','D','8','f','q'})
                 .build();
 
         UploadShare ulShare = client.shares().createUploadShare(request);
