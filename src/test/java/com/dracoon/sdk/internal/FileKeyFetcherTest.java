@@ -204,7 +204,7 @@ public class FileKeyFetcherTest extends DracoonRequestHandlerTest {
                     eq(NODE_ID),
                     argThat(arg -> deepEquals(arg, readEncFileKeyData())),
                     eq(userKeyPair.getUserPrivateKey()),
-                    eq(CRYPTO_PW));
+                    eq(CRYPTO_PW.toCharArray()));
 
             verifyIsNodeEncryptedCall(NODE_ID);
             verifyGetUserKeyPairCall();

@@ -23,7 +23,7 @@ class CryptoWrapper {
         mLog = log;
     }
 
-    public UserKeyPair generateUserKeyPair(UserKeyPair.Version userKeyPairVersion, String password)
+    public UserKeyPair generateUserKeyPair(UserKeyPair.Version userKeyPairVersion, char[] password)
             throws DracoonCryptoException {
         try {
             return Crypto.generateUserKeyPair(userKeyPairVersion, password);
@@ -36,10 +36,10 @@ class CryptoWrapper {
         }
     }
 
-    public boolean checkUserKeyPairPassword(UserKeyPair userKeyPair, String encryptionPassword)
+    public boolean checkUserKeyPairPassword(UserKeyPair userKeyPair, char[] password)
             throws DracoonCryptoException {
         try {
-            return Crypto.checkUserKeyPair(userKeyPair, encryptionPassword);
+            return Crypto.checkUserKeyPair(userKeyPair, password);
         } catch (CryptoException e) {
             String errorText = String.format("Check of user key pair failed! '%s'",
                     e.getMessage());
@@ -72,7 +72,7 @@ class CryptoWrapper {
     }
 
     public PlainFileKey decryptFileKey(Long nodeId, EncryptedFileKey encFileKey,
-            UserPrivateKey userPrivateKey, String userPrivateKeyPassword)
+            UserPrivateKey userPrivateKey, char[] userPrivateKeyPassword)
             throws DracoonCryptoException {
         try {
             return Crypto.decryptFileKey(encFileKey, userPrivateKey, userPrivateKeyPassword);

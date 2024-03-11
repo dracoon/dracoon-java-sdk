@@ -10,4 +10,8 @@ public abstract class BaseMapper {
         return b != null ? b : false;
     }
 
+    protected static char[] toCharArray(String s) {
+        return s != null ? s.toCharArray() : null;
+    }
+
 }

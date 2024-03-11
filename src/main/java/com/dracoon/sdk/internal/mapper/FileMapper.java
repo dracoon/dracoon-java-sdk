@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.mapper;
 
 import java.util.Date;
 
+import com.dracoon.sdk.crypto.CryptoUtils;
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.crypto.error.UnknownVersionException;
 import com.dracoon.sdk.internal.model.ApiExpiration;
@@ -40,9 +41,9 @@ public class FileMapper extends BaseMapper {
         }
 
         ApiFileKey apiFileKey = new ApiFileKey();
-        apiFileKey.key = encryptedFileKey.getKey();
-        apiFileKey.iv = encryptedFileKey.getIv();
-        apiFileKey.tag = encryptedFileKey.getTag();
+        apiFileKey.key = toBase64String(encryptedFileKey.getKey());
+        apiFileKey.iv = toBase64String(encryptedFileKey.getIv());
+        apiFileKey.tag = toBase64String(encryptedFileKey.getTag());
         apiFileKey.version = encryptedFileKey.getVersion().getValue();
         return apiFileKey;
     }
@@ -55,10 +56,18 @@ public class FileMapper extends BaseMapper {
 
         EncryptedFileKey.Version version = EncryptedFileKey.Version.getByValue(apiFileKey.version);
 
-        EncryptedFileKey encryptedFileKey = new EncryptedFileKey(version, apiFileKey.key,
-                apiFileKey.iv);
-        encryptedFileKey.setTag(apiFileKey.tag);
+        EncryptedFileKey encryptedFileKey = new EncryptedFileKey(version,
+                fromBase64String(apiFileKey.key), fromBase64String(apiFileKey.iv));
+        encryptedFileKey.setTag(fromBase64String(apiFileKey.tag));
         return encryptedFileKey;
+    }
+
+    private static String toBase64String(byte[] data) {
+        return data != null ? CryptoUtils.byteArrayToBase64String(data) : null;
+    }
+
+    private static byte[] fromBase64String(String data) {
+        return data != null ? CryptoUtils.base64StringToByteArray(data) : null;
     }
 
 }

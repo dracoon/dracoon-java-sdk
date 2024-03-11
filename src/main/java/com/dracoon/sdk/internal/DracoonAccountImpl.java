@@ -127,7 +127,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
         mClient.assertUserKeyPairVersionSupported(userKeyPairVersion);
 
-        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
         CryptoWrapper crypto = mClient.getCryptoWrapper();
         UserKeyPair userKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, encryptionPassword);
 
@@ -258,7 +258,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     public List<UserKeyPair> getAndCheckUserKeyPairs() throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
-        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
 
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
         if (userKeyPairs.isEmpty()) {
@@ -273,13 +273,13 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     public UserKeyPair getAndCheckUserKeyPair(UserKeyPair.Version userKeyPairVersion)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
         UserKeyPair userKeyPair = getUserKeyPair(userKeyPairVersion);
         checkUserKeyPair(userKeyPair, encryptionPassword);
         return userKeyPair;
     }
 
-    private void checkUserKeyPair(UserKeyPair userKeyPair, String encryptionPassword)
+    private void checkUserKeyPair(UserKeyPair userKeyPair, char[] encryptionPassword)
             throws DracoonCryptoException {
         CryptoWrapper crypto = mClient.getCryptoWrapper();
         boolean isValid = crypto.checkUserKeyPairPassword(userKeyPair, encryptionPassword);
@@ -312,13 +312,20 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     @Override
     public boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version)
             throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
-        String encryptionPassword = mClient.getEncryptionPasswordOrAbort();
-        return checkUserKeyPairPassword(version, encryptionPassword);
+        char[] password = mClient.getEncryptionPasswordOrAbort();
+        return checkUserKeyPairPassword(version, password);
     }
 
     @Override
     public boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version,
             String encryptionPassword) throws DracoonCryptoException, DracoonNetIOException,
+            DracoonApiException {
+        char[] password = encryptionPassword != null ? encryptionPassword.toCharArray() : null;
+        return checkUserKeyPairPassword(version, password);
+    }
+
+    private boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version,
+            char[] encryptionPassword) throws DracoonCryptoException, DracoonNetIOException,
             DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
         UserKeyPair userKeyPair = getUserKeyPair(userKeyPairVersion);

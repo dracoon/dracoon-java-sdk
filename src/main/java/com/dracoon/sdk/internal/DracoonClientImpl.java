@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -20,12 +19,11 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
-import com.dracoon.sdk.internal.util.DateUtils;
+import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
+import com.dracoon.sdk.internal.util.GsonDateTypeAdapter;
+import com.dracoon.sdk.internal.util.GsonVoidTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -122,7 +120,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     };
 
-    private String mEncryptionPassword;
+    private char[] mEncryptionPassword;
 
     protected Log mLog = new NullLog();
 
@@ -167,19 +165,19 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public String getEncryptionPassword() {
-        return mEncryptionPassword;
+        return mEncryptionPassword != null ? String.valueOf(mEncryptionPassword) : null;
     }
 
-    public String getEncryptionPasswordOrAbort() throws DracoonCryptoException {
-        String encryptionPassword = getEncryptionPassword();
+    public void setEncryptionPassword(String encryptionPassword) {
+        mEncryptionPassword = encryptionPassword != null ? encryptionPassword.toCharArray() : null;
+    }
+
+    public char[] getEncryptionPasswordOrAbort() throws DracoonCryptoException {
+        char[] encryptionPassword = mEncryptionPassword;
         if (encryptionPassword == null) {
             throw new DracoonCryptoException(DracoonCryptoCode.MISSING_PASSWORD_ERROR);
         }
         return encryptionPassword;
-    }
-
-    public void setEncryptionPassword(String encryptionPassword) {
-        mEncryptionPassword = encryptionPassword;
     }
 
     public Log getLog() {
@@ -310,28 +308,9 @@ public class DracoonClientImpl extends DracoonClient {
 
         Gson gson = new GsonBuilder()
                 .disableHtmlEscaping()
-                .registerTypeAdapter(Void.class, new TypeAdapter<Void>() {
-                    @Override
-                    public void write(JsonWriter out, Void value) {
-                        // SONAR: Empty method body is intentional
-                    }
-
-                    @Override
-                    public Void read(JsonReader in) {
-                        return null;
-                    }
-                })
-                .registerTypeAdapter(Date.class, new TypeAdapter<Date>() {
-                    @Override
-                    public void write(JsonWriter out, Date value) throws IOException {
-                        out.value(DateUtils.formatTime(value));
-                    }
-
-                    @Override
-                    public Date read(JsonReader in) throws IOException {
-                        return DateUtils.parseTime(in.nextString());
-                    }
-                })
+                .registerTypeAdapter(GsonVoidTypeAdapter.TYPE, new GsonVoidTypeAdapter())
+                .registerTypeAdapter(GsonDateTypeAdapter.TYPE, new GsonDateTypeAdapter())
+                .registerTypeAdapter(GsonCharArrayTypeAdapter.TYPE, new GsonCharArrayTypeAdapter())
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()

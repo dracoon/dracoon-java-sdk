@@ -23,13 +23,13 @@ public class OkHttpInterceptorExamples {
 
     private static final String SERVER_URL = "https://dracoon.team";
     private static final String ACCESS_TOKEN = "access-token";
-    private static final String ENCRYPTION_PASSWORD = "encryption-password";
+    private static final String ENCRYPTION_PASSWORD = "crypto-pw";
 
     private static class ExampleInterceptor implements Interceptor {
 
-        private SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        private final SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
-        private Logger mLogger;
+        private final Logger mLogger;
 
         private int mCount = 0;
 

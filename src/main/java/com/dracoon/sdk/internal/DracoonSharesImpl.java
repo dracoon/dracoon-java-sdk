@@ -58,7 +58,8 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
             CryptoWrapper crypto = mClient.getCryptoWrapper();
 
             String userEncPw = request.getEncryptionPassword();
-            shareUserKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, userEncPw);
+            char[] userEncPwChars = userEncPw != null ? userEncPw.toCharArray() : null;
+            shareUserKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, userEncPwChars);
 
             shareEncFileKey = crypto.encryptFileKey(nodeId, plainFileKey,
                     shareUserKeyPair.getUserPublicKey());

@@ -47,7 +47,7 @@ public class ShareMapper extends BaseMapper {
         apiRequest.showCreatorName = request.showCreatorName();
         apiRequest.showCreatorUsername = request.showCreatorUserName();
         apiRequest.notifyCreator = request.notifyCreator();
-        apiRequest.password = request.getAccessPassword();
+        apiRequest.password = toCharArray(request.getAccessPassword());
         if (keyPair != null) {
             apiRequest.keyPair = UserMapper.toApiUserKeyPair(keyPair);
         }
@@ -142,7 +142,7 @@ public class ShareMapper extends BaseMapper {
         apiRequest.showCreatorName = request.showCreatorName();
         apiRequest.showCreatorUsername = request.showCreatorUserName();
         apiRequest.notifyCreator = request.notifyCreator();
-        apiRequest.password = request.getAccessPassword();
+        apiRequest.password = toCharArray(request.getAccessPassword());
         apiRequest.sendMail = request.sendEmail();
         apiRequest.mailRecipients = TextUtils.join(request.getEmailRecipients());
         apiRequest.mailSubject = request.getEmailSubject();
