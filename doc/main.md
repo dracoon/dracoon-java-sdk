@@ -71,7 +71,7 @@ DracoonAuth auth = new DracoonAuth(ACCESS_TOKEN);
 DracoonClient client = new DracoonClient.Builder(new URL("https://dracoon.team"))
         .log(new Logger(Log.DEBUG))
         .auth(auth)
-        .encryptionPassword("encryption-password")
+        .encryptionPassword(ENCRYPTION_PASSWORD)
         .build();
 ```
 
