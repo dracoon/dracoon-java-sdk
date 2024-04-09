@@ -1,3 +1,4 @@
+[![Build](https://github.com/dracoon/dracoon-java-sdk/actions/workflows/build.yml/badge.svg)](https://github.com/dracoon/dracoon-java-sdk/actions/workflows/build.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.dracoon/dracoon-sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.dracoon/dracoon-sdk)
 # Dracoon Java SDK
 
