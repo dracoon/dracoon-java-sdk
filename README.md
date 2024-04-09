@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.com/dracoon/dracoon-java-sdk.svg?branch=main)](https://travis-ci.org/dracoon/)
+[![Build](https://github.com/dracoon/dracoon-java-sdk/actions/workflows/build.yml/badge.svg)](https://github.com/dracoon/dracoon-java-sdk/actions/workflows/build.yml)
+[![Unit Tests](https://github.com/dracoon/dracoon-java-sdk/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/dracoon/dracoon-java-sdk/actions/workflows/unit-tests.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.dracoon/dracoon-sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.dracoon/dracoon-sdk)
 # Dracoon Java SDK
 
