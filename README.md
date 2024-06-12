@@ -17,7 +17,7 @@ Add this dependency to your pom.xml:
 <dependency>
     <groupId>com.dracoon</groupId>
     <artifactId>dracoon-sdk</artifactId>
-    <version>2.5.8</version>
+    <version>2.5.9</version>
 </dependency>
 ```
 
@@ -25,7 +25,7 @@ Add this dependency to your pom.xml:
 
 Add this dependency to your build.gradle:
 ```groovy
-compile 'com.dracoon:dracoon-sdk:2.5.8'
+compile 'com.dracoon:dracoon-sdk:2.5.9'
 ```
 
 ##### JAR import
@@ -33,14 +33,15 @@ compile 'com.dracoon:dracoon-sdk:2.5.8'
 The latest JAR can be found [here](https://github.com/dracoon/dracoon-java-sdk/releases).
 
 Note that you also need to include the following dependencies:
-1. Bouncy Castle Provider: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-2. Bouncy Castle PKIX/CMS/...: https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
-3. Dracoon Crypto SDK: https://mvnrepository.com/artifact/com.dracoon/dracoon-crypto-sdk
-4. Google Gson: https://mvnrepository.com/artifact/com.google.code.gson/gson
-5. Square OkHttp: https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
-6. Square OkIo: https://mvnrepository.com/artifact/com.squareup.okio/okio
-7. Square Retrofit: https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
-8. Square Retrofit Gson Converter: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-gson
+1. Bouncy Castle PKIX/CMS/...: https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
+2. Bouncy Castle Provider: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+3. Bouncy Castle Utils: https://mvnrepository.com/artifact/org.bouncycastle/bcutil-jdk18on
+4. Dracoon Crypto SDK: https://mvnrepository.com/artifact/com.dracoon/dracoon-crypto-sdk
+5. Google Gson: https://mvnrepository.com/artifact/com.google.code.gson/gson
+6. Square OkHttp: https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+7. Square OkIo: https://mvnrepository.com/artifact/com.squareup.okio/okio
+8. Square Retrofit: https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
+9. Square Retrofit Gson Converter: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-gson
 
 #### Java JCE Setup
 
