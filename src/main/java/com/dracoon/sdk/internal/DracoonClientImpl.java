@@ -102,10 +102,6 @@ public class DracoonClientImpl extends DracoonClient {
         mLog = log != null ? log : new NullLog();
     }
 
-    public DracoonHttpConfig getHttpConfig() {
-        return mHttpConfig;
-    }
-
     public void setHttpConfig(DracoonHttpConfig httpConfig) {
         mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
     }
@@ -126,8 +122,8 @@ public class DracoonClientImpl extends DracoonClient {
         return mHttpHelper;
     }
 
-    public int getS3DefaultChunkSize() {
-        return DracoonConstants.S3_DEFAULT_CHUNK_SIZE;
+    public long getChunkSize() {
+        return ((long) mHttpConfig.getChunkSize()) * DracoonConstants.KIB;
     }
 
     public CryptoWrapper getCryptoWrapper() {

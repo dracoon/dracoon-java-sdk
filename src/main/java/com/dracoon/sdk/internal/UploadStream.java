@@ -111,7 +111,6 @@ public class UploadStream extends FileUploadStream {
 
     }
 
-    private final DracoonClientImpl mClient;
     private final Log mLog;
     private final DracoonService mService;
     private final OkHttpClient mHttpClient;
@@ -132,7 +131,7 @@ public class UploadStream extends FileUploadStream {
 
     private final Buffer mUploadBuffer = new Buffer();
 
-    private int mChunkSize;
+    private final long mChunkSize;
     private int mChunkNum = 0;
 
     private boolean mIsS3Upload = false;
@@ -149,7 +148,6 @@ public class UploadStream extends FileUploadStream {
 
     private UploadStream(DracoonClientImpl client, String id, FileUploadRequest request, long length,
             UserPublicKey userPublicKey, PlainFileKey fileKey) {
-        mClient = client;
         mLog = client.getLog();
         mService = client.getDracoonService();
         mHttpClient = client.getHttpClient();
@@ -163,7 +161,7 @@ public class UploadStream extends FileUploadStream {
         mUserPublicKey = userPublicKey;
         mFileKey = fileKey;
 
-        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
+        mChunkSize = client.getChunkSize();
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
@@ -177,10 +175,6 @@ public class UploadStream extends FileUploadStream {
             }
 
             mIsS3Upload = checkIsS3Upload();
-
-            if (mIsS3Upload) {
-                mChunkSize = Math.max(mChunkSize, mClient.getS3DefaultChunkSize());
-            }
 
             mUploadId = createUpload();
         } catch (InterruptedException e) {

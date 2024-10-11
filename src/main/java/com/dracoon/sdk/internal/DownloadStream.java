@@ -61,7 +61,7 @@ public class DownloadStream extends FileDownloadStream {
     private final Buffer mDownloadBuffer = new Buffer();
     private InputStream mDownloadInputStream = null;
 
-    private final int mChunkSize;
+    private final long mChunkSize;
     private int mChunkNum = 0;
     private int mChunkOffset = 0;
     private boolean mRequestNextChunk = true;
@@ -86,7 +86,7 @@ public class DownloadStream extends FileDownloadStream {
         mNodeId = nodeId;
         mFileKey = fileKey;
 
-        mChunkSize = client.getHttpConfig().getChunkSize() * DracoonConstants.KIB;
+        mChunkSize = client.getChunkSize();
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {

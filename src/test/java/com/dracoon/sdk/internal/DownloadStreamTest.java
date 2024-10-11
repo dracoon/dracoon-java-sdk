@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.stream.Stream;
 
-import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 class DownloadStreamTest extends DracoonRequestHandlerTest {
 
-    private static final int CHUNK_SIZE = 2;
+    private static final long CHUNK_SIZE = 2048L;
 
     @Mock
     protected CryptoWrapper mCryptoWrapper;
@@ -39,9 +38,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
-        DracoonHttpConfig httpConfig = new DracoonHttpConfig();
-        httpConfig.setChunkSize(CHUNK_SIZE);
-        mDracoonClientImpl.setHttpConfig(httpConfig);
+        mDracoonClientImpl.setChunkSize(CHUNK_SIZE);
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
     }
 
@@ -696,7 +693,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE * 1024L);
+            skipBytes(mDls, CHUNK_SIZE);
             readBytes(mDls);
 
             // Assert requests are valid
@@ -756,7 +753,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE * 1024L);
+            skipBytes(mDls, CHUNK_SIZE);
             long length = countReadBytes(mDls);
 
             // Assert size is correct
@@ -818,7 +815,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE * 1024L);
+            skipBytes(mDls, CHUNK_SIZE);
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
@@ -1064,7 +1061,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         void testRequestsValidReadSkipChunkReadAll() throws Exception {
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE * 1024L);
+            skipBytes(mDls, CHUNK_SIZE);
             readBytes(mDls);
 
             // Assert requests are valid
@@ -1107,7 +1104,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         void testLengthCorrectAfterReadSkipChunkReadAll() throws Exception {
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE * 1024L);
+            skipBytes(mDls, CHUNK_SIZE);
             long length = countReadBytes(mDls);
 
             // Assert size is correct
@@ -1151,7 +1148,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         void testDataCorrectAfterReadSkipChunkReadAll() throws Exception {
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE * 1024L);
+            skipBytes(mDls, CHUNK_SIZE);
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
@@ -1425,9 +1422,7 @@ class DownloadStreamTest extends DracoonRequestHandlerTest {
         @Override
         protected void setup() throws Exception {
             // Change chunk size to be larger than internal buffer of 2KB
-            DracoonHttpConfig httpConfig = new DracoonHttpConfig();
-            httpConfig.setChunkSize(4);
-            mDracoonClientImpl.setHttpConfig(httpConfig);
+            mDracoonClientImpl.setChunkSize(4096L);
 
             // Create download
             super.setup();

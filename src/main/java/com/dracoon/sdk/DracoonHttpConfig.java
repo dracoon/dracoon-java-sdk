@@ -19,7 +19,7 @@ import okhttp3.Interceptor;
  * - HTTP connection timeout         (Default: 15 seconds)<br>
  * - HTTP read timeout               (Default: 15 seconds)<br>
  * - HTTP write timeout              (Default: 15 seconds)<br>
- * - Upload/download chunk size      (Default: 2 MiB)<br>
+ * - Upload/download chunk size      (Default: 5 MiB, Minimum: 5MiB)<br>
  * - Proxy server enabled            (Default: false)<br>
  * - Proxy server address            (Default: null)<br>
  * - Proxy server port               (Default: null)<br>
@@ -28,13 +28,15 @@ import okhttp3.Interceptor;
  */
 public class DracoonHttpConfig {
 
+    private static final int MIN_CHUNK_SIZE = (5 * DracoonConstants.MIB) / DracoonConstants.KIB;
+
     private String mUserAgent;
     private boolean mRetryEnabled;
     private boolean mRateLimitingEnabled;
     private int mConnectTimeout;
     private int mReadTimeout;
     private int mWriteTimeout;
-    private int mChunkSize;
+    private int mChunkSize = MIN_CHUNK_SIZE;
     private boolean mProxyEnabled = false;
     private InetAddress mProxyAddress;
     private Integer mProxyPort;
@@ -52,7 +54,6 @@ public class DracoonHttpConfig {
         mConnectTimeout = 15;
         mReadTimeout = 15;
         mWriteTimeout = 15;
-        mChunkSize = (2 * DracoonConstants.MIB) / DracoonConstants.KIB;
     }
 
     /**
@@ -179,7 +180,11 @@ public class DracoonHttpConfig {
      * @param chunkSize The upload/download chunk size.
      */
     public void setChunkSize(int chunkSize) {
-        mChunkSize = chunkSize;
+        if (chunkSize > MIN_CHUNK_SIZE) {
+            mChunkSize = chunkSize;
+        } else {
+            mChunkSize = MIN_CHUNK_SIZE;
+        }
     }
 
     /**

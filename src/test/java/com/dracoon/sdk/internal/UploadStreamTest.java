@@ -2,7 +2,6 @@ package com.dracoon.sdk.internal;
 
 import java.io.IOException;
 
-import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserPublicKey;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 public class UploadStreamTest extends DracoonRequestHandlerTest {
 
-    private static final int CHUNK_SIZE = 2;
+    private static final long CHUNK_SIZE = 2048L;
 
     @Mock
     protected CryptoWrapper mCryptoWrapper;
@@ -37,9 +36,7 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
-        DracoonHttpConfig httpConfig = new DracoonHttpConfig();
-        httpConfig.setChunkSize(CHUNK_SIZE);
-        mDracoonClientImpl.setHttpConfig(httpConfig);
+        mDracoonClientImpl.setChunkSize(CHUNK_SIZE);
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
     }
 
@@ -76,8 +73,8 @@ public class UploadStreamTest extends DracoonRequestHandlerTest {
 
         @BeforeEach
         void baseSetup() throws Exception {
-            // Overwrite S3 default chunk size to smaller chunks
-            mDracoonClientImpl.setS3DefaultChunkSize(3 * DracoonConstants.KIB);
+            // Overwrite default chunk size to smaller chunks
+            mDracoonClientImpl.setChunkSize(3072L);
             // Do test setup
             setup();
         }

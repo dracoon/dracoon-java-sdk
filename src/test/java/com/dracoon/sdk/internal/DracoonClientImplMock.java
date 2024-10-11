@@ -5,7 +5,7 @@ import java.net.URL;
 @SuppressWarnings("unused")
 public class DracoonClientImplMock extends DracoonClientImpl {
 
-    private int mS3DefaultChunkSize = 0;
+    private long mOverwrittenChunkSize = 0;
 
     public DracoonClientImplMock(URL serverUrl) {
         super(serverUrl);
@@ -25,17 +25,17 @@ public class DracoonClientImplMock extends DracoonClientImpl {
     }
 
     @Override
-    public int getS3DefaultChunkSize() {
-        if (mS3DefaultChunkSize > 0) {
-            return mS3DefaultChunkSize;
+    public long getChunkSize() {
+        if (mOverwrittenChunkSize > 0) {
+            return mOverwrittenChunkSize;
         } else {
-            return super.getS3DefaultChunkSize();
+            return super.getChunkSize();
         }
     }
 
-    public void setS3DefaultChunkSize(int s3DefaultChunkSize) {
-        if (s3DefaultChunkSize >= 0) {
-            mS3DefaultChunkSize = s3DefaultChunkSize;
+    public void setChunkSize(long chunkSize) {
+        if (chunkSize >= 0) {
+            mOverwrittenChunkSize = chunkSize;
         }
     }
 
