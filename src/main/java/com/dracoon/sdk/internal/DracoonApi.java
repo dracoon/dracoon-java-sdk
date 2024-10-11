@@ -65,7 +65,7 @@ import retrofit2.http.Query;
 
 import static com.dracoon.sdk.internal.DracoonConstants.API_PATH;
 
-public interface DracoonService {
+public interface DracoonApi {
 
     @GET(API_PATH + "/public/software/version")
     Call<ApiServerInfo> getServerInfo();

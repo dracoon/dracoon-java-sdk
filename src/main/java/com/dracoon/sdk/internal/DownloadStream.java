@@ -40,7 +40,7 @@ public class DownloadStream extends FileDownloadStream {
     private static final long PROGRESS_UPDATE_INTERVAL = 100;
 
     private final Log mLog;
-    private final DracoonService mService;
+    private final DracoonApi mApi;
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
@@ -76,7 +76,7 @@ public class DownloadStream extends FileDownloadStream {
 
     private DownloadStream(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey) {
         mLog = client.getLog();
-        mService = client.getDracoonService();
+        mApi = client.getDracoonApi();
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
@@ -279,7 +279,7 @@ public class DownloadStream extends FileDownloadStream {
 
     private long getFileSize() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        Call<ApiNode> call = mService.getNode(mNodeId);
+        Call<ApiNode> call = mApi.getNode(mNodeId);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -296,7 +296,7 @@ public class DownloadStream extends FileDownloadStream {
 
     private String createDownload() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        Call<ApiDownloadToken> call = mService.getDownloadToken(mNodeId);
+        Call<ApiDownloadToken> call = mApi.getDownloadToken(mNodeId);
         Response<ApiDownloadToken> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {

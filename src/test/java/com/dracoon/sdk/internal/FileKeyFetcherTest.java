@@ -22,15 +22,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class FileKeyFetcherTest extends DracoonRequestHandlerTest {
+public class FileKeyFetcherTest extends BaseServiceTest {
 
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
     @Mock
-    protected DracoonAccountImpl mDracoonAccountImpl;
+    protected AccountService mDracoonAccountImpl;
     @Mock
-    protected DracoonNodesImpl mDracoonNodesImpl;
+    protected NodesService mDracoonNodesImpl;
 
     private FileKeyFetcher mFkf;
 
@@ -40,8 +40,8 @@ public class FileKeyFetcherTest extends DracoonRequestHandlerTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDracoonClientImpl.setAccountImpl(mDracoonAccountImpl);
-        mDracoonClientImpl.setNodesImpl(mDracoonNodesImpl);
+        mDracoonClientImpl.setUserService(mDracoonAccountImpl);
+        mDracoonClientImpl.setNodesService(mDracoonNodesImpl);
 
         mFkf = new FileKeyFetcher(mDracoonClientImpl);
     }

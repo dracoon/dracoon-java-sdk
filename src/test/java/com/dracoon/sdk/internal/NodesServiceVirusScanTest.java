@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DracoonNodesVirusScanTest extends DracoonRequestHandlerTest {
+public class NodesServiceVirusScanTest extends BaseServiceTest {
 
-    private DracoonNodesImpl mDni;
+    private NodesService mDni;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -25,7 +25,7 @@ public class DracoonNodesVirusScanTest extends DracoonRequestHandlerTest {
 
         mDracoonClientImpl.setApiVersion(DracoonConstants.API_MIN_VIRUS_SCANNING);
 
-        mDni = new DracoonNodesImpl(mDracoonClientImpl);
+        mDni = new NodesService(mDracoonClientImpl);
     }
 
     // --- Get virus scan infos tests ---

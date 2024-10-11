@@ -30,12 +30,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
-class DracoonAccountTest extends DracoonRequestHandlerTest {
+class AccountServiceTest extends BaseServiceTest {
 
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
-    private DracoonAccountImpl mDai;
+    private AccountService mDai;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -43,7 +43,7 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDai = new DracoonAccountImpl(mDracoonClientImpl);
+        mDai = new AccountService(mDracoonClientImpl);
     }
 
     // --- Ping tests ---
@@ -303,11 +303,11 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         private final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected DracoonServerSettingsImpl mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsImpl;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
 
             mockGetAvailableUserKeyPairVersions();
 
@@ -403,11 +403,11 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         private final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected DracoonServerSettingsImpl mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsImpl;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
 
             mockGetAvailableUserKeyPairAlgorithms();
         }
@@ -631,11 +631,11 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         protected final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected DracoonServerSettingsImpl mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsImpl;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
 
             mockGetAvailableUserKeyPairVersions();
 
@@ -840,11 +840,11 @@ class DracoonAccountTest extends DracoonRequestHandlerTest {
         private final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected DracoonServerSettingsImpl mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsImpl;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsImpl(mServerSettingsImpl);
+            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
 
             mockGetAvailableUserKeyPairVersions();
         }

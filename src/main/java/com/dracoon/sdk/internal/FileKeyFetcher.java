@@ -21,14 +21,14 @@ class FileKeyFetcher {
 
     private final DracoonClientImpl mClient;
     private final Log mLog;
-    private final DracoonService mService;
+    private final DracoonApi mApi;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
 
     FileKeyFetcher(DracoonClientImpl client) {
         mClient = client;
         mLog = client.getLog();
-        mService = client.getDracoonService();
+        mApi = client.getDracoonApi();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
     }
@@ -54,7 +54,7 @@ class FileKeyFetcher {
 
     private EncryptedFileKey getFileKey(long nodeId) throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
-        Call<ApiFileKey> call = mService.getFileKey(nodeId);
+        Call<ApiFileKey> call = mApi.getFileKey(nodeId);
         Response<ApiFileKey> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

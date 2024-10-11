@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class AvatarDownloaderTest extends DracoonRequestHandlerTest {
+class AvatarDownloaderTest extends BaseServiceTest {
 
     private final String DATA_PATH = "/avatar/";
 

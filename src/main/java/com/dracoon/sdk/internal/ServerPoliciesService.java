@@ -12,16 +12,16 @@ import com.dracoon.sdk.model.PasswordPolicies;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class DracoonServerPoliciesImpl extends DracoonRequestHandler
-        implements DracoonClient.ServerPolicies {
+@ClientImpl(DracoonClient.ServerPolicies.class)
+class ServerPoliciesService extends BaseService {
 
-    private static final String LOG_TAG = DracoonServerPoliciesImpl.class.getSimpleName();
+    private static final String LOG_TAG = ServerPoliciesService.class.getSimpleName();
 
-    DracoonServerPoliciesImpl(DracoonClientImpl client) {
+    ServerPoliciesService(DracoonClientImpl client) {
         super(client);
     }
 
-    @Override
+    @ClientMethodImpl
     public PasswordPolicies getEncryptionPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
         ApiServerPasswordPolicies passwordPolicies = getPasswordPolicies();
@@ -29,7 +29,7 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
                 passwordPolicies.encryptionPasswordPolicies);
     }
 
-    @Override
+    @ClientMethodImpl
     public PasswordPolicies getSharesPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
         ApiServerPasswordPolicies passwordPolicies = getPasswordPolicies();
@@ -38,7 +38,7 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
 
     private ApiServerPasswordPolicies getPasswordPolicies() throws DracoonNetIOException,
             DracoonApiException {
-        Call<ApiServerPasswordPolicies> call = mService.getServerPasswordPolicies();
+        Call<ApiServerPasswordPolicies> call = mApi.getServerPasswordPolicies();
         Response<ApiServerPasswordPolicies> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -52,10 +52,10 @@ class DracoonServerPoliciesImpl extends DracoonRequestHandler
         return response.body();
     }
 
-    @Override
+    @ClientMethodImpl
     public ClassificationPolicies getClassificationPolicies() throws DracoonNetIOException,
             DracoonApiException {
-        Call<ApiServerClassificationPolicies> call = mService.getServerClassificationPolicies();
+        Call<ApiServerClassificationPolicies> call = mApi.getServerClassificationPolicies();
         Response<ApiServerClassificationPolicies> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

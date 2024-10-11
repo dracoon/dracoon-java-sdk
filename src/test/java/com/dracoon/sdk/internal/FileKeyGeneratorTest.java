@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class FileKeyGeneratorTest extends DracoonRequestHandlerTest {
+public class FileKeyGeneratorTest extends BaseServiceTest {
 
     private static abstract class MultiAnswer<T> implements Answer<T> {
 
@@ -39,7 +39,7 @@ public class FileKeyGeneratorTest extends DracoonRequestHandlerTest {
     protected CryptoWrapper mCryptoWrapper;
 
     @Mock
-    protected DracoonAccountImpl mDracoonAccountImpl;
+    protected AccountService mDracoonAccountImpl;
 
     private FileKeyGenerator mFkg;
 
@@ -49,7 +49,7 @@ public class FileKeyGeneratorTest extends DracoonRequestHandlerTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDracoonClientImpl.setAccountImpl(mDracoonAccountImpl);
+        mDracoonClientImpl.setUserService(mDracoonAccountImpl);
 
         mFkg = new FileKeyGenerator(mDracoonClientImpl);
     }

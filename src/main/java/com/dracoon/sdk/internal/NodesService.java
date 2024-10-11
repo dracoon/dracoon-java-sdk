@@ -78,16 +78,17 @@ import com.dracoon.sdk.model.UpdateRoomRequest;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.Nodes {
+@ClientImpl(DracoonClient.Nodes.class)
+class NodesService extends BaseService {
 
-    private static final String LOG_TAG = DracoonNodesImpl.class.getSimpleName();
+    private static final String LOG_TAG = NodesService.class.getSimpleName();
 
     private static final String MEDIA_URL_TEMPLATE = "%s/mediaserver/image/%s/%dx%d";
 
     private final Map<String, UploadThread> mUploads = new HashMap<>();
     private final Map<String, DownloadThread> mDownloads = new HashMap<>();
 
-    DracoonNodesImpl(DracoonClientImpl client) {
+    NodesService(DracoonClientImpl client) {
         super(client);
     }
 
@@ -109,25 +110,25 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Query methods ---
 
-    @Override
+    @ClientMethodImpl
     public NodeList getNodes(long parentNodeId) throws DracoonNetIOException,
             DracoonApiException {
         return getNodesInternally(parentNodeId, null, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList getNodes(long parentNodeId, GetNodesFilters filters)
             throws DracoonNetIOException, DracoonApiException {
         return getNodesInternally(parentNodeId, filters, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList getNodes(long parentNodeId, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return getNodesInternally(parentNodeId, null, offset, limit);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList getNodes(long parentNodeId, GetNodesFilters filters, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return getNodesInternally(parentNodeId, filters, offset, limit);
@@ -139,7 +140,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiNodeList> call = mService.getNodes(parentNodeId, 0, filter, null, offset, limit);
+        Call<ApiNodeList> call = mApi.getNodes(parentNodeId, 0, filter, null, offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -155,11 +156,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNodeList(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public Node getNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
         NodeValidator.validateNodeId(nodeId);
 
-        Call<ApiNode> call = mService.getNode(nodeId);
+        Call<ApiNode> call = mApi.getNode(nodeId);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -175,7 +176,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNode(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public Node getNode(String nodePath) throws DracoonNetIOException, DracoonApiException {
         NodeValidator.validateNodePath(nodePath);
 
@@ -209,13 +210,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Room creation and update methods ---
 
-    @Override
+    @ClientMethodImpl
     public Node createRoom(CreateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
         RoomValidator.validateCreateRequest(request);
 
         ApiCreateRoomRequest apiRequest = RoomMapper.toApiCreateRoomRequest(request);
-        Call<ApiNode> call = mService.createRoom(apiRequest);
+        Call<ApiNode> call = mApi.createRoom(apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -231,13 +232,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNode(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public Node updateRoom(UpdateRoomRequest request) throws DracoonNetIOException,
             DracoonApiException {
         RoomValidator.validateUpdateRequest(request);
 
         ApiUpdateRoomRequest apiRequest = RoomMapper.toApiUpdateRoomRequest(request);
-        Call<ApiNode> call = mService.updateRoom(request.getId(), apiRequest);
+        Call<ApiNode> call = mApi.updateRoom(request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -253,13 +254,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNode(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public Node updateRoomConfig(UpdateRoomConfigRequest request) throws DracoonNetIOException,
             DracoonApiException {
         RoomValidator.validateUpdateConfigRequest(request);
 
         ApiUpdateRoomConfigRequest apiRequest = RoomMapper.toApiUpdateRoomConfigRequest(request);
-        Call<ApiNode> call = mService.updateRoomConfig(request.getId(), apiRequest);
+        Call<ApiNode> call = mApi.updateRoomConfig(request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -277,13 +278,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Folder creation and update methods ---
 
-    @Override
+    @ClientMethodImpl
     public Node createFolder(CreateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
         FolderValidator.validateCreateRequest(request);
 
         ApiCreateFolderRequest apiRequest = FolderMapper.toApiCreateFolderRequest(request);
-        Call<ApiNode> call = mService.createFolder(apiRequest);
+        Call<ApiNode> call = mApi.createFolder(apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -299,13 +300,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNode(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public Node updateFolder(UpdateFolderRequest request) throws DracoonNetIOException,
             DracoonApiException {
         FolderValidator.validateUpdateRequest(request);
 
         ApiUpdateFolderRequest apiRequest = FolderMapper.toApiUpdateFolderRequest(request);
-        Call<ApiNode> call = mService.updateFolder(request.getId(), apiRequest);
+        Call<ApiNode> call = mApi.updateFolder(request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -323,13 +324,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- File update methods ---
 
-    @Override
+    @ClientMethodImpl
     public Node updateFile(UpdateFileRequest request) throws DracoonNetIOException,
             DracoonApiException {
         FileValidator.validateUpdateRequest(request);
 
         ApiUpdateFileRequest apiRequest = FileMapper.toApiUpdateFileRequest(request);
-        Call<ApiNode> call = mService.updateFile(request.getId(), apiRequest);
+        Call<ApiNode> call = mApi.updateFile(request.getId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -347,13 +348,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Node copy, move and deletion methods ---
 
-    @Override
+    @ClientMethodImpl
     public void deleteNodes(DeleteNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
         NodeValidator.validateDeleteRequest(request);
 
         ApiDeleteNodesRequest apiRequest = NodeMapper.toApiDeleteNodesRequest(request);
-        Call<Void> call = mService.deleteNodes(apiRequest);
+        Call<Void> call = mApi.deleteNodes(apiRequest);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -365,11 +366,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public void deleteNode(long nodeId) throws DracoonNetIOException, DracoonApiException {
         NodeValidator.validateNodeId(nodeId);
 
-        Call<Void> call = mService.deleteNode(nodeId);
+        Call<Void> call = mApi.deleteNode(nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -381,13 +382,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public Node copyNodes(CopyNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
         NodeValidator.validateCopyRequest(request);
 
         ApiCopyNodesRequest apiRequest = NodeMapper.toApiCopyNodesRequest(request);
-        Call<ApiNode> call = mService.copyNodes(request.getTargetNodeId(), apiRequest);
+        Call<ApiNode> call = mApi.copyNodes(request.getTargetNodeId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -404,13 +405,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNode(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public Node moveNodes(MoveNodesRequest request) throws DracoonNetIOException,
             DracoonApiException {
         NodeValidator.validateMoveRequest(request);
 
         ApiMoveNodesRequest apiRequest = NodeMapper.toApiMoveNodesRequest(request);
-        Call<ApiNode> call = mService.moveNodes(request.getTargetNodeId(), apiRequest);
+        Call<ApiNode> call = mApi.moveNodes(request.getTargetNodeId(), apiRequest);
         Response<ApiNode> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -429,7 +430,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- File upload methods ---
 
-    @Override
+    @ClientMethodImpl
     public Node uploadFile(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
@@ -441,7 +442,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return uploadFileInternally(id, request, is, length, true, callback);
     }
 
-    @Override
+    @ClientMethodImpl
     public Node uploadFile(String id, FileUploadRequest request, InputStream is, long length,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
@@ -470,7 +471,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return node;
     }
 
-    @Override
+    @ClientMethodImpl
     public void startUploadFileAsync(String id, FileUploadRequest request, File file,
             FileUploadCallback callback) throws DracoonFileIOException, DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
@@ -482,7 +483,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         startUploadFileAsyncInternally(id, request, is, length, true, callback);
     }
 
-    @Override
+    @ClientMethodImpl
     public void startUploadFileAsync(String id, FileUploadRequest request, InputStream is,
             long length, FileUploadCallback callback) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
@@ -498,29 +499,29 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
         FileUploadCallback internalCallback = new FileUploadCallback() {
-            @Override
+            @ClientMethodImpl
             public void onStarted(String id) {
                 // SONAR: Empty method body is intentional
             }
 
-            @Override
+            @ClientMethodImpl
             public void onRunning(String id, long bytesSend, long bytesTotal) {
                 // SONAR: Empty method body is intentional
             }
 
-            @Override
+            @ClientMethodImpl
             public void onFinished(String id, Node node) {
                 closeStream(is, close);
                 mUploads.remove(id);
             }
 
-            @Override
+            @ClientMethodImpl
             public void onCanceled(String id) {
                 closeStream(is, close);
                 mUploads.remove(id);
             }
 
-            @Override
+            @ClientMethodImpl
             public void onFailed(String id, DracoonException e) {
                 closeStream(is, close);
                 mUploads.remove(id);
@@ -537,7 +538,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         uploadThread.start();
     }
 
-    @Override
+    @ClientMethodImpl
     public void cancelUploadFileAsync(String id) {
         UploadThread uploadThread = mUploads.get(id);
         if (uploadThread == null) {
@@ -551,7 +552,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mUploads.remove(id);
     }
 
-    @Override
+    @ClientMethodImpl
     public FileUploadStream createFileUploadStream(String id, FileUploadRequest request, long length,
             FileUploadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
@@ -596,7 +597,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- File download methods ---
 
-    @Override
+    @ClientMethodImpl
     public void downloadFile(String id, long nodeId, File file, FileDownloadCallback callback)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
@@ -607,7 +608,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         downloadFileInternally(id, nodeId, os, true, callback);
     }
 
-    @Override
+    @ClientMethodImpl
     public void downloadFile(String id, long nodeId, OutputStream os, FileDownloadCallback callback)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException,
             DracoonFileIOException {
@@ -633,7 +634,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public void startDownloadFileAsync(String id, long nodeId, File file,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException, DracoonFileIOException {
@@ -644,7 +645,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         startDownloadFileAsyncInternally(id, nodeId, os, true, callback);
     }
 
-    @Override
+    @ClientMethodImpl
     public void startDownloadFileAsync(String id, long nodeId, OutputStream os,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
@@ -659,29 +660,29 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
         FileDownloadCallback stoppedCallback = new FileDownloadCallback() {
-            @Override
+            @ClientMethodImpl
             public void onStarted(String id) {
                 // SONAR: Empty method body is intentional
             }
 
-            @Override
+            @ClientMethodImpl
             public void onRunning(String id, long bytesSend, long bytesTotal) {
                 // SONAR: Empty method body is intentional
             }
 
-            @Override
+            @ClientMethodImpl
             public void onFinished(String id) {
                 closeStream(os, close);
                 mDownloads.remove(id);
             }
 
-            @Override
+            @ClientMethodImpl
             public void onCanceled(String id) {
                 closeStream(os, close);
                 mDownloads.remove(id);
             }
 
-            @Override
+            @ClientMethodImpl
             public void onFailed(String id, DracoonException e) {
                 closeStream(os, close);
                 mDownloads.remove(id);
@@ -699,7 +700,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         downloadThread.start();
     }
 
-    @Override
+    @ClientMethodImpl
     public void cancelDownloadFileAsync(String id) {
         DownloadThread downloadThread = mDownloads.get(id);
         if (downloadThread == null) {
@@ -713,7 +714,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         mDownloads.remove(id);
     }
 
-    @Override
+    @ClientMethodImpl
     public FileDownloadStream createFileDownloadStream(String id, long nodeId,
             FileDownloadCallback callback) throws DracoonNetIOException, DracoonApiException,
             DracoonCryptoException {
@@ -739,25 +740,25 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Search methods ---
 
-    @Override
+    @ClientMethodImpl
     public NodeList searchNodes(long parentNodeId, String searchString)
             throws DracoonNetIOException, DracoonApiException {
         return searchNodesInternally(parentNodeId, searchString, null, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters)
             throws DracoonNetIOException, DracoonApiException {
         return searchNodesInternally(parentNodeId, searchString, filters, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList searchNodes(long parentNodeId, String searchString, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return searchNodesInternally(parentNodeId, searchString, null, offset, limit);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList searchNodes(long parentNodeId, String searchString, SearchNodesFilters filters,
             long offset, long limit) throws DracoonNetIOException, DracoonApiException {
         return searchNodesInternally(parentNodeId, searchString, filters, offset, limit);
@@ -770,7 +771,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiNodeList> call = mService.searchNodes(searchString, parentNodeId, -1, filter, null,
+        Call<ApiNodeList> call = mApi.searchNodes(searchString, parentNodeId, -1, filter, null,
                 offset, limit);
         Response<ApiNodeList> response = mHttpHelper.executeRequest(call);
 
@@ -789,13 +790,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- File key generation methods ---
 
-    @Override
+    @ClientMethodImpl
     public boolean generateMissingFileKeys(int limit) throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
         return generateMissingFileKeysInternally(null, limit);
     }
 
-    @Override
+    @ClientMethodImpl
     public boolean generateMissingFileKeys(long nodeId, int limit) throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
         NodeValidator.validateNodeId(nodeId);
@@ -809,11 +810,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Favorite methods ---
 
-    @Override
+    @ClientMethodImpl
     public void markFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
         NodeValidator.validateNodeId(nodeId);
 
-        Call<Void> call = mService.markFavorite(nodeId);
+        Call<Void> call = mApi.markFavorite(nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -827,11 +828,11 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public void unmarkFavorite(long nodeId) throws DracoonNetIOException, DracoonApiException {
         NodeValidator.validateNodeId(nodeId);
 
-        Call<Void> call = mService.unmarkFavorite(nodeId);
+        Call<Void> call = mApi.unmarkFavorite(nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -850,7 +851,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList getFavorites() throws DracoonNetIOException, DracoonApiException {
         SearchNodesFilters filters = new SearchNodesFilters();
         filters.addFavoriteStatusFilter(new FavoriteStatusFilter.Builder()
@@ -859,7 +860,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return searchNodes(0L, "*", filters);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeList getFavorites(long offset, long limit) throws DracoonNetIOException,
             DracoonApiException {
         SearchNodesFilters filters = new SearchNodesFilters();
@@ -871,13 +872,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Comment methods ---
 
-    @Override
+    @ClientMethodImpl
     public NodeCommentList getNodeComments(long nodeId) throws DracoonNetIOException,
             DracoonApiException {
         return getNodeCommentsInternally(nodeId, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeCommentList getNodeComments(long nodeId, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return getNodeCommentsInternally(nodeId, offset, limit);
@@ -888,7 +889,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         NodeValidator.validateNodeId(nodeId);
         BaseValidator.validateRange(offset, limit, true);
 
-        Call<ApiNodeCommentList> call = mService.getNodeComments(nodeId, offset, limit);
+        Call<ApiNodeCommentList> call = mApi.getNodeComments(nodeId, offset, limit);
         Response<ApiNodeCommentList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -903,13 +904,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNodeCommentList(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeComment createNodeComment(CreateNodeCommentRequest request)
             throws DracoonNetIOException, DracoonApiException {
         NodeValidator.validateCreateCommentRequest(request);
 
         ApiCreateNodeCommentRequest apiRequest = NodeMapper.toApiCreateNodeCommentRequest(request);
-        Call<ApiNodeComment> call = mService.createNodeComment(request.getNodeId(), apiRequest);
+        Call<ApiNodeComment> call = mApi.createNodeComment(request.getNodeId(), apiRequest);
         Response<ApiNodeComment> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -925,13 +926,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNodeComment(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public NodeComment updateNodeComment(UpdateNodeCommentRequest request)
             throws DracoonNetIOException, DracoonApiException {
         NodeValidator.validateUpdateCommentRequest(request);
 
         ApiUpdateNodeCommentRequest apiRequest = NodeMapper.toApiUpdateNodeCommentRequest(request);
-        Call<ApiNodeComment> call = mService.updateNodeComment(request.getId(), apiRequest);
+        Call<ApiNodeComment> call = mApi.updateNodeComment(request.getId(), apiRequest);
         Response<ApiNodeComment> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -947,12 +948,12 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNodeComment(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public void deleteNodeComment(long commentId)
             throws DracoonNetIOException, DracoonApiException {
         BaseValidator.validateCommentId(commentId);
 
-        Call<Void> call = mService.deleteNodeComment(commentId);
+        Call<Void> call = mApi.deleteNodeComment(commentId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -966,7 +967,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Virus scanning methods ---
 
-    @Override
+    @ClientMethodImpl
     public FileVirusScanInfoList getFilesVirusScanInformation(GetFilesVirusScanInfoRequest request)
             throws DracoonNetIOException, DracoonApiException {
         mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
@@ -976,7 +977,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return getFilesVirusScanInformationInternally(request.getIds());
     }
 
-    @Override
+    @ClientMethodImpl
     public FileVirusScanInfo getFileVirusScanInformation(long nodeId) throws DracoonNetIOException,
             DracoonApiException {
         mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
@@ -999,7 +1000,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         ApiGetNodesVirusProtectionInfoRequest request = new ApiGetNodesVirusProtectionInfoRequest();
         request.nodeIds = nodeIds;
 
-        Call<List<ApiNodeVirusProtectionInfo>> call = mService.getNodesVirusProtectionInfo(request);
+        Call<List<ApiNodeVirusProtectionInfo>> call = mApi.getNodesVirusProtectionInfo(request);
         Response<List<ApiNodeVirusProtectionInfo>> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -1015,13 +1016,13 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
         return NodeMapper.fromApiNodeVirusProtectionInfos(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public void deleteMaliciousFile(long nodeId) throws DracoonNetIOException, DracoonApiException {
         mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
 
         NodeValidator.validateNodeId(nodeId);
 
-        Call<Void> call = mService.deleteMaliciousFile(nodeId);
+        Call<Void> call = mApi.deleteMaliciousFile(nodeId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -1035,7 +1036,7 @@ class DracoonNodesImpl extends DracoonRequestHandler implements DracoonClient.No
 
     // --- Media URL methods ---
 
-    @Override
+    @ClientMethodImpl
     public URL buildMediaUrl(String mediaToken, int width, int height) {
         NodeValidator.validateMediaUrlRequest(mediaToken, width, height);
 

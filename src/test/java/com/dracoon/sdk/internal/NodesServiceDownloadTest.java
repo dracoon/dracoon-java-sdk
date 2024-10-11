@@ -28,7 +28,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
+public class NodesServiceDownloadTest extends BaseServiceTest {
 
     private static class StubOutputStream extends OutputStream {
         @Override
@@ -40,7 +40,7 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
     @Mock
     protected FileKeyFetcher mFileKeyFetcher;
 
-    private DracoonNodesImpl mDni;
+    private NodesService mDni;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -48,7 +48,7 @@ public class DracoonNodesDownloadTest extends DracoonRequestHandlerTest {
 
         mDracoonClientImpl.setFileKeyFetcher(mFileKeyFetcher);
 
-        mDni = new DracoonNodesImpl(mDracoonClientImpl);
+        mDni = new NodesService(mDracoonClientImpl);
     }
 
     private static abstract class BaseTests {

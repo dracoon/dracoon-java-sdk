@@ -30,16 +30,17 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class DracoonAccountImpl extends DracoonRequestHandler implements DracoonClient.Account {
+@ClientImpl(DracoonClient.Account.class)
+class AccountService extends BaseService {
 
-    private static final String LOG_TAG = DracoonAccountImpl.class.getSimpleName();
+    private static final String LOG_TAG = AccountService.class.getSimpleName();
 
-    DracoonAccountImpl(DracoonClientImpl client) {
+    AccountService(DracoonClientImpl client) {
         super(client);
     }
 
     public void pingUser() throws DracoonNetIOException, DracoonApiException {
-        Call<Void> call = mService.pingUser();
+        Call<Void> call = mApi.pingUser();
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -50,9 +51,9 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public UserAccount getUserAccount() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiUserAccount> accountCall = mService.getUserAccount();
+        Call<ApiUserAccount> accountCall = mApi.getUserAccount();
         Response<ApiUserAccount> accountResponse = mHttpHelper.executeRequest(accountCall);
 
         if (!accountResponse.isSuccessful()) {
@@ -65,7 +66,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
         ApiUserAccount accountData = accountResponse.body();
 
-        Call<ApiUserAvatarInfo> avatarInfoCall = mService.getUserAvatarInfo();
+        Call<ApiUserAvatarInfo> avatarInfoCall = mApi.getUserAvatarInfo();
         Response<ApiUserAvatarInfo> avatarInfoResponse = mHttpHelper.executeRequest(avatarInfoCall);
 
         if (!avatarInfoResponse.isSuccessful()) {
@@ -81,9 +82,9 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return UserMapper.fromApiUserAccount(accountData, avatarInfoData);
     }
 
-    @Override
+    @ClientMethodImpl
     public CustomerAccount getCustomerAccount() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiCustomerAccount> call = mService.getCustomerAccount();
+        Call<ApiCustomerAccount> call = mApi.getCustomerAccount();
         Response<ApiCustomerAccount> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -99,7 +100,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return CustomerMapper.fromApiCustomerAccount(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public List<UserKeyPairAlgorithm.Version> getUserKeyPairAlgorithmVersions()
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
@@ -112,7 +113,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return versions;
     }
 
-    @Override
+    @ClientMethodImpl
     public void setUserKeyPair(UserKeyPairAlgorithm.Version version) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
@@ -125,7 +126,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
         ApiUserKeyPair apiUserKeyPair = UserMapper.toApiUserKeyPair(userKeyPair);
 
-        Call<Void> call = mService.setUserKeyPair(apiUserKeyPair);
+        Call<Void> call = mApi.setUserKeyPair(apiUserKeyPair);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -152,7 +153,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
     }
 
     private List<ApiUserKeyPair> getAllUserKeyPairs() throws DracoonNetIOException, DracoonApiException {
-        Call<List<ApiUserKeyPair>> call = mService.getUserKeyPairs();
+        Call<List<ApiUserKeyPair>> call = mApi.getUserKeyPairs();
         Response<List<ApiUserKeyPair>> response = mHttpHelper.executeRequest(call);
 
         if (existsNoUserKeyPair(response)) {
@@ -178,7 +179,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
 
-        Call<ApiUserKeyPair> call = mService.getUserKeyPair(userKeyPairVersion.getValue());
+        Call<ApiUserKeyPair> call = mApi.getUserKeyPair(userKeyPairVersion.getValue());
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -253,14 +254,14 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public void deleteUserKeyPair(UserKeyPairAlgorithm.Version version) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
 
         mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
 
-        Call<Void> call = mService.deleteUserKeyPair(userKeyPairVersion.getValue());
+        Call<Void> call = mApi.deleteUserKeyPair(userKeyPairVersion.getValue());
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -272,14 +273,14 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version)
             throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
         char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
         return checkUserKeyPairPassword(version, encryptionPassword);
     }
 
-    @Override
+    @ClientMethodImpl
     public boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version,
             char[] encryptionPassword) throws DracoonCryptoException, DracoonNetIOException,
             DracoonApiException {
@@ -289,7 +290,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return crypto.checkUserKeyPairPassword(userKeyPair, encryptionPassword);
     }
 
-    @Override
+    @ClientMethodImpl
     public void setUserProfileAttribute(String key, String value) throws DracoonNetIOException,
             DracoonApiException {
         ValidatorUtils.validateString("key", key, false);
@@ -308,7 +309,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public String getUserProfileAttribute(String key) throws DracoonNetIOException,
             DracoonApiException {
         ValidatorUtils.validateString("key", key, false);
@@ -328,7 +329,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private void setUserProfileAttributes(ApiUserProfileAttributes profileAttributes)
             throws DracoonNetIOException, DracoonApiException {
-        Call<Void> call = mService.setUserProfileAttributes(profileAttributes);
+        Call<Void> call = mApi.setUserProfileAttributes(profileAttributes);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -342,7 +343,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private ApiUserProfileAttributes getUserProfileAttributes() throws DracoonNetIOException,
             DracoonApiException {
-        Call<ApiUserProfileAttributes> call = mService.getUserProfileAttributes();
+        Call<ApiUserProfileAttributes> call = mApi.getUserProfileAttributes();
         Response<ApiUserProfileAttributes> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -358,7 +359,7 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
 
     private void deleteUserProfileAttribute(String key) throws DracoonNetIOException,
             DracoonApiException {
-        Call<Void> call = mService.deleteUserProfileAttribute(key);
+        Call<Void> call = mApi.deleteUserProfileAttribute(key);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -374,12 +375,12 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public void setUserAvatar(byte[] avatarImage) throws DracoonNetIOException, DracoonApiException {
         ValidatorUtils.validateByteArray("Avatar image", avatarImage, false, 1L,
                 5L * (long) DracoonConstants.MIB);
 
-        Call<Void> call = mService.setUserAvatar(RequestBody.create(MediaType.parse(
+        Call<Void> call = mApi.setUserAvatar(RequestBody.create(MediaType.parse(
                 "application/octet-stream"), avatarImage));
         Response<Void> response = mHttpHelper.executeRequest(call);
 
@@ -392,9 +393,9 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public byte[] getUserAvatar() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiUserAvatarInfo> avatarInfoCall = mService.getUserAvatarInfo();
+        Call<ApiUserAvatarInfo> avatarInfoCall = mApi.getUserAvatarInfo();
         Response<ApiUserAvatarInfo> avatarInfoResponse = mHttpHelper.executeRequest(avatarInfoCall);
 
         if (!avatarInfoResponse.isSuccessful()) {
@@ -411,9 +412,9 @@ public class DracoonAccountImpl extends DracoonRequestHandler implements Dracoon
         return mClient.getAvatarDownloader().downloadAvatar(downloadUrl);
     }
 
-    @Override
+    @ClientMethodImpl
     public void deleteUserAvatar() throws DracoonNetIOException, DracoonApiException {
-        Call<Void> call = mService.deleteUserAvatar();
+        Call<Void> call = mApi.deleteUserAvatar();
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

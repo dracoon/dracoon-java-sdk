@@ -7,15 +7,16 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.validator.UserValidator;
 
-public class DracoonUsersImpl extends DracoonRequestHandler implements DracoonClient.Users {
+@ClientImpl(DracoonClient.Users.class)
+class UsersService extends BaseService {
 
-    DracoonUsersImpl(DracoonClientImpl client) {
+    UsersService(DracoonClientImpl client) {
         super(client);
     }
 
     // --- Avatar methods ---
 
-    @Override
+    @ClientMethodImpl
     public byte[] getUserAvatar(long userId, UUID avatarUuid) throws DracoonNetIOException,
             DracoonApiException {
         UserValidator.validateUserId(userId);

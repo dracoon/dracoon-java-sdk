@@ -11,26 +11,27 @@ import com.dracoon.sdk.internal.model.ApiServerTime;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.Server {
+@ClientImpl(DracoonClient.Server.class)
+class ServerInfoService extends BaseService {
 
-    private static final String LOG_TAG = DracoonServerImpl.class.getSimpleName();
+    private static final String LOG_TAG = ServerInfoService.class.getSimpleName();
 
-    DracoonServerImpl(DracoonClientImpl client) {
+    ServerInfoService(DracoonClientImpl client) {
         super(client);
     }
 
-    @Override
+    @ClientMethodImpl
     public String getVersion() throws DracoonNetIOException, DracoonApiException {
         return getServerInfo().restApiVersion;
     }
 
-    @Override
+    @ClientMethodImpl
     public Boolean isDracoonCloud() throws DracoonNetIOException, DracoonApiException {
         return getServerInfo().isDracoonCloud;
     }
 
     private ApiServerInfo getServerInfo() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiServerInfo> call = mService.getServerInfo();
+        Call<ApiServerInfo> call = mApi.getServerInfo();
         Response<ApiServerInfo> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -44,9 +45,9 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
         return response.body();
     }
 
-    @Override
+    @ClientMethodImpl
     public Date getTime() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiServerTime> call = mService.getServerTime();
+        Call<ApiServerTime> call = mApi.getServerTime();
         Response<ApiServerTime> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -58,16 +59,6 @@ class DracoonServerImpl extends DracoonRequestHandler implements DracoonClient.S
         }
 
         return response.body().time;
-    }
-
-    @Override
-    public DracoonClient.ServerSettings settings() {
-        return mClient.getServerSettingsImpl();
-    }
-
-    @Override
-    public DracoonClient.ServerPolicies policies() {
-        return mClient.getServerPoliciesImpl();
     }
 
 }

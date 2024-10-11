@@ -12,10 +12,6 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mApiVersion = DracoonConstants.API_MIN_VERSION;
     }
 
-    public void setDracoonService(DracoonService dracoonService) {
-        mDracoonService = dracoonService;
-    }
-
     public void setDracoonErrorParser(DracoonErrorParser dracoonErrorParser) {
         mDracoonErrorParser = dracoonErrorParser;
     }
@@ -47,7 +43,7 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
         initHttpClient();
         initHttpHelper();
-        initDracoonService();
+        initDracoonApi();
         initDracoonErrorParser();
     }
 
@@ -72,36 +68,32 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     // --- Methods to set internal handlers ---
 
-    public void setServerImpl(DracoonServerImpl server) {
-        mServer = server;
+    public void setServerInfoService(ServerInfoService service) {
+        mServerInfoService = service;
     }
 
-    public void setServerSettingsImpl(DracoonServerSettingsImpl serverSettings) {
-        mServerSettings = serverSettings;
+    public void setServerSettingsService(ServerSettingsService service) {
+        mServerSettingsService = service;
     }
 
-    public void setServerPoliciesImpl(DracoonServerPoliciesImpl serverPolicies) {
-        mServerPolicies = serverPolicies;
+    public void setServerPoliciesService(ServerPoliciesService service) {
+        mServerPoliciesService = service;
     }
 
-    public void setAccountImpl(DracoonAccountImpl account) {
-        mAccount = account;
+    public void setUserService(AccountService service) {
+        mAccountService = service;
     }
 
-    public void setUsersImpl(Users users) {
-        mUsers = users;
+    public void setUsersService(UsersService service) {
+        mUsersService = service;
     }
 
-    public void setGroupsImpl(Groups groups) {
-        mGroups = groups;
+    public void setNodesService(NodesService service) {
+        mNodesService = service;
     }
 
-    public void setNodesImpl(DracoonNodesImpl nodes) {
-        mNodes = nodes;
-    }
-
-    public void setSharesImpl(DracoonSharesImpl shares) {
-        mShares = shares;
+    public void setSharesService(SharesService service) {
+        mSharesService = service;
     }
 
     public void setFileKeyFetcher(FileKeyFetcher fileKeyFetcher) {

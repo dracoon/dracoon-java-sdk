@@ -13,15 +13,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DracoonNodesCommentsTest extends DracoonRequestHandlerTest {
+public class NodesServiceCommentsTest extends BaseServiceTest {
 
-    private DracoonNodesImpl mDni;
+    private NodesService mDni;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDni = new DracoonNodesImpl(mDracoonClientImpl);
+        mDni = new NodesService(mDracoonClientImpl);
     }
 
     // --- Get node comments tests ---

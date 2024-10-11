@@ -28,15 +28,15 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class DracoonSharesTest extends DracoonRequestHandlerTest {
+class SharesServiceTest extends BaseServiceTest {
 
-    private DracoonSharesImpl mDsi;
+    private SharesService mDsi;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDsi = new DracoonSharesImpl(mDracoonClientImpl);
+        mDsi = new SharesService(mDracoonClientImpl);
     }
 
     private interface SharesTest<T> {
@@ -139,7 +139,7 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
         protected FileKeyFetcher mFileKeyFetcher;
 
         @Mock
-        protected DracoonServerSettingsImpl mDracoonServerSettingsImpl;
+        protected ServerSettingsService mDracoonServerSettingsImpl;
 
         protected CreateDownloadShareRequest mCreateDownloadShareRequest;
 
@@ -152,7 +152,7 @@ class DracoonSharesTest extends DracoonRequestHandlerTest {
             mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
             mDracoonClientImpl.setFileKeyFetcher(mFileKeyFetcher);
 
-            mDracoonClientImpl.setServerSettingsImpl(mDracoonServerSettingsImpl);
+            mDracoonClientImpl.setServerSettingsService(mDracoonServerSettingsImpl);
 
             mCreateDownloadShareRequest = readDataWithPath(CreateDownloadShareRequest.class,
                     "create_dl_share_request.json");

@@ -16,15 +16,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class DracoonUsersTest extends DracoonRequestHandlerTest {
+class UsersServiceTest extends BaseServiceTest {
 
-    private DracoonUsersImpl mDui;
+    private UsersService mDui;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDui = new DracoonUsersImpl(mDracoonClientImpl);
+        mDui = new UsersService(mDracoonClientImpl);
     }
 
     // --- Get user avatar tests ---

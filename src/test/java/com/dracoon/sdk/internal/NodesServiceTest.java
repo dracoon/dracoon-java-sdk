@@ -32,15 +32,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DracoonNodesTest extends DracoonRequestHandlerTest {
+public class NodesServiceTest extends BaseServiceTest {
 
-    private DracoonNodesImpl mDni;
+    private NodesService mDni;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDni = new DracoonNodesImpl(mDracoonClientImpl);
+        mDni = new NodesService(mDracoonClientImpl);
     }
 
     private interface NodesTest<T> {

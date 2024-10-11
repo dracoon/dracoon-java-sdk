@@ -48,17 +48,18 @@ public class DracoonClientImpl extends DracoonClient {
 
     private OAuthClient mOAuthClient;
 
-    protected DracoonService mDracoonService;
+    private DracoonApi mDracoonApi;
     protected DracoonErrorParser mDracoonErrorParser;
 
-    protected DracoonServerImpl mServer;
-    protected DracoonServerSettingsImpl mServerSettings;
-    protected DracoonServerPoliciesImpl mServerPolicies;
-    protected DracoonAccountImpl mAccount;
-    protected Users mUsers;
-    protected Groups mGroups;
-    protected DracoonNodesImpl mNodes;
-    protected DracoonSharesImpl mShares;
+    private DynamicServiceProxy mServiceProxy;
+
+    protected ServerInfoService mServerInfoService;
+    protected ServerSettingsService mServerSettingsService;
+    protected ServerPoliciesService mServerPoliciesService;
+    protected AccountService mAccountService;
+    protected UsersService mUsersService;
+    protected NodesService mNodesService;
+    protected SharesService mSharesService;
 
     protected FileKeyFetcher mFileKeyFetcher;
     protected FileKeyGenerator mFileKeyGenerator;
@@ -110,8 +111,8 @@ public class DracoonClientImpl extends DracoonClient {
         return mHttpClient;
     }
 
-    public DracoonService getDracoonService() {
-        return mDracoonService;
+    public DracoonApi getDracoonApi() {
+        return mDracoonApi;
     }
 
     public DracoonErrorParser getDracoonErrorParser() {
@@ -126,15 +127,15 @@ public class DracoonClientImpl extends DracoonClient {
         return ((long) mHttpConfig.getChunkSize()) * DracoonConstants.KIB;
     }
 
-    public CryptoWrapper getCryptoWrapper() {
+    CryptoWrapper getCryptoWrapper() {
         return mCryptoWrapper;
     }
 
-    public ThreadHelper getThreadHelper() {
+    ThreadHelper getThreadHelper() {
         return mThreadHelper;
     }
 
-    public FileStreamHelper getFileStreamHelper() {
+    FileStreamHelper getFileStreamHelper() {
         return mFileStreamHelper;
     }
 
@@ -145,24 +146,15 @@ public class DracoonClientImpl extends DracoonClient {
 
         initHttpClient();
         initHttpHelper();
-        initDracoonService();
+        initDracoonApi();
         initDracoonErrorParser();
 
         mCryptoWrapper = new CryptoWrapper(mLog);
         mThreadHelper = new ThreadHelper();
         mFileStreamHelper = new FileStreamHelper();
 
-        mServer = new DracoonServerImpl(this);
-        mServerSettings = new DracoonServerSettingsImpl(this);
-        mServerPolicies = new DracoonServerPoliciesImpl(this);
-        mAccount = new DracoonAccountImpl(this);
-        mUsers = new DracoonUsersImpl(this);
-        mNodes = new DracoonNodesImpl(this);
-        mShares = new DracoonSharesImpl(this);
-
-        mFileKeyFetcher = new FileKeyFetcher(this);
-        mFileKeyGenerator = new FileKeyGenerator(this);
-        mAvatarDownloader = new AvatarDownloader(this);
+        initServices();
+        initServiceProxy();
     }
 
     protected void initOAuthClient() {
@@ -202,7 +194,7 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpHelper.init();
     }
 
-    protected void initDracoonService() {
+    protected void initDracoonApi() {
         AuthInterceptor authInterceptor = new AuthInterceptor(mOAuthClient, mAuthHolder);
 
         OkHttpClient httpClient = mHttpClient.newBuilder()
@@ -223,12 +215,39 @@ public class DracoonClientImpl extends DracoonClient {
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
-        mDracoonService = retrofit.create(DracoonService.class);
+        mDracoonApi = retrofit.create(DracoonApi.class);
     }
 
     protected void initDracoonErrorParser() {
         mDracoonErrorParser = new DracoonErrorParser();
         mDracoonErrorParser.setLog(mLog);
+    }
+
+    private void initServices() {
+        mServerInfoService = new ServerInfoService(this);
+        mServerSettingsService = new ServerSettingsService(this);
+        mServerPoliciesService = new ServerPoliciesService(this);
+        mAccountService = new AccountService(this);
+        mUsersService = new UsersService(this);
+        mNodesService = new NodesService(this);
+        mSharesService = new SharesService(this);
+
+        mFileKeyFetcher = new FileKeyFetcher(this);
+        mFileKeyGenerator = new FileKeyGenerator(this);
+        mAvatarDownloader = new AvatarDownloader(this);
+    }
+
+    private void initServiceProxy() {
+        mServiceProxy = new DynamicServiceProxy();
+        mServiceProxy.addServices(
+                mServerInfoService,
+                mServerSettingsService,
+                mServerPoliciesService,
+                mAccountService,
+                mUsersService,
+                mNodesService,
+                mSharesService);
+        mServiceProxy.prepare();
     }
 
     public void checkApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
@@ -251,7 +270,7 @@ public class DracoonClientImpl extends DracoonClient {
     public boolean isApiVersionGreaterEqual(String minApiVersion) throws DracoonNetIOException,
             DracoonApiException {
         if (mApiVersion == null) {
-            mApiVersion = mServer.getVersion();
+            mApiVersion = mServerInfoService.getVersion();
         }
 
         if (mApiVersion == null || mApiVersion.isEmpty()) {
@@ -288,7 +307,7 @@ public class DracoonClientImpl extends DracoonClient {
             throw new IllegalArgumentException("Version can't be null.");
         }
 
-        List<UserKeyPair.Version> versions = mServerSettings.getAvailableUserKeyPairVersions();
+        List<UserKeyPair.Version> versions = mServerSettingsService.getAvailableUserKeyPairVersions();
         boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
         if (!apiSupportsVersion) {
             throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
@@ -314,7 +333,7 @@ public class DracoonClientImpl extends DracoonClient {
     @Override
     public boolean isAuthValid() throws DracoonNetIOException, DracoonApiException {
         try {
-            mAccount.pingUser();
+            mAccountService.pingUser();
         } catch (DracoonApiException e) {
             if (e.getCode().isAuthError()) {
                 return false;
@@ -327,65 +346,53 @@ public class DracoonClientImpl extends DracoonClient {
 
     @Override
     public void checkAuthValid() throws DracoonNetIOException, DracoonApiException {
-        mAccount.pingUser();
+        mAccountService.pingUser();
     }
 
     // --- Methods to get public handlers ---
 
     @Override
     public Server server() {
-        return mServer;
+        return mServiceProxy.server();
     }
 
     @Override
     public Account account() {
-        return mAccount;
+        return mServiceProxy.account();
     }
 
     @Override
     public Users users() {
-        return mUsers;
+        return mServiceProxy.users();
     }
 
     @Override
     public Groups groups() {
-        return mGroups;
+        return mServiceProxy.groups();
     }
 
     @Override
     public Nodes nodes() {
-        return mNodes;
+        return mServiceProxy.nodes();
     }
 
     @Override
     public Shares shares() {
-        return mShares;
+        return mServiceProxy.shares();
     }
 
-    // --- Methods to get internal handlers ---
+    // --- Methods to get internal services ---
 
-    public DracoonServerImpl getServerImpl() {
-        return mServer;
+    public ServerSettingsService getServerSettingsImpl() {
+        return mServerSettingsService;
     }
 
-    public DracoonServerSettingsImpl getServerSettingsImpl() {
-        return mServerSettings;
+    public AccountService getAccountImpl() {
+        return mAccountService;
     }
 
-    public DracoonServerPoliciesImpl getServerPoliciesImpl() {
-        return mServerPolicies;
-    }
-
-    public DracoonAccountImpl getAccountImpl() {
-        return mAccount;
-    }
-
-    public DracoonNodesImpl getNodesImpl() {
-        return mNodes;
-    }
-
-    public DracoonSharesImpl getSharesImpl() {
-        return mShares;
+    public NodesService getNodesImpl() {
+        return mNodesService;
     }
 
     public FileKeyFetcher getFileKeyFetcher() {

@@ -18,7 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public abstract class DracoonRequestHandlerTest extends BaseHttpTest {
+public abstract class BaseServiceTest extends BaseHttpTest {
 
     private static final String USER_AGENT = "Java-SDK-Unit-Test";
     private static final String ACCESS_TOKEN = "L3O1eDsLxDgJhLaQbzOSmm8xr48mxPoW";

@@ -29,15 +29,16 @@ import com.dracoon.sdk.model.UploadShareList;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonClient.Shares {
+@ClientImpl(DracoonClient.Shares.class)
+class SharesService extends BaseService {
 
-    private static final String LOG_TAG = DracoonSharesImpl.class.getSimpleName();
+    private static final String LOG_TAG = SharesService.class.getSimpleName();
 
-    DracoonSharesImpl(DracoonClientImpl client) {
+    SharesService(DracoonClientImpl client) {
         super(client);
     }
 
-    @Override
+    @ClientMethodImpl
     public DownloadShare createDownloadShare(CreateDownloadShareRequest request)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         long nodeId = request.getNodeId();
@@ -64,7 +65,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
 
         ApiCreateDownloadShareRequest apiRequest = ShareMapper.toApiCreateDownloadShareRequest(
                 request, shareUserKeyPair, shareEncFileKey);
-        Call<ApiDownloadShare> call = mService.createDownloadShare(apiRequest);
+        Call<ApiDownloadShare> call = mApi.createDownloadShare(apiRequest);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -80,24 +81,24 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         return ShareMapper.fromApiDownloadShare(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public DownloadShareList getDownloadShares() throws DracoonNetIOException, DracoonApiException {
         return getDownloadSharesInternally(null, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public DownloadShareList getDownloadShares(long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return getDownloadSharesInternally(null, offset, limit);
     }
 
-    @Override
+    @ClientMethodImpl
     public DownloadShareList getDownloadShares(GetDownloadSharesFilter filters)
             throws DracoonNetIOException, DracoonApiException {
         return getDownloadSharesInternally(filters, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public DownloadShareList getDownloadShares(GetDownloadSharesFilter filters, long offset,
             long limit) throws DracoonNetIOException, DracoonApiException {
         return getDownloadSharesInternally(filters, offset, limit);
@@ -108,7 +109,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiDownloadShareList> call = mService.getDownloadShares(filter, offset, limit);
+        Call<ApiDownloadShareList> call = mApi.getDownloadShares(filter, offset, limit);
         Response<ApiDownloadShareList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -123,12 +124,12 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         return ShareMapper.fromApiDownloadShareList(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public byte[] getDownloadShareQrCode(long shareId) throws DracoonNetIOException,
             DracoonApiException {
         BaseValidator.validateShareId(shareId);
 
-        Call<ApiDownloadShare> call = mService.getDownloadShareQR(shareId);
+        Call<ApiDownloadShare> call = mApi.getDownloadShareQR(shareId);
         Response<ApiDownloadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -142,10 +143,10 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         return ShareMapper.fromApiDownloadShareQrCode(response.body());
     }
 
-    @Override
+    @ClientMethodImpl
     public void deleteDownloadShare(long shareId) throws DracoonNetIOException,
             DracoonApiException {
-        Call<Void> call = mService.deleteDownloadShare(shareId);
+        Call<Void> call = mApi.deleteDownloadShare(shareId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -157,13 +158,13 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         }
     }
 
-    @Override
+    @ClientMethodImpl
     public UploadShare createUploadShare(CreateUploadShareRequest request)
             throws DracoonNetIOException, DracoonApiException {
         ShareValidator.validateCreateUploadRequest(request);
 
         ApiCreateUploadShareRequest apiRequest = ShareMapper.toApiCreateUploadShareRequest(request);
-        Call<ApiUploadShare> call = mService.createUploadShare(apiRequest);
+        Call<ApiUploadShare> call = mApi.createUploadShare(apiRequest);
         Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -179,24 +180,24 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         return ShareMapper.fromApiUploadShare(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public UploadShareList getUploadShares() throws DracoonNetIOException, DracoonApiException {
         return getUploadSharesInternally(null, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public UploadShareList getUploadShares(long offset, long limit) throws DracoonNetIOException,
             DracoonApiException {
         return getUploadSharesInternally(null, offset, limit);
     }
 
-    @Override
+    @ClientMethodImpl
     public UploadShareList getUploadShares(GetUploadSharesFilter filters)
             throws DracoonNetIOException, DracoonApiException {
         return getUploadSharesInternally(filters, null, null);
     }
 
-    @Override
+    @ClientMethodImpl
     public UploadShareList getUploadShares(GetUploadSharesFilter filters, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
         return getUploadSharesInternally(filters, offset, limit);
@@ -207,7 +208,7 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         BaseValidator.validateRange(offset, limit, true);
 
         String filter = filters != null ? filters.toString() : null;
-        Call<ApiUploadShareList> call = mService.getUploadShares(filter, offset, limit);
+        Call<ApiUploadShareList> call = mApi.getUploadShares(filter, offset, limit);
         Response<ApiUploadShareList> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -222,12 +223,12 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         return ShareMapper.fromApiUploadShareList(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public byte[] getUploadShareQrCode(long shareId) throws DracoonNetIOException,
             DracoonApiException {
         BaseValidator.validateShareId(shareId);
 
-        Call<ApiUploadShare> call = mService.getUploadShareQR(shareId);
+        Call<ApiUploadShare> call = mApi.getUploadShareQR(shareId);
         Response<ApiUploadShare> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -241,9 +242,9 @@ public class DracoonSharesImpl extends DracoonRequestHandler implements DracoonC
         return ShareMapper.fromApiUploadShareQrCode(response.body());
     }
 
-    @Override
+    @ClientMethodImpl
     public void deleteUploadShare(long shareId) throws DracoonNetIOException, DracoonApiException {
-        Call<Void> call = mService.deleteUploadShare(shareId);
+        Call<Void> call = mApi.deleteUploadShare(shareId);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

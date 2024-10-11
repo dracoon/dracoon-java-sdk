@@ -36,14 +36,14 @@ class FileKeyGenerator {
 
     private final DracoonClientImpl mClient;
     private final Log mLog;
-    private final DracoonService mService;
+    private final DracoonApi mApi;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
 
     FileKeyGenerator(DracoonClientImpl client) {
         mClient = client;
         mLog = client.getLog();
-        mService = client.getDracoonService();
+        mApi = client.getDracoonApi();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
     }
@@ -130,7 +130,7 @@ class FileKeyGenerator {
 
     private ApiMissingFileKeys getMissingFileKeysBatch(Long nodeId, long offset, long limit)
             throws DracoonNetIOException, DracoonApiException {
-        Call<ApiMissingFileKeys> call = mService.getMissingFileKeys(nodeId, offset, limit);
+        Call<ApiMissingFileKeys> call = mApi.getMissingFileKeys(nodeId, offset, limit);
         Response<ApiMissingFileKeys> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -211,7 +211,7 @@ class FileKeyGenerator {
             throws DracoonNetIOException, DracoonApiException {
         ApiSetFileKeysRequest request = new ApiSetFileKeysRequest();
         request.items = apiUserIdFileIdFileKeys;
-        Call<Void> call = mService.setFileKeys(request);
+        Call<Void> call = mApi.setFileKeys(request);
         Response<Void> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

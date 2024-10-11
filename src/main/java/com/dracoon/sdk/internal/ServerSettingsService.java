@@ -21,22 +21,22 @@ import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class DracoonServerSettingsImpl extends DracoonRequestHandler
-        implements DracoonClient.ServerSettings {
+@ClientImpl(DracoonClient.ServerSettings.class)
+class ServerSettingsService extends BaseService {
 
-    private static final String LOG_TAG = DracoonServerSettingsImpl.class.getSimpleName();
+    private static final String LOG_TAG = ServerSettingsService.class.getSimpleName();
 
     private static final UserKeyPair.Version FALLBACK_USER_KEY_PAIR_VERSION =
             UserKeyPair.Version.RSA4096;
 
-    DracoonServerSettingsImpl(DracoonClientImpl client) {
+    ServerSettingsService(DracoonClientImpl client) {
         super(client);
     }
 
-    @Override
+    @ClientMethodImpl
     public ServerGeneralSettings getGeneralSettings() throws DracoonNetIOException,
             DracoonApiException {
-        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
+        Call<ApiServerGeneralSettings> call = mApi.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -52,9 +52,9 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
         return ServerMapper.fromApiGeneralSettings(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public ServerDefaults getDefaults() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiServerDefaults> call = mService.getServerDefaults();
+        Call<ApiServerDefaults> call = mApi.getServerDefaults();
         Response<ApiServerDefaults> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -70,7 +70,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
         return ServerMapper.fromApiServerDefaults(data);
     }
 
-    @Override
+    @ClientMethodImpl
     public List<UserKeyPairAlgorithm> getAvailableUserKeyPairAlgorithms() throws DracoonNetIOException,
             DracoonApiException {
         List<ApiUserKeyPairAlgorithm> apiUserKeyPairAlgorithms = getUserKeyPairAlgorithms();
@@ -142,7 +142,7 @@ class DracoonServerSettingsImpl extends DracoonRequestHandler
 
     private ApiServerCryptoAlgorithms getCryptoAlgorithms() throws DracoonNetIOException,
             DracoonApiException {
-        Call<ApiServerCryptoAlgorithms> call = mService.getServerCryptoAlgorithms();
+        Call<ApiServerCryptoAlgorithms> call = mApi.getServerCryptoAlgorithms();
         Response<ApiServerCryptoAlgorithms> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {

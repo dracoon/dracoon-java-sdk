@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class UploadStreamTest extends DracoonRequestHandlerTest {
+public class UploadStreamTest extends BaseServiceTest {
 
     private static final long CHUNK_SIZE = 2048L;
 

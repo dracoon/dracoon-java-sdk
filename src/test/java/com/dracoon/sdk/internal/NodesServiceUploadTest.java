@@ -35,7 +35,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
+public class NodesServiceUploadTest extends BaseServiceTest {
 
     private static class StubInputStream extends InputStream {
         @Override
@@ -47,7 +47,7 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
-    private DracoonNodesImpl mDni;
+    private NodesService mDni;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -55,7 +55,7 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDni = new DracoonNodesImpl(mDracoonClientImpl);
+        mDni = new NodesService(mDracoonClientImpl);
     }
 
     private abstract class BaseTests {
@@ -63,7 +63,7 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
         protected final String mDataPath;
 
         @Mock
-        protected DracoonAccountImpl mDracoonAccountImpl;
+        protected AccountService mDracoonAccountImpl;
 
         protected BaseTests(String dataPath) {
             mDataPath = dataPath;
@@ -71,7 +71,7 @@ public class DracoonNodesUploadTest extends DracoonRequestHandlerTest {
 
         @BeforeEach
         protected void setup() {
-            mDracoonClientImpl.setAccountImpl(mDracoonAccountImpl);
+            mDracoonClientImpl.setUserService(mDracoonAccountImpl);
         }
 
         protected UserKeyPair readUserKeyPairData() {

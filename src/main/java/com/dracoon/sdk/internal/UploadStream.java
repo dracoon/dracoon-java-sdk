@@ -112,7 +112,7 @@ public class UploadStream extends FileUploadStream {
     }
 
     private final Log mLog;
-    private final DracoonService mService;
+    private final DracoonApi mApi;
     private final OkHttpClient mHttpClient;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
@@ -149,7 +149,7 @@ public class UploadStream extends FileUploadStream {
     private UploadStream(DracoonClientImpl client, String id, FileUploadRequest request, long length,
             UserPublicKey userPublicKey, PlainFileKey fileKey) {
         mLog = client.getLog();
-        mService = client.getDracoonService();
+        mApi = client.getDracoonApi();
         mHttpClient = client.getHttpClient();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
@@ -307,7 +307,7 @@ public class UploadStream extends FileUploadStream {
     }
 
     private boolean checkIsS3Upload() throws DracoonNetIOException, DracoonApiException {
-        Call<ApiServerGeneralSettings> call = mService.getServerGeneralSettings();
+        Call<ApiServerGeneralSettings> call = mApi.getServerGeneralSettings();
         Response<ApiServerGeneralSettings> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -344,7 +344,7 @@ public class UploadStream extends FileUploadStream {
             request.directS3Upload = mIsS3Upload;
         }
 
-        Call<ApiFileUpload> call = mService.createFileUpload(request);
+        Call<ApiFileUpload> call = mApi.createFileUpload(request);
         Response<ApiFileUpload> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -447,7 +447,7 @@ public class UploadStream extends FileUploadStream {
 
         String contentRange = "bytes " + offset + "-" + (offset + chunk.length) + "/*";
 
-        Call<Void> call = mService.uploadFile(mUploadId, contentRange, body);
+        Call<Void> call = mApi.uploadFile(mUploadId, contentRange, body);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -465,7 +465,7 @@ public class UploadStream extends FileUploadStream {
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<ApiNode> call = mService.completeFileUpload(mUploadId, request);
+        Call<ApiNode> call = mApi.completeFileUpload(mUploadId, request);
         Response<ApiNode> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -519,7 +519,7 @@ public class UploadStream extends FileUploadStream {
         request.firstPartNumber = chunkNum + 1;
         request.lastPartNumber = chunkNum + 1;
 
-        Call<ApiS3FileUploadUrlList> call = mService.getS3FileUploadUrls(mUploadId, request);
+        Call<ApiS3FileUploadUrlList> call = mApi.getS3FileUploadUrls(mUploadId, request);
         Response<ApiS3FileUploadUrlList> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -541,7 +541,7 @@ public class UploadStream extends FileUploadStream {
         request.resolutionStrategy = mFileUploadRequest.getResolutionStrategy().getValue();
         request.fileKey = FileMapper.toApiFileKey(encryptedFileKey);
 
-        Call<Void> call = mService.completeS3FileUpload(mUploadId, request);
+        Call<Void> call = mApi.completeS3FileUpload(mUploadId, request);
         Response<Void> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
@@ -567,7 +567,7 @@ public class UploadStream extends FileUploadStream {
 
     private Node waitForCompleteS3Upload() throws DracoonNetIOException, DracoonApiException,
             InterruptedException {
-        Call<ApiS3FileUploadStatus> call = mService.getS3FileUploadStatus(mUploadId);
+        Call<ApiS3FileUploadStatus> call = mApi.getS3FileUploadStatus(mUploadId);
         Response<ApiS3FileUploadStatus> response = mHttpHelper.executeRequest(call, mThread);
 
         if (!response.isSuccessful()) {
