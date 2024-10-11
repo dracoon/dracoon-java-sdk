@@ -1,6 +1,5 @@
 package com.dracoon.sdk.internal;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
@@ -26,8 +25,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -35,90 +32,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     private static final int HTTP_SOCKET_BUFFER_SIZE = 16 * DracoonConstants.KIB;
 
-    private static final long AUTH_REFRESH_SKIP_INTERVAL = 15 * DracoonConstants.SECOND;
-
-    private DracoonAuth mAuth;
-
-    private final Interceptor mAuthInterceptor = new Interceptor() {
-
-        private long mLastRefreshTime = 0L;
-        private InterceptedIOException mLastRefreshException = null;
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            // Get request
-            Request request = chain.request();
-
-            // If no authorization is needed: Send unchanged request
-            if (isPublicRequest(request)) {
-                return chain.proceed(request);
-            }
-            // If no authorization data was provided: Send unchanged request
-            if (mAuth == null) {
-                return chain.proceed(request);
-            }
-
-            // Try to send request
-            Response response = chain.proceed(addAuthorizationHeader(request));
-
-            // If request was successful: Return response
-            if (isSuccessfulResponse(response)) {
-                return response;
-            }
-            // If no refresh token was provided: Return response
-            if (mAuth.getRefreshToken() == null) {
-                return response;
-            }
-
-            // Close old response
-            response.close();
-
-            // Try to refresh tokens
-            refreshAuthTokens();
-
-            // Try to resend request
-            return chain.proceed(addAuthorizationHeader(request));
-        }
-
-        private boolean isPublicRequest(Request request) {
-            return request.url().encodedPath().startsWith(DracoonConstants.API_PATH + "/public/");
-        }
-
-        private boolean isSuccessfulResponse(Response response) {
-            return response.code() != HttpStatus.UNAUTHORIZED.getNumber();
-        }
-
-        private Request addAuthorizationHeader(Request request) {
-            return request.newBuilder().header(DracoonConstants.AUTHORIZATION_HEADER,
-                    DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken()).build();
-        }
-
-        private synchronized void refreshAuthTokens() throws InterceptedIOException {
-            // If refresh is not overdue: Abort
-            if (mLastRefreshTime + AUTH_REFRESH_SKIP_INTERVAL > System.currentTimeMillis()) {
-                if (mLastRefreshException != null) {
-                    throw mLastRefreshException;
-                }
-                return;
-            }
-
-            // Try to refresh tokens
-            try {
-                OAuthTokens tokens = mOAuthClient.refreshTokens(mAuth.getRefreshToken());
-                mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
-                        tokens.accessToken, tokens.refreshToken);
-                mLastRefreshTime = System.currentTimeMillis();
-                mLastRefreshException = null;
-            } catch (DracoonNetIOException e) {
-                throw new InterceptedIOException(e);
-            } catch (DracoonApiException e) {
-                mLastRefreshTime = System.currentTimeMillis();
-                mLastRefreshException = new InterceptedIOException(e);
-                throw mLastRefreshException;
-            }
-        }
-
-    };
+    private final AuthHolder mAuthHolder = new AuthHolder();
 
     private char[] mEncryptionPassword;
 
@@ -157,11 +71,11 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public DracoonAuth getAuth() {
-        return mAuth;
+        return mAuthHolder.get();
     }
 
     public void setAuth(DracoonAuth auth) {
-        mAuth = auth;
+        mAuthHolder.set(auth);
     }
 
     public char[] getEncryptionPassword() {
@@ -256,11 +170,7 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     protected void initOAuthClient() {
-        if (mAuth == null) {
-            return;
-        }
-
-        mOAuthClient = new OAuthClient(mServerUrl, mAuth.getClientId(), mAuth.getClientSecret());
+        mOAuthClient = new OAuthClient(mServerUrl);
         mOAuthClient.setLog(mLog);
         mOAuthClient.setHttpConfig(mHttpConfig);
         mOAuthClient.init();
@@ -297,9 +207,11 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     protected void initDracoonService() {
+        AuthInterceptor authInterceptor = new AuthInterceptor(mOAuthClient, mAuthHolder);
+
         OkHttpClient httpClient = mHttpClient.newBuilder()
                 .followRedirects(false)
-                .addInterceptor(mAuthInterceptor)
+                .addInterceptor(authInterceptor)
                 .build();
 
         Gson gson = new GsonBuilder()
@@ -388,16 +300,19 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
-        if (mAuth == null || !mAuth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
+        DracoonAuth auth = mAuthHolder.get();
+        if (auth == null || !auth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
             return;
         }
 
         // Try to retrieve auth tokens
-        OAuthTokens tokens = mOAuthClient.retrieveTokens(mAuth.getAuthorizationCode());
+        OAuthTokens tokens = mOAuthClient.retrieveTokens(auth.getClientId(), auth.getClientSecret(),
+                auth.getAuthorizationCode());
 
         // Update auth data
-        mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(), tokens.accessToken,
+        auth = new DracoonAuth(auth.getClientId(), auth.getClientSecret(), tokens.accessToken,
                 tokens.refreshToken);
+        mAuthHolder.set(auth);
     }
 
     @Override

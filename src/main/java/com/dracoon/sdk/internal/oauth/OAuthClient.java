@@ -13,6 +13,8 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.HttpHelper;
 import com.dracoon.sdk.internal.NullLog;
 import com.dracoon.sdk.internal.UserAgentInterceptor;
+import com.dracoon.sdk.internal.oauth.OAuthConstants.OAuthGrantTypes;
+import com.dracoon.sdk.internal.oauth.OAuthConstants.OAuthTokenTypes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.Credentials;
@@ -28,8 +30,6 @@ public class OAuthClient {
     private static final String LOG_TAG = OAuthClient.class.getSimpleName();
 
     private final URL mServerUrl;
-    private final String mClientId;
-    private final String mClientSecret;
 
     private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig = new DracoonHttpConfig();
@@ -39,10 +39,8 @@ public class OAuthClient {
     private OAuthErrorParser mOAuthErrorParser;
     private HttpHelper mHttpHelper;
 
-    public OAuthClient(URL serverUrl, String clientId, String clientSecret) {
+    public OAuthClient(URL serverUrl) {
         mServerUrl = serverUrl;
-        mClientId = clientId;
-        mClientSecret = clientSecret;
     }
 
     public void setLog(Log log) {
@@ -113,20 +111,20 @@ public class OAuthClient {
 
     // --- Methods to retrieve, refresh and revoke tokens ---
 
-    public OAuthTokens retrieveTokens(String code) throws DracoonNetIOException,
-            DracoonApiException {
-        return retrieveTokens(code, null);
+    public OAuthTokens retrieveTokens(String clientId, String clientSecret, String code)
+            throws DracoonNetIOException, DracoonApiException {
+        return retrieveTokens(clientId, clientSecret, code, null);
     }
 
-    public OAuthTokens retrieveTokens(String code, URI redirectUri) throws DracoonNetIOException,
-            DracoonApiException {
-        String auth = Credentials.basic(mClientId, mClientSecret);
+    public OAuthTokens retrieveTokens(String clientId, String clientSecret, String code,
+            URI redirectUri) throws DracoonNetIOException, DracoonApiException {
+        String auth = Credentials.basic(clientId, clientSecret);
         String redirUri = redirectUri != null ? redirectUri.toString() : null;
 
         mLog.i(LOG_TAG, "Trying to retrieve OAuth tokens ...");
 
-        Call<OAuthTokens> call = mOAuthService.getOAuthToken(auth,
-                OAuthConstants.OAuthGrantTypes.AUTHORIZATION_CODE, code, redirUri);
+        Call<OAuthTokens> call = mOAuthService.getOAuthToken(auth, OAuthGrantTypes.AUTHORIZATION_CODE,
+                code, redirUri);
         Response<OAuthTokens> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -141,14 +139,14 @@ public class OAuthClient {
         return response.body();
     }
 
-    public OAuthTokens refreshTokens(String refreshToken) throws DracoonNetIOException,
-            DracoonApiException {
-        String auth = Credentials.basic(mClientId, mClientSecret);
+    public OAuthTokens refreshTokens(String clientId, String clientSecret, String refreshToken)
+            throws DracoonNetIOException, DracoonApiException {
+        String auth = Credentials.basic(clientId, clientSecret);
 
         mLog.i(LOG_TAG, "Trying to refresh OAuth tokens ...");
 
-        Call<OAuthTokens> call = mOAuthService.refreshOAuthToken(auth,
-                OAuthConstants.OAuthGrantTypes.REFRESH_TOKEN, refreshToken);
+        Call<OAuthTokens> call = mOAuthService.refreshOAuthToken(auth, OAuthGrantTypes.REFRESH_TOKEN,
+                refreshToken);
         Response<OAuthTokens> response = mHttpHelper.executeRequest(call);
 
         if (!response.isSuccessful()) {
@@ -163,12 +161,12 @@ public class OAuthClient {
         return response.body();
     }
 
-    public void revokeAccessToken(String accessToken) throws DracoonNetIOException,
-            DracoonApiException {
+    public void revokeAccessToken(String clientId, String clientSecret, String accessToken)
+            throws DracoonNetIOException, DracoonApiException {
         mLog.i(LOG_TAG, "Trying to revoke OAuth access token ...");
 
         try {
-            revokeToken(OAuthConstants.OAuthTokenTypes.ACCESS_TOKEN, accessToken);
+            revokeToken(clientId, clientSecret, OAuthTokenTypes.ACCESS_TOKEN, accessToken);
         } catch (DracoonApiException e) {
             mLog.d(LOG_TAG, String.format("Revocation of OAuth access token failed with '%s'!",
                     e.getCode().name()));
@@ -178,12 +176,12 @@ public class OAuthClient {
         mLog.i(LOG_TAG, "Successfully revoked OAuth access token.");
     }
 
-    public void revokeRefreshToken(String refreshToken) throws DracoonNetIOException,
-            DracoonApiException {
+    public void revokeRefreshToken(String clientId, String clientSecret, String refreshToken)
+            throws DracoonNetIOException, DracoonApiException {
         mLog.i(LOG_TAG, "Trying to revoke OAuth refresh token ...");
 
         try {
-            revokeToken(OAuthConstants.OAuthTokenTypes.REFRESH_TOKEN, refreshToken);
+            revokeToken(clientId, clientSecret, OAuthTokenTypes.REFRESH_TOKEN, refreshToken);
         } catch (DracoonApiException e) {
             mLog.d(LOG_TAG, String.format("Revocation of OAuth refresh token failed with '%s'!",
                     e.getCode().name()));
@@ -193,9 +191,9 @@ public class OAuthClient {
         mLog.i(LOG_TAG, "Successfully revoked OAuth refresh token.");
     }
 
-    private void revokeToken(String tokenType, String token) throws DracoonNetIOException,
-            DracoonApiException {
-        String auth = Credentials.basic(mClientId, mClientSecret);
+    private void revokeToken(String clientId, String clientSecret, String tokenType, String token)
+            throws DracoonNetIOException, DracoonApiException {
+        String auth = Credentials.basic(clientId, clientSecret);
 
         Call<Void> call = mOAuthService.revokeOAuthToken(auth, tokenType, token);
         Response<Void> response = mHttpHelper.executeRequest(call);
