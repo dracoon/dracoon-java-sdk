@@ -9,6 +9,7 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetUploadSharesFilter;
 import com.dracoon.sdk.filter.NodeIdFilter;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.DownloadShare;

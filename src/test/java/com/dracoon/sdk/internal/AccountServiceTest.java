@@ -10,6 +10,7 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.UserAccount;
 import com.dracoon.sdk.model.UserKeyPairAlgorithm;

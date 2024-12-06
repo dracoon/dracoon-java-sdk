@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.crypto;
 
 import com.dracoon.sdk.BaseTest;
 import com.dracoon.sdk.TestLogger;

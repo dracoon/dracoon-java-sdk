@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.crypto;
 
 import com.dracoon.sdk.crypto.error.BadFileException;
 import com.dracoon.sdk.crypto.error.CryptoSystemException;

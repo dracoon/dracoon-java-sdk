@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.crypto;
 
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
 import com.dracoon.sdk.crypto.model.PlainFileKey;
@@ -7,7 +7,7 @@ import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.model.UserKeyPairAlgorithm;
 
-final class CryptoVersionConverter {
+public final class CryptoVersionConverter {
 
     private CryptoVersionConverter() {
 

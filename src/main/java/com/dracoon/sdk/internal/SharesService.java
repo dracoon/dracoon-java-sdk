@@ -11,6 +11,7 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.filter.Filters;
 import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetUploadSharesFilter;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.mapper.ShareMapper;
 import com.dracoon.sdk.internal.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.model.ApiCreateUploadShareRequest;

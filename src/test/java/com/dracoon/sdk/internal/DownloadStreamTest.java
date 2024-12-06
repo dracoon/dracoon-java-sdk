@@ -10,6 +10,7 @@ import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

@@ -22,6 +22,8 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.crypto.CryptoErrorParser;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.model.ApiDownloadToken;
 import com.dracoon.sdk.internal.model.ApiNode;
 import com.dracoon.sdk.internal.util.StreamUtils;

@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.crypto;
 
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.crypto.Crypto;
@@ -13,13 +13,13 @@ import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 
-class CryptoWrapper {
+public class CryptoWrapper {
 
     private static final String LOG_TAG = CryptoWrapper.class.getSimpleName();
 
     private final Log mLog;
 
-    CryptoWrapper(Log log) {
+    public CryptoWrapper(Log log) {
         mLog = log;
     }
 

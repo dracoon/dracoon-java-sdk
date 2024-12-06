@@ -16,6 +16,7 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
