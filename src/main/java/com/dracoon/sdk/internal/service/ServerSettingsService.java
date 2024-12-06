@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +10,9 @@ import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.ClientImpl;
+import com.dracoon.sdk.internal.ClientMethodImpl;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.mapper.ServerMapper;
 import com.dracoon.sdk.internal.api.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.api.model.ApiServerDefaults;
@@ -22,14 +25,14 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 @ClientImpl(DracoonClient.ServerSettings.class)
-class ServerSettingsService extends BaseService {
+public class ServerSettingsService extends BaseService {
 
     private static final String LOG_TAG = ServerSettingsService.class.getSimpleName();
 
     private static final UserKeyPair.Version FALLBACK_USER_KEY_PAIR_VERSION =
             UserKeyPair.Version.RSA4096;
 
-    ServerSettingsService(DracoonClientImpl client) {
+    public ServerSettingsService(DracoonClientImpl client) {
         super(client);
     }
 

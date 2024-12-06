@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -7,6 +7,8 @@ import java.util.function.Consumer;
 
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.FileStreamHelper;
+import com.dracoon.sdk.internal.ThreadHelper;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

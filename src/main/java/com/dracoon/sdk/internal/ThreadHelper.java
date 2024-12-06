@@ -1,6 +1,6 @@
 package com.dracoon.sdk.internal;
 
-class ThreadHelper {
+public class ThreadHelper {
 
     public boolean isThreadAlive(Thread thread) {
         return thread.isAlive();

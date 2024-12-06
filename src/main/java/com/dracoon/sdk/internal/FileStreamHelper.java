@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonFileNotFoundException;
 
-class FileStreamHelper {
+public class FileStreamHelper {
 
     public InputStream getFileInputStream(File file) throws DracoonFileIOException {
         if (!file.exists()) {

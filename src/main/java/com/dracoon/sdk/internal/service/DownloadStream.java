@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,6 +22,8 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.api.model.ApiDownloadToken;

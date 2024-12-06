@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.util.Date;
 
@@ -6,17 +6,20 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.ClientImpl;
+import com.dracoon.sdk.internal.ClientMethodImpl;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.model.ApiServerInfo;
 import com.dracoon.sdk.internal.api.model.ApiServerTime;
 import retrofit2.Call;
 import retrofit2.Response;
 
 @ClientImpl(DracoonClient.Server.class)
-class ServerInfoService extends BaseService {
+public class ServerInfoService extends BaseService {
 
     private static final String LOG_TAG = ServerInfoService.class.getSimpleName();
 
-    ServerInfoService(DracoonClientImpl client) {
+    public ServerInfoService(DracoonClientImpl client) {
         super(client);
     }
 

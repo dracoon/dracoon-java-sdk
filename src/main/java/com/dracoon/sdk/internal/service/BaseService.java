@@ -1,6 +1,7 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.http.HttpHelper;

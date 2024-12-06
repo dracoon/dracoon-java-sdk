@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.crypto.model.EncryptedFileKey;
@@ -11,6 +11,9 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.filter.Filters;
 import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetUploadSharesFilter;
+import com.dracoon.sdk.internal.ClientImpl;
+import com.dracoon.sdk.internal.ClientMethodImpl;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.mapper.ShareMapper;
 import com.dracoon.sdk.internal.api.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.api.model.ApiCreateUploadShareRequest;
@@ -31,11 +34,11 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 @ClientImpl(DracoonClient.Shares.class)
-class SharesService extends BaseService {
+public class SharesService extends BaseService {
 
     private static final String LOG_TAG = SharesService.class.getSimpleName();
 
-    SharesService(DracoonClientImpl client) {
+    public SharesService(DracoonClientImpl client) {
         super(client);
     }
 

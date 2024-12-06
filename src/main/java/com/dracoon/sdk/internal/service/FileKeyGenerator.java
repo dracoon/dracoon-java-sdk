@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +17,7 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.api.mapper.FileMapper;
@@ -35,7 +36,7 @@ import com.dracoon.sdk.internal.validator.BaseValidator;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class FileKeyGenerator {
+public class FileKeyGenerator {
 
     private static final String LOG_TAG = FileKeyGenerator.class.getSimpleName();
 
@@ -45,7 +46,7 @@ class FileKeyGenerator {
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
 
-    FileKeyGenerator(DracoonClientImpl client) {
+    public FileKeyGenerator(DracoonClientImpl client) {
         mClient = client;
         mLog = client.getLog();
         mApi = client.getDracoonApi();

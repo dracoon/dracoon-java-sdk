@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.io.File;
 import java.io.InputStream;
@@ -25,6 +25,11 @@ import com.dracoon.sdk.filter.Filters;
 import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.NodeParentPathFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
+import com.dracoon.sdk.internal.ClientImpl;
+import com.dracoon.sdk.internal.ClientMethodImpl;
+import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.internal.DracoonConstants;
+import com.dracoon.sdk.internal.ThreadHelper;
 import com.dracoon.sdk.internal.api.mapper.FileMapper;
 import com.dracoon.sdk.internal.api.mapper.FolderMapper;
 import com.dracoon.sdk.internal.api.mapper.NodeMapper;
@@ -81,7 +86,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 @ClientImpl(DracoonClient.Nodes.class)
-class NodesService extends BaseService {
+public class NodesService extends BaseService {
 
     private static final String LOG_TAG = NodesService.class.getSimpleName();
 
@@ -90,7 +95,7 @@ class NodesService extends BaseService {
     private final Map<String, UploadThread> mUploads = new HashMap<>();
     private final Map<String, DownloadThread> mDownloads = new HashMap<>();
 
-    NodesService(DracoonClientImpl client) {
+    public NodesService(DracoonClientImpl client) {
         super(client);
     }
 

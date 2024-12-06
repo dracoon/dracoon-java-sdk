@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -14,6 +14,10 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.ClientImpl;
+import com.dracoon.sdk.internal.ClientMethodImpl;
+import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.api.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.api.mapper.UserMapper;
 import com.dracoon.sdk.internal.api.model.ApiCustomerAccount;
@@ -35,11 +39,11 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 @ClientImpl(DracoonClient.Account.class)
-class AccountService extends BaseService {
+public class AccountService extends BaseService {
 
     private static final String LOG_TAG = AccountService.class.getSimpleName();
 
-    AccountService(DracoonClientImpl client) {
+    public AccountService(DracoonClientImpl client) {
         super(client);
     }
 

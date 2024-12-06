@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +13,8 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;

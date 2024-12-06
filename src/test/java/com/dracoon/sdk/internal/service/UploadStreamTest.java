@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.io.IOException;
 
@@ -8,6 +8,7 @@ import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
+import com.dracoon.sdk.internal.TestHttpHelper;
 import com.dracoon.sdk.internal.api.model.ApiErrorResponse;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.FileUploadCallback;

@@ -23,6 +23,16 @@ import com.dracoon.sdk.internal.http.BufferedSocketFactory;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
+import com.dracoon.sdk.internal.service.AccountService;
+import com.dracoon.sdk.internal.service.AvatarDownloader;
+import com.dracoon.sdk.internal.service.FileKeyFetcher;
+import com.dracoon.sdk.internal.service.FileKeyGenerator;
+import com.dracoon.sdk.internal.service.NodesService;
+import com.dracoon.sdk.internal.service.ServerInfoService;
+import com.dracoon.sdk.internal.service.ServerPoliciesService;
+import com.dracoon.sdk.internal.service.ServerSettingsService;
+import com.dracoon.sdk.internal.service.SharesService;
+import com.dracoon.sdk.internal.service.UsersService;
 import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
 import com.dracoon.sdk.internal.util.GsonDateTypeAdapter;
 import com.dracoon.sdk.internal.util.GsonVoidTypeAdapter;
@@ -132,15 +142,15 @@ public class DracoonClientImpl extends DracoonClient {
         return ((long) mHttpConfig.getChunkSize()) * DracoonConstants.KIB;
     }
 
-    CryptoWrapper getCryptoWrapper() {
+    public CryptoWrapper getCryptoWrapper() {
         return mCryptoWrapper;
     }
 
-    ThreadHelper getThreadHelper() {
+    public ThreadHelper getThreadHelper() {
         return mThreadHelper;
     }
 
-    FileStreamHelper getFileStreamHelper() {
+    public FileStreamHelper getFileStreamHelper() {
         return mFileStreamHelper;
     }
 

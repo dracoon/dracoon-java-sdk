@@ -1,9 +1,12 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.ClientImpl;
+import com.dracoon.sdk.internal.ClientMethodImpl;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.mapper.ServerMapper;
 import com.dracoon.sdk.internal.api.model.ApiServerClassificationPolicies;
 import com.dracoon.sdk.internal.api.model.ApiServerPasswordPolicies;
@@ -13,11 +16,11 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 @ClientImpl(DracoonClient.ServerPolicies.class)
-class ServerPoliciesService extends BaseService {
+public class ServerPoliciesService extends BaseService {
 
     private static final String LOG_TAG = ServerPoliciesService.class.getSimpleName();
 
-    ServerPoliciesService(DracoonClientImpl client) {
+    public ServerPoliciesService(DracoonClientImpl client) {
         super(client);
     }
 

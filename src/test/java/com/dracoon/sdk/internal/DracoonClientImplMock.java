@@ -5,6 +5,16 @@ import java.net.URL;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
+import com.dracoon.sdk.internal.service.AccountService;
+import com.dracoon.sdk.internal.service.AvatarDownloader;
+import com.dracoon.sdk.internal.service.FileKeyFetcher;
+import com.dracoon.sdk.internal.service.FileKeyGenerator;
+import com.dracoon.sdk.internal.service.NodesService;
+import com.dracoon.sdk.internal.service.ServerInfoService;
+import com.dracoon.sdk.internal.service.ServerPoliciesService;
+import com.dracoon.sdk.internal.service.ServerSettingsService;
+import com.dracoon.sdk.internal.service.SharesService;
+import com.dracoon.sdk.internal.service.UsersService;
 
 @SuppressWarnings("unused")
 public class DracoonClientImplMock extends DracoonClientImpl {

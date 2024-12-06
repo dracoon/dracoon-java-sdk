@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.crypto.error.UnknownVersionException;
@@ -10,6 +10,7 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.api.mapper.FileMapper;
@@ -20,7 +21,7 @@ import com.dracoon.sdk.internal.http.HttpHelper;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class FileKeyFetcher {
+public class FileKeyFetcher {
 
     private static final String LOG_TAG = FileKeyFetcher.class.getSimpleName();
 
@@ -30,7 +31,7 @@ class FileKeyFetcher {
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
 
-    FileKeyFetcher(DracoonClientImpl client) {
+    public FileKeyFetcher(DracoonClientImpl client) {
         mClient = client;
         mLog = client.getLog();
         mApi = client.getDracoonApi();

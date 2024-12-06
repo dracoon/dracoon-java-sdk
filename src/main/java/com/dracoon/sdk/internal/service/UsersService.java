@@ -1,16 +1,19 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.util.UUID;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.ClientImpl;
+import com.dracoon.sdk.internal.ClientMethodImpl;
+import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.UserValidator;
 
 @ClientImpl(DracoonClient.Users.class)
-class UsersService extends BaseService {
+public class UsersService extends BaseService {
 
-    UsersService(DracoonClientImpl client) {
+    public UsersService(DracoonClientImpl client) {
         super(client);
     }
 

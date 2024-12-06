@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.dracoon.sdk.DracoonClient;
+import com.dracoon.sdk.internal.service.Service;
 
 class DynamicServiceProxy {
 

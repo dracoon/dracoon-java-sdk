@@ -1,10 +1,11 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.service;
 
 import java.util.Arrays;
 import java.util.List;
 
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.model.FileVirusScanInfo;
 import com.dracoon.sdk.model.FileVirusScanInfoList;
 import com.dracoon.sdk.model.GetFilesVirusScanInfoRequest;
