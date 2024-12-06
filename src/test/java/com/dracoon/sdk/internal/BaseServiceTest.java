@@ -6,6 +6,7 @@ import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.TestLogger;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

@@ -2,6 +2,8 @@ package com.dracoon.sdk.internal;
 
 import java.net.URL;
 
+import com.dracoon.sdk.internal.api.DracoonApi;
+import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 
 @SuppressWarnings("unused")

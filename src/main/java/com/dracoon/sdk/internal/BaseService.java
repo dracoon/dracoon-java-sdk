@@ -1,6 +1,8 @@
 package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.Log;
+import com.dracoon.sdk.internal.api.DracoonApi;
+import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.http.HttpHelper;
 
 public abstract class BaseService implements Service {

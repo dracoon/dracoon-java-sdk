@@ -16,6 +16,8 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.api.DracoonApi;
+import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.http.BufferedSocketFactory;
 import com.dracoon.sdk.internal.http.HttpHelper;

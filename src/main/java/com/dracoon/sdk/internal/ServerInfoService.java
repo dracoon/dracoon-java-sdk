@@ -6,8 +6,8 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.model.ApiServerInfo;
-import com.dracoon.sdk.internal.model.ApiServerTime;
+import com.dracoon.sdk.internal.api.model.ApiServerInfo;
+import com.dracoon.sdk.internal.api.model.ApiServerTime;
 import retrofit2.Call;
 import retrofit2.Response;
 
