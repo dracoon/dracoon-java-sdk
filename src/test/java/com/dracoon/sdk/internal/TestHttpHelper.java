@@ -3,6 +3,7 @@ package com.dracoon.sdk.internal;
 import java.io.IOException;
 
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.http.HttpHelper;
 
 public class TestHttpHelper extends HttpHelper {
 

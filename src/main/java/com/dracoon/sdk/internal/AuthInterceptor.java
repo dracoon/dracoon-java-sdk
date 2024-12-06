@@ -5,6 +5,8 @@ import java.io.IOException;
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.http.HttpStatus;
+import com.dracoon.sdk.internal.http.InterceptedIOException;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import okhttp3.Interceptor;

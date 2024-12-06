@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.http;
 
 @SuppressWarnings("unused") // Not all status codes are used, however, that's OK
 public enum HttpStatus {

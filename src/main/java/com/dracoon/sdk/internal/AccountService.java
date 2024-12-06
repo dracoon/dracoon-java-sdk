@@ -17,6 +17,7 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.crypto.CryptoErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoVersionConverter;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
+import com.dracoon.sdk.internal.http.HttpStatus;
 import com.dracoon.sdk.internal.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.mapper.UserMapper;
 import com.dracoon.sdk.internal.model.ApiCustomerAccount;

@@ -10,7 +10,7 @@ import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.HttpHelper;
+import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.NullLog;
 import com.dracoon.sdk.internal.UserAgentInterceptor;
 import com.dracoon.sdk.internal.oauth.OAuthConstants.OAuthGrantTypes;

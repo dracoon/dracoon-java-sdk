@@ -26,6 +26,7 @@ import com.dracoon.sdk.filter.GetNodesFilters;
 import com.dracoon.sdk.filter.NodeParentPathFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.crypto.CryptoVersionConverter;
+import com.dracoon.sdk.internal.http.HttpStatus;
 import com.dracoon.sdk.internal.mapper.FileMapper;
 import com.dracoon.sdk.internal.mapper.FolderMapper;
 import com.dracoon.sdk.internal.mapper.NodeMapper;

@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.http;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -10,6 +10,8 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.error.DracoonNetIOInterruptedException;
 import com.dracoon.sdk.error.DracoonNetInsecureException;
+import com.dracoon.sdk.internal.DracoonConstants;
+import com.dracoon.sdk.internal.NullLog;
 import retrofit2.Call;
 import retrofit2.Response;
 

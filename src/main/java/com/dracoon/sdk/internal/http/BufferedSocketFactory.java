@@ -1,4 +1,4 @@
-package com.dracoon.sdk.internal;
+package com.dracoon.sdk.internal.http;
 
 import java.io.IOException;
 import java.net.InetAddress;
