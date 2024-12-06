@@ -3,14 +3,12 @@ package com.dracoon.sdk.internal;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
@@ -265,19 +263,6 @@ public class DracoonClientImpl extends DracoonClient {
 
     public void checkApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
         mServerInfoService.checkVersionSupported();
-    }
-
-    public void checkUserKeyPairVersionSupported(UserKeyPair.Version version)
-            throws DracoonNetIOException, DracoonApiException {
-        if (version == null) {
-            throw new IllegalArgumentException("Version can't be null.");
-        }
-
-        List<UserKeyPair.Version> versions = mServerSettingsService.getAvailableUserKeyPairVersions();
-        boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
-        if (!apiSupportsVersion) {
-            throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
-        }
     }
 
     public void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {

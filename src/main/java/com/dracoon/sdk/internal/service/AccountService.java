@@ -126,7 +126,7 @@ public class AccountService extends BaseService {
             DracoonNetIOException, DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
 
-        mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
+        checkUserKeyPairVersionSupported(userKeyPairVersion);
 
         char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
         CryptoWrapper crypto = mClient.getCryptoWrapper();
@@ -185,7 +185,7 @@ public class AccountService extends BaseService {
 
     private UserKeyPair getUserKeyPair(UserKeyPair.Version userKeyPairVersion)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
+        checkUserKeyPairVersionSupported(userKeyPairVersion);
 
         Call<ApiUserKeyPair> call = mApi.getUserKeyPair(userKeyPairVersion.getValue());
         Response<ApiUserKeyPair> response = mHttpHelper.executeRequest(call);
@@ -267,7 +267,7 @@ public class AccountService extends BaseService {
             DracoonNetIOException, DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
 
-        mClient.checkUserKeyPairVersionSupported(userKeyPairVersion);
+        checkUserKeyPairVersionSupported(userKeyPairVersion);
 
         Call<Void> call = mApi.deleteUserKeyPair(userKeyPairVersion.getValue());
         Response<Void> response = mHttpHelper.executeRequest(call);
@@ -278,6 +278,20 @@ public class AccountService extends BaseService {
                     errorCode.name());
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
+        }
+    }
+
+    private void checkUserKeyPairVersionSupported(UserKeyPair.Version version)
+            throws DracoonNetIOException, DracoonApiException {
+        if (version == null) {
+            throw new IllegalArgumentException("Version can't be null.");
+        }
+
+        List<UserKeyPair.Version> versions = mClient.getServerSettingsImpl()
+                .getAvailableUserKeyPairVersions();
+        boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
+        if (!apiSupportsVersion) {
+            throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
         }
     }
 
