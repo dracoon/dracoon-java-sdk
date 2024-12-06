@@ -80,8 +80,6 @@ public class DracoonClientImpl extends DracoonClient {
     protected FileKeyGenerator mFileKeyGenerator;
     protected AvatarDownloader mAvatarDownloader;
 
-    protected String mApiVersion = null;
-
     public DracoonClientImpl(URL serverUrl) {
         super(serverUrl);
     }
@@ -233,7 +231,7 @@ public class DracoonClientImpl extends DracoonClient {
         mDracoonApi = retrofit.create(DracoonApi.class);
     }
 
-    protected void initDracoonErrorParser() {
+    private void initDracoonErrorParser() {
         mDracoonErrorParser = new DracoonErrorParser();
         mDracoonErrorParser.setLog(mLog);
     }
@@ -266,54 +264,7 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public void checkApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
-        if (mApiVersion != null) {
-            return;
-        }
-
-        if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_VERSION)) {
-            throw new DracoonApiException(DracoonApiCode.API_VERSION_NOT_SUPPORTED);
-        }
-    }
-
-    public void checkApiVersionGreaterEqual(String apiVersion) throws DracoonNetIOException,
-            DracoonApiException {
-        if (!isApiVersionGreaterEqual(apiVersion)) {
-            throw new DracoonApiException(DracoonApiCode.API_VERSION_NOT_SUFFICIENT);
-        }
-    }
-
-    public boolean isApiVersionGreaterEqual(String minApiVersion) throws DracoonNetIOException,
-            DracoonApiException {
-        if (mApiVersion == null) {
-            mApiVersion = mServerInfoService.getVersion();
-        }
-
-        if (mApiVersion == null || mApiVersion.isEmpty()) {
-            return false;
-        }
-
-        String[] av = mApiVersion.split("\\-")[0].split("\\.");
-        String[] mav = minApiVersion.split("\\.");
-
-        for (int i = 0; i < 3; i++) {
-            int v;
-            int mv;
-
-            try {
-                v = Integer.valueOf(av[i]);
-                mv = Integer.valueOf(mav[i]);
-            } catch (Exception e) {
-                throw new RuntimeException("Can't parse server API version.", e);
-            }
-
-            if (v > mv) {
-                break;
-            } else if (v < mv) {
-                return false;
-            }
-        }
-
-        return true;
+        mServerInfoService.checkVersionSupported();
     }
 
     public void checkUserKeyPairVersionSupported(UserKeyPair.Version version)
@@ -397,6 +348,10 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     // --- Methods to get internal services ---
+
+    public ServerInfoService getServerInfoService() {
+        return mServerInfoService;
+    }
 
     public ServerSettingsService getServerSettingsImpl() {
         return mServerSettingsService;

@@ -2,7 +2,6 @@ package com.dracoon.sdk.internal;
 
 import java.net.URL;
 
-import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.service.AccountService;
@@ -23,15 +22,10 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     public DracoonClientImplMock(URL serverUrl) {
         super(serverUrl);
-        mApiVersion = DracoonConstants.API_MIN_VERSION;
     }
 
     public void setDracoonErrorParser(DracoonErrorParser dracoonErrorParser) {
         mDracoonErrorParser = dracoonErrorParser;
-    }
-
-    public void setApiVersion(String apiVersion) {
-        mApiVersion = apiVersion;
     }
 
     @Override
@@ -58,7 +52,6 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         initHttpClient();
         initHttpHelper();
         initDracoonApi();
-        initDracoonErrorParser();
     }
 
     @Override

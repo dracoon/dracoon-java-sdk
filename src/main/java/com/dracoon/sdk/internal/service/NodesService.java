@@ -977,7 +977,7 @@ public class NodesService extends BaseService {
     @ClientMethodImpl
     public FileVirusScanInfoList getFilesVirusScanInformation(GetFilesVirusScanInfoRequest request)
             throws DracoonNetIOException, DracoonApiException {
-        mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
+        checkVirusScanningSupported();
 
         NodeValidator.validateGetVirusScanInfoRequest(request);
 
@@ -987,7 +987,7 @@ public class NodesService extends BaseService {
     @ClientMethodImpl
     public FileVirusScanInfo getFileVirusScanInformation(long nodeId) throws DracoonNetIOException,
             DracoonApiException {
-        mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
+        checkVirusScanningSupported();
 
         NodeValidator.validateNodeId(nodeId);
 
@@ -1025,7 +1025,7 @@ public class NodesService extends BaseService {
 
     @ClientMethodImpl
     public void deleteMaliciousFile(long nodeId) throws DracoonNetIOException, DracoonApiException {
-        mClient.checkApiVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
+        checkVirusScanningSupported();
 
         NodeValidator.validateNodeId(nodeId);
 
@@ -1039,6 +1039,11 @@ public class NodesService extends BaseService {
             mLog.d(LOG_TAG, errorText);
             throw new DracoonApiException(errorCode);
         }
+    }
+
+    private void checkVirusScanningSupported() throws DracoonNetIOException, DracoonApiException {
+        mClient.getServerInfoService().checkVersionGreaterEqual(
+                DracoonConstants.API_MIN_VIRUS_SCANNING);
     }
 
     // --- Media URL methods ---

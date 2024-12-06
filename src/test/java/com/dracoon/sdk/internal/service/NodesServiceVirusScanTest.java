@@ -12,11 +12,16 @@ import com.dracoon.sdk.model.GetFilesVirusScanInfoRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
 
 public class NodesServiceVirusScanTest extends BaseServiceTest {
+
+    @Mock
+    protected ServerInfoService mServerInfoService;
 
     private NodesService mDni;
 
@@ -24,7 +29,11 @@ public class NodesServiceVirusScanTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl.setApiVersion(DracoonConstants.API_MIN_VIRUS_SCANNING);
+        doNothing()
+                .when(mServerInfoService)
+                .checkVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
+
+        mDracoonClientImpl.setServerInfoService(mServerInfoService);
 
         mDni = new NodesService(mDracoonClientImpl);
     }
