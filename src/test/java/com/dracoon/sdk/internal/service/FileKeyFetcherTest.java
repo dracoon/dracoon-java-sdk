@@ -29,9 +29,9 @@ public class FileKeyFetcherTest extends BaseServiceTest {
     protected CryptoWrapper mCryptoWrapper;
 
     @Mock
-    protected AccountService mDracoonAccountImpl;
+    protected AccountService mAccountService;
     @Mock
-    protected NodesService mDracoonNodesImpl;
+    protected NodesService mNodesService;
 
     private FileKeyFetcher mFkf;
 
@@ -41,8 +41,8 @@ public class FileKeyFetcherTest extends BaseServiceTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDracoonClientImpl.setUserService(mDracoonAccountImpl);
-        mDracoonClientImpl.setNodesService(mDracoonNodesImpl);
+        mServiceLocator.setAccountService(mAccountService);
+        mServiceLocator.setNodesService(mNodesService);
 
         mFkf = new FileKeyFetcher(mDracoonClientImpl);
     }
@@ -222,19 +222,19 @@ public class FileKeyFetcherTest extends BaseServiceTest {
         }
 
         private void mockIsNodeEncryptedCall(boolean isEncrypted) throws Exception {
-            when(mDracoonNodesImpl.isNodeEncrypted(anyLong())).thenReturn(isEncrypted);
+            when(mNodesService.isNodeEncrypted(anyLong())).thenReturn(isEncrypted);
         }
 
         private void verifyIsNodeEncryptedCall(long nodeId) throws Exception {
-            verify(mDracoonNodesImpl).isNodeEncrypted(nodeId);
+            verify(mNodesService).isNodeEncrypted(nodeId);
         }
 
         private void mockGetUserKeyPairCall(UserKeyPair userKeyPair) throws Exception {
-            when(mDracoonAccountImpl.getAndCheckUserKeyPair(any())).thenReturn(userKeyPair);
+            when(mAccountService.getAndCheckUserKeyPair(any())).thenReturn(userKeyPair);
         }
 
         private void verifyGetUserKeyPairCall() throws Exception {
-            verify(mDracoonAccountImpl).getAndCheckUserKeyPair(UserKeyPair.Version.RSA4096);
+            verify(mAccountService).getAndCheckUserKeyPair(UserKeyPair.Version.RSA4096);
         }
 
         private UserKeyPair readUserKeyPairData() {

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,7 +24,7 @@ public class NodesServiceVirusScanTest extends BaseServiceTest {
     @Mock
     protected ServerInfoService mServerInfoService;
 
-    private NodesService mDni;
+    private NodesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -33,9 +34,9 @@ public class NodesServiceVirusScanTest extends BaseServiceTest {
                 .when(mServerInfoService)
                 .checkVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
 
-        mDracoonClientImpl.setServerInfoService(mServerInfoService);
+        mServiceLocator.setServerInfoService(mServerInfoService);
 
-        mDni = new NodesService(mDracoonClientImpl);
+        mSrv = new NodesService(mDracoonClientImpl);
     }
 
     // --- Get virus scan infos tests ---
@@ -106,7 +107,7 @@ public class NodesServiceVirusScanTest extends BaseServiceTest {
             List<Long> nodeId = Arrays.asList(1L, 2L, 3L);
             GetFilesVirusScanInfoRequest request = new GetFilesVirusScanInfoRequest.Builder(nodeId)
                     .build();
-            return mDni.getFilesVirusScanInformation(request);
+            return mSrv.getFilesVirusScanInformation(request);
         }
 
     }
@@ -160,7 +161,7 @@ public class NodesServiceVirusScanTest extends BaseServiceTest {
         }
 
         private FileVirusScanInfo executeGetFileVirusScanInfo() throws Exception {
-            return mDni.getFileVirusScanInformation(2L);
+            return mSrv.getFileVirusScanInformation(2L);
         }
 
     }
@@ -200,7 +201,7 @@ public class NodesServiceVirusScanTest extends BaseServiceTest {
         }
 
         private void executeDeleteMaliciousFile() throws Exception {
-            mDni.deleteMaliciousFile(5L);
+            mSrv.deleteMaliciousFile(5L);
         }
 
     }

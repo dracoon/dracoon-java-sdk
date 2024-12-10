@@ -4,16 +4,7 @@ import java.net.URL;
 
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
-import com.dracoon.sdk.internal.service.AccountService;
-import com.dracoon.sdk.internal.service.AvatarDownloader;
-import com.dracoon.sdk.internal.service.FileKeyFetcher;
-import com.dracoon.sdk.internal.service.FileKeyGenerator;
-import com.dracoon.sdk.internal.service.NodesService;
-import com.dracoon.sdk.internal.service.ServerInfoService;
-import com.dracoon.sdk.internal.service.ServerPoliciesService;
-import com.dracoon.sdk.internal.service.ServerSettingsService;
-import com.dracoon.sdk.internal.service.SharesService;
-import com.dracoon.sdk.internal.service.UsersService;
+import com.dracoon.sdk.internal.service.ServiceLocator;
 
 @SuppressWarnings("unused")
 public class DracoonClientImplMock extends DracoonClientImpl {
@@ -22,6 +13,18 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
     public DracoonClientImplMock(URL serverUrl) {
         super(serverUrl);
+    }
+
+    public void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
+        mCryptoWrapper = cryptoWrapper;
+    }
+
+    public void setThreadHelper(ThreadHelper threadHelper) {
+        mThreadHelper = threadHelper;
+    }
+
+    public void setFileStreamHelper(FileStreamHelper fileStreamHelper) {
+        mFileStreamHelper = fileStreamHelper;
     }
 
     public void setDracoonErrorParser(DracoonErrorParser dracoonErrorParser) {
@@ -43,7 +46,9 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         }
     }
 
-    // --- Initialization methods ---
+    public void setServiceLocator(ServiceLocator serviceLocator) {
+        mServiceLocator = serviceLocator;
+    }
 
     @Override
     public void init() {
@@ -59,60 +64,6 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mHttpHelper = new TestHttpHelper();
         mHttpHelper.setLog(mLog);
         mHttpHelper.init();
-    }
-
-    public void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
-        mCryptoWrapper = cryptoWrapper;
-    }
-
-    public void setThreadHelper(ThreadHelper threadHelper) {
-        mThreadHelper = threadHelper;
-    }
-
-    public void setFileStreamHelper(FileStreamHelper fileStreamHelper) {
-        mFileStreamHelper = fileStreamHelper;
-    }
-
-    // --- Methods to set internal handlers ---
-
-    public void setServerInfoService(ServerInfoService service) {
-        mServerInfoService = service;
-    }
-
-    public void setServerSettingsService(ServerSettingsService service) {
-        mServerSettingsService = service;
-    }
-
-    public void setServerPoliciesService(ServerPoliciesService service) {
-        mServerPoliciesService = service;
-    }
-
-    public void setUserService(AccountService service) {
-        mAccountService = service;
-    }
-
-    public void setUsersService(UsersService service) {
-        mUsersService = service;
-    }
-
-    public void setNodesService(NodesService service) {
-        mNodesService = service;
-    }
-
-    public void setSharesService(SharesService service) {
-        mSharesService = service;
-    }
-
-    public void setFileKeyFetcher(FileKeyFetcher fileKeyFetcher) {
-        mFileKeyFetcher = fileKeyFetcher;
-    }
-
-    public void setFileKeyGenerator(FileKeyGenerator fileKeyGenerator) {
-        mFileKeyGenerator = fileKeyGenerator;
-    }
-
-    public void setAvatarDownloader(AvatarDownloader avatarDownloader) {
-        mAvatarDownloader = avatarDownloader;
     }
 
 }

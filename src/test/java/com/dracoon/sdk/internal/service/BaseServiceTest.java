@@ -7,6 +7,7 @@ import com.dracoon.sdk.TestLogger;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.internal.DracoonClientImplMock;
+import com.dracoon.sdk.internal.TestServiceLocator;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +37,7 @@ abstract class BaseServiceTest extends BaseHttpTest {
     }
 
     protected DracoonClientImplMock mDracoonClientImpl;
+    protected TestServiceLocator mServiceLocator = new TestServiceLocator();
 
     @Mock
     protected DracoonErrorParser mDracoonErrorParser;
@@ -56,6 +58,7 @@ abstract class BaseServiceTest extends BaseHttpTest {
         mDracoonClientImpl.init();
         mDracoonClientImpl.setDracoonErrorParser(mDracoonErrorParser);
         mDracoonClientImpl.setLog(new TestLogger());
+        mDracoonClientImpl.setServiceLocator(mServiceLocator);
     }
 
     protected static void assertDracoonApiException(Exception thrown, DracoonApiCode code) {

@@ -30,6 +30,7 @@ public class FileKeyFetcher {
     private final DracoonApi mApi;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
+    private final ServiceLocator mServiceLocator;
 
     public FileKeyFetcher(DracoonClientImpl client) {
         mClient = client;
@@ -37,11 +38,12 @@ public class FileKeyFetcher {
         mApi = client.getDracoonApi();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+        mServiceLocator = client.getServiceLocator();
     }
 
     public PlainFileKey getPlainFileKey(long nodeId) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        if (!mClient.getNodesImpl().isNodeEncrypted(nodeId)) {
+        if (!mServiceLocator.getNodesService().isNodeEncrypted(nodeId)) {
             return null;
         }
 
@@ -51,7 +53,7 @@ public class FileKeyFetcher {
 
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.determineUserKeyPairVersion(
                 encFileKey.getVersion());
-        UserKeyPair userKeyPair = mClient.getAccountImpl().getAndCheckUserKeyPair(
+        UserKeyPair userKeyPair = mServiceLocator.getAccountService().getAndCheckUserKeyPair(
                 userKeyPairVersion);
 
         return mClient.getCryptoWrapper().decryptFileKey(nodeId, encFileKey,

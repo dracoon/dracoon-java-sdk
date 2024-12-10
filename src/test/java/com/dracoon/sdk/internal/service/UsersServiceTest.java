@@ -18,13 +18,13 @@ import static org.mockito.Mockito.when;
 
 class UsersServiceTest extends BaseServiceTest {
 
-    private UsersService mDui;
+    private UsersService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDui = new UsersService(mDracoonClientImpl);
+        mSrv = new UsersService(mDracoonClientImpl);
     }
 
     // --- Get user avatar tests ---
@@ -41,7 +41,7 @@ class UsersServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() {
-            mDracoonClientImpl.setAvatarDownloader(mAvatarDownloader);
+            mServiceLocator.setAvatarDownloader(mAvatarDownloader);
         }
 
         @Test
@@ -65,7 +65,7 @@ class UsersServiceTest extends BaseServiceTest {
         private void executeMockedAndVerified() throws Exception {
             when(mAvatarDownloader.downloadAvatar(any()))
                     .thenReturn(AVATAR_BYTES);
-            mDui.getUserAvatar(USER_ID, UUID.fromString(AVATAR_UUID));
+            mSrv.getUserAvatar(USER_ID, UUID.fromString(AVATAR_UUID));
             verify(mAvatarDownloader).downloadAvatar(mServerUrl +
                     "/api/v4/downloads/avatar/" + USER_ID + "/" + AVATAR_UUID);
         }
@@ -73,13 +73,13 @@ class UsersServiceTest extends BaseServiceTest {
         private void executeMockedWithException() throws Exception {
             when(mAvatarDownloader.downloadAvatar(any()))
                     .thenThrow(new DracoonApiException(DracoonApiCode.SERVER_USER_AVATAR_NOT_FOUND));
-            mDui.getUserAvatar(USER_ID, UUID.fromString(AVATAR_UUID));
+            mSrv.getUserAvatar(USER_ID, UUID.fromString(AVATAR_UUID));
         }
 
         private byte[] executeMockedWithReturn() throws Exception {
             when(mAvatarDownloader.downloadAvatar(any()))
                     .thenReturn(AVATAR_BYTES);
-            return mDui.getUserAvatar(USER_ID, UUID.fromString(AVATAR_UUID));
+            return mSrv.getUserAvatar(USER_ID, UUID.fromString(AVATAR_UUID));
         }
 
     }

@@ -42,15 +42,15 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
     @Mock
     protected FileKeyFetcher mFileKeyFetcher;
 
-    private NodesService mDni;
+    private NodesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl.setFileKeyFetcher(mFileKeyFetcher);
+        mServiceLocator.setFileKeyFetcher(mFileKeyFetcher);
 
-        mDni = new NodesService(mDracoonClientImpl);
+        mSrv = new NodesService(mDracoonClientImpl);
     }
 
     private static abstract class BaseTests {
@@ -287,7 +287,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.downloadFile(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
+            mSrv.downloadFile(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
         }
 
     }
@@ -326,7 +326,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.downloadFile(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
+            mSrv.downloadFile(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
         }
 
     }
@@ -351,7 +351,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.downloadFile(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
+            mSrv.downloadFile(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
         }
 
     }
@@ -376,7 +376,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.downloadFile(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
+            mSrv.downloadFile(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
         }
 
     }
@@ -392,7 +392,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
             executeMocked();
 
             // Assert download thread matches mocked download thread
-            DownloadThread downloadThread = mDni.getDownloadThread(mDownloadId);
+            DownloadThread downloadThread = mSrv.getDownloadThread(mDownloadId);
             assertEquals(mDownloadThread, downloadThread);
         }
 
@@ -412,7 +412,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
             executeMockedWithCallback(callbackConsumer);
 
             // Assert download thread exists
-            DownloadThread downloadThread = mDni.getDownloadThread(mDownloadId);
+            DownloadThread downloadThread = mSrv.getDownloadThread(mDownloadId);
             assertNotNull(downloadThread);
         }
 
@@ -437,7 +437,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
             executeMockedWithCallback(callbackConsumer);
 
             // Assert download thread is not found
-            DownloadThread downloadThread = mDni.getDownloadThread(mDownloadId);
+            DownloadThread downloadThread = mSrv.getDownloadThread(mDownloadId);
             assertNull(downloadThread);
         }
 
@@ -519,7 +519,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.startDownloadFileAsync(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
+            mSrv.startDownloadFileAsync(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
         }
 
     }
@@ -552,7 +552,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.startDownloadFileAsync(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
+            mSrv.startDownloadFileAsync(mDownloadId, mNodeId, mFile, mFileDownloadCallback);
         }
 
     }
@@ -572,7 +572,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.startDownloadFileAsync(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
+            mSrv.startDownloadFileAsync(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
         }
 
     }
@@ -596,7 +596,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @Override
         protected void executeDownload() throws Exception {
-            mDni.startDownloadFileAsync(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
+            mSrv.startDownloadFileAsync(mDownloadId, mNodeId, mStream, mFileDownloadCallback);
         }
 
     }
@@ -620,24 +620,24 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         @Test
         void testDownloadThreadStillExists() {
             // Add download thread
-            mDni.putDownloadThread(mDownloadId, mDownloadThread);
+            mSrv.putDownloadThread(mDownloadId, mDownloadThread);
 
             // Execute method to test
-            mDni.cancelDownloadFileAsync("-");
+            mSrv.cancelDownloadFileAsync("-");
 
             // Assert download thread still exists
-            DownloadThread downloadThread = mDni.getDownloadThread(mDownloadId);
+            DownloadThread downloadThread = mSrv.getDownloadThread(mDownloadId);
             assertNotNull(downloadThread);
         }
 
         @Test
         void testDownloadThreadIsInterrupted() {
             // Add download thread
-            mDni.putDownloadThread(mDownloadId, mDownloadThread);
+            mSrv.putDownloadThread(mDownloadId, mDownloadThread);
             mockThreadHelperCalls();
 
             // Execute method to test
-            mDni.cancelDownloadFileAsync(mDownloadId);
+            mSrv.cancelDownloadFileAsync(mDownloadId);
 
             // Assert download thread is interrupted
             verifyThreadHelperCalls();
@@ -646,14 +646,14 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         @Test
         void testDownloadThreadIsRemoved() {
             // Add download thread
-            mDni.putDownloadThread(mDownloadId, mDownloadThread);
+            mSrv.putDownloadThread(mDownloadId, mDownloadThread);
             mockThreadHelperCalls();
 
             // Execute method to test
-            mDni.cancelDownloadFileAsync(mDownloadId);
+            mSrv.cancelDownloadFileAsync(mDownloadId);
 
             // Assert download thread is not found
-            DownloadThread downloadThread = mDni.getDownloadThread(mDownloadId);
+            DownloadThread downloadThread = mSrv.getDownloadThread(mDownloadId);
             assertNull(downloadThread);
         }
 
@@ -742,7 +742,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         }
 
         private void executeCreateDownloadStream() throws Exception {
-            mDni.createFileDownloadStream(mDownloadId, mNodeId, mFileDownloadCallback);
+            mSrv.createFileDownloadStream(mDownloadId, mNodeId, mFileDownloadCallback);
         }
 
     }

@@ -13,6 +13,7 @@ public abstract class BaseService implements Service {
     protected final DracoonApi mApi;
     protected final HttpHelper mHttpHelper;
     protected final DracoonErrorParser mErrorParser;
+    protected final ServiceLocator mServiceLocator;
 
     protected BaseService(DracoonClientImpl client) {
         mClient = client;
@@ -20,6 +21,7 @@ public abstract class BaseService implements Service {
         mApi = client.getDracoonApi();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+        mServiceLocator = client.getServiceLocator();
     }
 
 }

@@ -28,7 +28,7 @@ public class UsersService extends BaseService {
         String downloadUrl = mClient.buildApiUrl("downloads", "avatar", Long.toString(userId),
                 avatarUuid.toString());
 
-        return mClient.getAvatarDownloader().downloadAvatar(downloadUrl);
+        return mServiceLocator.getAvatarDownloader().downloadAvatar(downloadUrl);
     }
 
 }

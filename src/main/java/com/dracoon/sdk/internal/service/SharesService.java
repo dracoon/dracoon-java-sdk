@@ -47,7 +47,7 @@ public class SharesService extends BaseService {
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
         long nodeId = request.getNodeId();
 
-        PlainFileKey plainFileKey = mClient.getFileKeyFetcher().getPlainFileKey(nodeId);
+        PlainFileKey plainFileKey = mServiceLocator.getFileKeyFetcher().getPlainFileKey(nodeId);
 
         boolean isEncrypted = plainFileKey != null;
         ShareValidator.validateCreateDownloadRequest(request, isEncrypted);
@@ -55,7 +55,7 @@ public class SharesService extends BaseService {
         UserKeyPair shareUserKeyPair = null;
         EncryptedFileKey shareEncFileKey = null;
         if (plainFileKey != null) {
-            UserKeyPair.Version userKeyPairVersion = mClient.getServerSettingsImpl()
+            UserKeyPair.Version userKeyPairVersion = mServiceLocator.getServerSettingsService()
                     .getPreferredUserKeyPairVersion();
 
             CryptoWrapper crypto = mClient.getCryptoWrapper();

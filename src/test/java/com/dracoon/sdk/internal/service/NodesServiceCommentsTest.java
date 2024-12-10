@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NodesServiceCommentsTest extends BaseServiceTest {
 
-    private NodesService mDni;
+    private NodesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDni = new NodesService(mDracoonClientImpl);
+        mSrv = new NodesService(mDracoonClientImpl);
     }
 
     // --- Get node comments tests ---
@@ -103,7 +103,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
 
         @Override
         protected NodeCommentList executeGetNodeComments() throws Exception {
-            return mDni.getNodeComments(5L);
+            return mSrv.getNodeComments(5L);
         }
 
     }
@@ -124,7 +124,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
 
         @Override
         protected NodeCommentList executeGetNodeComments() throws Exception {
-            return mDni.getNodeComments(5L, 1L, 2L);
+            return mSrv.getNodeComments(5L, 1L, 2L);
         }
 
     }
@@ -158,7 +158,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "create_comment_response.json");
 
             // Execute method to test
-            mDni.createNodeComment(mCreateCommentRequest);
+            mSrv.createNodeComment(mCreateCommentRequest);
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "create_comment_request.json");
@@ -171,7 +171,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "create_comment_response.json");
 
             // Execute method to test
-            NodeComment data = mDni.createNodeComment(mCreateCommentRequest);;
+            NodeComment data = mSrv.createNodeComment(mCreateCommentRequest);;
 
             // Assert data is correct
             NodeComment expectedData = readDataWithPath(NodeComment.class, "comment.json");
@@ -189,7 +189,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    () -> mDni.createNodeComment(mCreateCommentRequest));
+                    () -> mSrv.createNodeComment(mCreateCommentRequest));
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -214,7 +214,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "update_comment_response.json");
 
             // Execute method to test
-            mDni.updateNodeComment(mUpdateCommentRequest);
+            mSrv.updateNodeComment(mUpdateCommentRequest);
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "update_comment_request.json");
@@ -227,7 +227,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "update_comment_response.json");
 
             // Execute method to test
-            NodeComment data = mDni.updateNodeComment(mUpdateCommentRequest);;
+            NodeComment data = mSrv.updateNodeComment(mUpdateCommentRequest);;
 
             // Assert data is correct
             NodeComment expectedData = readDataWithPath(NodeComment.class, "comment.json");
@@ -245,7 +245,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    () -> mDni.updateNodeComment(mUpdateCommentRequest));
+                    () -> mSrv.updateNodeComment(mUpdateCommentRequest));
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -262,7 +262,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "delete_comment_response.json");
 
             // Execute method to test
-            mDni.deleteNodeComment(2L);
+            mSrv.deleteNodeComment(2L);
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "delete_comment_request.json");
@@ -279,7 +279,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    () -> mDni.deleteNodeComment(2L));
+                    () -> mSrv.deleteNodeComment(2L));
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());

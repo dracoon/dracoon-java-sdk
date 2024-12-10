@@ -212,7 +212,7 @@ public class AccountService extends BaseService {
 
     public UserKeyPair getPreferredUserKeyPair() throws DracoonNetIOException,
             DracoonApiException {
-        List<UserKeyPairAlgorithm> userKeyPairAlgorithms = mClient.getServerSettingsImpl()
+        List<UserKeyPairAlgorithm> userKeyPairAlgorithms = mServiceLocator.getServerSettingsService()
                 .getAvailableUserKeyPairAlgorithms();
 
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
@@ -287,7 +287,7 @@ public class AccountService extends BaseService {
             throw new IllegalArgumentException("Version can't be null.");
         }
 
-        List<UserKeyPair.Version> versions = mClient.getServerSettingsImpl()
+        List<UserKeyPair.Version> versions = mServiceLocator.getServerSettingsService()
                 .getAvailableUserKeyPairVersions();
         boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
         if (!apiSupportsVersion) {
@@ -431,7 +431,7 @@ public class AccountService extends BaseService {
         ApiUserAvatarInfo avatarInfoData = avatarInfoResponse.body();
         String downloadUrl = avatarInfoData != null ? avatarInfoData.avatarUri : null;
 
-        return mClient.getAvatarDownloader().downloadAvatar(downloadUrl);
+        return mServiceLocator.getAvatarDownloader().downloadAvatar(downloadUrl);
     }
 
     @ClientMethodImpl

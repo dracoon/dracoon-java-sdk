@@ -36,7 +36,7 @@ class AccountServiceTest extends BaseServiceTest {
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
-    private AccountService mDai;
+    private AccountService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -44,7 +44,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDai = new AccountService(mDracoonClientImpl);
+        mSrv = new AccountService(mDracoonClientImpl);
     }
 
     // --- Ping tests ---
@@ -60,7 +60,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "ping_response.json");
 
             // Execute method to test
-            mDai.pingUser();
+            mSrv.pingUser();
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "ping_request.json");
@@ -76,7 +76,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "precondition_failed_response.json");
 
             // Execute method to test
-            DracoonApiException thrown = assertThrows(DracoonApiException.class, mDai::pingUser);
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, mSrv::pingUser);
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -97,7 +97,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueOkResponses();
 
             // Execute method to test
-            mDai.getUserAccount();
+            mSrv.getUserAccount();
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "get_user_account_request.json");
@@ -110,7 +110,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueOkResponses();
 
             // Execute method to test
-            UserAccount userAccount = mDai.getUserAccount();
+            UserAccount userAccount = mSrv.getUserAccount();
 
             // Assert data is correct
             UserAccount expectedUserAccount = readData(UserAccount.class, DATA_PATH +
@@ -128,7 +128,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueErrorResponse();
 
             // Execute method to test
-            DracoonApiException thrown = assertThrows(DracoonApiException.class, mDai::getUserAccount);
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, mSrv::getUserAccount);
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -145,7 +145,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueErrorResponse();
 
             // Execute method to test
-            DracoonApiException thrown = assertThrows(DracoonApiException.class, mDai::getUserAccount);
+            DracoonApiException thrown = assertThrows(DracoonApiException.class, mSrv::getUserAccount);
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -183,7 +183,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueOkResponse();
 
             // Execute method to test
-            mDai.getCustomerAccount();
+            mSrv.getCustomerAccount();
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "get_customer_account_request.json");
@@ -195,7 +195,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueOkResponse();
 
             // Execute method to test
-            CustomerAccount customerAccount = mDai.getCustomerAccount();
+            CustomerAccount customerAccount = mSrv.getCustomerAccount();
 
             // Assert data is correct
             CustomerAccount expectedCustomerAccount = readData(CustomerAccount.class, DATA_PATH +
@@ -214,7 +214,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    mDai::getCustomerAccount);
+                    mSrv::getCustomerAccount);
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -243,7 +243,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
-            mDai.getUserKeyPairAlgorithmVersions();
+            mSrv.getUserKeyPairAlgorithmVersions();
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "get_key_pairs_request.json");
@@ -255,7 +255,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "not_found_response.json");
 
             // Execute method to test
-            List<UserKeyPairAlgorithm.Version> versions = mDai.getUserKeyPairAlgorithmVersions();
+            List<UserKeyPairAlgorithm.Version> versions = mSrv.getUserKeyPairAlgorithmVersions();
 
             // Assert data is correct
             assertEquals(new ArrayList<UserKeyPairAlgorithm.Version>(), versions);
@@ -267,7 +267,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
-            List<UserKeyPairAlgorithm.Version> versions = mDai.getUserKeyPairAlgorithmVersions();
+            List<UserKeyPairAlgorithm.Version> versions = mSrv.getUserKeyPairAlgorithmVersions();
 
             // Assert data is correct
             List<UserKeyPairAlgorithm.Version> expectedVersions = readData(List.class, DATA_PATH +
@@ -286,7 +286,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class,
-                    mDai::getUserKeyPairAlgorithmVersions);
+                    mSrv::getUserKeyPairAlgorithmVersions);
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -304,11 +304,11 @@ class AccountServiceTest extends BaseServiceTest {
         private final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected ServerSettingsService mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsService;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
+            mServiceLocator.setServerSettingsService(mServerSettingsService);
 
             mockGetAvailableUserKeyPairVersions();
 
@@ -362,7 +362,7 @@ class AccountServiceTest extends BaseServiceTest {
                     "user_key_pair_2048.json");
             when(mCryptoWrapper.generateUserKeyPair(any(), any()))
                     .thenReturn(userKeyPair);
-            mDai.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
         }
 
         private void executeMockedAndVerified() throws Exception {
@@ -370,14 +370,14 @@ class AccountServiceTest extends BaseServiceTest {
                     "user_key_pair_2048.json");
             when(mCryptoWrapper.generateUserKeyPair(any(), any()))
                     .thenReturn(userKeyPair);
-            mDai.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
             verify(mCryptoWrapper).generateUserKeyPair(UserKeyPair.Version.RSA2048, CRYPTO_PW);
         }
 
         private void executeMockedWithException() throws Exception {
             when(mCryptoWrapper.generateUserKeyPair(any(), any()))
                     .thenThrow(new DracoonCryptoException());
-            mDai.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.setUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
         }
 
         private void enqueueOkResponse() {
@@ -390,7 +390,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         private void mockGetAvailableUserKeyPairVersions()
                 throws Exception {
-            when(mServerSettingsImpl.getAvailableUserKeyPairVersions())
+            when(mServerSettingsService.getAvailableUserKeyPairVersions())
                     .thenReturn(Collections.singletonList(UserKeyPair.Version.RSA2048));
         }
 
@@ -404,11 +404,11 @@ class AccountServiceTest extends BaseServiceTest {
         private final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected ServerSettingsService mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsService;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
+            mServiceLocator.setServerSettingsService(mServerSettingsService);
 
             mockGetAvailableUserKeyPairAlgorithms();
         }
@@ -419,7 +419,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
-            mDai.getPreferredUserKeyPair();
+            mSrv.getPreferredUserKeyPair();
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "get_key_pairs_request.json");
@@ -431,7 +431,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "get_key_pairs_response.json");
 
             // Execute method to test
-            UserKeyPair userKeyPair = mDai.getPreferredUserKeyPair();
+            UserKeyPair userKeyPair = mSrv.getPreferredUserKeyPair();
 
             // Assert data is correct
             UserKeyPair expectedUserKeyPair = readData(UserKeyPair.class, DATA_PATH +
@@ -450,7 +450,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.getPreferredUserKeyPair());
+                    mSrv.getPreferredUserKeyPair());
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -463,7 +463,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.getPreferredUserKeyPair());
+                    mSrv.getPreferredUserKeyPair());
 
             // Assert correct error code
             assertEquals(DracoonApiCode.SERVER_USER_KEY_PAIR_NOT_FOUND, thrown.getCode());
@@ -471,7 +471,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         private void mockGetAvailableUserKeyPairAlgorithms()
                 throws Exception {
-            when(mServerSettingsImpl.getAvailableUserKeyPairAlgorithms())
+            when(mServerSettingsService.getAvailableUserKeyPairAlgorithms())
                     .thenReturn(Arrays.asList(
                             createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA4096),
                             createUserKeyPairAlgorithm(UserKeyPairAlgorithm.Version.RSA2048)));
@@ -564,7 +564,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.getAndCheckUserKeyPairs());
+                    mSrv.getAndCheckUserKeyPairs());
 
             // Assert correct error code
             assertEquals(DracoonApiCode.SERVER_USER_KEY_PAIR_NOT_FOUND, thrown.getCode());
@@ -588,20 +588,20 @@ class AccountServiceTest extends BaseServiceTest {
         }
 
         private void execute() throws Exception {
-            mDai.getAndCheckUserKeyPairs();
+            mSrv.getAndCheckUserKeyPairs();
         }
 
 
         private void executeMocked(boolean ok) throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(ok);
-            mDai.getAndCheckUserKeyPairs();
+            mSrv.getAndCheckUserKeyPairs();
         }
 
         private void executeMockedAndVerified() throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(true);
-            List<UserKeyPair> userKeyPairs = mDai.getAndCheckUserKeyPairs();
+            List<UserKeyPair> userKeyPairs = mSrv.getAndCheckUserKeyPairs();
             for (UserKeyPair userKeyPair : userKeyPairs) {
                 verify(mCryptoWrapper).checkUserKeyPairPassword(userKeyPair, CRYPTO_PW);
             }
@@ -610,13 +610,13 @@ class AccountServiceTest extends BaseServiceTest {
         private List<UserKeyPair> executeMockedWithReturn() throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(true);
-            return mDai.getAndCheckUserKeyPairs();
+            return mSrv.getAndCheckUserKeyPairs();
         }
 
         private void executeMockedWithException() throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenThrow(new DracoonCryptoException());
-            mDai.getAndCheckUserKeyPairs();
+            mSrv.getAndCheckUserKeyPairs();
         }
 
     }
@@ -632,11 +632,11 @@ class AccountServiceTest extends BaseServiceTest {
         protected final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected ServerSettingsService mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsService;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
+            mServiceLocator.setServerSettingsService(mServerSettingsService);
 
             mockGetAvailableUserKeyPairVersions();
 
@@ -707,7 +707,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         private void mockGetAvailableUserKeyPairVersions()
                 throws Exception {
-            when(mServerSettingsImpl.getAvailableUserKeyPairVersions())
+            when(mServerSettingsService.getAvailableUserKeyPairVersions())
                     .thenReturn(Collections.singletonList(UserKeyPair.Version.RSA2048));
         }
 
@@ -745,21 +745,21 @@ class AccountServiceTest extends BaseServiceTest {
 
         @Override
         protected void execute() throws Exception {
-            mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            mSrv.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
         }
 
         @Override
         protected void executeMocked(boolean ok) throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(ok);
-            mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            mSrv.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
         }
 
         @Override
         protected void executeMockedAndVerified() throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(true);
-            UserKeyPair userKeyPair = mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            UserKeyPair userKeyPair = mSrv.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
             verify(mCryptoWrapper).checkUserKeyPairPassword(userKeyPair, CRYPTO_PW);
         }
 
@@ -767,13 +767,13 @@ class AccountServiceTest extends BaseServiceTest {
         protected void executeMockedWithException() throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenThrow(new DracoonCryptoException());
-            mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            mSrv.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
         }
 
         private UserKeyPair executeMockedWithReturn() throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(true);
-            return mDai.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
+            return mSrv.getAndCheckUserKeyPair(UserKeyPair.Version.RSA2048);
         }
 
     }
@@ -796,14 +796,14 @@ class AccountServiceTest extends BaseServiceTest {
 
         @Override
         protected void execute() throws Exception {
-            mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
         }
 
         @Override
         protected void executeMocked(boolean ok) throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(ok);
-            mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
         }
 
         @Override
@@ -812,7 +812,7 @@ class AccountServiceTest extends BaseServiceTest {
                 "user_key_pair_2048.json");
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(true);
-            mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
             verify(mCryptoWrapper).checkUserKeyPairPassword(
                     argThat(arg -> deepEquals(arg, userKeyPair)),
                     eq(CRYPTO_PW));
@@ -822,13 +822,13 @@ class AccountServiceTest extends BaseServiceTest {
         protected void executeMockedWithException() throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenThrow(new DracoonCryptoException());
-            mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
         }
 
         private boolean executeMockedWithReturn(boolean ok) throws Exception {
             when(mCryptoWrapper.checkUserKeyPairPassword(any(), any()))
                     .thenReturn(ok);
-            return mDai.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
+            return mSrv.checkUserKeyPairPassword(UserKeyPairAlgorithm.Version.RSA2048);
         }
 
     }
@@ -841,11 +841,11 @@ class AccountServiceTest extends BaseServiceTest {
         private final String DATA_PATH = "/account/user_key_pair/";
 
         @Mock
-        protected ServerSettingsService mServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsService;
 
         @BeforeEach
         void setup() throws Exception {
-            mDracoonClientImpl.setServerSettingsService(mServerSettingsImpl);
+            mServiceLocator.setServerSettingsService(mServerSettingsService);
 
             mockGetAvailableUserKeyPairVersions();
         }
@@ -856,7 +856,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "delete_key_pair_by_version_response.json");
 
             // Execute method to test
-            mDai.deleteUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
+            mSrv.deleteUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048);
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "delete_key_pair_by_version_request.json");
@@ -873,7 +873,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.deleteUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048));
+                    mSrv.deleteUserKeyPair(UserKeyPairAlgorithm.Version.RSA2048));
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -881,7 +881,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         private void mockGetAvailableUserKeyPairVersions()
                 throws Exception {
-            when(mServerSettingsImpl.getAvailableUserKeyPairVersions())
+            when(mServerSettingsService.getAvailableUserKeyPairVersions())
                     .thenReturn(Collections.singletonList(UserKeyPair.Version.RSA2048));
         }
 
@@ -915,7 +915,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + responseFilename);
 
             // Execute method to test
-            mDai.setUserProfileAttribute(TEST_KEY, value);
+            mSrv.setUserProfileAttribute(TEST_KEY, value);
 
             // Assert requests are valid
             checkRequest(DATA_PATH + requestFilename);
@@ -941,7 +941,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.setUserProfileAttribute(TEST_KEY, value));
+                    mSrv.setUserProfileAttribute(TEST_KEY, value));
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -964,7 +964,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueOkResponse();
 
             // Execute method to test
-            mDai.getUserProfileAttribute(TEST_KEY);
+            mSrv.getUserProfileAttribute(TEST_KEY);
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "get_attribute_request.json");
@@ -985,7 +985,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueOkResponse();
 
             // Execute method to test
-            return mDai.getUserProfileAttribute(key);
+            return mSrv.getUserProfileAttribute(key);
         }
 
         @Test
@@ -999,7 +999,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.getUserProfileAttribute(TEST_KEY));
+                    mSrv.getUserProfileAttribute(TEST_KEY));
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -1030,7 +1030,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "set_avatar_response.json");
 
             // Execute method to test
-            mDai.setUserAvatar(AVATAR_BYTES);
+            mSrv.setUserAvatar(AVATAR_BYTES);
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "set_avatar_request.json");
@@ -1047,7 +1047,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.setUserAvatar(AVATAR_BYTES));
+                    mSrv.setUserAvatar(AVATAR_BYTES));
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -1069,7 +1069,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() {
-            mDracoonClientImpl.setAvatarDownloader(mAvatarDownloader);
+            mServiceLocator.setAvatarDownloader(mAvatarDownloader);
         }
 
         @Test
@@ -1116,7 +1116,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.getUserAvatar());
+                    mSrv.getUserAvatar());
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());
@@ -1138,13 +1138,13 @@ class AccountServiceTest extends BaseServiceTest {
         private void executeMocked() throws Exception {
             when(mAvatarDownloader.downloadAvatar(any()))
                     .thenReturn(AVATAR_BYTES);
-            mDai.getUserAvatar();
+            mSrv.getUserAvatar();
         }
 
         private void executeMockedAndVerified() throws Exception {
             when(mAvatarDownloader.downloadAvatar(any()))
                     .thenReturn(AVATAR_BYTES);
-            mDai.getUserAvatar();
+            mSrv.getUserAvatar();
             verify(mAvatarDownloader).downloadAvatar(mServerUrl +
                     "/api/v4/downloads/avatar/1/c33e748c-d05b-4af2-90e3-1a24d79b1d41");
         }
@@ -1152,13 +1152,13 @@ class AccountServiceTest extends BaseServiceTest {
         private void executeMockedWithException() throws Exception {
             when(mAvatarDownloader.downloadAvatar(any()))
                     .thenThrow(new DracoonApiException(DracoonApiCode.SERVER_USER_AVATAR_NOT_FOUND));
-            mDai.getUserAvatar();
+            mSrv.getUserAvatar();
         }
 
         private byte[] executeMockedWithReturn() throws Exception {
             when(mAvatarDownloader.downloadAvatar(any()))
                     .thenReturn(AVATAR_BYTES);
-            return mDai.getUserAvatar();
+            return mSrv.getUserAvatar();
         }
 
         private void enqueueOkResponse() {
@@ -1184,7 +1184,7 @@ class AccountServiceTest extends BaseServiceTest {
             enqueueResponse(DATA_PATH + "delete_avatar_response.json");
 
             // Execute method to test
-            mDai.deleteUserAvatar();
+            mSrv.deleteUserAvatar();
 
             // Assert requests are valid
             checkRequest(DATA_PATH + "delete_avatar_request.json");
@@ -1201,7 +1201,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             // Execute method to test
             DracoonApiException thrown = assertThrows(DracoonApiException.class, () ->
-                    mDai.deleteUserAvatar());
+                    mSrv.deleteUserAvatar());
 
             // Assert correct error code
             assertEquals(expectedCode, thrown.getCode());

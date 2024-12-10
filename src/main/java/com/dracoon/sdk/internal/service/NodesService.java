@@ -588,7 +588,7 @@ public class NodesService extends BaseService {
             return null;
         }
 
-        UserKeyPair userKeyPair = mClient.getAccountImpl().getPreferredUserKeyPair();
+        UserKeyPair userKeyPair = mServiceLocator.getAccountService().getPreferredUserKeyPair();
         return userKeyPair.getUserPublicKey();
     }
 
@@ -742,7 +742,7 @@ public class NodesService extends BaseService {
 
     private PlainFileKey getDownloadFileKey(long nodeId) throws DracoonCryptoException,
             DracoonNetIOException, DracoonApiException {
-        return mClient.getFileKeyFetcher().getPlainFileKey(nodeId);
+        return mServiceLocator.getFileKeyFetcher().getPlainFileKey(nodeId);
     }
 
     // --- Search methods ---
@@ -812,7 +812,7 @@ public class NodesService extends BaseService {
 
     private boolean generateMissingFileKeysInternally(Long nodeId, Integer limit)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        return mClient.getFileKeyGenerator().generateMissingFileKeys(nodeId, limit);
+        return mServiceLocator.getFileKeyGenerator().generateMissingFileKeys(nodeId, limit);
     }
 
     // --- Favorite methods ---
@@ -1042,7 +1042,7 @@ public class NodesService extends BaseService {
     }
 
     private void checkVirusScanningSupported() throws DracoonNetIOException, DracoonApiException {
-        mClient.getServerInfoService().checkVersionGreaterEqual(
+        mServiceLocator.getServerInfoService().checkVersionGreaterEqual(
                 DracoonConstants.API_MIN_VIRUS_SCANNING);
     }
 

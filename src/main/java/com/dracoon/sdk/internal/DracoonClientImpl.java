@@ -21,16 +21,7 @@ import com.dracoon.sdk.internal.http.BufferedSocketFactory;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
-import com.dracoon.sdk.internal.service.AccountService;
-import com.dracoon.sdk.internal.service.AvatarDownloader;
-import com.dracoon.sdk.internal.service.FileKeyFetcher;
-import com.dracoon.sdk.internal.service.FileKeyGenerator;
-import com.dracoon.sdk.internal.service.NodesService;
-import com.dracoon.sdk.internal.service.ServerInfoService;
-import com.dracoon.sdk.internal.service.ServerPoliciesService;
-import com.dracoon.sdk.internal.service.ServerSettingsService;
-import com.dracoon.sdk.internal.service.SharesService;
-import com.dracoon.sdk.internal.service.UsersService;
+import com.dracoon.sdk.internal.service.ServiceLocator;
 import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
 import com.dracoon.sdk.internal.util.GsonDateTypeAdapter;
 import com.dracoon.sdk.internal.util.GsonVoidTypeAdapter;
@@ -64,19 +55,8 @@ public class DracoonClientImpl extends DracoonClient {
     private DracoonApi mDracoonApi;
     protected DracoonErrorParser mDracoonErrorParser;
 
+    protected ServiceLocator mServiceLocator;
     private DynamicServiceProxy mServiceProxy;
-
-    protected ServerInfoService mServerInfoService;
-    protected ServerSettingsService mServerSettingsService;
-    protected ServerPoliciesService mServerPoliciesService;
-    protected AccountService mAccountService;
-    protected UsersService mUsersService;
-    protected NodesService mNodesService;
-    protected SharesService mSharesService;
-
-    protected FileKeyFetcher mFileKeyFetcher;
-    protected FileKeyGenerator mFileKeyGenerator;
-    protected AvatarDownloader mAvatarDownloader;
 
     public DracoonClientImpl(URL serverUrl) {
         super(serverUrl);
@@ -150,6 +130,10 @@ public class DracoonClientImpl extends DracoonClient {
         return mFileStreamHelper;
     }
 
+    public ServiceLocator getServiceLocator() {
+        return mServiceLocator;
+    }
+
     // --- Initialization methods ---
 
     public void init() {
@@ -164,7 +148,7 @@ public class DracoonClientImpl extends DracoonClient {
         mThreadHelper = new ThreadHelper();
         mFileStreamHelper = new FileStreamHelper();
 
-        initServices();
+        initServiceLocator();
         initServiceProxy();
     }
 
@@ -234,35 +218,17 @@ public class DracoonClientImpl extends DracoonClient {
         mDracoonErrorParser.setLog(mLog);
     }
 
-    private void initServices() {
-        mServerInfoService = new ServerInfoService(this);
-        mServerSettingsService = new ServerSettingsService(this);
-        mServerPoliciesService = new ServerPoliciesService(this);
-        mAccountService = new AccountService(this);
-        mUsersService = new UsersService(this);
-        mNodesService = new NodesService(this);
-        mSharesService = new SharesService(this);
-
-        mFileKeyFetcher = new FileKeyFetcher(this);
-        mFileKeyGenerator = new FileKeyGenerator(this);
-        mAvatarDownloader = new AvatarDownloader(this);
+    private void initServiceLocator() {
+        mServiceLocator = new ServiceLocator(this);
     }
 
     private void initServiceProxy() {
-        mServiceProxy = new DynamicServiceProxy();
-        mServiceProxy.addServices(
-                mServerInfoService,
-                mServerSettingsService,
-                mServerPoliciesService,
-                mAccountService,
-                mUsersService,
-                mNodesService,
-                mSharesService);
+        mServiceProxy = new DynamicServiceProxy(mServiceLocator);
         mServiceProxy.prepare();
     }
 
     public void checkApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
-        mServerInfoService.checkVersionSupported();
+        mServiceLocator.getServerInfoService().checkVersionSupported();
     }
 
     public void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
@@ -284,7 +250,7 @@ public class DracoonClientImpl extends DracoonClient {
     @Override
     public boolean isAuthValid() throws DracoonNetIOException, DracoonApiException {
         try {
-            mAccountService.pingUser();
+            mServiceLocator.getAccountService().pingUser();
         } catch (DracoonApiException e) {
             if (e.getCode().isAuthError()) {
                 return false;
@@ -297,7 +263,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     @Override
     public void checkAuthValid() throws DracoonNetIOException, DracoonApiException {
-        mAccountService.pingUser();
+        mServiceLocator.getAccountService().pingUser();
     }
 
     // --- Methods to get public handlers ---
@@ -330,36 +296,6 @@ public class DracoonClientImpl extends DracoonClient {
     @Override
     public Shares shares() {
         return mServiceProxy.shares();
-    }
-
-    // --- Methods to get internal services ---
-
-    public ServerInfoService getServerInfoService() {
-        return mServerInfoService;
-    }
-
-    public ServerSettingsService getServerSettingsImpl() {
-        return mServerSettingsService;
-    }
-
-    public AccountService getAccountImpl() {
-        return mAccountService;
-    }
-
-    public NodesService getNodesImpl() {
-        return mNodesService;
-    }
-
-    public FileKeyFetcher getFileKeyFetcher() {
-        return mFileKeyFetcher;
-    }
-
-    public FileKeyGenerator getFileKeyGenerator() {
-        return mFileKeyGenerator;
-    }
-
-    public AvatarDownloader getAvatarDownloader() {
-        return mAvatarDownloader;
     }
 
     // --- Helper methods ---

@@ -6,7 +6,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,18 +13,20 @@ import java.util.Objects;
 
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.internal.service.Service;
+import com.dracoon.sdk.internal.service.ServiceLocator;
 
 class DynamicServiceProxy {
 
     private final List<Service> mServices = new ArrayList<>();
     private final Map<Class<?>, Object> mServiceProxies = new HashMap<>();
 
-    DynamicServiceProxy() {
-        mServices.add(new ServerGroupsService());
+    DynamicServiceProxy(ServiceLocator servicelocator) {
+        init(servicelocator);
     }
 
-    public void addServices(Service... service) {
-        Collections.addAll(mServices, service);
+    private void init(ServiceLocator serviceLocator) {
+        mServices.add(new ServerGroupsService());
+        mServices.addAll(serviceLocator.getServices());
     }
 
     public void prepare() {

@@ -34,13 +34,13 @@ import static org.mockito.Mockito.when;
 
 public class NodesServiceTest extends BaseServiceTest {
 
-    private NodesService mDni;
+    private NodesService mServ;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDni = new NodesService(mDracoonClientImpl);
+        mServ = new NodesService(mDracoonClientImpl);
     }
 
     private interface NodesTest<T> {
@@ -162,7 +162,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList getNodes() throws Exception {
-            return mDni.getNodes(1L);
+            return mServ.getNodes(1L);
         }
 
     }
@@ -199,7 +199,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList getNodes() throws Exception {
-            return mDni.getNodes(2L, mFilters);
+            return mServ.getNodes(2L, mFilters);
         }
 
     }
@@ -228,7 +228,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList getNodes() throws Exception {
-            return mDni.getNodes(3L, 1L, 2L);
+            return mServ.getNodes(3L, 1L, 2L);
         }
 
     }
@@ -267,7 +267,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList getNodes() throws Exception {
-            return mDni.getNodes(4L, mFilters, 1L, 2L);
+            return mServ.getNodes(4L, mFilters, 1L, 2L);
         }
 
     }
@@ -317,7 +317,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected Node getNode() throws Exception {
-            return mDni.getNode(4L);
+            return mServ.getNode(4L);
         }
 
     }
@@ -352,7 +352,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected Node getNode() throws Exception {
-            return mDni.getNode("/test/test-file.jpg");
+            return mServ.getNode("/test/test-file.jpg");
         }
 
     }
@@ -381,13 +381,13 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("create_room_request.json", "create_room_response.json",
-                    () -> mDni.createRoom(mCreateRoomRequest));
+                    () -> mServ.createRoom(mCreateRoomRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("create_room_response.json", "node.json",
-                    () -> mDni.createRoom(mCreateRoomRequest));
+                    () -> mServ.createRoom(mCreateRoomRequest));
         }
 
         @Test
@@ -395,7 +395,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseRoomCreateError,
                     DracoonApiCode.SERVER_TARGET_ROOM_NOT_FOUND,
-                    () -> mDni.createRoom(mCreateRoomRequest));
+                    () -> mServ.createRoom(mCreateRoomRequest));
         }
 
     }
@@ -414,13 +414,13 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("update_room_request.json", "update_room_response.json",
-                    () -> mDni.updateRoom(mUpdateRoomRequest));
+                    () -> mServ.updateRoom(mUpdateRoomRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("update_room_response.json", "node.json",
-                    () -> mDni.updateRoom(mUpdateRoomRequest));
+                    () -> mServ.updateRoom(mUpdateRoomRequest));
         }
 
         @Test
@@ -428,7 +428,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseRoomUpdateError,
                     DracoonApiCode.SERVER_ROOM_NOT_FOUND,
-                    () -> mDni.updateRoom(mUpdateRoomRequest));
+                    () -> mServ.updateRoom(mUpdateRoomRequest));
         }
 
     }
@@ -448,13 +448,13 @@ public class NodesServiceTest extends BaseServiceTest {
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("update_room_config_request.json",
                     "update_room_config_response.json",
-                    () -> mDni.updateRoomConfig(mUpdateRoomConfigRequest));
+                    () -> mServ.updateRoomConfig(mUpdateRoomConfigRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("update_room_config_response.json", "node.json",
-                    () -> mDni.updateRoomConfig(mUpdateRoomConfigRequest));
+                    () -> mServ.updateRoomConfig(mUpdateRoomConfigRequest));
         }
 
         @Test
@@ -462,7 +462,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseRoomUpdateError,
                     DracoonApiCode.SERVER_ROOM_NOT_FOUND,
-                    () -> mDni.updateRoomConfig(mUpdateRoomConfigRequest));
+                    () -> mServ.updateRoomConfig(mUpdateRoomConfigRequest));
         }
 
     }
@@ -489,13 +489,13 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("create_folder_request.json", "create_folder_response.json",
-                    () -> mDni.createFolder(mCreateFolderRequest));
+                    () -> mServ.createFolder(mCreateFolderRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("create_folder_response.json", "node.json",
-                    () -> mDni.createFolder(mCreateFolderRequest));
+                    () -> mServ.createFolder(mCreateFolderRequest));
         }
 
         @Test
@@ -503,7 +503,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseFolderCreateError,
                     DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND,
-                    () -> mDni.createFolder(mCreateFolderRequest));
+                    () -> mServ.createFolder(mCreateFolderRequest));
         }
 
     }
@@ -522,13 +522,13 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("update_folder_request.json", "update_folder_response.json",
-                    () -> mDni.updateFolder(mUpdateFolderRequest));
+                    () -> mServ.updateFolder(mUpdateFolderRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("update_folder_response.json", "node.json",
-                    () -> mDni.updateFolder(mUpdateFolderRequest));
+                    () -> mServ.updateFolder(mUpdateFolderRequest));
         }
 
         @Test
@@ -536,7 +536,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseFolderUpdateError,
                     DracoonApiCode.SERVER_NODE_NOT_FOUND,
-                    () -> mDni.updateFolder(mUpdateFolderRequest));
+                    () -> mServ.updateFolder(mUpdateFolderRequest));
         }
 
     }
@@ -559,13 +559,13 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("update_file_request.json", "update_file_response.json",
-                    () -> mDni.updateFile(mUpdateFileRequest));
+                    () -> mServ.updateFile(mUpdateFileRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("update_file_response.json", "node.json",
-                    () -> mDni.updateFile(mUpdateFileRequest));
+                    () -> mServ.updateFile(mUpdateFileRequest));
         }
 
         @Test
@@ -573,7 +573,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseFileUpdateError,
                     DracoonApiCode.SERVER_NODE_NOT_FOUND,
-                    () -> mDni.updateFile(mUpdateFileRequest));
+                    () -> mServ.updateFile(mUpdateFileRequest));
         }
 
     }
@@ -614,7 +614,7 @@ public class NodesServiceTest extends BaseServiceTest {
         }
 
         private Void executeDeleteNodes() throws Exception {
-            mDni.deleteNodes(mDeleteNodesRequest);
+            mServ.deleteNodes(mDeleteNodesRequest);
             return null;
         }
 
@@ -638,7 +638,7 @@ public class NodesServiceTest extends BaseServiceTest {
         }
 
         private Void executeDeleteNode() throws Exception {
-            mDni.deleteNode(4L);
+            mServ.deleteNode(4L);
             return null;
         }
 
@@ -667,13 +667,13 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("copy_nodes_request.json", "copy_nodes_response.json",
-                    () -> mDni.copyNodes(mCopyNodesRequest));
+                    () -> mServ.copyNodes(mCopyNodesRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("copy_nodes_response.json", "node.json",
-                    () -> mDni.copyNodes(mCopyNodesRequest));
+                    () -> mServ.copyNodes(mCopyNodesRequest));
         }
 
         @Test
@@ -681,7 +681,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseNodesCopyError,
                     DracoonApiCode.SERVER_SOURCE_NODE_NOT_FOUND,
-                    () -> mDni.copyNodes(mCopyNodesRequest));
+                    () -> mServ.copyNodes(mCopyNodesRequest));
         }
 
     }
@@ -699,13 +699,13 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("move_nodes_request.json", "move_nodes_response.json",
-                    () -> mDni.moveNodes(mMoveNodesRequest));
+                    () -> mServ.moveNodes(mMoveNodesRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("move_nodes_response.json", "node.json",
-                    () -> mDni.moveNodes(mMoveNodesRequest));
+                    () -> mServ.moveNodes(mMoveNodesRequest));
         }
 
         @Test
@@ -713,7 +713,7 @@ public class NodesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseNodesMoveError,
                     DracoonApiCode.SERVER_SOURCE_NODE_NOT_FOUND,
-                    () -> mDni.moveNodes(mMoveNodesRequest));
+                    () -> mServ.moveNodes(mMoveNodesRequest));
         }
 
     }
@@ -765,7 +765,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList searchNodes() throws Exception {
-            return mDni.searchNodes(1L, "test");
+            return mServ.searchNodes(1L, "test");
         }
 
     }
@@ -802,7 +802,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList searchNodes() throws Exception {
-            return mDni.searchNodes(2L, "test", mFilters);
+            return mServ.searchNodes(2L, "test", mFilters);
         }
 
     }
@@ -831,7 +831,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList searchNodes() throws Exception {
-            return mDni.searchNodes(3L, "test", 1L, 2L);
+            return mServ.searchNodes(3L, "test", 1L, 2L);
         }
 
     }
@@ -870,7 +870,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList searchNodes() throws Exception {
-            return mDni.searchNodes(4L, "test", mFilters, 1L, 2L);
+            return mServ.searchNodes(4L, "test", mFilters, 1L, 2L);
         }
 
     }
@@ -888,7 +888,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mDracoonClientImpl.setFileKeyGenerator(mFileKeyGenerator);
+            mServiceLocator.setFileKeyGenerator(mFileKeyGenerator);
 
             setParams();
         }
@@ -943,7 +943,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected boolean executeGenerateMissingFileKeys() throws Exception {
-            return mDni.generateMissingFileKeys(mNodeId, mLimit);
+            return mServ.generateMissingFileKeys(mNodeId, mLimit);
         }
 
     }
@@ -958,7 +958,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected boolean executeGenerateMissingFileKeys() throws Exception {
-            return mDni.generateMissingFileKeys(mLimit);
+            return mServ.generateMissingFileKeys(mLimit);
         }
 
     }
@@ -994,7 +994,7 @@ public class NodesServiceTest extends BaseServiceTest {
         }
 
         private Void executeMarkFavorite() throws Exception {
-            mDni.markFavorite(10L);
+            mServ.markFavorite(10L);
             return null;
         }
 
@@ -1016,7 +1016,7 @@ public class NodesServiceTest extends BaseServiceTest {
         }
 
         private Void executeUnmarkFavorite() throws Exception {
-            mDni.unmarkFavorite(10L);
+            mServ.unmarkFavorite(10L);
             return null;
         }
 
@@ -1067,7 +1067,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList getFavorites() throws Exception {
-            return mDni.getFavorites();
+            return mServ.getFavorites();
         }
 
     }
@@ -1096,7 +1096,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @Override
         protected NodeList getFavorites() throws Exception {
-            return mDni.getFavorites(1L, 2L);
+            return mServ.getFavorites(1L, 2L);
         }
 
     }
@@ -1109,7 +1109,7 @@ public class NodesServiceTest extends BaseServiceTest {
         @Test
         void testResultCorrect() throws Exception {
             URL expectedMediaUrl = new URL(mServerUrl.toString() + "/mediaserver/image/xxx/800x600");
-            URL mediaUrl = mDni.buildMediaUrl("xxx", 800, 600);
+            URL mediaUrl = mServ.buildMediaUrl("xxx", 800, 600);
             assertEquals(expectedMediaUrl, mediaUrl);
         }
 

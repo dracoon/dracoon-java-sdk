@@ -50,7 +50,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
-    private NodesService mDni;
+    private NodesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
@@ -58,7 +58,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDni = new NodesService(mDracoonClientImpl);
+        mSrv = new NodesService(mDracoonClientImpl);
     }
 
     private abstract class BaseTests {
@@ -66,7 +66,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected final String mDataPath;
 
         @Mock
-        protected AccountService mDracoonAccountImpl;
+        protected AccountService mAccountService;
 
         protected BaseTests(String dataPath) {
             mDataPath = dataPath;
@@ -74,7 +74,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mDracoonClientImpl.setUserService(mDracoonAccountImpl);
+            mServiceLocator.setAccountService(mAccountService);
         }
 
         protected UserKeyPair readUserKeyPairData() {
@@ -86,11 +86,11 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         }
 
         protected void mockGetUserKeyPairCall(UserKeyPair userKeyPair) throws Exception {
-            when(mDracoonAccountImpl.getPreferredUserKeyPair()).thenReturn(userKeyPair);
+            when(mAccountService.getPreferredUserKeyPair()).thenReturn(userKeyPair);
         }
 
         protected void verifyGetUserKeyPairCall() throws Exception {
-            verify(mDracoonAccountImpl).getPreferredUserKeyPair();
+            verify(mAccountService).getPreferredUserKeyPair();
         }
 
     }
@@ -461,7 +461,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Node executeUpload() throws Exception {
-            return mDni.uploadFile(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
+            return mSrv.uploadFile(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
         }
 
     }
@@ -512,7 +512,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Node executeUpload() throws Exception {
-            return mDni.uploadFile(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
+            return mSrv.uploadFile(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
         }
 
     }
@@ -547,7 +547,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Node executeUpload() throws Exception {
-            return mDni.uploadFile(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
+            return mSrv.uploadFile(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
         }
 
     }
@@ -582,7 +582,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Node executeUpload() throws Exception {
-            return mDni.uploadFile(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
+            return mSrv.uploadFile(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
         }
 
     }
@@ -606,7 +606,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
             executeMocked();
 
             // Assert upload thread matches mocked upload thread
-            UploadThread uploadThread = mDni.getUploadThread(mUploadId);
+            UploadThread uploadThread = mSrv.getUploadThread(mUploadId);
             assertEquals(mUploadThread, uploadThread);
         }
 
@@ -629,7 +629,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
             executeMockedWithCallback(callbackConsumer);
 
             // Assert upload thread exists
-            UploadThread uploadThread = mDni.getUploadThread(mUploadId);
+            UploadThread uploadThread = mSrv.getUploadThread(mUploadId);
             assertNotNull(uploadThread);
         }
 
@@ -657,7 +657,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
             executeMockedWithCallback(callbackConsumer);
 
             // Assert upload thread is not found
-            UploadThread uploadThread = mDni.getUploadThread(mUploadId);
+            UploadThread uploadThread = mSrv.getUploadThread(mUploadId);
             assertNull(uploadThread);
         }
 
@@ -781,7 +781,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Void executeUpload() throws Exception {
-            mDni.startUploadFileAsync(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
+            mSrv.startUploadFileAsync(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
             return null;
         }
 
@@ -821,7 +821,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Void executeUpload() throws Exception {
-            mDni.startUploadFileAsync(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
+            mSrv.startUploadFileAsync(mUploadId, mUploadRequest, mFile, mFileUploadCallback);
             return null;
         }
 
@@ -847,7 +847,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Void executeUpload() throws Exception {
-            mDni.startUploadFileAsync(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
+            mSrv.startUploadFileAsync(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
             return null;
         }
 
@@ -873,7 +873,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @Override
         protected Void executeUpload() throws Exception {
-            mDni.startUploadFileAsync(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
+            mSrv.startUploadFileAsync(mUploadId, mUploadRequest, mStream, 5L, mFileUploadCallback);
             return null;
         }
 
@@ -898,24 +898,24 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         @Test
         void testUploadThreadStillExists() {
             // Add upload thread
-            mDni.putUploadThread(mUploadId, mUploadThread);
+            mSrv.putUploadThread(mUploadId, mUploadThread);
 
             // Execute method to test
-            mDni.cancelUploadFileAsync("-");
+            mSrv.cancelUploadFileAsync("-");
 
             // Assert upload thread still exists
-            UploadThread uploadThread = mDni.getUploadThread(mUploadId);
+            UploadThread uploadThread = mSrv.getUploadThread(mUploadId);
             assertNotNull(uploadThread);
         }
 
         @Test
         void testUploadThreadIsInterrupted() {
             // Add upload thread
-            mDni.putUploadThread(mUploadId, mUploadThread);
+            mSrv.putUploadThread(mUploadId, mUploadThread);
             mockThreadHelperCalls();
 
             // Execute method to test
-            mDni.cancelUploadFileAsync(mUploadId);
+            mSrv.cancelUploadFileAsync(mUploadId);
 
             // Assert upload thread is interrupted
             verifyThreadHelperCalls();
@@ -924,14 +924,14 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         @Test
         void testUploadThreadIsRemoved() {
             // Add upload thread
-            mDni.putUploadThread(mUploadId, mUploadThread);
+            mSrv.putUploadThread(mUploadId, mUploadThread);
             mockThreadHelperCalls();
 
             // Execute method to test
-            mDni.cancelUploadFileAsync(mUploadId);
+            mSrv.cancelUploadFileAsync(mUploadId);
 
             // Assert upload thread is not found
-            UploadThread uploadThread = mDni.getUploadThread(mUploadId);
+            UploadThread uploadThread = mSrv.getUploadThread(mUploadId);
             assertNull(uploadThread);
         }
 
@@ -1070,7 +1070,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         }
 
         private void executeCreateUploadStream() throws Exception {
-            mDni.createFileUploadStream(mUploadId, mUploadRequest, mLength, mFileUploadCallback);
+            mSrv.createFileUploadStream(mUploadId, mUploadRequest, mLength, mFileUploadCallback);
         }
 
     }

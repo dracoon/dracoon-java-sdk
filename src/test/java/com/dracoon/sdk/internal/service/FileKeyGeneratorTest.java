@@ -40,7 +40,7 @@ public class FileKeyGeneratorTest extends BaseServiceTest {
     protected CryptoWrapper mCryptoWrapper;
 
     @Mock
-    protected AccountService mDracoonAccountImpl;
+    protected AccountService mAccountService;
 
     private FileKeyGenerator mFkg;
 
@@ -50,7 +50,7 @@ public class FileKeyGeneratorTest extends BaseServiceTest {
 
         mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
 
-        mDracoonClientImpl.setUserService(mDracoonAccountImpl);
+        mServiceLocator.setAccountService(mAccountService);
 
         mFkg = new FileKeyGenerator(mDracoonClientImpl);
     }
@@ -420,7 +420,7 @@ public class FileKeyGeneratorTest extends BaseServiceTest {
         protected void mockGetUserKeyPairsCall() throws Exception {
             UserKeyPair[] userKeyPairs = readData(UserKeyPair[].class,
                     mDataPath + "user_key_pairs.json");
-            when(mDracoonAccountImpl.getAndCheckUserKeyPairs())
+            when(mAccountService.getAndCheckUserKeyPairs())
                     .thenReturn(Arrays.asList(userKeyPairs));
         }
 

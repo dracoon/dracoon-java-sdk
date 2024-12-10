@@ -45,6 +45,7 @@ public class FileKeyGenerator {
     private final DracoonApi mApi;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
+    private final ServiceLocator mServiceLocator;
 
     public FileKeyGenerator(DracoonClientImpl client) {
         mClient = client;
@@ -52,13 +53,14 @@ public class FileKeyGenerator {
         mApi = client.getDracoonApi();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+        mServiceLocator = client.getServiceLocator();
     }
 
     public boolean generateMissingFileKeys(Long nodeId, Integer limit) throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
         BaseValidator.validateLimit(limit, false);
 
-        List<UserKeyPair> userKeyPairs = mClient.getAccountImpl().getAndCheckUserKeyPairs();
+        List<UserKeyPair> userKeyPairs = mServiceLocator.getAccountService().getAndCheckUserKeyPairs();
         Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys = convertUserPrivateKeys(
                 userKeyPairs);
         char[] userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();

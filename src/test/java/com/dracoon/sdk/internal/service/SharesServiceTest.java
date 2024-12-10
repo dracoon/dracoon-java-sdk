@@ -31,13 +31,13 @@ import static org.mockito.Mockito.when;
 
 class SharesServiceTest extends BaseServiceTest {
 
-    private SharesService mDsi;
+    private SharesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDsi = new SharesService(mDracoonClientImpl);
+        mSrv = new SharesService(mDracoonClientImpl);
     }
 
     private interface SharesTest<T> {
@@ -136,11 +136,11 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Mock
         protected CryptoWrapper mCryptoWrapper;
-        @Mock
-        protected FileKeyFetcher mFileKeyFetcher;
 
         @Mock
-        protected ServerSettingsService mDracoonServerSettingsImpl;
+        protected ServerSettingsService mServerSettingsService;
+        @Mock
+        protected FileKeyFetcher mFileKeyFetcher;
 
         protected CreateDownloadShareRequest mCreateDownloadShareRequest;
 
@@ -151,9 +151,9 @@ class SharesServiceTest extends BaseServiceTest {
         @BeforeEach
         protected void setup() {
             mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
-            mDracoonClientImpl.setFileKeyFetcher(mFileKeyFetcher);
 
-            mDracoonClientImpl.setServerSettingsService(mDracoonServerSettingsImpl);
+            mServiceLocator.setServerSettingsService(mServerSettingsService);
+            mServiceLocator.setFileKeyFetcher(mFileKeyFetcher);
 
             mCreateDownloadShareRequest = readDataWithPath(CreateDownloadShareRequest.class,
                     "create_dl_share_request.json");
@@ -163,20 +163,20 @@ class SharesServiceTest extends BaseServiceTest {
         protected void testRequestsValid() throws Exception {
             executeMocked(() -> executeTestRequestsValid("create_dl_share_request.json",
                     "create_dl_share_response.json",
-                    () -> mDsi.createDownloadShare(mCreateDownloadShareRequest)));
+                    () -> mSrv.createDownloadShare(mCreateDownloadShareRequest)));
         }
 
         @Test
         protected void testDependencyCallsValid() throws Exception {
             executeMockedAndVerified(() -> executeTest("create_dl_share_response.json",
-                    () -> mDsi.createDownloadShare(mCreateDownloadShareRequest)));
+                    () -> mSrv.createDownloadShare(mCreateDownloadShareRequest)));
         }
 
         @Test
         protected void testDataCorrect() throws Exception {
             executeMocked(() -> executeTestDataCorrect("create_dl_share_response.json",
                     "dl_share.json",
-                    () -> mDsi.createDownloadShare(mCreateDownloadShareRequest)));
+                    () -> mSrv.createDownloadShare(mCreateDownloadShareRequest)));
         }
 
         @Test
@@ -184,7 +184,7 @@ class SharesServiceTest extends BaseServiceTest {
             executeMocked(() -> executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseDownloadShareCreateError,
                     DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND,
-                    () -> mDsi.createDownloadShare(mCreateDownloadShareRequest)));
+                    () -> mSrv.createDownloadShare(mCreateDownloadShareRequest)));
         }
 
         protected abstract void executeMocked(Executable e) throws Exception;
@@ -265,7 +265,7 @@ class SharesServiceTest extends BaseServiceTest {
         }
 
         private void mockGetUserKeyPairVersion() throws Exception {
-            when(mDracoonServerSettingsImpl.getPreferredUserKeyPairVersion())
+            when(mServerSettingsService.getPreferredUserKeyPairVersion())
                     .thenReturn(UserKeyPair.Version.RSA4096);
         }
 
@@ -284,7 +284,7 @@ class SharesServiceTest extends BaseServiceTest {
         }
 
         private void verifyGetUserKeyPairVersion() throws Exception {
-            verify(mDracoonServerSettingsImpl).getPreferredUserKeyPairVersion();
+            verify(mServerSettingsService).getPreferredUserKeyPairVersion();
         }
 
         private void verifyGenerateUserKeyPair(char[] password) throws Exception {
@@ -357,7 +357,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected DownloadShareList getDownloadShares() throws Exception {
-            return mDsi.getDownloadShares();
+            return mSrv.getDownloadShares();
         }
 
     }
@@ -394,7 +394,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected DownloadShareList getDownloadShares() throws Exception {
-            return mDsi.getDownloadShares(mFilters);
+            return mSrv.getDownloadShares(mFilters);
         }
 
     }
@@ -423,7 +423,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected DownloadShareList getDownloadShares() throws Exception {
-            return mDsi.getDownloadShares(1L, 2L);
+            return mSrv.getDownloadShares(1L, 2L);
         }
 
     }
@@ -461,7 +461,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected DownloadShareList getDownloadShares() throws Exception {
-            return mDsi.getDownloadShares(mFilters, 1L, 2L);
+            return mSrv.getDownloadShares(mFilters, 1L, 2L);
         }
 
     }
@@ -496,7 +496,7 @@ class SharesServiceTest extends BaseServiceTest {
         }
 
         private byte[] getDownloadShareQrCode() throws Exception {
-            return mDsi.getDownloadShareQrCode(1L);
+            return mSrv.getDownloadShareQrCode(1L);
         }
 
     }
@@ -525,7 +525,7 @@ class SharesServiceTest extends BaseServiceTest {
         }
 
         private Void executeDeleteDownloadShare() throws Exception {
-            mDsi.deleteDownloadShare(2L);
+            mSrv.deleteDownloadShare(2L);
             return null;
         }
 
@@ -551,13 +551,13 @@ class SharesServiceTest extends BaseServiceTest {
         @Test
         void testRequestsValid() throws Exception {
             executeTestRequestsValid("create_ul_share_request.json", "create_ul_share_response.json",
-                    () -> mDsi.createUploadShare(mCreateUploadShareRequest));
+                    () -> mSrv.createUploadShare(mCreateUploadShareRequest));
         }
 
         @Test
         void testDataCorrect() throws Exception {
             executeTestDataCorrect("create_ul_share_response.json", "ul_share.json",
-                    () -> mDsi.createUploadShare(mCreateUploadShareRequest));
+                    () -> mSrv.createUploadShare(mCreateUploadShareRequest));
         }
 
         @Test
@@ -565,7 +565,7 @@ class SharesServiceTest extends BaseServiceTest {
             executeTestError("node_not_found_response.json",
                     mDracoonErrorParser::parseUploadShareCreateError,
                     DracoonApiCode.SERVER_TARGET_NODE_NOT_FOUND,
-                    () -> mDsi.createUploadShare(mCreateUploadShareRequest));
+                    () -> mSrv.createUploadShare(mCreateUploadShareRequest));
         }
 
     }
@@ -617,7 +617,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected UploadShareList getUploadShares() throws Exception {
-            return mDsi.getUploadShares();
+            return mSrv.getUploadShares();
         }
 
     }
@@ -654,7 +654,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected UploadShareList getUploadShares() throws Exception {
-            return mDsi.getUploadShares(mFilters);
+            return mSrv.getUploadShares(mFilters);
         }
 
     }
@@ -683,7 +683,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected UploadShareList getUploadShares() throws Exception {
-            return mDsi.getUploadShares(1L, 2L);
+            return mSrv.getUploadShares(1L, 2L);
         }
 
     }
@@ -721,7 +721,7 @@ class SharesServiceTest extends BaseServiceTest {
 
         @Override
         protected UploadShareList getUploadShares() throws Exception {
-            return mDsi.getUploadShares(mFilters, 1L, 2L);
+            return mSrv.getUploadShares(mFilters, 1L, 2L);
         }
 
     }
@@ -756,7 +756,7 @@ class SharesServiceTest extends BaseServiceTest {
         }
 
         private byte[] getUploadShareQrCode() throws Exception {
-            return mDsi.getUploadShareQrCode(1L);
+            return mSrv.getUploadShareQrCode(1L);
         }
 
     }
@@ -785,7 +785,7 @@ class SharesServiceTest extends BaseServiceTest {
         }
 
         private Void executeDeleteUploadShare() throws Exception {
-            mDsi.deleteUploadShare(2L);
+            mSrv.deleteUploadShare(2L);
             return null;
         }
 
