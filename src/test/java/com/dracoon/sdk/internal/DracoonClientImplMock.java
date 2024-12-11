@@ -15,22 +15,6 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         super(serverUrl);
     }
 
-    public void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
-        mCryptoWrapper = cryptoWrapper;
-    }
-
-    public void setThreadHelper(ThreadHelper threadHelper) {
-        mThreadHelper = threadHelper;
-    }
-
-    public void setFileStreamHelper(FileStreamHelper fileStreamHelper) {
-        mFileStreamHelper = fileStreamHelper;
-    }
-
-    public void setDracoonErrorParser(DracoonErrorParser dracoonErrorParser) {
-        mDracoonErrorParser = dracoonErrorParser;
-    }
-
     @Override
     public long getChunkSize() {
         if (mOverwrittenChunkSize > 0) {
@@ -44,6 +28,22 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         if (chunkSize >= 0) {
             mOverwrittenChunkSize = chunkSize;
         }
+    }
+
+    public void setDracoonErrorParser(DracoonErrorParser dracoonErrorParser) {
+        mDracoonErrorParser = dracoonErrorParser;
+    }
+
+    public void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
+        mCryptoWrapper = cryptoWrapper;
+    }
+
+    public void setThreadHelper(ThreadHelper threadHelper) {
+        mThreadHelper = threadHelper;
+    }
+
+    public void setFileStreamHelper(FileStreamHelper fileStreamHelper) {
+        mFileStreamHelper = fileStreamHelper;
     }
 
     public void setServiceLocator(ServiceLocator serviceLocator) {
@@ -62,7 +62,7 @@ public class DracoonClientImplMock extends DracoonClientImpl {
     @Override
     protected void initHttpHelper() {
         mHttpHelper = new TestHttpHelper();
-        mHttpHelper.setLog(mLog);
+        mHttpHelper.setLog(getLog());
         mHttpHelper.init();
     }
 

@@ -56,8 +56,8 @@ abstract class BaseServiceTest extends BaseHttpTest {
         mDracoonClientImpl.setHttpConfig(httpConfig);
         mDracoonClientImpl.setAuth(new DracoonAuth(ACCESS_TOKEN));
         mDracoonClientImpl.init();
-        mDracoonClientImpl.setDracoonErrorParser(mDracoonErrorParser);
         mDracoonClientImpl.setLog(new TestLogger());
+        mDracoonClientImpl.setDracoonErrorParser(mDracoonErrorParser);
         mDracoonClientImpl.setServiceLocator(mServiceLocator);
     }
 

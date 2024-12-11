@@ -1,59 +1,46 @@
 package com.dracoon.sdk.internal;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.api.DracoonApi;
+import com.dracoon.sdk.internal.api.DracoonApiBuilder;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
-import com.dracoon.sdk.internal.http.BufferedSocketFactory;
+import com.dracoon.sdk.internal.http.HttpClientBuilder;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
 import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.dracoon.sdk.internal.service.ServiceLocator;
-import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
-import com.dracoon.sdk.internal.util.GsonDateTypeAdapter;
-import com.dracoon.sdk.internal.util.GsonVoidTypeAdapter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DracoonClientImpl extends DracoonClient {
-
-    private static final int HTTP_SOCKET_BUFFER_SIZE = 16 * DracoonConstants.KIB;
 
     private final AuthHolder mAuthHolder = new AuthHolder();
 
     private char[] mEncryptionPassword;
 
-    protected Log mLog = new NullLog();
-
+    private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig = new DracoonHttpConfig();
+
+    private OAuthClient mOAuthClient;
+
     private OkHttpClient mHttpClient;
     protected HttpHelper mHttpHelper;
+
+    private DracoonApi mDracoonApi;
+    protected DracoonErrorParser mDracoonErrorParser;
 
     protected CryptoWrapper mCryptoWrapper;
     protected ThreadHelper mThreadHelper;
     protected FileStreamHelper mFileStreamHelper;
-
-    private OAuthClient mOAuthClient;
-
-    private DracoonApi mDracoonApi;
-    protected DracoonErrorParser mDracoonErrorParser;
 
     protected ServiceLocator mServiceLocator;
     private DynamicServiceProxy mServiceProxy;
@@ -98,8 +85,16 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
     }
 
+    public long getChunkSize() {
+        return ((long) mHttpConfig.getChunkSize()) * DracoonConstants.KIB;
+    }
+
     public OkHttpClient getHttpClient() {
         return mHttpClient;
+    }
+
+    public HttpHelper getHttpHelper() {
+        return mHttpHelper;
     }
 
     public DracoonApi getDracoonApi() {
@@ -108,14 +103,6 @@ public class DracoonClientImpl extends DracoonClient {
 
     public DracoonErrorParser getDracoonErrorParser() {
         return mDracoonErrorParser;
-    }
-
-    public HttpHelper getHttpHelper() {
-        return mHttpHelper;
-    }
-
-    public long getChunkSize() {
-        return ((long) mHttpConfig.getChunkSize()) * DracoonConstants.KIB;
     }
 
     public CryptoWrapper getCryptoWrapper() {
@@ -141,6 +128,7 @@ public class DracoonClientImpl extends DracoonClient {
 
         initHttpClient();
         initHttpHelper();
+
         initDracoonApi();
         initDracoonErrorParser();
 
@@ -160,25 +148,7 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     protected void initHttpClient() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS);
-        builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
-        builder.writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS);
-        builder.retryOnConnectionFailure(true);
-        builder.socketFactory(new BufferedSocketFactory(HTTP_SOCKET_BUFFER_SIZE));
-        if (mHttpConfig.isProxyEnabled()) {
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
-                    mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
-            builder.proxy(proxy);
-        }
-        for (Interceptor interceptor : mHttpConfig.getOkHttpApplicationInterceptors()) {
-            builder.addInterceptor(interceptor);
-        }
-        builder.addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()));
-        for (Interceptor interceptor : mHttpConfig.getOkHttpNetworkInterceptors()) {
-            builder.addNetworkInterceptor(interceptor);
-        }
-        mHttpClient = builder.build();
+        mHttpClient = new HttpClientBuilder().build(mHttpConfig);
     }
 
     protected void initHttpHelper() {
@@ -191,26 +161,7 @@ public class DracoonClientImpl extends DracoonClient {
 
     protected void initDracoonApi() {
         AuthInterceptor authInterceptor = new AuthInterceptor(mOAuthClient, mAuthHolder);
-
-        OkHttpClient httpClient = mHttpClient.newBuilder()
-                .followRedirects(false)
-                .addInterceptor(authInterceptor)
-                .build();
-
-        Gson gson = new GsonBuilder()
-                .disableHtmlEscaping()
-                .registerTypeAdapter(GsonVoidTypeAdapter.TYPE, new GsonVoidTypeAdapter())
-                .registerTypeAdapter(GsonDateTypeAdapter.TYPE, new GsonDateTypeAdapter())
-                .registerTypeAdapter(GsonCharArrayTypeAdapter.TYPE, new GsonCharArrayTypeAdapter())
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(mServerUrl.toString())
-                .client(httpClient)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        mDracoonApi = retrofit.create(DracoonApi.class);
+        mDracoonApi = new DracoonApiBuilder().build(mServerUrl, mHttpClient, authInterceptor);
     }
 
     private void initDracoonErrorParser() {

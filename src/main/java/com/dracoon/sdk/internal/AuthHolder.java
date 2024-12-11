@@ -2,15 +2,21 @@ package com.dracoon.sdk.internal;
 
 import com.dracoon.sdk.DracoonAuth;
 
-class AuthHolder {
+public class AuthHolder {
 
     private DracoonAuth mAuth;
 
-    DracoonAuth get() {
+    public AuthHolder() {}
+
+    public AuthHolder(DracoonAuth auth) {
+        mAuth = auth;
+    }
+
+    public DracoonAuth get() {
         return mAuth;
     }
 
-    void set(DracoonAuth auth) {
+    public void set(DracoonAuth auth) {
         mAuth = auth;
     }
 

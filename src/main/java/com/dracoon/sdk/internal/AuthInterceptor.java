@@ -14,7 +14,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
-class AuthInterceptor implements Interceptor {
+public class AuthInterceptor implements Interceptor {
 
     private static final long AUTH_REFRESH_SKIP_INTERVAL = 15 * DracoonConstants.SECOND;
 
@@ -24,7 +24,7 @@ class AuthInterceptor implements Interceptor {
     private long mLastRefreshTime = 0L;
     private InterceptedIOException mLastRefreshException = null;
 
-    AuthInterceptor(OAuthClient oAuthClient, AuthHolder authHolder) {
+    public AuthInterceptor(OAuthClient oAuthClient, AuthHolder authHolder) {
         mOAuthClient = oAuthClient;
         mAuthHolder = authHolder;
     }
