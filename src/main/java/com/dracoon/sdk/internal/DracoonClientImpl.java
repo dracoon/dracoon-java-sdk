@@ -13,11 +13,18 @@ import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonApiBuilder;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
+import com.dracoon.sdk.internal.auth.AuthChecker;
+import com.dracoon.sdk.internal.auth.AuthHolder;
+import com.dracoon.sdk.internal.auth.AuthInterceptor;
+import com.dracoon.sdk.internal.auth.AuthInterceptorImpl;
+import com.dracoon.sdk.internal.auth.AuthTokenRefresher;
+import com.dracoon.sdk.internal.auth.AuthTokenRefresherImpl;
+import com.dracoon.sdk.internal.auth.AuthTokenRetriever;
+import com.dracoon.sdk.internal.auth.AuthTokenRetrieverImpl;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.http.HttpClientBuilder;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
-import com.dracoon.sdk.internal.oauth.OAuthTokens;
 import com.dracoon.sdk.internal.service.ServiceLocator;
 import okhttp3.OkHttpClient;
 
@@ -34,6 +41,10 @@ public class DracoonClientImpl extends DracoonClient {
 
     private OkHttpClient mHttpClient;
     protected HttpHelper mHttpHelper;
+
+    private AuthChecker mAuthChecker;
+    private AuthTokenRetriever mAuthTokenRetriever;
+    private AuthTokenRefresher mAuthTokenRefresher;
 
     private DracoonApi mDracoonApi;
     protected DracoonErrorParser mDracoonErrorParser;
@@ -129,6 +140,8 @@ public class DracoonClientImpl extends DracoonClient {
         initHttpClient();
         initHttpHelper();
 
+        initAuthHelpers();
+
         initDracoonApi();
         initDracoonErrorParser();
 
@@ -159,8 +172,15 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpHelper.init();
     }
 
+    protected void initAuthHelpers() {
+        mAuthChecker = new AuthChecker(() -> mServiceLocator.getAccountService().pingUser());
+
+        mAuthTokenRetriever = new AuthTokenRetrieverImpl(mOAuthClient, mAuthHolder);
+        mAuthTokenRefresher = new AuthTokenRefresherImpl(mOAuthClient, mAuthHolder);
+    }
+
     protected void initDracoonApi() {
-        AuthInterceptor authInterceptor = new AuthInterceptor(mOAuthClient, mAuthHolder);
+        AuthInterceptor authInterceptor = new AuthInterceptorImpl(mAuthHolder, mAuthTokenRefresher);
         mDracoonApi = new DracoonApiBuilder().build(mServerUrl, mHttpClient, authInterceptor);
     }
 
@@ -183,38 +203,17 @@ public class DracoonClientImpl extends DracoonClient {
     }
 
     public void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
-        DracoonAuth auth = mAuthHolder.get();
-        if (auth == null || !auth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
-            return;
-        }
-
-        // Try to retrieve auth tokens
-        OAuthTokens tokens = mOAuthClient.retrieveTokens(auth.getClientId(), auth.getClientSecret(),
-                auth.getAuthorizationCode());
-
-        // Update auth data
-        auth = new DracoonAuth(auth.getClientId(), auth.getClientSecret(), tokens.accessToken,
-                tokens.refreshToken);
-        mAuthHolder.set(auth);
+        mAuthTokenRetriever.retrieve();
     }
 
     @Override
     public boolean isAuthValid() throws DracoonNetIOException, DracoonApiException {
-        try {
-            mServiceLocator.getAccountService().pingUser();
-        } catch (DracoonApiException e) {
-            if (e.getCode().isAuthError()) {
-                return false;
-            } else {
-                throw e;
-            }
-        }
-        return true;
+        return mAuthChecker.isAuthValid();
     }
 
     @Override
     public void checkAuthValid() throws DracoonNetIOException, DracoonApiException {
-        mServiceLocator.getAccountService().pingUser();
+        mAuthChecker.checkAuthValid();
     }
 
     // --- Methods to get public handlers ---

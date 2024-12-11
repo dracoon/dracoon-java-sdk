@@ -2,7 +2,7 @@ package com.dracoon.sdk.internal.api;
 
 import java.net.URL;
 
-import com.dracoon.sdk.internal.AuthInterceptor;
+import com.dracoon.sdk.internal.auth.AuthInterceptor;
 import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
 import com.dracoon.sdk.internal.util.GsonDateTypeAdapter;
 import com.dracoon.sdk.internal.util.GsonVoidTypeAdapter;

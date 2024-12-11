@@ -56,6 +56,9 @@ public class DracoonClientImplMock extends DracoonClientImpl {
 
         initHttpClient();
         initHttpHelper();
+
+        initAuthHelpers();
+
         initDracoonApi();
     }
 
