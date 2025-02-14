@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,13 +29,13 @@ public class NodesServiceVirusScanTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
+        mServiceLocator.set(ServerInfoService.class, mServerInfoService);
+
         doNothing()
                 .when(mServerInfoService)
                 .checkVersionGreaterEqual(DracoonConstants.API_MIN_VIRUS_SCANNING);
 
-        mServiceLocator.setServerInfoService(mServerInfoService);
-
-        mSrv = new NodesService(mDracoonClientImpl);
+        mSrv = new NodesService(mServiceLocator, mServiceDependencies);
     }
 
     // --- Get virus scan infos tests ---

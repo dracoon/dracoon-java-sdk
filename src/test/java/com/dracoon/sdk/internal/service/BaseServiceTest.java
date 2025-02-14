@@ -1,10 +1,11 @@
 package com.dracoon.sdk.internal.service;
 
 import com.dracoon.sdk.internal.BaseApiTest;
-import com.dracoon.sdk.internal.DracoonClientImplMock;
 import com.dracoon.sdk.internal.TestServiceLocator;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
+import com.dracoon.sdk.internal.crypto.EncryptionPasswordHolder;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mock;
 
 abstract class BaseServiceTest extends BaseApiTest {
 
@@ -13,29 +14,41 @@ abstract class BaseServiceTest extends BaseApiTest {
         void execute() throws Exception;
     }
 
-    protected DracoonClientImplMock mDracoonClientImpl;
+    private final EncryptionPasswordHolder mEncPasswordHolder = new EncryptionPasswordHolder();
 
-    protected TestServiceLocator mServiceLocator = new TestServiceLocator();
+    @Mock
+    protected CryptoWrapper mCryptoWrapper;
+    @Mock
+    protected ThreadHelper mThreadHelper;
+    @Mock
+    protected FileStreamHelper mFileStreamHelper;
+
+    protected ServiceDependencies mServiceDependencies;
+    protected TestServiceLocator mServiceLocator;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl = new DracoonClientImplMock(mServerUrl);
-        mDracoonClientImpl.setHttpConfig(mHttpConfig);
-        mDracoonClientImpl.setAuth(mAuth);
-        mDracoonClientImpl.init();
-        mDracoonClientImpl.setLog(mLog);
-        mDracoonClientImpl.setDracoonErrorParser(mDracoonErrorParser);
-        mDracoonClientImpl.setServiceLocator(mServiceLocator);
+        mServiceLocator = new TestServiceLocator();
+
+        mServiceDependencies = new ServiceDependenciesImpl.Builder()
+                .setLog(mLog)
+                .setHttpConfig(mHttpConfig)
+                .setHttpClient(mHttpClient)
+                .setHttpHelper(mHttpHelper)
+                .setServerUrl(mServerUrl)
+                .setDracoonApi(mDracoonApi)
+                .setDracoonErrorParser(mDracoonErrorParser)
+                .setEncryptionPasswordHolder(mEncPasswordHolder)
+                .setCryptoWrapper(mCryptoWrapper)
+                .setThreadHelper(mThreadHelper)
+                .setFileStreamHelper(mFileStreamHelper)
+                .build();
     }
 
     protected void setEncryptionPassword(char[] encryptionPassword) {
-        mDracoonClientImpl.setEncryptionPassword(encryptionPassword);
-    }
-
-    protected void setCryptoWrapper(CryptoWrapper cryptoWrapper) {
-        mDracoonClientImpl.setCryptoWrapper(cryptoWrapper);
+        mEncPasswordHolder.set(encryptionPassword);
     }
 
 }

@@ -7,7 +7,6 @@ import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.crypto.model.UserKeyPair;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
-import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,9 +36,6 @@ public class FileKeyGeneratorTest extends BaseServiceTest {
     }
 
     @Mock
-    protected CryptoWrapper mCryptoWrapper;
-
-    @Mock
     protected AccountService mAccountService;
 
     private FileKeyGenerator mFkg;
@@ -48,11 +44,9 @@ public class FileKeyGeneratorTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        setCryptoWrapper(mCryptoWrapper);
+        mServiceLocator.set(AccountService.class, mAccountService);
 
-        mServiceLocator.setAccountService(mAccountService);
-
-        mFkg = new FileKeyGenerator(mDracoonClientImpl);
+        mFkg = new FileKeyGenerator(mServiceLocator, mServiceDependencies);
     }
 
     @SuppressWarnings("unused")

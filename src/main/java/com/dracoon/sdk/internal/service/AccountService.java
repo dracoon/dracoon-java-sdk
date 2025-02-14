@@ -16,7 +16,6 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.ClientImpl;
 import com.dracoon.sdk.internal.ClientMethodImpl;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.api.mapper.CustomerMapper;
 import com.dracoon.sdk.internal.api.mapper.UserMapper;
@@ -42,8 +41,8 @@ public class AccountService extends BaseService {
 
     private static final String LOG_TAG = AccountService.class.getSimpleName();
 
-    public AccountService(DracoonClientImpl client) {
-        super(client);
+    public AccountService(ServiceLocator locator, ServiceDependencies dependencies) {
+        super(locator, dependencies);
     }
 
     public void pingUser() throws DracoonNetIOException, DracoonApiException {

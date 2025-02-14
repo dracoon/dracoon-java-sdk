@@ -6,7 +6,6 @@ import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import okhttp3.OkHttpClient;
@@ -20,11 +19,12 @@ public class AvatarDownloader {
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
 
-    public AvatarDownloader(DracoonClientImpl client) {
-        mLog = client.getLog();
-        mHttpClient = client.getHttpClient();
-        mHttpHelper = client.getHttpHelper();
-        mErrorParser = client.getDracoonErrorParser();
+    public AvatarDownloader(Log log, OkHttpClient httpClient, HttpHelper httpHelper,
+            DracoonErrorParser errorParser) {
+        mLog = log;
+        mHttpClient = httpClient;
+        mHttpHelper = httpHelper;
+        mErrorParser = errorParser;
     }
 
     public byte[] downloadAvatar(String downloadUrl) throws DracoonNetIOException,

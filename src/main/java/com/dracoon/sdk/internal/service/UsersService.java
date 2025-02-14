@@ -7,14 +7,13 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.ClientImpl;
 import com.dracoon.sdk.internal.ClientMethodImpl;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.validator.UserValidator;
 
 @ClientImpl(DracoonClient.Users.class)
 public class UsersService extends BaseService {
 
-    public UsersService(DracoonClientImpl client) {
-        super(client);
+    public UsersService(ServiceLocator locator, ServiceDependencies dependencies) {
+        super(locator, dependencies);
     }
 
     // --- Avatar methods ---
@@ -25,7 +24,7 @@ public class UsersService extends BaseService {
         UserValidator.validateUserId(userId);
         UserValidator.validateAvatarUuid(avatarUuid);
 
-        String downloadUrl = mClient.buildApiUrl("downloads", "avatar", Long.toString(userId),
+        String downloadUrl = buildApiUrl("downloads", "avatar", Long.toString(userId),
                 avatarUuid.toString());
 
         return mServiceLocator.getAvatarDownloader().downloadAvatar(downloadUrl);

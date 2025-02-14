@@ -24,7 +24,7 @@ class UsersServiceTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mSrv = new UsersService(mDracoonClientImpl);
+        mSrv = new UsersService(mServiceLocator, mServiceDependencies);
     }
 
     // --- Get user avatar tests ---
@@ -41,7 +41,7 @@ class UsersServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() {
-            mServiceLocator.setAvatarDownloader(mAvatarDownloader);
+            mServiceLocator.set(AvatarDownloader.class, mAvatarDownloader);
         }
 
         @Test

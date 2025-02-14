@@ -13,7 +13,6 @@ import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetUploadSharesFilter;
 import com.dracoon.sdk.internal.ClientImpl;
 import com.dracoon.sdk.internal.ClientMethodImpl;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.mapper.ShareMapper;
 import com.dracoon.sdk.internal.api.model.ApiCreateDownloadShareRequest;
 import com.dracoon.sdk.internal.api.model.ApiCreateUploadShareRequest;
@@ -37,8 +36,8 @@ public class SharesService extends BaseService {
 
     private static final String LOG_TAG = SharesService.class.getSimpleName();
 
-    public SharesService(DracoonClientImpl client) {
-        super(client);
+    public SharesService(ServiceLocator locator, ServiceDependencies dependencies) {
+        super(locator, dependencies);
     }
 
     @ClientMethodImpl

@@ -2,6 +2,7 @@ package com.dracoon.sdk.internal.service;
 
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
+import com.dracoon.sdk.internal.BaseApiTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class AvatarDownloaderTest extends BaseServiceTest {
+class AvatarDownloaderTest extends BaseApiTest {
 
     private final String DATA_PATH = "/avatar/";
 
@@ -24,7 +25,7 @@ class AvatarDownloaderTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mAvatarDownloader = new AvatarDownloader(mDracoonClientImpl);
+        mAvatarDownloader = new AvatarDownloader(mLog, mHttpClient, mHttpHelper, mDracoonErrorParser);
 
         mAvatarDownloadUrl = mServerUrl +
                 "/api/v4/downloads/avatar/1/c33e748c-d05b-4af2-90e3-1a24d79b1d41";

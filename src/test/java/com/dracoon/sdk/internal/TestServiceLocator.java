@@ -1,5 +1,10 @@
 package com.dracoon.sdk.internal;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.dracoon.sdk.internal.service.AccountService;
 import com.dracoon.sdk.internal.service.AvatarDownloader;
 import com.dracoon.sdk.internal.service.DownloadStream;
@@ -10,76 +15,106 @@ import com.dracoon.sdk.internal.service.NodesService;
 import com.dracoon.sdk.internal.service.ServerInfoService;
 import com.dracoon.sdk.internal.service.ServerPoliciesService;
 import com.dracoon.sdk.internal.service.ServerSettingsService;
+import com.dracoon.sdk.internal.service.Service;
 import com.dracoon.sdk.internal.service.ServiceLocator;
 import com.dracoon.sdk.internal.service.SharesService;
 import com.dracoon.sdk.internal.service.UploadStream;
 import com.dracoon.sdk.internal.service.UploadThread;
 import com.dracoon.sdk.internal.service.UsersService;
 
-public class TestServiceLocator extends ServiceLocator {
+public class TestServiceLocator implements ServiceLocator {
 
-    public TestServiceLocator() {
-        super(null);
+    private final Map<Class<?>, Object> mServices = new HashMap<>();
+
+    public <T> void set(Class<?> serviceClass, T service) {
+        mServices.put(serviceClass, service);
     }
 
-    protected void init(DracoonClientImpl client) {
-
+    private <T> T get(Class<T> serviceClass) {
+        T service = (T) mServices.get(serviceClass);
+        if (service == null) {
+            throw new IllegalStateException("Service " + serviceClass + " not found");
+        }
+        return service;
     }
 
-    public void setServerInfoService(ServerInfoService service) {
-        mServerInfoService = service;
+    @Override
+    public ServerInfoService getServerInfoService() {
+        return get(ServerInfoService.class);
     }
 
-    public void setServerSettingsService(ServerSettingsService service) {
-        mServerSettingsService = service;
+    @Override
+    public ServerSettingsService getServerSettingsService() {
+        return get(ServerSettingsService.class);
     }
 
-    public void setServerPoliciesService(ServerPoliciesService service) {
-        mServerPoliciesService = service;
+    @Override
+    public ServerPoliciesService getServerPoliciesService() {
+        return get(ServerPoliciesService.class);
     }
 
-    public void setAccountService(AccountService service) {
-        mAccountService = service;
+    @Override
+    public AccountService getAccountService() {
+        return get(AccountService.class);
     }
 
-    public void setUsersService(UsersService service) {
-        mUsersService = service;
+    @Override
+    public UsersService getUsersService() {
+        return get(UsersService.class);
     }
 
-    public void setNodesService(NodesService service) {
-        mNodesService = service;
+    @Override
+    public NodesService getNodesService() {
+        return get(NodesService.class);
     }
 
-    public void setSharesService(SharesService service) {
-        mSharesService = service;
+    @Override
+    public SharesService getSharesService() {
+        return get(SharesService.class);
     }
 
-    public void setFileKeyFetcher(FileKeyFetcher fileKeyFetcher) {
-        mFileKeyFetcher = fileKeyFetcher;
+    @Override
+    public FileKeyFetcher getFileKeyFetcher() {
+        return get(FileKeyFetcher.class);
     }
 
-    public void setFileKeyGenerator(FileKeyGenerator fileKeyGenerator) {
-        mFileKeyGenerator = fileKeyGenerator;
+    @Override
+    public FileKeyGenerator getFileKeyGenerator() {
+        return get(FileKeyGenerator.class);
     }
 
-    public void setAvatarDownloader(AvatarDownloader avatarDownloader) {
-        mAvatarDownloader = avatarDownloader;
+    @Override
+    public AvatarDownloader getAvatarDownloader() {
+        return get(AvatarDownloader.class);
     }
 
-    public void setDownloadStreamFactory(DownloadStream.Factory factory) {
-        mDownloadStreamFactory = factory;
+    @Override
+    public DownloadStream.Factory getDownloadStreamFactory() {
+        return get(DownloadStream.Factory.class);
     }
 
-    public void setDownloadThreadFactory(DownloadThread.Factory factory) {
-        mDownloadThreadFactory = factory;
+    @Override
+    public DownloadThread.Factory getDownloadThreadFactory() {
+        return get(DownloadThread.Factory.class);
     }
 
-    public void setUploadStreamFactory(UploadStream.Factory factory) {
-        mUploadStreamFactory = factory;
+    @Override
+    public UploadStream.Factory getUploadStreamFactory() {
+        return get(UploadStream.Factory.class);
     }
 
-    public void setUploadThreadFactory(UploadThread.Factory factory) {
-        mUploadThreadFactory = factory;
+    @Override
+    public UploadThread.Factory getUploadThreadFactory() {
+        return get(UploadThread.Factory.class);
+    }
+
+    @Override
+    public List<Service> getServices() {
+        return mServices.entrySet()
+                .stream()
+                .filter(s -> (s instanceof Service))
+                .map(s -> (Service) s)
+                .collect(Collectors.toList());
     }
 
 }

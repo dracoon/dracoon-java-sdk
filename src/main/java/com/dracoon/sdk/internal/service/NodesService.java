@@ -27,7 +27,6 @@ import com.dracoon.sdk.filter.NodeParentPathFilter;
 import com.dracoon.sdk.filter.SearchNodesFilters;
 import com.dracoon.sdk.internal.ClientImpl;
 import com.dracoon.sdk.internal.ClientMethodImpl;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.api.mapper.FileMapper;
 import com.dracoon.sdk.internal.api.mapper.FolderMapper;
@@ -94,8 +93,8 @@ public class NodesService extends BaseService {
     private final Map<String, UploadThread> mUploads = new HashMap<>();
     private final Map<String, DownloadThread> mDownloads = new HashMap<>();
 
-    public NodesService(DracoonClientImpl client) {
-        super(client);
+    public NodesService(ServiceLocator locator, ServiceDependencies dependencies) {
+        super(locator, dependencies);
     }
 
     UploadThread getUploadThread(String id) {
@@ -1051,8 +1050,7 @@ public class NodesService extends BaseService {
     public URL buildMediaUrl(String mediaToken, int width, int height) {
         NodeValidator.validateMediaUrlRequest(mediaToken, width, height);
 
-        String url = String.format(MEDIA_URL_TEMPLATE, mClient.getServerUrl(), mediaToken, width,
-                height);
+        String url = String.format(MEDIA_URL_TEMPLATE, mServerUrl, mediaToken, width, height);
         try {
             return new URL(url);
         } catch (MalformedURLException e) {

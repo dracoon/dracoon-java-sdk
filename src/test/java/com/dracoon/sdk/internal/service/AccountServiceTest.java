@@ -10,7 +10,6 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
-import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.CustomerAccount;
 import com.dracoon.sdk.model.UserAccount;
 import com.dracoon.sdk.model.UserKeyPairAlgorithm;
@@ -33,18 +32,13 @@ import static org.mockito.Mockito.verify;
 
 class AccountServiceTest extends BaseServiceTest {
 
-    @Mock
-    protected CryptoWrapper mCryptoWrapper;
-
     private AccountService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        setCryptoWrapper(mCryptoWrapper);
-
-        mSrv = new AccountService(mDracoonClientImpl);
+        mSrv = new AccountService(mServiceLocator, mServiceDependencies);
     }
 
     // --- Ping tests ---
@@ -308,7 +302,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() throws Exception {
-            mServiceLocator.setServerSettingsService(mServerSettingsService);
+            mServiceLocator.set(ServerSettingsService.class, mServerSettingsService);
 
             mockGetAvailableUserKeyPairVersions();
 
@@ -408,7 +402,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() throws Exception {
-            mServiceLocator.setServerSettingsService(mServerSettingsService);
+            mServiceLocator.set(ServerSettingsService.class, mServerSettingsService);
 
             mockGetAvailableUserKeyPairAlgorithms();
         }
@@ -636,7 +630,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() throws Exception {
-            mServiceLocator.setServerSettingsService(mServerSettingsService);
+            mServiceLocator.set(ServerSettingsService.class, mServerSettingsService);
 
             mockGetAvailableUserKeyPairVersions();
 
@@ -845,7 +839,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() throws Exception {
-            mServiceLocator.setServerSettingsService(mServerSettingsService);
+            mServiceLocator.set(ServerSettingsService.class, mServerSettingsService);
 
             mockGetAvailableUserKeyPairVersions();
         }
@@ -1069,7 +1063,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() {
-            mServiceLocator.setAvatarDownloader(mAvatarDownloader);
+            mServiceLocator.set(AvatarDownloader.class, mAvatarDownloader);
         }
 
         @Test

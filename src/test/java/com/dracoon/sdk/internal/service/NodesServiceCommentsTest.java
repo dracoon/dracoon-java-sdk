@@ -21,7 +21,7 @@ public class NodesServiceCommentsTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mSrv = new NodesService(mDracoonClientImpl);
+        mSrv = new NodesService(mServiceLocator, mServiceDependencies);
     }
 
     // --- Get node comments tests ---

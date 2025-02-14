@@ -8,7 +8,6 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.ClientImpl;
 import com.dracoon.sdk.internal.ClientMethodImpl;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.api.model.ApiServerInfo;
 import com.dracoon.sdk.internal.api.model.ApiServerTime;
@@ -23,8 +22,8 @@ public class ServerInfoService extends BaseService {
 
     private ApiServerInfo mCachedServerInfo;
 
-    public ServerInfoService(DracoonClientImpl client) {
-        super(client);
+    public ServerInfoService(ServiceLocator locator, ServiceDependencies dependencies) {
+        super(locator, dependencies);
     }
 
     public void checkVersionSupported() throws DracoonNetIOException,

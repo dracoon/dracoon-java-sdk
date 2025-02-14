@@ -9,7 +9,6 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.filter.GetDownloadSharesFilter;
 import com.dracoon.sdk.filter.GetUploadSharesFilter;
 import com.dracoon.sdk.filter.NodeIdFilter;
-import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
 import com.dracoon.sdk.model.CreateUploadShareRequest;
 import com.dracoon.sdk.model.DownloadShare;
@@ -31,18 +30,13 @@ import static org.mockito.Mockito.when;
 
 class SharesServiceTest extends BaseServiceTest {
 
-    @Mock
-    protected CryptoWrapper mCryptoWrapper;
-
     private SharesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        setCryptoWrapper(mCryptoWrapper);
-
-        mSrv = new SharesService(mDracoonClientImpl);
+        mSrv = new SharesService(mServiceLocator, mServiceDependencies);
     }
 
     private interface SharesTest<T> {
@@ -152,8 +146,8 @@ class SharesServiceTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mServiceLocator.setServerSettingsService(mServerSettingsService);
-            mServiceLocator.setFileKeyFetcher(mFileKeyFetcher);
+            mServiceLocator.set(ServerSettingsService.class, mServerSettingsService);
+            mServiceLocator.set(FileKeyFetcher.class, mFileKeyFetcher);
 
             mCreateDownloadShareRequest = readDataWithPath(CreateDownloadShareRequest.class,
                     "create_dl_share_request.json");

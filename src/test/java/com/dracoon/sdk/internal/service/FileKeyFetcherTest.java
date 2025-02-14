@@ -7,7 +7,6 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoCode;
 import com.dracoon.sdk.error.DracoonCryptoException;
-import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,9 +25,6 @@ import static org.mockito.Mockito.when;
 public class FileKeyFetcherTest extends BaseServiceTest {
 
     @Mock
-    protected CryptoWrapper mCryptoWrapper;
-
-    @Mock
     protected AccountService mAccountService;
     @Mock
     protected NodesService mNodesService;
@@ -39,12 +35,10 @@ public class FileKeyFetcherTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        setCryptoWrapper(mCryptoWrapper);
+        mServiceLocator.set(AccountService.class, mAccountService);
+        mServiceLocator.set(NodesService.class, mNodesService);
 
-        mServiceLocator.setAccountService(mAccountService);
-        mServiceLocator.setNodesService(mNodesService);
-
-        mFkf = new FileKeyFetcher(mDracoonClientImpl);
+        mFkf = new FileKeyFetcher(mServiceLocator, mServiceDependencies);
     }
 
     @Nested

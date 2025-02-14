@@ -36,11 +36,6 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
     }
 
     @Mock
-    protected ThreadHelper mThreadHelper;
-    @Mock
-    protected FileStreamHelper mFileStreamHelper;
-
-    @Mock
     protected FileKeyFetcher mFileKeyFetcher;
 
     private NodesService mSrv;
@@ -49,11 +44,9 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mServiceLocator.setFileKeyFetcher(mFileKeyFetcher);
+        mServiceLocator.set(FileKeyFetcher.class, mFileKeyFetcher);
 
-        mSrv = new NodesService(mDracoonClientImpl);
-        mSrv.setThreadHelper(mThreadHelper);
-        mSrv.setFileStreamHelper(mFileStreamHelper);
+        mSrv = new NodesService(mServiceLocator, mServiceDependencies);
     }
 
     private static abstract class BaseTests {
@@ -96,7 +89,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mServiceLocator.setDownloadThreadFactory(mDownloadThreadFactory);
+            mServiceLocator.set(DownloadThread.Factory.class, mDownloadThreadFactory);
         }
 
         @Test
@@ -682,7 +675,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mServiceLocator.setDownloadStreamFactory(mDownloadStreamFactory);
+            mServiceLocator.set(DownloadStream.Factory.class, mDownloadStreamFactory);
         }
 
         @Test

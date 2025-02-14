@@ -11,7 +11,6 @@ import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
 import com.dracoon.sdk.model.Node;
@@ -42,24 +41,13 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         }
     }
 
-    @Mock
-    protected CryptoWrapper mCryptoWrapper;
-    @Mock
-    protected ThreadHelper mThreadHelper;
-    @Mock
-    protected FileStreamHelper mFileStreamHelper;
-
     private NodesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
 
-        setCryptoWrapper(mCryptoWrapper);
-
-        mSrv = new NodesService(mDracoonClientImpl);
-        mSrv.setThreadHelper(mThreadHelper);
-        mSrv.setFileStreamHelper(mFileStreamHelper);
+        mSrv = new NodesService(mServiceLocator, mServiceDependencies);
     }
 
     private abstract class BaseTests {
@@ -75,7 +63,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mServiceLocator.setAccountService(mAccountService);
+            mServiceLocator.set(AccountService.class, mAccountService);
         }
 
         protected UserKeyPair readUserKeyPairData() {
@@ -126,7 +114,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         @BeforeEach
         protected void setup() {
             super.setup();
-            mServiceLocator.setUploadThreadFactory(mUploadThreadFactory);
+            mServiceLocator.set(UploadThread.Factory.class, mUploadThreadFactory);
         }
 
         @Test
@@ -958,7 +946,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         @BeforeEach
         protected void setup() {
             super.setup();
-            mServiceLocator.setUploadStreamFactory(mUploadStreamFactory);
+            mServiceLocator.set(UploadStream.Factory.class, mUploadStreamFactory);
         }
 
         @Test

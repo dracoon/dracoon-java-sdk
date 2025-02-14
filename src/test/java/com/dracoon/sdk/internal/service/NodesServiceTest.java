@@ -40,7 +40,7 @@ public class NodesServiceTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mServ = new NodesService(mDracoonClientImpl);
+        mServ = new NodesService(mServiceLocator, mServiceDependencies);
     }
 
     private interface NodesTest<T> {
@@ -888,7 +888,7 @@ public class NodesServiceTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mServiceLocator.setFileKeyGenerator(mFileKeyGenerator);
+            mServiceLocator.set(FileKeyGenerator.class, mFileKeyGenerator);
 
             setParams();
         }

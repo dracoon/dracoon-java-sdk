@@ -17,7 +17,6 @@ import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
 import com.dracoon.sdk.internal.api.mapper.FileMapper;
@@ -41,6 +40,8 @@ public class FileKeyGenerator {
 
     private static final String LOG_TAG = FileKeyGenerator.class.getSimpleName();
 
+    private final ServiceLocator mServiceLocator;
+
     private final Log mLog;
     private final DracoonApi mApi;
     private final HttpHelper mHttpHelper;
@@ -49,18 +50,16 @@ public class FileKeyGenerator {
     private final EncryptionPasswordHolder mEncPasswordHolder;
     private final CryptoWrapper mCryptoWrapper;
 
-    private final ServiceLocator mServiceLocator;
+    public FileKeyGenerator(ServiceLocator serviceLocator, ServiceDependencies serviceDependencies) {
+        mServiceLocator = serviceLocator;
 
-    public FileKeyGenerator(DracoonClientImpl client) {
-        mLog = client.getLog();
-        mApi = client.getDracoonApi();
-        mHttpHelper = client.getHttpHelper();
-        mErrorParser = client.getDracoonErrorParser();
+        mLog = serviceDependencies.getLog();
+        mApi = serviceDependencies.getDracoonApi();
+        mHttpHelper = serviceDependencies.getHttpHelper();
+        mErrorParser = serviceDependencies.getDracoonErrorParser();
 
-        mEncPasswordHolder = client.getEncryptionPasswordHolder();
-        mCryptoWrapper = client.getCryptoWrapper();
-
-        mServiceLocator = client.getServiceLocator();
+        mEncPasswordHolder = serviceDependencies.getEncryptionPasswordHolder();
+        mCryptoWrapper = serviceDependencies.getCryptoWrapper();
     }
 
     public boolean generateMissingFileKeys(Long nodeId, Integer limit) throws DracoonNetIOException,

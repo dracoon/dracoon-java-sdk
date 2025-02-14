@@ -40,8 +40,9 @@ public abstract class BaseApiTest extends BaseHttpTest {
         DracoonApiCode apply(Response response);
     }
 
+    private final DracoonAuth mAuth = new DracoonAuth(ACCESS_TOKEN);
+
     protected final Log mLog = new TestLogger();
-    protected final DracoonAuth mAuth = new DracoonAuth(ACCESS_TOKEN);
     protected final DracoonHttpConfig mHttpConfig = createTestHttpConfig();
 
     protected OkHttpClient mHttpClient;

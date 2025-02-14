@@ -24,7 +24,10 @@ import com.dracoon.sdk.internal.crypto.EncryptionPasswordHolder;
 import com.dracoon.sdk.internal.http.HttpClientBuilder;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
+import com.dracoon.sdk.internal.service.ServiceDependencies;
+import com.dracoon.sdk.internal.service.ServiceDependenciesImpl;
 import com.dracoon.sdk.internal.service.ServiceLocator;
+import com.dracoon.sdk.internal.service.ServiceLocatorImpl;
 import okhttp3.OkHttpClient;
 
 public class DracoonClientImpl extends DracoonClient {
@@ -35,21 +38,11 @@ public class DracoonClientImpl extends DracoonClient {
     private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig = new DracoonHttpConfig();
 
-    private OAuthClient mOAuthClient;
-
-    private OkHttpClient mHttpClient;
-    protected HttpHelper mHttpHelper;
-
     private AuthChecker mAuthChecker;
     private AuthTokenRetriever mAuthTokenRetriever;
     private AuthTokenRefresher mAuthTokenRefresher;
 
-    private DracoonApi mDracoonApi;
-    protected DracoonErrorParser mDracoonErrorParser;
-
-    protected CryptoWrapper mCryptoWrapper;
-
-    protected ServiceLocator mServiceLocator;
+    private ServiceLocator mServiceLocator;
     private DynamicServiceProxy mServiceProxy;
 
     public DracoonClientImpl(URL serverUrl) {
@@ -62,10 +55,6 @@ public class DracoonClientImpl extends DracoonClient {
 
     public void setAuth(DracoonAuth auth) {
         mAuthHolder.set(auth);
-    }
-
-    public EncryptionPasswordHolder getEncryptionPasswordHolder() {
-        return mEncPasswordHolder;
     }
 
     public char[] getEncryptionPassword() {
@@ -92,87 +81,58 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
     }
 
-    public OkHttpClient getHttpClient() {
-        return mHttpClient;
-    }
-
-    public HttpHelper getHttpHelper() {
-        return mHttpHelper;
-    }
-
-    public DracoonApi getDracoonApi() {
-        return mDracoonApi;
-    }
-
-    public DracoonErrorParser getDracoonErrorParser() {
-        return mDracoonErrorParser;
-    }
-
-    public CryptoWrapper getCryptoWrapper() {
-        return mCryptoWrapper;
-    }
-
-    public ServiceLocator getServiceLocator() {
-        return mServiceLocator;
-    }
-
     // --- Initialization methods ---
 
     public void init() {
-        initOAuthClient();
-
-        initHttpClient();
-        initHttpHelper();
-
         initAuthHelpers();
-
-        initDracoonApi();
-        initDracoonErrorParser();
-
-        mCryptoWrapper = new CryptoWrapper(mLog);
 
         initServiceLocator();
         initServiceProxy();
     }
 
-    protected void initOAuthClient() {
-        mOAuthClient = new OAuthClient(mServerUrl);
-        mOAuthClient.setLog(mLog);
-        mOAuthClient.setHttpConfig(mHttpConfig);
-        mOAuthClient.init();
-    }
+    private void initAuthHelpers() {
+        OAuthClient oAuthClient = new OAuthClient(mServerUrl);
+        oAuthClient.setLog(mLog);
+        oAuthClient.setHttpConfig(mHttpConfig);
+        oAuthClient.init();
 
-    protected void initHttpClient() {
-        mHttpClient = new HttpClientBuilder().build(mHttpConfig);
-    }
-
-    protected void initHttpHelper() {
-        mHttpHelper = new HttpHelper();
-        mHttpHelper.setLog(mLog);
-        mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
-        mHttpHelper.setRateLimitingEnabled(mHttpConfig.isRateLimitingEnabled());
-        mHttpHelper.init();
-    }
-
-    protected void initAuthHelpers() {
         mAuthChecker = new AuthChecker(() -> mServiceLocator.getAccountService().pingUser());
 
-        mAuthTokenRetriever = new AuthTokenRetrieverImpl(mOAuthClient, mAuthHolder);
-        mAuthTokenRefresher = new AuthTokenRefresherImpl(mOAuthClient, mAuthHolder);
-    }
-
-    protected void initDracoonApi() {
-        AuthInterceptor authInterceptor = new AuthInterceptorImpl(mAuthHolder, mAuthTokenRefresher);
-        mDracoonApi = new DracoonApiBuilder().build(mServerUrl, mHttpClient, authInterceptor);
-    }
-
-    private void initDracoonErrorParser() {
-        mDracoonErrorParser = new DracoonErrorParser();
-        mDracoonErrorParser.setLog(mLog);
+        mAuthTokenRetriever = new AuthTokenRetrieverImpl(oAuthClient, mAuthHolder);
+        mAuthTokenRefresher = new AuthTokenRefresherImpl(oAuthClient, mAuthHolder);
     }
 
     private void initServiceLocator() {
-        mServiceLocator = new ServiceLocator(this);
+        OkHttpClient httpClient = new HttpClientBuilder().build(mHttpConfig);
+
+        HttpHelper httpHelper = new HttpHelper();
+        httpHelper.setLog(mLog);
+        httpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
+        httpHelper.setRateLimitingEnabled(mHttpConfig.isRateLimitingEnabled());
+        httpHelper.init();
+
+        AuthInterceptor authInterceptor = new AuthInterceptorImpl(mAuthHolder, mAuthTokenRefresher);
+
+        DracoonApi dracoonApi = new DracoonApiBuilder().build(mServerUrl, httpClient, authInterceptor);
+
+        DracoonErrorParser dracoonErrorParser = new DracoonErrorParser();
+        dracoonErrorParser.setLog(mLog);
+
+        CryptoWrapper cryptoWrapper = new CryptoWrapper(mLog);
+
+        ServiceDependencies serviceDependencies = new ServiceDependenciesImpl.Builder()
+                .setLog(mLog)
+                .setHttpConfig(mHttpConfig)
+                .setHttpClient(httpClient)
+                .setHttpHelper(httpHelper)
+                .setServerUrl(mServerUrl)
+                .setDracoonApi(dracoonApi)
+                .setDracoonErrorParser(dracoonErrorParser)
+                .setEncryptionPasswordHolder(mEncPasswordHolder)
+                .setCryptoWrapper(cryptoWrapper)
+                .build();
+
+        mServiceLocator = new ServiceLocatorImpl(serviceDependencies);
     }
 
     private void initServiceProxy() {
@@ -228,18 +188,6 @@ public class DracoonClientImpl extends DracoonClient {
     @Override
     public Shares shares() {
         return mServiceProxy.shares();
-    }
-
-    // --- Helper methods ---
-
-    public String buildApiUrl(String... pathSegments) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(mServerUrl);
-        sb.append(DracoonConstants.API_PATH);
-        for (String pathSegment : pathSegments) {
-            sb.append("/").append(pathSegment);
-        }
-        return sb.toString();
     }
 
 }

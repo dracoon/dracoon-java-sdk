@@ -12,7 +12,6 @@ import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.ClientImpl;
 import com.dracoon.sdk.internal.ClientMethodImpl;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.api.mapper.ServerMapper;
 import com.dracoon.sdk.internal.api.model.ApiServerCryptoAlgorithms;
 import com.dracoon.sdk.internal.api.model.ApiServerDefaults;
@@ -32,8 +31,8 @@ public class ServerSettingsService extends BaseService {
     private static final UserKeyPair.Version FALLBACK_USER_KEY_PAIR_VERSION =
             UserKeyPair.Version.RSA4096;
 
-    public ServerSettingsService(DracoonClientImpl client) {
-        super(client);
+    public ServerSettingsService(ServiceLocator locator, ServiceDependencies dependencies) {
+        super(locator, dependencies);
     }
 
     @ClientMethodImpl
