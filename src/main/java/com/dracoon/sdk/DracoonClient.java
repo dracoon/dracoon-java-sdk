@@ -1367,7 +1367,7 @@ public abstract class DracoonClient {
      * - Server URL (mandatory): {@link #Builder(URL)}<br>
      * - Logger:                 {@link #log(Log)}<br>
      * - Authorization data:     {@link #auth(DracoonAuth)}<br>
-     * - Encryption password:    {@link #encryptionPassword(String)}<br>
+     * - Encryption password:    {@link #encryptionPassword(char[])}<br>
      * - HTTP configuration:     {@link #httpConfig(DracoonHttpConfig)}
      */
     public static class Builder {
