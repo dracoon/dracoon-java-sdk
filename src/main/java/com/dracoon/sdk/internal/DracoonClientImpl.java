@@ -24,12 +24,48 @@ import com.dracoon.sdk.internal.crypto.EncryptionPasswordHolder;
 import com.dracoon.sdk.internal.http.HttpClientBuilder;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
+import com.dracoon.sdk.internal.service.Service;
 import com.dracoon.sdk.internal.service.ServiceDependencies;
 import com.dracoon.sdk.internal.service.ServiceDependenciesImpl;
 import com.dracoon.sdk.internal.service.ServiceLocator;
 import com.dracoon.sdk.internal.service.ServiceLocatorImpl;
 import okhttp3.OkHttpClient;
 
+/**
+ * This class and its components are internal to the SDK and are not intended to be used directly.
+ * Use {@link DracoonClient.Builder} to obtain an instance.
+ *
+ * <h2>Architecture Overview</h2>
+ *
+ * <p>DracoonClientImpl is the implementation of the {@link DracoonClient} interface and acts as the
+ * bridge between the public API of {@link DracoonClient} and the internal implementation.</p>
+ *
+ * <p>The handler interfaces of {@link DracoonClient} (e.g. {@link Account Account}) are not
+ * implemented directly. Instead, they are created at runtime using {@link java.lang.reflect.Proxy},
+ * which delegates calls to service classes implementing the corresponding SDK functionality.</p>
+ *
+ * <h2>Key Components</h2>
+ *
+ * <ul>
+ * <li>{@link ClientImpl} / {@link ClientMethodImpl}: Annotations used by the proxy system to
+ *     associate service classes and methods with handler interfaces</li>
+ * <li>{@link Service}: Classes that implement specific SDK functionality</li>
+ * <li>{@link ServiceDependencies}: A common set of dependencies for services</li>
+ * <li>{@link ServiceLocator}: A registry to retrieve service instances</li>
+ * <li>{@link DynamicServiceProxy}: The class that ties everything together and connects handler
+ *     interfaces with actual services using Java dynamic proxies</li>
+ * </ul>
+ *
+ * <h2>Call Flow Example</h2>
+ *
+ * <ul>
+ * <li>The user calls {@code DracoonClient.account().getUserAccount()}.</li>
+ * <li>{@code DracoonClientImpl.account()} calls {@code DynamicServiceProxy.account()}.</li>
+ * <li>{@code DynamicServiceProxy} returns a Java proxy for {@code DracoonClient.Account}.</li>
+ * <li>The proxy routes the method invocation to the actual {@code AccountService} implementation.</li>
+ * <li>{@code AccountService.getUserAccount()} performs the API call and returns the result.</li>
+ * </ul>
+ */
 public class DracoonClientImpl extends DracoonClient {
 
     private final AuthHolder mAuthHolder = new AuthHolder();
