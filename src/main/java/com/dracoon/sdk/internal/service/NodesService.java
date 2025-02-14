@@ -29,7 +29,6 @@ import com.dracoon.sdk.internal.ClientImpl;
 import com.dracoon.sdk.internal.ClientMethodImpl;
 import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
-import com.dracoon.sdk.internal.ThreadHelper;
 import com.dracoon.sdk.internal.api.mapper.FileMapper;
 import com.dracoon.sdk.internal.api.mapper.FolderMapper;
 import com.dracoon.sdk.internal.api.mapper.NodeMapper;
@@ -443,7 +442,7 @@ public class NodesService extends BaseService {
             DracoonNetIOException, DracoonApiException {
         FileValidator.validateUploadRequest(id, request, file);
 
-        InputStream is = mClient.getFileStreamHelper().getFileInputStream(file);
+        InputStream is = mFileStreamHelper.getFileInputStream(file);
         long length = file.length();
 
         return uploadFileInternally(id, request, is, length, true, callback);
@@ -484,7 +483,7 @@ public class NodesService extends BaseService {
             DracoonNetIOException, DracoonApiException {
         FileValidator.validateUploadRequest(id, request, file);
 
-        InputStream is = mClient.getFileStreamHelper().getFileInputStream(file);
+        InputStream is = mFileStreamHelper.getFileInputStream(file);
         long length = file.length();
 
         startUploadFileAsyncInternally(id, request, is, length, true, callback);
@@ -552,9 +551,8 @@ public class NodesService extends BaseService {
             return;
         }
 
-        ThreadHelper threadHelper = mClient.getThreadHelper();
-        if (threadHelper.isThreadAlive(uploadThread)) {
-            threadHelper.interruptThread(uploadThread);
+        if (mThreadHelper.isThreadAlive(uploadThread)) {
+            mThreadHelper.interruptThread(uploadThread);
         }
         mUploads.remove(id);
     }
@@ -599,7 +597,7 @@ public class NodesService extends BaseService {
         }
         PlainFileKey.Version version = CryptoVersionConverter.determinePlainFileKeyVersion(
                 userPublicKey.getVersion());
-        return mClient.getCryptoWrapper().generateFileKey(version);
+        return mCryptoWrapper.generateFileKey(version);
     }
 
     // --- File download methods ---
@@ -610,7 +608,7 @@ public class NodesService extends BaseService {
             DracoonFileIOException {
         FileValidator.validateDownloadRequest(id, file);
 
-        OutputStream os = mClient.getFileStreamHelper().getFileOutputStream(file);
+        OutputStream os = mFileStreamHelper.getFileOutputStream(file);
 
         downloadFileInternally(id, nodeId, os, true, callback);
     }
@@ -648,7 +646,7 @@ public class NodesService extends BaseService {
             DracoonCryptoException, DracoonFileIOException {
         FileValidator.validateDownloadRequest(id, file);
 
-        OutputStream os = mClient.getFileStreamHelper().getFileOutputStream(file);
+        OutputStream os = mFileStreamHelper.getFileOutputStream(file);
 
         startDownloadFileAsyncInternally(id, nodeId, os, true, callback);
     }
@@ -716,9 +714,8 @@ public class NodesService extends BaseService {
             return;
         }
 
-        ThreadHelper threadHelper = mClient.getThreadHelper();
-        if (threadHelper.isThreadAlive(downloadThread)) {
-            threadHelper.interruptThread(downloadThread);
+        if (mThreadHelper.isThreadAlive(downloadThread)) {
+            mThreadHelper.interruptThread(downloadThread);
         }
         mDownloads.remove(id);
     }

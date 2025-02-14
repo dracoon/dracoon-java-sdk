@@ -7,8 +7,6 @@ import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiException;
-import com.dracoon.sdk.error.DracoonCryptoCode;
-import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonApiBuilder;
@@ -22,6 +20,7 @@ import com.dracoon.sdk.internal.auth.AuthTokenRefresherImpl;
 import com.dracoon.sdk.internal.auth.AuthTokenRetriever;
 import com.dracoon.sdk.internal.auth.AuthTokenRetrieverImpl;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
+import com.dracoon.sdk.internal.crypto.EncryptionPasswordHolder;
 import com.dracoon.sdk.internal.http.HttpClientBuilder;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
@@ -31,8 +30,7 @@ import okhttp3.OkHttpClient;
 public class DracoonClientImpl extends DracoonClient {
 
     private final AuthHolder mAuthHolder = new AuthHolder();
-
-    private char[] mEncryptionPassword;
+    private final EncryptionPasswordHolder mEncPasswordHolder = new EncryptionPasswordHolder();
 
     private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig = new DracoonHttpConfig();
@@ -50,8 +48,6 @@ public class DracoonClientImpl extends DracoonClient {
     protected DracoonErrorParser mDracoonErrorParser;
 
     protected CryptoWrapper mCryptoWrapper;
-    protected ThreadHelper mThreadHelper;
-    protected FileStreamHelper mFileStreamHelper;
 
     protected ServiceLocator mServiceLocator;
     private DynamicServiceProxy mServiceProxy;
@@ -68,20 +64,16 @@ public class DracoonClientImpl extends DracoonClient {
         mAuthHolder.set(auth);
     }
 
+    public EncryptionPasswordHolder getEncryptionPasswordHolder() {
+        return mEncPasswordHolder;
+    }
+
     public char[] getEncryptionPassword() {
-        return mEncryptionPassword;
+        return mEncPasswordHolder.get();
     }
 
     public void setEncryptionPassword(char[] encryptionPassword) {
-        mEncryptionPassword = encryptionPassword;
-    }
-
-    public char[] getEncryptionPasswordOrAbort() throws DracoonCryptoException {
-        char[] encryptionPassword = getEncryptionPassword();
-        if (encryptionPassword == null) {
-            throw new DracoonCryptoException(DracoonCryptoCode.MISSING_PASSWORD_ERROR);
-        }
-        return encryptionPassword;
+        mEncPasswordHolder.set(encryptionPassword);
     }
 
     public Log getLog() {
@@ -120,14 +112,6 @@ public class DracoonClientImpl extends DracoonClient {
         return mCryptoWrapper;
     }
 
-    public ThreadHelper getThreadHelper() {
-        return mThreadHelper;
-    }
-
-    public FileStreamHelper getFileStreamHelper() {
-        return mFileStreamHelper;
-    }
-
     public ServiceLocator getServiceLocator() {
         return mServiceLocator;
     }
@@ -146,8 +130,6 @@ public class DracoonClientImpl extends DracoonClient {
         initDracoonErrorParser();
 
         mCryptoWrapper = new CryptoWrapper(mLog);
-        mThreadHelper = new ThreadHelper();
-        mFileStreamHelper = new FileStreamHelper();
 
         initServiceLocator();
         initServiceProxy();

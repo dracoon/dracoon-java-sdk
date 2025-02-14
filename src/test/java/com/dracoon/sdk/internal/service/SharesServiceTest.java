@@ -31,11 +31,16 @@ import static org.mockito.Mockito.when;
 
 class SharesServiceTest extends BaseServiceTest {
 
+    @Mock
+    protected CryptoWrapper mCryptoWrapper;
+
     private SharesService mSrv;
 
     @BeforeEach
     protected void setup() throws Exception {
         super.setup();
+
+        setCryptoWrapper(mCryptoWrapper);
 
         mSrv = new SharesService(mDracoonClientImpl);
     }
@@ -135,9 +140,6 @@ class SharesServiceTest extends BaseServiceTest {
     private abstract class BaseCreateDownloadShareTests extends BaseSharesTests<DownloadShare> {
 
         @Mock
-        protected CryptoWrapper mCryptoWrapper;
-
-        @Mock
         protected ServerSettingsService mServerSettingsService;
         @Mock
         protected FileKeyFetcher mFileKeyFetcher;
@@ -150,8 +152,6 @@ class SharesServiceTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
-
             mServiceLocator.setServerSettingsService(mServerSettingsService);
             mServiceLocator.setFileKeyFetcher(mFileKeyFetcher);
 

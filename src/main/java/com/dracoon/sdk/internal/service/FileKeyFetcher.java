@@ -17,6 +17,8 @@ import com.dracoon.sdk.internal.api.mapper.FileMapper;
 import com.dracoon.sdk.internal.api.model.ApiFileKey;
 import com.dracoon.sdk.internal.crypto.CryptoErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoVersionConverter;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
+import com.dracoon.sdk.internal.crypto.EncryptionPasswordHolder;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -25,19 +27,25 @@ public class FileKeyFetcher {
 
     private static final String LOG_TAG = FileKeyFetcher.class.getSimpleName();
 
-    private final DracoonClientImpl mClient;
     private final Log mLog;
     private final DracoonApi mApi;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
+
+    private final EncryptionPasswordHolder mEncPasswordHolder;
+    private final CryptoWrapper mCryptoWrapper;
+
     private final ServiceLocator mServiceLocator;
 
     public FileKeyFetcher(DracoonClientImpl client) {
-        mClient = client;
         mLog = client.getLog();
         mApi = client.getDracoonApi();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+
+        mEncPasswordHolder = client.getEncryptionPasswordHolder();
+        mCryptoWrapper = client.getCryptoWrapper();
+
         mServiceLocator = client.getServiceLocator();
     }
 
@@ -47,7 +55,7 @@ public class FileKeyFetcher {
             return null;
         }
 
-        char[] userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] userPrivateKeyPassword = mEncPasswordHolder.getOrAbort();
 
         EncryptedFileKey encFileKey = getFileKey(nodeId);
 
@@ -56,8 +64,8 @@ public class FileKeyFetcher {
         UserKeyPair userKeyPair = mServiceLocator.getAccountService().getAndCheckUserKeyPair(
                 userKeyPairVersion);
 
-        return mClient.getCryptoWrapper().decryptFileKey(nodeId, encFileKey,
-                userKeyPair.getUserPrivateKey(), userPrivateKeyPassword);
+        return mCryptoWrapper.decryptFileKey(nodeId, encFileKey, userKeyPair.getUserPrivateKey(),
+                userPrivateKeyPassword);
     }
 
     private EncryptedFileKey getFileKey(long nodeId) throws DracoonNetIOException,

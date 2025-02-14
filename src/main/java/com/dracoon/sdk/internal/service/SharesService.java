@@ -21,7 +21,6 @@ import com.dracoon.sdk.internal.api.model.ApiDownloadShare;
 import com.dracoon.sdk.internal.api.model.ApiDownloadShareList;
 import com.dracoon.sdk.internal.api.model.ApiUploadShare;
 import com.dracoon.sdk.internal.api.model.ApiUploadShareList;
-import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.validator.BaseValidator;
 import com.dracoon.sdk.internal.validator.ShareValidator;
 import com.dracoon.sdk.model.CreateDownloadShareRequest;
@@ -58,12 +57,10 @@ public class SharesService extends BaseService {
             UserKeyPair.Version userKeyPairVersion = mServiceLocator.getServerSettingsService()
                     .getPreferredUserKeyPairVersion();
 
-            CryptoWrapper crypto = mClient.getCryptoWrapper();
-
             char[] userEncPw = request.getEncryptionPassword();
-            shareUserKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, userEncPw);
+            shareUserKeyPair = mCryptoWrapper.generateUserKeyPair(userKeyPairVersion, userEncPw);
 
-            shareEncFileKey = crypto.encryptFileKey(nodeId, plainFileKey,
+            shareEncFileKey = mCryptoWrapper.encryptFileKey(nodeId, plainFileKey,
                     shareUserKeyPair.getUserPublicKey());
         }
 

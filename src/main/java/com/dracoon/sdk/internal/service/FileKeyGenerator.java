@@ -31,6 +31,7 @@ import com.dracoon.sdk.internal.api.model.ApiUserIdFileIdFileKey;
 import com.dracoon.sdk.internal.api.model.ApiUserIdUserPublicKey;
 import com.dracoon.sdk.internal.crypto.CryptoVersionConverter;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
+import com.dracoon.sdk.internal.crypto.EncryptionPasswordHolder;
 import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.validator.BaseValidator;
 import retrofit2.Call;
@@ -40,19 +41,25 @@ public class FileKeyGenerator {
 
     private static final String LOG_TAG = FileKeyGenerator.class.getSimpleName();
 
-    private final DracoonClientImpl mClient;
     private final Log mLog;
     private final DracoonApi mApi;
     private final HttpHelper mHttpHelper;
     private final DracoonErrorParser mErrorParser;
+
+    private final EncryptionPasswordHolder mEncPasswordHolder;
+    private final CryptoWrapper mCryptoWrapper;
+
     private final ServiceLocator mServiceLocator;
 
     public FileKeyGenerator(DracoonClientImpl client) {
-        mClient = client;
         mLog = client.getLog();
         mApi = client.getDracoonApi();
         mHttpHelper = client.getHttpHelper();
         mErrorParser = client.getDracoonErrorParser();
+
+        mEncPasswordHolder = client.getEncryptionPasswordHolder();
+        mCryptoWrapper = client.getCryptoWrapper();
+
         mServiceLocator = client.getServiceLocator();
     }
 
@@ -63,7 +70,7 @@ public class FileKeyGenerator {
         List<UserKeyPair> userKeyPairs = mServiceLocator.getAccountService().getAndCheckUserKeyPairs();
         Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys = convertUserPrivateKeys(
                 userKeyPairs);
-        char[] userPrivateKeyPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] userPrivateKeyPassword = mEncPasswordHolder.getOrAbort();
 
         boolean isFinished = false;
         long batchOffset = 0L;
@@ -108,7 +115,6 @@ public class FileKeyGenerator {
 
         List<ApiUserIdFileIdFileKey> apiUserIdFileIdFileKeys = new ArrayList<>();
 
-        CryptoWrapper crypto = mClient.getCryptoWrapper();
         for (ApiUserIdFileId apiUserIdFileId : apiUserIdFileIds) {
             List<UserPublicKey> userPublicKeys = usersPublicKeys.get(apiUserIdFileId.userId);
             PlainFileKey plainFileKey = plainFileKeys.get(apiUserIdFileId.fileId);
@@ -117,7 +123,7 @@ public class FileKeyGenerator {
             }
 
             for (UserPublicKey userPublicKey : userPublicKeys) {
-                EncryptedFileKey encFileKey = crypto.encryptFileKey(apiUserIdFileId.fileId,
+                EncryptedFileKey encFileKey = mCryptoWrapper.encryptFileKey(apiUserIdFileId.fileId,
                         plainFileKey, userPublicKey);
 
                 ApiFileKey apiFileKey = FileMapper.toApiFileKey(encFileKey);
@@ -196,7 +202,6 @@ public class FileKeyGenerator {
     private Map<Long, PlainFileKey> decryptFileKeys(Map<Long, List<EncryptedFileKey>> encFilesKeys,
             Map<UserKeyPair.Version, UserPrivateKey> userPrivateKeys, char[] userPrivateKeyPassword)
             throws DracoonCryptoException {
-        CryptoWrapper crypto = mClient.getCryptoWrapper();
         Map<Long, PlainFileKey> plainFileKeys = new HashMap<>();
         for (Map.Entry<Long, List<EncryptedFileKey>> encFileKeys : encFilesKeys.entrySet()) {
             for (EncryptedFileKey encFileKey : encFileKeys.getValue()) {
@@ -205,7 +210,7 @@ public class FileKeyGenerator {
 
                 UserPrivateKey userPrivateKey = userPrivateKeys.get(userKeyPairVersion);
                 if (userPrivateKey != null) {
-                    PlainFileKey plainFileKey = crypto.decryptFileKey(encFileKeys.getKey(),
+                    PlainFileKey plainFileKey = mCryptoWrapper.decryptFileKey(encFileKeys.getKey(),
                             encFileKey, userPrivateKey, userPrivateKeyPassword);
                     plainFileKeys.put(encFileKeys.getKey(), plainFileKey);
                     break;

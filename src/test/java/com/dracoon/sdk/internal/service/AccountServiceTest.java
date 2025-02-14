@@ -42,7 +42,7 @@ class AccountServiceTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
+        setCryptoWrapper(mCryptoWrapper);
 
         mSrv = new AccountService(mDracoonClientImpl);
     }
@@ -312,7 +312,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             mockGetAvailableUserKeyPairVersions();
 
-            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
+            setEncryptionPassword(CRYPTO_PW);
         }
 
         @Test
@@ -490,7 +490,7 @@ class AccountServiceTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() {
-            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
+            setEncryptionPassword(CRYPTO_PW);
         }
 
         @Test
@@ -640,7 +640,7 @@ class AccountServiceTest extends BaseServiceTest {
 
             mockGetAvailableUserKeyPairVersions();
 
-            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
+            setEncryptionPassword(CRYPTO_PW);
         }
 
         @Test

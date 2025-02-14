@@ -27,7 +27,6 @@ import com.dracoon.sdk.internal.api.model.ApiUserKeyPair;
 import com.dracoon.sdk.internal.api.model.ApiUserProfileAttributes;
 import com.dracoon.sdk.internal.crypto.CryptoErrorParser;
 import com.dracoon.sdk.internal.crypto.CryptoVersionConverter;
-import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.internal.http.HttpStatus;
 import com.dracoon.sdk.internal.validator.ValidatorUtils;
 import com.dracoon.sdk.model.CustomerAccount;
@@ -128,9 +127,9 @@ public class AccountService extends BaseService {
 
         checkUserKeyPairVersionSupported(userKeyPairVersion);
 
-        char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
-        CryptoWrapper crypto = mClient.getCryptoWrapper();
-        UserKeyPair userKeyPair = crypto.generateUserKeyPair(userKeyPairVersion, encryptionPassword);
+        char[] encryptionPassword = mEncPasswordHolder.getOrAbort();
+        UserKeyPair userKeyPair = mCryptoWrapper.generateUserKeyPair(userKeyPairVersion,
+                encryptionPassword);
 
         ApiUserKeyPair apiUserKeyPair = UserMapper.toApiUserKeyPair(userKeyPair);
 
@@ -232,7 +231,7 @@ public class AccountService extends BaseService {
 
     public List<UserKeyPair> getAndCheckUserKeyPairs() throws DracoonNetIOException,
             DracoonApiException, DracoonCryptoException {
-        char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] encryptionPassword = mEncPasswordHolder.getOrAbort();
 
         List<UserKeyPair> userKeyPairs = getUserKeyPairs();
         if (userKeyPairs.isEmpty()) {
@@ -247,7 +246,7 @@ public class AccountService extends BaseService {
 
     public UserKeyPair getAndCheckUserKeyPair(UserKeyPair.Version userKeyPairVersion)
             throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
-        char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] encryptionPassword = mEncPasswordHolder.getOrAbort();
         UserKeyPair userKeyPair = getUserKeyPair(userKeyPairVersion);
         checkUserKeyPair(userKeyPair, encryptionPassword);
         return userKeyPair;
@@ -255,8 +254,7 @@ public class AccountService extends BaseService {
 
     private void checkUserKeyPair(UserKeyPair userKeyPair, char[] encryptionPassword)
             throws DracoonCryptoException {
-        CryptoWrapper crypto = mClient.getCryptoWrapper();
-        boolean isValid = crypto.checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+        boolean isValid = mCryptoWrapper.checkUserKeyPairPassword(userKeyPair, encryptionPassword);
         if (!isValid) {
             throw new DracoonCryptoException(DracoonCryptoCode.INVALID_PASSWORD_ERROR);
         }
@@ -298,7 +296,7 @@ public class AccountService extends BaseService {
     @ClientMethodImpl
     public boolean checkUserKeyPairPassword(UserKeyPairAlgorithm.Version version)
             throws DracoonCryptoException, DracoonNetIOException, DracoonApiException {
-        char[] encryptionPassword = mClient.getEncryptionPasswordOrAbort();
+        char[] encryptionPassword = mEncPasswordHolder.getOrAbort();
         return checkUserKeyPairPassword(version, encryptionPassword);
     }
 
@@ -308,8 +306,7 @@ public class AccountService extends BaseService {
             DracoonApiException {
         UserKeyPair.Version userKeyPairVersion = CryptoVersionConverter.toUserKeyPairVersion(version);
         UserKeyPair userKeyPair = getUserKeyPair(userKeyPairVersion);
-        CryptoWrapper crypto = mClient.getCryptoWrapper();
-        return crypto.checkUserKeyPairPassword(userKeyPair, encryptionPassword);
+        return mCryptoWrapper.checkUserKeyPairPassword(userKeyPair, encryptionPassword);
     }
 
     @ClientMethodImpl

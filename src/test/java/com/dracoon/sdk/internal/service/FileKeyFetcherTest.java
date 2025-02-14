@@ -39,7 +39,7 @@ public class FileKeyFetcherTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
+        setCryptoWrapper(mCryptoWrapper);
 
         mServiceLocator.setAccountService(mAccountService);
         mServiceLocator.setNodesService(mNodesService);
@@ -58,7 +58,7 @@ public class FileKeyFetcherTest extends BaseServiceTest {
 
         @BeforeEach
         void setup() {
-            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
+            setEncryptionPassword(CRYPTO_PW);
         }
 
         @Test

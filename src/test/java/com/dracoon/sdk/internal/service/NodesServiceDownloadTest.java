@@ -7,8 +7,6 @@ import java.util.function.Consumer;
 
 import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.FileStreamHelper;
-import com.dracoon.sdk.internal.ThreadHelper;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -38,6 +36,11 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
     }
 
     @Mock
+    protected ThreadHelper mThreadHelper;
+    @Mock
+    protected FileStreamHelper mFileStreamHelper;
+
+    @Mock
     protected FileKeyFetcher mFileKeyFetcher;
 
     private NodesService mSrv;
@@ -49,6 +52,8 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         mServiceLocator.setFileKeyFetcher(mFileKeyFetcher);
 
         mSrv = new NodesService(mDracoonClientImpl);
+        mSrv.setThreadHelper(mThreadHelper);
+        mSrv.setFileStreamHelper(mFileStreamHelper);
     }
 
     private static abstract class BaseTests {
@@ -76,9 +81,6 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected final OutputStream mStream;
 
         @Mock
-        protected FileStreamHelper mFileStreamHelper;
-
-        @Mock
         protected DownloadThread.Factory mDownloadThreadFactory;
         @Mock
         protected DownloadThread mDownloadThread;
@@ -94,7 +96,6 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mDracoonClientImpl.setFileStreamHelper(mFileStreamHelper);
             mServiceLocator.setDownloadThreadFactory(mDownloadThreadFactory);
         }
 
@@ -601,15 +602,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected final String mDownloadId = "test";
 
         @Mock
-        protected ThreadHelper mThreadHelper;
-
-        @Mock
         protected DownloadThread mDownloadThread;
-
-        @BeforeEach
-        void setup() {
-            mDracoonClientImpl.setThreadHelper(mThreadHelper);
-        }
 
         @Test
         void testDownloadThreadStillExists() {

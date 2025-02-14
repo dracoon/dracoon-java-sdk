@@ -48,7 +48,7 @@ public class FileKeyGeneratorTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
+        setCryptoWrapper(mCryptoWrapper);
 
         mServiceLocator.setAccountService(mAccountService);
 
@@ -68,7 +68,7 @@ public class FileKeyGeneratorTest extends BaseServiceTest {
 
         @BeforeEach
         protected void setup() {
-            mDracoonClientImpl.setEncryptionPassword(CRYPTO_PW);
+            setEncryptionPassword(CRYPTO_PW);
         }
 
         // --- Tests: No missing keys ---

@@ -1,7 +1,6 @@
 package com.dracoon.sdk.internal.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,8 +11,6 @@ import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.FileStreamHelper;
-import com.dracoon.sdk.internal.ThreadHelper;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
@@ -40,13 +37,17 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
     private static class StubInputStream extends InputStream {
         @Override
-        public int read() throws IOException {
+        public int read() {
             return 0;
         }
     }
 
     @Mock
     protected CryptoWrapper mCryptoWrapper;
+    @Mock
+    protected ThreadHelper mThreadHelper;
+    @Mock
+    protected FileStreamHelper mFileStreamHelper;
 
     private NodesService mSrv;
 
@@ -54,9 +55,11 @@ public class NodesServiceUploadTest extends BaseServiceTest {
     protected void setup() throws Exception {
         super.setup();
 
-        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
+        setCryptoWrapper(mCryptoWrapper);
 
         mSrv = new NodesService(mDracoonClientImpl);
+        mSrv.setThreadHelper(mThreadHelper);
+        mSrv.setFileStreamHelper(mFileStreamHelper);
     }
 
     private abstract class BaseTests {
@@ -106,9 +109,6 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected final InputStream mStream;
 
         @Mock
-        protected FileStreamHelper mFileStreamHelper;
-
-        @Mock
         protected UploadThread.Factory mUploadThreadFactory;
         @Mock
         protected UploadThread mUploadThread;
@@ -126,7 +126,6 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         @BeforeEach
         protected void setup() {
             super.setup();
-            mDracoonClientImpl.setFileStreamHelper(mFileStreamHelper);
             mServiceLocator.setUploadThreadFactory(mUploadThreadFactory);
         }
 
@@ -877,15 +876,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected final String mUploadId = "test";
 
         @Mock
-        protected ThreadHelper mThreadHelper;
-
-        @Mock
         protected UploadThread mUploadThread;
-
-        @BeforeEach
-        void setup() {
-            mDracoonClientImpl.setThreadHelper(mThreadHelper);
-        }
 
         @Test
         void testUploadThreadStillExists() {

@@ -21,14 +21,6 @@ public class DracoonClientImplMock extends DracoonClientImpl {
         mCryptoWrapper = cryptoWrapper;
     }
 
-    public void setThreadHelper(ThreadHelper threadHelper) {
-        mThreadHelper = threadHelper;
-    }
-
-    public void setFileStreamHelper(FileStreamHelper fileStreamHelper) {
-        mFileStreamHelper = fileStreamHelper;
-    }
-
     public void setServiceLocator(ServiceLocator serviceLocator) {
         mServiceLocator = serviceLocator;
     }
