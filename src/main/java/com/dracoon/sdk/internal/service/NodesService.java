@@ -464,13 +464,13 @@ public class NodesService extends BaseService {
         UserPublicKey userPublicKey = getUploadUserPublicKey(request.getParentId());
         PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
-        UploadThread uploadThread = UploadThread.create(mClient, id, request, length, userPublicKey,
-                plainFileKey, is);
-        uploadThread.addCallback(callback);
+        UploadThread.Factory factory = mServiceLocator.getUploadThreadFactory();
+        UploadThread thread = factory.create(id, request, length, userPublicKey, plainFileKey, is);
+        thread.addCallback(callback);
 
         Node node;
         try {
-            node = uploadThread.runSync();
+            node = thread.runSync();
         } finally {
             closeStream(is, close);
         }
@@ -535,14 +535,14 @@ public class NodesService extends BaseService {
             }
         };
 
-        UploadThread uploadThread = UploadThread.create(mClient, id, request, length, userPublicKey,
-                plainFileKey, is);
-        uploadThread.addCallback(callback);
-        uploadThread.addCallback(internalCallback);
+        UploadThread.Factory factory = mServiceLocator.getUploadThreadFactory();
+        UploadThread thread = factory.create(id, request, length, userPublicKey, plainFileKey, is);
+        thread.addCallback(callback);
+        thread.addCallback(internalCallback);
 
-        mUploads.put(id, uploadThread);
+        mUploads.put(id, thread);
 
-        uploadThread.start();
+        thread.start();
     }
 
     @ClientMethodImpl
@@ -569,16 +569,16 @@ public class NodesService extends BaseService {
         PlainFileKey plainFileKey = createUploadFileKey(userPublicKey);
 
         // SONAR: No try-with-resources or close is needed here
-        UploadStream uploadStream = UploadStream.create(mClient, id, request, length, //NOSONAR
-                userPublicKey, plainFileKey);
+        UploadStream.Factory factory = mServiceLocator.getUploadStreamFactory();
+        UploadStream stream = factory.create(id, request, length, userPublicKey, plainFileKey); // NOSONAR
 
         if (callback != null) {
-            uploadStream.addCallback(callback);
+            stream.addCallback(callback);
         }
 
-        uploadStream.start();
+        stream.start();
 
-        return uploadStream;
+        return stream;
     }
 
     private UserPublicKey getUploadUserPublicKey(long parentNodeId) throws DracoonNetIOException,
@@ -629,13 +629,14 @@ public class NodesService extends BaseService {
             DracoonCryptoException, DracoonFileIOException {
         PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
-        DownloadThread downloadThread = DownloadThread.create(mClient, id, nodeId, plainFileKey, os);
+        DownloadThread.Factory factory = mServiceLocator.getDownloadThreadFactory();
+        DownloadThread thread = factory.create(id, nodeId, plainFileKey, os);
         if (callback != null) {
-            downloadThread.addCallback(callback);
+            thread.addCallback(callback);
         }
 
         try {
-            downloadThread.runSync();
+            thread.runSync();
         } finally {
             closeStream(os, close);
         }
@@ -696,15 +697,16 @@ public class NodesService extends BaseService {
             }
         };
 
-        DownloadThread downloadThread = DownloadThread.create(mClient, id, nodeId, plainFileKey, os);
-        downloadThread.addCallback(stoppedCallback);
+        DownloadThread.Factory factory = mServiceLocator.getDownloadThreadFactory();
+        DownloadThread thread = factory.create(id, nodeId, plainFileKey, os);
+        thread.addCallback(stoppedCallback);
         if (callback != null) {
-            downloadThread.addCallback(callback);
+            thread.addCallback(callback);
         }
 
-        mDownloads.put(id, downloadThread);
+        mDownloads.put(id, thread);
 
-        downloadThread.start();
+        thread.start();
     }
 
     @ClientMethodImpl
@@ -728,16 +730,16 @@ public class NodesService extends BaseService {
         PlainFileKey plainFileKey = getDownloadFileKey(nodeId);
 
         // SONAR: No try-with-resources or close is needed here
-        DownloadStream downloadStream = DownloadStream.create(mClient, id, nodeId, //NOSONAR
-                plainFileKey);
+        DownloadStream.Factory factory = mServiceLocator.getDownloadStreamFactory();
+        DownloadStream stream = factory.create(id, nodeId, plainFileKey); //NOSONAR
 
         if (callback != null) {
-            downloadStream.addCallback(callback);
+            stream.addCallback(callback);
         }
 
-        downloadStream.start();
+        stream.start();
 
-        return downloadStream;
+        return stream;
     }
 
     private PlainFileKey getDownloadFileKey(long nodeId) throws DracoonCryptoException,

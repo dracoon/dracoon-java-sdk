@@ -2,7 +2,9 @@ package com.dracoon.sdk.internal.service;
 
 import java.util.List;
 
+import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.internal.DracoonClientImpl;
+import com.dracoon.sdk.internal.DracoonConstants;
 
 public class ServiceLocator {
 
@@ -17,6 +19,11 @@ public class ServiceLocator {
     protected FileKeyFetcher mFileKeyFetcher;
     protected FileKeyGenerator mFileKeyGenerator;
     protected AvatarDownloader mAvatarDownloader;
+
+    protected DownloadStream.Factory mDownloadStreamFactory;
+    protected DownloadThread.Factory mDownloadThreadFactory;
+    protected UploadStream.Factory mUploadStreamFactory;
+    protected UploadThread.Factory mUploadThreadFactory;
 
     public ServiceLocator(DracoonClientImpl client) {
         init(client);
@@ -34,6 +41,19 @@ public class ServiceLocator {
         mFileKeyFetcher = new FileKeyFetcher(client);
         mFileKeyGenerator = new FileKeyGenerator(client);
         mAvatarDownloader = new AvatarDownloader(client);
+
+        DracoonHttpConfig httpConfig = client.getHttpConfig();
+        long chunkSize = ((long) httpConfig.getChunkSize()) * DracoonConstants.KIB;
+
+        mDownloadStreamFactory = new DownloadStream.Factory(client.getLog(), client.getDracoonApi(),
+                client.getHttpClient(), client.getHttpHelper(), client.getDracoonErrorParser(),
+                client.getCryptoWrapper(), chunkSize);
+        mDownloadThreadFactory = new DownloadThread.Factory(client.getLog(), mDownloadStreamFactory);
+
+        mUploadStreamFactory = new UploadStream.Factory(client.getLog(), client.getDracoonApi(),
+                client.getHttpClient(), client.getHttpHelper(), client.getDracoonErrorParser(),
+                client.getCryptoWrapper(), chunkSize);
+        mUploadThreadFactory = new UploadThread.Factory(client.getLog(), mUploadStreamFactory);
     }
 
     public ServerInfoService getServerInfoService() {
@@ -74,6 +94,22 @@ public class ServiceLocator {
 
     public AvatarDownloader getAvatarDownloader() {
         return mAvatarDownloader;
+    }
+
+    public DownloadStream.Factory getDownloadStreamFactory() {
+        return mDownloadStreamFactory;
+    }
+
+    public DownloadThread.Factory getDownloadThreadFactory() {
+        return mDownloadThreadFactory;
+    }
+
+    public UploadStream.Factory getUploadStreamFactory() {
+        return mUploadStreamFactory;
+    }
+
+    public UploadThread.Factory getUploadThreadFactory() {
+        return mUploadThreadFactory;
     }
 
     public List<Service> getServices() {

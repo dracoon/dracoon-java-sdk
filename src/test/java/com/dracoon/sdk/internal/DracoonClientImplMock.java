@@ -9,25 +9,8 @@ import com.dracoon.sdk.internal.service.ServiceLocator;
 @SuppressWarnings("unused")
 public class DracoonClientImplMock extends DracoonClientImpl {
 
-    private long mOverwrittenChunkSize = 0;
-
     public DracoonClientImplMock(URL serverUrl) {
         super(serverUrl);
-    }
-
-    @Override
-    public long getChunkSize() {
-        if (mOverwrittenChunkSize > 0) {
-            return mOverwrittenChunkSize;
-        } else {
-            return super.getChunkSize();
-        }
-    }
-
-    public void setChunkSize(long chunkSize) {
-        if (chunkSize >= 0) {
-            mOverwrittenChunkSize = chunkSize;
-        }
     }
 
     public void setDracoonErrorParser(DracoonErrorParser dracoonErrorParser) {

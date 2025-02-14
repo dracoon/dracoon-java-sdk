@@ -21,7 +21,6 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
@@ -153,14 +152,17 @@ public class UploadStream extends FileUploadStream {
 
     private final List<FileUploadCallback> mCallbacks = new ArrayList<>();
 
-    private UploadStream(DracoonClientImpl client, String id, FileUploadRequest request, long length,
-            UserPublicKey userPublicKey, PlainFileKey fileKey) {
-        mLog = client.getLog();
-        mApi = client.getDracoonApi();
-        mHttpClient = client.getHttpClient();
-        mHttpHelper = client.getHttpHelper();
-        mErrorParser = client.getDracoonErrorParser();
-        mCrypto = client.getCryptoWrapper();
+    @SuppressWarnings("squid:S107")
+    private UploadStream(Log log, DracoonApi dracoonApi, OkHttpClient httpClient,
+            HttpHelper httpHelper, DracoonErrorParser errorParser, CryptoWrapper cryptoWrapper,
+            String id, FileUploadRequest request, long length, UserPublicKey userPublicKey,
+            PlainFileKey fileKey, long chunkSize) {
+        mLog = log;
+        mApi = dracoonApi;
+        mHttpClient = httpClient;
+        mHttpHelper = httpHelper;
+        mErrorParser = errorParser;
+        mCrypto = cryptoWrapper;
 
         mId = id;
         mFileUploadRequest = request;
@@ -168,7 +170,7 @@ public class UploadStream extends FileUploadStream {
         mUserPublicKey = userPublicKey;
         mFileKey = fileKey;
 
-        mChunkSize = client.getChunkSize();
+        mChunkSize = chunkSize;
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
@@ -690,9 +692,34 @@ public class UploadStream extends FileUploadStream {
 
     // --- Factory methods ---
 
-    public static UploadStream create(DracoonClientImpl client, String id, FileUploadRequest request,
-            long length, UserPublicKey userPublicKey, PlainFileKey fileKey) {
-        return new UploadStream(client, id, request, length, userPublicKey, fileKey);
+    public static class Factory {
+
+        private final Log mLog;
+        private final DracoonApi mApi;
+        private final OkHttpClient mHttpClient;
+        private final HttpHelper mHttpHelper;
+        private final DracoonErrorParser mErrorParser;
+        private final CryptoWrapper mCrypto;
+        private final long mChunkSize;
+
+        public Factory(Log log, DracoonApi dracoonApi, OkHttpClient httpClient,
+                HttpHelper httpHelper, DracoonErrorParser errorParser, CryptoWrapper cryptoWrapper,
+                long chunkSize) {
+            mLog = log;
+            mApi = dracoonApi;
+            mHttpClient = httpClient;
+            mHttpHelper = httpHelper;
+            mErrorParser = errorParser;
+            mCrypto = cryptoWrapper;
+            mChunkSize = chunkSize;
+        }
+
+        public UploadStream create(String id, FileUploadRequest request, long length,
+                UserPublicKey userPublicKey, PlainFileKey fileKey) {
+            return new UploadStream(mLog, mApi, mHttpClient, mHttpHelper, mErrorParser, mCrypto,
+                    id, request, length, userPublicKey, fileKey, mChunkSize);
+        }
+
     }
 
 }

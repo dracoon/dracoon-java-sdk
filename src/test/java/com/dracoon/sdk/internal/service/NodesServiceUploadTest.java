@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -111,6 +109,8 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected FileStreamHelper mFileStreamHelper;
 
         @Mock
+        protected UploadThread.Factory mUploadThreadFactory;
+        @Mock
         protected UploadThread mUploadThread;
 
         @Mock
@@ -127,6 +127,7 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected void setup() {
             super.setup();
             mDracoonClientImpl.setFileStreamHelper(mFileStreamHelper);
+            mServiceLocator.setUploadThreadFactory(mUploadThreadFactory);
         }
 
         @Test
@@ -212,12 +213,9 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected T mockAndReturnDependencyCalls(T expectedData) throws Exception {
             mockUploadThreadCall(expectedData);
 
-            try (MockedStatic<UploadThread> mock = Mockito.mockStatic(UploadThread.class)) {
-                mock.when(() -> UploadThread.create(any(), anyString(), any(), anyLong(), any(),
-                                any(), any()))
-                        .thenReturn(mUploadThread);
-                return executeUpload();
-            }
+            when(mUploadThreadFactory.create(anyString(), any(), anyLong(), any(), any(), any()))
+                    .thenReturn(mUploadThread);
+            return executeUpload();
         }
 
         protected void mockAndVerifyDependencyCalls(long length) throws Exception {
@@ -228,14 +226,11 @@ public class NodesServiceUploadTest extends BaseServiceTest {
                 PlainFileKey fileKey) throws Exception {
             mockUploadThreadCall(getExpectedData());
 
-            try (MockedStatic<UploadThread> mock = Mockito.mockStatic(UploadThread.class)) {
-                mock.when(() -> UploadThread.create(any(), anyString(), any(), anyLong(), any(),
-                                any(), any()))
-                        .thenReturn(mUploadThread);
-                executeUpload();
-                mock.verify(() -> UploadThread.create(mDracoonClientImpl, mUploadId, mUploadRequest,
-                        length, userPublicKey, fileKey, mStream));
-            }
+            when(mUploadThreadFactory.create(anyString(), any(), anyLong(), any(), any(), any()))
+                    .thenReturn(mUploadThread);
+            executeUpload();
+            verify(mUploadThreadFactory).create(mUploadId, mUploadRequest, length, userPublicKey,
+                    fileKey, mStream);
 
             verifyUploadThreadCall();
         }
@@ -243,12 +238,9 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected void mockWithExceptionDependencyCalls() throws Exception {
             mockUploadThreadCallException();
 
-            try (MockedStatic<UploadThread> mock = Mockito.mockStatic(UploadThread.class)) {
-                mock.when(() -> UploadThread.create(any(), anyString(), any(), anyLong(), any(),
-                                any(), any()))
-                        .thenReturn(mUploadThread);
-                executeUpload();
-            }
+            when(mUploadThreadFactory.create(anyString(), any(), anyLong(), any(), any(), any()))
+                    .thenReturn(mUploadThread);
+            executeUpload();
         }
 
         protected abstract T getExpectedData();
@@ -960,6 +952,8 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         private final long mLength = 5L;
 
         @Mock
+        protected UploadStream.Factory mUploadStreamFactory;
+        @Mock
         protected UploadStream mUploadStream;
 
         @Mock
@@ -968,6 +962,12 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected BaseCreateUploadStreamTests(String dataPath) {
             super(dataPath);
             mUploadRequest = new FileUploadRequest.Builder(1L, "test.txt").build();
+        }
+
+        @BeforeEach
+        protected void setup() {
+            super.setup();
+            mServiceLocator.setUploadStreamFactory(mUploadStreamFactory);
         }
 
         @Test
@@ -1032,12 +1032,9 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected abstract void executeMockedWithException() throws Exception;
 
         protected void mockDependencyCalls() throws Exception {
-            try (MockedStatic<UploadStream> mock = Mockito.mockStatic(UploadStream.class)) {
-                mock.when(() -> UploadStream.create(any(), anyString(), any(), anyLong(), any(),
-                                any()))
-                        .thenReturn(mUploadStream);
-                executeCreateUploadStream();
-            }
+            when(mUploadStreamFactory.create(anyString(), any(), anyLong(), any(), any()))
+                    .thenReturn(mUploadStream);
+            executeCreateUploadStream();
         }
 
         protected void mockAndVerifyDependencyCalls() throws Exception {
@@ -1046,14 +1043,11 @@ public class NodesServiceUploadTest extends BaseServiceTest {
 
         protected void mockAndVerifyDependencyCalls(UserPublicKey userPublicKey,
                 PlainFileKey fileKey) throws Exception {
-            try (MockedStatic<UploadStream> mock = Mockito.mockStatic(UploadStream.class)) {
-                mock.when(() -> UploadStream.create(any(), anyString(), any(), anyLong(), any(),
-                                any()))
-                        .thenReturn(mUploadStream);
-                executeCreateUploadStream();
-                mock.verify(() -> UploadStream.create(mDracoonClientImpl, mUploadId, mUploadRequest,
-                        mLength, userPublicKey, fileKey));
-            }
+            when(mUploadStreamFactory.create(anyString(), any(), anyLong(), any(), any()))
+                    .thenReturn(mUploadStream);
+            executeCreateUploadStream();
+            verify(mUploadStreamFactory).create(mUploadId, mUploadRequest, mLength, userPublicKey,
+                    fileKey);
 
             verify(mUploadStream).start();
         }
@@ -1061,12 +1055,9 @@ public class NodesServiceUploadTest extends BaseServiceTest {
         protected void mockWithExceptionDependencyCalls() throws Exception {
             doThrow(new DracoonNetIOException()).when(mUploadStream).start();
 
-            try (MockedStatic<UploadStream> mock = Mockito.mockStatic(UploadStream.class)) {
-                mock.when(() -> UploadStream.create(any(), anyString(), any(), anyLong(), any(),
-                                any()))
-                        .thenReturn(mUploadStream);
-                executeCreateUploadStream();
-            }
+            when(mUploadStreamFactory.create(anyString(), any(), anyLong(), any(), any()))
+                    .thenReturn(mUploadStream);
+            executeCreateUploadStream();
         }
 
         private void executeCreateUploadStream() throws Exception {

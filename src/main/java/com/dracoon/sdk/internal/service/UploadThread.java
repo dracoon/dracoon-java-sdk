@@ -13,7 +13,6 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.model.FileUploadCallback;
 import com.dracoon.sdk.model.FileUploadRequest;
@@ -36,13 +35,14 @@ public class UploadThread extends Thread {
 
     private final List<FileUploadCallback> mCallbacks = new ArrayList<>();
 
-    private UploadThread(DracoonClientImpl client, String id, FileUploadRequest request, long length,
-            UserPublicKey userPublicKey, PlainFileKey fileKey, InputStream inputStream) {
-        mLog = client.getLog();
+    @SuppressWarnings("squid:S107")
+    private UploadThread(Log log, UploadStream.Factory factory, String id, FileUploadRequest request,
+            long length, UserPublicKey userPublicKey, PlainFileKey fileKey, InputStream inputStream) {
+        mLog = log;
 
         mId = id;
 
-        mUploadStream = UploadStream.create(client, id, request, length, userPublicKey, fileKey);
+        mUploadStream = factory.create(id, request, length, userPublicKey, fileKey);
         mInputStream = inputStream;
     }
 
@@ -143,9 +143,22 @@ public class UploadThread extends Thread {
 
     // --- Factory methods ---
 
-    public static UploadThread create(DracoonClientImpl client, String id, FileUploadRequest request,
-            long length, UserPublicKey userPublicKey, PlainFileKey fileKey, InputStream inputStream) {
-        return new UploadThread(client, id, request, length, userPublicKey, fileKey, inputStream);
+    public static class Factory {
+
+        private final Log mLog;
+        private final UploadStream.Factory mUploadStreamFactory;
+
+        public Factory(Log log, UploadStream.Factory uploadStreamFactory) {
+            mLog = log;
+            mUploadStreamFactory = uploadStreamFactory;
+        }
+
+        public UploadThread create(String id, FileUploadRequest request, long length,
+                UserPublicKey userPublicKey, PlainFileKey fileKey, InputStream inputStream) {
+            return new UploadThread(mLog, mUploadStreamFactory, id, request, length, userPublicKey,
+                    fileKey, inputStream);
+        }
+
     }
 
 }

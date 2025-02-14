@@ -8,7 +8,7 @@ import com.dracoon.sdk.crypto.model.UserPublicKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
-import com.dracoon.sdk.internal.TestHttpHelper;
+import com.dracoon.sdk.internal.BaseApiTest;
 import com.dracoon.sdk.internal.api.model.ApiErrorResponse;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.FileUploadCallback;
@@ -26,25 +26,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class UploadStreamTest extends BaseServiceTest {
-
-    private static final long CHUNK_SIZE = 2048L;
+public class UploadStreamTest extends BaseApiTest {
 
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
-    private UploadStream mUls;
-
-    @BeforeEach
-    protected void setup() throws Exception {
-        super.setup();
-        mDracoonClientImpl.setChunkSize(CHUNK_SIZE);
-        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
-    }
-
     private abstract class BaseUploadTests {
 
         protected final String mDataPath;
+
+        protected long mChunkSize = 2048L;
+
+        protected UploadStream.Factory mUlsFactory;
+        protected UploadStream mUls;
 
         protected BaseUploadTests(String dataPath) {
             mDataPath = dataPath;
@@ -52,6 +46,8 @@ public class UploadStreamTest extends BaseServiceTest {
 
         @BeforeEach
         void baseSetup() throws Exception {
+            mUlsFactory = new UploadStream.Factory(mLog, mDracoonApi, mHttpClient, mHttpHelper,
+                    mDracoonErrorParser, mCryptoWrapper, mChunkSize);
             setup();
         }
 
@@ -71,14 +67,8 @@ public class UploadStreamTest extends BaseServiceTest {
 
         protected S3UploadTest(String dataPath) {
             super(dataPath);
-        }
-
-        @BeforeEach
-        void baseSetup() throws Exception {
-            // Overwrite default chunk size to smaller chunks
-            mDracoonClientImpl.setChunkSize(3072L);
-            // Do test setup
-            setup();
+            // Change chunk size to be larger than internal buffer of 2KB
+            mChunkSize = 3072L;
         }
 
     }
@@ -96,7 +86,7 @@ public class UploadStreamTest extends BaseServiceTest {
         protected void setup() {
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
+            mUls = mUlsFactory.create("Test", request, 1024L, null, null);
 
             // Enqueue responses
             enqueueResponse(mDataPath + "get_server_settings_response.json");
@@ -161,7 +151,7 @@ public class UploadStreamTest extends BaseServiceTest {
         @Override
         protected void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
+            mUls = mUlsFactory.create("Test", request, 1024L, null, null);
         }
 
         @Test
@@ -190,7 +180,7 @@ public class UploadStreamTest extends BaseServiceTest {
         @Override
         protected void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 1024L, null, null);
+            mUls = mUlsFactory.create("Test", request, 1024L, null, null);
         }
 
         @Test
@@ -233,8 +223,8 @@ public class UploadStreamTest extends BaseServiceTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, mBytes.length,
-                    getUserPublicKey(), getPlainFileKey());
+            mUls = mUlsFactory.create("Test", request, mBytes.length, getUserPublicKey(),
+                    getPlainFileKey());
             mUls.start();
 
             // Drop irrelevant requests
@@ -480,8 +470,8 @@ public class UploadStreamTest extends BaseServiceTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, mBytes.length,
-                    getUserPublicKey(), getPlainFileKey());
+            mUls = mUlsFactory.create("Test", request, mBytes.length, getUserPublicKey(),
+                    getPlainFileKey());
             mUls.start();
 
             // Drop irrelevant requests
@@ -753,7 +743,7 @@ public class UploadStreamTest extends BaseServiceTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 0, null, null);
+            mUls = mUlsFactory.create("Test", request, 0, null, null);
             mUls.start();
 
             // Drop irrelevant requests
@@ -843,7 +833,7 @@ public class UploadStreamTest extends BaseServiceTest {
 
             // Create and start upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 0, null, null);
+            mUls = mUlsFactory.create("Test", request, 0, null, null);
             mUls.start();
 
             // Drop irrelevant requests
@@ -978,12 +968,16 @@ public class UploadStreamTest extends BaseServiceTest {
     // --- Close tests ---
 
     @Nested
-    class CloseTests {
+    class CloseTests extends BaseUploadTests {
 
-        @BeforeEach
-        void setup() {
+        CloseTests() {
+            super(null);
+        }
+
+        @Override
+        protected void setup() {
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, "Test", request, 512L, null, null);
+            mUls = mUlsFactory.create("Test", request, 512L, null, null);
         }
 
         @Test
@@ -1022,12 +1016,8 @@ public class UploadStreamTest extends BaseServiceTest {
 
         protected final String UPLOAD_ID = "Test";
 
-        @BeforeEach
-        void baseSetup() throws Exception {
-            // Do test setup
-            setup();
-
-            // Enqueue responses
+        @Override
+        protected void setup() throws Exception {
             enqueueResponse(mDataPath + "get_server_settings_response.json");
         }
 
@@ -1055,10 +1045,11 @@ public class UploadStreamTest extends BaseServiceTest {
         private String mOnStartId;
 
         @Override
-        protected void setup() {
+        protected void setup() throws Exception {
+            super.setup();
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0, null, null);
+            mUls = mUlsFactory.create(UPLOAD_ID, request, 0, null, null);
             mUls.addCallback(this);
         }
 
@@ -1099,10 +1090,11 @@ public class UploadStreamTest extends BaseServiceTest {
         private long mOnRunningBytesTotal = 0L;
 
         @Override
-        protected void setup() {
+        protected void setup() throws Exception {
+            super.setup();
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 4096L, null, null);
+            mUls = mUlsFactory.create(UPLOAD_ID, request, 4096L, null, null);
             mUls.addCallback(this);
         }
 
@@ -1150,10 +1142,11 @@ public class UploadStreamTest extends BaseServiceTest {
         private Node mOnFinishedNode;
 
         @Override
-        protected void setup() {
+        protected void setup() throws Exception {
+            super.setup();
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls = mUlsFactory.create(UPLOAD_ID, request, 0L, null, null);
             mUls.addCallback(this);
         }
 
@@ -1197,14 +1190,14 @@ public class UploadStreamTest extends BaseServiceTest {
         private String mOnCanceledId;
 
         @Override
-        protected void setup() {
+        protected void setup() throws Exception {
+            super.setup();
             // Simulate an interrupted thread
-            TestHttpHelper httpHelper = (TestHttpHelper) mDracoonClientImpl.getHttpHelper();
-            httpHelper.setSimulateInterruptedThread(true);
+            mHttpHelper.setSimulateInterruptedThread(true);
 
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls = mUlsFactory.create(UPLOAD_ID, request, 0L, null, null);
             mUls.addCallback(this);
         }
 
@@ -1315,10 +1308,11 @@ public class UploadStreamTest extends BaseServiceTest {
         private DracoonException mOnFailedException;
 
         @Override
-        protected void setup() {
+        protected void setup() throws Exception {
+            super.setup();
             // Create upload
             FileUploadRequest request = new FileUploadRequest.Builder(1L, "file.txt").build();
-            mUls = UploadStream.create(mDracoonClientImpl, UPLOAD_ID, request, 0L, null, null);
+            mUls = mUlsFactory.create(UPLOAD_ID, request, 0L, null, null);
             mUls.addCallback(this);
         }
 

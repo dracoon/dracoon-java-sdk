@@ -15,8 +15,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -81,6 +79,8 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected FileStreamHelper mFileStreamHelper;
 
         @Mock
+        protected DownloadThread.Factory mDownloadThreadFactory;
+        @Mock
         protected DownloadThread mDownloadThread;
 
         @Mock
@@ -95,6 +95,7 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         @BeforeEach
         protected void setup() {
             mDracoonClientImpl.setFileStreamHelper(mFileStreamHelper);
+            mServiceLocator.setDownloadThreadFactory(mDownloadThreadFactory);
         }
 
         @Test
@@ -113,11 +114,9 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected abstract void executeMockedWithException() throws Exception;
 
         protected void executeMockedDownloadThread() throws Exception {
-            try (MockedStatic<DownloadThread> mock = Mockito.mockStatic(DownloadThread.class)) {
-                mock.when(() -> DownloadThread.create(any(), anyString(), anyLong(), any(), any()))
-                        .thenReturn(mDownloadThread);
-                executeDownload();
-            }
+            when(mDownloadThreadFactory.create(anyString(), anyLong(), any(), any()))
+                    .thenReturn(mDownloadThread);
+            executeDownload();
         }
 
         protected void executeMockedAndVerifiedDownloadThread() throws Exception {
@@ -125,13 +124,10 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         }
 
         protected void executeMockedAndVerifiedDownloadThread(PlainFileKey fileKey) throws Exception {
-            try (MockedStatic<DownloadThread> mock = Mockito.mockStatic(DownloadThread.class)) {
-                mock.when(() -> DownloadThread.create(any(), anyString(), anyLong(), any(), any()))
-                        .thenReturn(mDownloadThread);
-                executeDownload();
-                mock.verify(() -> DownloadThread.create(mDracoonClientImpl, mDownloadId, mNodeId,
-                        fileKey, mStream));
-            }
+            when(mDownloadThreadFactory.create(anyString(), anyLong(), any(), any()))
+                    .thenReturn(mDownloadThread);
+            executeDownload();
+            verify(mDownloadThreadFactory).create(mDownloadId, mNodeId, fileKey, mStream);
 
             verifyDownloadThreadCall();
         }
@@ -139,11 +135,9 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected void executeMockedWithExceptionDownloadThread() throws Exception {
             mockDownloadThreadCallException();
 
-            try (MockedStatic<DownloadThread> mock = Mockito.mockStatic(DownloadThread.class)) {
-                mock.when(() -> DownloadThread.create(any(), anyString(), anyLong(), any(), any()))
-                        .thenReturn(mDownloadThread);
-                executeDownload();
-            }
+            when(mDownloadThreadFactory.create(anyString(), anyLong(), any(), any()))
+                    .thenReturn(mDownloadThread);
+            executeDownload();
         }
 
         protected abstract void mockDownloadThreadCallException() throws Exception;
@@ -681,6 +675,8 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         private final long mNodeId;
 
         @Mock
+        protected DownloadStream.Factory mDownloadStreamFactory;
+        @Mock
         protected DownloadStream mDownloadStream;
 
         @Mock
@@ -689,6 +685,11 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected BaseCreateDownloadStreamTests(String dataPath) {
             super(dataPath);
             mNodeId = 2L;
+        }
+
+        @BeforeEach
+        protected void setup() {
+            mServiceLocator.setDownloadStreamFactory(mDownloadStreamFactory);
         }
 
         @Test
@@ -708,11 +709,9 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected abstract void executeMockedWithException() throws Exception;
 
         protected void executeMockedDownloadStream() throws Exception {
-            try (MockedStatic<DownloadStream> mock = Mockito.mockStatic(DownloadStream.class)) {
-                mock.when(() -> DownloadStream.create(any(), anyString(), anyLong(), any()))
-                        .thenReturn(mDownloadStream);
-                executeCreateDownloadStream();
-            }
+            when(mDownloadStreamFactory.create(anyString(), anyLong(), any()))
+                    .thenReturn(mDownloadStream);
+            executeCreateDownloadStream();
         }
 
         protected void executeMockedAndVerifiedDownloadStream() throws Exception {
@@ -720,13 +719,10 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         }
 
         protected void executeMockedAndVerifiedDownloadStream(PlainFileKey fileKey) throws Exception {
-            try (MockedStatic<DownloadStream> mock = Mockito.mockStatic(DownloadStream.class)) {
-                mock.when(() -> DownloadStream.create(any(), anyString(), anyLong(), any()))
-                        .thenReturn(mDownloadStream);
-                executeCreateDownloadStream();
-                mock.verify(() -> DownloadStream.create(mDracoonClientImpl, mDownloadId, mNodeId,
-                        fileKey));
-            }
+            when(mDownloadStreamFactory.create(anyString(), anyLong(), any()))
+                    .thenReturn(mDownloadStream);
+            executeCreateDownloadStream();
+            verify(mDownloadStreamFactory).create(mDownloadId, mNodeId, fileKey);
 
             verify(mDownloadStream).start();
         }
@@ -734,11 +730,9 @@ public class NodesServiceDownloadTest extends BaseServiceTest {
         protected void executedMockedWithExceptionDownloadStream() throws Exception {
             doThrow(new DracoonNetIOException()).when(mDownloadStream).start();
 
-            try (MockedStatic<DownloadStream> mock = Mockito.mockStatic(DownloadStream.class)) {
-                mock.when(() -> DownloadStream.create(any(), anyString(), anyLong(), any()))
-                        .thenReturn(mDownloadStream);
-                executeCreateDownloadStream();
-            }
+            when(mDownloadStreamFactory.create(anyString(), anyLong(), any()))
+                    .thenReturn(mDownloadStream);
+            executeCreateDownloadStream();
         }
 
         private void executeCreateDownloadStream() throws Exception {

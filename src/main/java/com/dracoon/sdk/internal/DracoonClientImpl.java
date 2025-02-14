@@ -92,12 +92,12 @@ public class DracoonClientImpl extends DracoonClient {
         mLog = log != null ? log : new NullLog();
     }
 
-    public void setHttpConfig(DracoonHttpConfig httpConfig) {
-        mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
+    public DracoonHttpConfig getHttpConfig() {
+        return mHttpConfig;
     }
 
-    public long getChunkSize() {
-        return ((long) mHttpConfig.getChunkSize()) * DracoonConstants.KIB;
+    public void setHttpConfig(DracoonHttpConfig httpConfig) {
+        mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
     }
 
     public OkHttpClient getHttpClient() {

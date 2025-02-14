@@ -22,7 +22,6 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.internal.api.DracoonApi;
 import com.dracoon.sdk.internal.api.DracoonErrorParser;
@@ -81,19 +80,22 @@ public class DownloadStream extends FileDownloadStream {
 
     private final List<FileDownloadCallback> mCallbacks = new ArrayList<>();
 
-    private DownloadStream(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey) {
-        mLog = client.getLog();
-        mApi = client.getDracoonApi();
-        mHttpClient = client.getHttpClient();
-        mHttpHelper = client.getHttpHelper();
-        mErrorParser = client.getDracoonErrorParser();
-        mCrypto = client.getCryptoWrapper();
+    @SuppressWarnings("squid:S107")
+    private DownloadStream(Log log, DracoonApi dracoonApi, OkHttpClient httpClient,
+            HttpHelper httpHelper, DracoonErrorParser errorParser, CryptoWrapper cryptoWrapper,
+            String id, long nodeId, PlainFileKey fileKey, long chunkSize) {
+        mLog = log;
+        mApi = dracoonApi;
+        mHttpClient = httpClient;
+        mHttpHelper = httpHelper;
+        mErrorParser = errorParser;
+        mCrypto = cryptoWrapper;
 
         mId = id;
         mNodeId = nodeId;
         mFileKey = fileKey;
 
-        mChunkSize = client.getChunkSize();
+        mChunkSize = chunkSize;
     }
 
     void start() throws DracoonNetIOException, DracoonApiException, DracoonCryptoException {
@@ -596,9 +598,33 @@ public class DownloadStream extends FileDownloadStream {
 
     // --- Factory methods ---
 
-    public static DownloadStream create(DracoonClientImpl client, String id, long nodeId,
-            PlainFileKey fileKey) {
-        return new DownloadStream(client, id, nodeId, fileKey);
+    public static class Factory {
+
+        private final Log mLog;
+        private final DracoonApi mApi;
+        private final OkHttpClient mHttpClient;
+        private final HttpHelper mHttpHelper;
+        private final DracoonErrorParser mErrorParser;
+        private final CryptoWrapper mCrypto;
+        private final long mChunkSize;
+
+        public Factory(Log log, DracoonApi dracoonApi, OkHttpClient httpClient,
+                HttpHelper httpHelper, DracoonErrorParser errorParser, CryptoWrapper cryptoWrapper,
+                long chunkSize) {
+            mLog = log;
+            mApi = dracoonApi;
+            mHttpClient = httpClient;
+            mHttpHelper = httpHelper;
+            mErrorParser = errorParser;
+            mCrypto = cryptoWrapper;
+            mChunkSize = chunkSize;
+        }
+
+        public DownloadStream create(String id, long nodeId, PlainFileKey fileKey) {
+            return new DownloadStream(mLog, mApi, mHttpClient, mHttpHelper, mErrorParser, mCrypto,
+                    id, nodeId, fileKey, mChunkSize);
+        }
+
     }
 
 }

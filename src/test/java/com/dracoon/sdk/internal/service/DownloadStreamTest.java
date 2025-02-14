@@ -10,7 +10,7 @@ import com.dracoon.sdk.crypto.model.PlainFileKey;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
 import com.dracoon.sdk.error.DracoonException;
-import com.dracoon.sdk.internal.TestHttpHelper;
+import com.dracoon.sdk.internal.BaseApiTest;
 import com.dracoon.sdk.internal.crypto.CryptoWrapper;
 import com.dracoon.sdk.model.FileDownloadCallback;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,25 +28,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class DownloadStreamTest extends BaseServiceTest {
-
-    private static final long CHUNK_SIZE = 2048L;
+class DownloadStreamTest extends BaseApiTest {
 
     @Mock
     protected CryptoWrapper mCryptoWrapper;
 
-    private DownloadStream mDls;
-
-    @BeforeEach
-    protected void setup() throws Exception {
-        super.setup();
-        mDracoonClientImpl.setChunkSize(CHUNK_SIZE);
-        mDracoonClientImpl.setCryptoWrapper(mCryptoWrapper);
-    }
-
     private abstract class BaseDownloadTests {
 
         protected final String mDataPath;
+
+        protected long mChunkSize = 2048L;
+
+        protected DownloadStream.Factory mDlsFactory;
+        protected DownloadStream mDls;
 
         protected BaseDownloadTests(String dataPath) {
             mDataPath = dataPath;
@@ -54,6 +48,8 @@ class DownloadStreamTest extends BaseServiceTest {
 
         @BeforeEach
         void baseSetup() throws Exception {
+            mDlsFactory = new DownloadStream.Factory(mLog, mDracoonApi, mHttpClient, mHttpHelper,
+                    mDracoonErrorParser, mCryptoWrapper, mChunkSize);
             setup();
         }
 
@@ -109,7 +105,7 @@ class DownloadStreamTest extends BaseServiceTest {
             mockDependencies();
 
             // Create download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 2, getPlainFileKey());
         }
 
         @Test
@@ -195,7 +191,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 2, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -282,7 +278,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 2, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 2, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -378,7 +374,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 3, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 3, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -421,7 +417,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 4, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 4, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -630,7 +626,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 5, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 5, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -695,7 +691,7 @@ class DownloadStreamTest extends BaseServiceTest {
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE);
+            skipBytes(mDls, mChunkSize);
             readBytes(mDls);
 
             // Assert requests are valid
@@ -755,7 +751,7 @@ class DownloadStreamTest extends BaseServiceTest {
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE);
+            skipBytes(mDls, mChunkSize);
             long length = countReadBytes(mDls);
 
             // Assert size is correct
@@ -817,7 +813,7 @@ class DownloadStreamTest extends BaseServiceTest {
 
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE);
+            skipBytes(mDls, mChunkSize);
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
@@ -845,7 +841,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "download_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 6, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 6, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -1015,7 +1011,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "download_response_3.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 7, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 7, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -1063,7 +1059,7 @@ class DownloadStreamTest extends BaseServiceTest {
         void testRequestsValidReadSkipChunkReadAll() throws Exception {
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE);
+            skipBytes(mDls, mChunkSize);
             readBytes(mDls);
 
             // Assert requests are valid
@@ -1106,7 +1102,7 @@ class DownloadStreamTest extends BaseServiceTest {
         void testLengthCorrectAfterReadSkipChunkReadAll() throws Exception {
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE);
+            skipBytes(mDls, mChunkSize);
             long length = countReadBytes(mDls);
 
             // Assert size is correct
@@ -1150,7 +1146,7 @@ class DownloadStreamTest extends BaseServiceTest {
         void testDataCorrectAfterReadSkipChunkReadAll() throws Exception {
             // Read, skip chunk and read bytes
             readBytes(mDls, 128L);
-            skipBytes(mDls, CHUNK_SIZE);
+            skipBytes(mDls, mChunkSize);
             byte[] data = readBytes(mDls);
 
             // Assert data is correct
@@ -1179,7 +1175,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 8, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 8, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -1233,7 +1229,7 @@ class DownloadStreamTest extends BaseServiceTest {
             enqueueResponse(mDataPath + "create_download_url_response.json");
 
             // Create and start download
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 9, getPlainFileKey());
+            mDls = mDlsFactory.create("Test", 9, getPlainFileKey());
             mDls.start();
 
             // Drop irrelevant requests
@@ -1304,11 +1300,15 @@ class DownloadStreamTest extends BaseServiceTest {
     // --- Close tests ---
 
     @Nested
-    class CloseTests {
+    class CloseTests extends BaseDownloadTests {
 
-        @BeforeEach
-        void setup() {
-            mDls = DownloadStream.create(mDracoonClientImpl, "Test", 9, null);
+        CloseTests() {
+            super(null);
+        }
+
+        @Override
+        protected void setup() throws Exception {
+            mDls = mDlsFactory.create("Test", 9, null);
         }
 
         @Test
@@ -1357,7 +1357,7 @@ class DownloadStreamTest extends BaseServiceTest {
         protected void setup() throws Exception {
             mockDependencies();
 
-            mDls = DownloadStream.create(mDracoonClientImpl, DOWNLOAD_ID, 10, getPlainFileKey());
+            mDls = mDlsFactory.create(DOWNLOAD_ID, 10, getPlainFileKey());
             mDls.addCallback(this);
         }
 
@@ -1421,13 +1421,10 @@ class DownloadStreamTest extends BaseServiceTest {
         private long mOnRunningBytesRead = 0L;
         private long mOnRunningBytesTotal = 0L;
 
-        @Override
-        protected void setup() throws Exception {
+        CallbackRunningTests() {
+            super();
             // Change chunk size to be larger than internal buffer of 2KB
-            mDracoonClientImpl.setChunkSize(4096L);
-
-            // Create download
-            super.setup();
+            mChunkSize = 4096L;
         }
 
         @Override
@@ -1511,12 +1508,8 @@ class DownloadStreamTest extends BaseServiceTest {
 
         @Override
         protected void setup() throws Exception {
-            // Simulate an interrupted thread
-            TestHttpHelper httpHelper = (TestHttpHelper) mDracoonClientImpl.getHttpHelper();
-            httpHelper.setSimulateInterruptedThread(true);
-
-            // Create download
             super.setup();
+            mHttpHelper.setSimulateInterruptedThread(true);
         }
 
         @Override

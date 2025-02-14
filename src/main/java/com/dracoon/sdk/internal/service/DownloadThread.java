@@ -12,7 +12,6 @@ import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonException;
 import com.dracoon.sdk.error.DracoonFileIOException;
 import com.dracoon.sdk.error.DracoonNetIOException;
-import com.dracoon.sdk.internal.DracoonClientImpl;
 import com.dracoon.sdk.internal.DracoonConstants;
 import com.dracoon.sdk.model.FileDownloadCallback;
 
@@ -33,13 +32,14 @@ public class DownloadThread extends Thread {
 
     private final List<FileDownloadCallback> mCallbacks = new ArrayList<>();
 
-    private DownloadThread(DracoonClientImpl client, String id, long nodeId, PlainFileKey fileKey,
-            OutputStream outputStream) {
-        mLog = client.getLog();
+    @SuppressWarnings("squid:S107")
+    private DownloadThread(Log log, DownloadStream.Factory downloadStreamFactory, String id,
+            long nodeId, PlainFileKey fileKey, OutputStream outputStream) {
+        mLog = log;
 
         mId = id;
 
-        mDownloadStream = DownloadStream.create(client, id, nodeId, fileKey);
+        mDownloadStream = downloadStreamFactory.create(id, nodeId, fileKey);
         mOutputStream = outputStream;
     }
 
@@ -134,9 +134,22 @@ public class DownloadThread extends Thread {
 
     // --- Factory methods ---
 
-    public static DownloadThread create(DracoonClientImpl client, String id, long nodeId,
-            PlainFileKey fileKey, OutputStream outputStream) {
-        return new DownloadThread(client, id, nodeId, fileKey, outputStream);
+    public static class Factory {
+
+        private final Log mLog;
+        private final DownloadStream.Factory mDownloadStreamFactory;
+
+        public Factory(Log log, DownloadStream.Factory downloadStreamFactory) {
+            mLog = log;
+            mDownloadStreamFactory = downloadStreamFactory;
+        }
+
+        public DownloadThread create(String id, long nodeId, PlainFileKey fileKey,
+                OutputStream outputStream) {
+            return new DownloadThread(mLog, mDownloadStreamFactory, id, nodeId, fileKey,
+                    outputStream);
+        }
+
     }
 
 }
