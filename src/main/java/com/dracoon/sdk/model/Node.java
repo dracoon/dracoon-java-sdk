@@ -655,10 +655,10 @@ public class Node {
     /**
      * Sets the media token for the node.
      *
-     * @param mMediaToken The media token.
+     * @param mediaToken The media token.
      */
-    public void setMediaToken(String mMediaToken) {
-        this.mMediaToken = mMediaToken;
+    public void setMediaToken(String mediaToken) {
+        mMediaToken = mediaToken;
     }
 
     /**

@@ -1,183 +1,104 @@
 package com.dracoon.sdk.internal;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.dracoon.sdk.DracoonAuth;
 import com.dracoon.sdk.DracoonClient;
 import com.dracoon.sdk.DracoonHttpConfig;
 import com.dracoon.sdk.Log;
-import com.dracoon.sdk.crypto.model.UserKeyPair;
-import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
-import com.dracoon.sdk.error.DracoonCryptoCode;
-import com.dracoon.sdk.error.DracoonCryptoException;
 import com.dracoon.sdk.error.DracoonNetIOException;
+import com.dracoon.sdk.internal.api.DracoonApi;
+import com.dracoon.sdk.internal.api.DracoonApiBuilder;
+import com.dracoon.sdk.internal.api.DracoonErrorParser;
+import com.dracoon.sdk.internal.auth.AuthChecker;
+import com.dracoon.sdk.internal.auth.AuthHolder;
+import com.dracoon.sdk.internal.auth.AuthInterceptor;
+import com.dracoon.sdk.internal.auth.AuthInterceptorImpl;
+import com.dracoon.sdk.internal.auth.AuthTokenRefresher;
+import com.dracoon.sdk.internal.auth.AuthTokenRefresherImpl;
+import com.dracoon.sdk.internal.auth.AuthTokenRetriever;
+import com.dracoon.sdk.internal.auth.AuthTokenRetrieverImpl;
+import com.dracoon.sdk.internal.crypto.CryptoWrapper;
+import com.dracoon.sdk.internal.crypto.EncryptionPasswordHolder;
+import com.dracoon.sdk.internal.http.HttpClientBuilder;
+import com.dracoon.sdk.internal.http.HttpHelper;
 import com.dracoon.sdk.internal.oauth.OAuthClient;
-import com.dracoon.sdk.internal.oauth.OAuthTokens;
-import com.dracoon.sdk.internal.util.GsonCharArrayTypeAdapter;
-import com.dracoon.sdk.internal.util.GsonDateTypeAdapter;
-import com.dracoon.sdk.internal.util.GsonVoidTypeAdapter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import okhttp3.Interceptor;
+import com.dracoon.sdk.internal.service.Service;
+import com.dracoon.sdk.internal.service.ServiceDependencies;
+import com.dracoon.sdk.internal.service.ServiceDependenciesImpl;
+import com.dracoon.sdk.internal.service.ServiceLocator;
+import com.dracoon.sdk.internal.service.ServiceLocatorImpl;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * This class and its components are internal to the SDK and are not intended to be used directly.
+ * Use {@link DracoonClient.Builder} to obtain an instance.
+ *
+ * <h2>Architecture Overview</h2>
+ *
+ * <p>DracoonClientImpl is the implementation of the {@link DracoonClient} interface and acts as the
+ * bridge between the public API of {@link DracoonClient} and the internal implementation.</p>
+ *
+ * <p>The handler interfaces of {@link DracoonClient} (e.g. {@link Account Account}) are not
+ * implemented directly. Instead, they are created at runtime using {@link java.lang.reflect.Proxy},
+ * which delegates calls to service classes implementing the corresponding SDK functionality.</p>
+ *
+ * <h2>Key Components</h2>
+ *
+ * <ul>
+ * <li>{@link ClientImpl} / {@link ClientMethodImpl}: Annotations used by the proxy system to
+ *     associate service classes and methods with handler interfaces</li>
+ * <li>{@link Service}: Classes that implement specific SDK functionality</li>
+ * <li>{@link ServiceDependencies}: A common set of dependencies for services</li>
+ * <li>{@link ServiceLocator}: A registry to retrieve service instances</li>
+ * <li>{@link DynamicServiceProxy}: The class that ties everything together and connects handler
+ *     interfaces with actual services using Java dynamic proxies</li>
+ * </ul>
+ *
+ * <h2>Call Flow Example</h2>
+ *
+ * <ul>
+ * <li>The user calls {@code DracoonClient.account().getUserAccount()}.</li>
+ * <li>{@code DracoonClientImpl.account()} calls {@code DynamicServiceProxy.account()}.</li>
+ * <li>{@code DynamicServiceProxy} returns a Java proxy for {@code DracoonClient.Account}.</li>
+ * <li>The proxy routes the method invocation to the actual {@code AccountService} implementation.</li>
+ * <li>{@code AccountService.getUserAccount()} performs the API call and returns the result.</li>
+ * </ul>
+ */
 public class DracoonClientImpl extends DracoonClient {
 
-    private static final int HTTP_SOCKET_BUFFER_SIZE = 16 * DracoonConstants.KIB;
+    private final AuthHolder mAuthHolder = new AuthHolder();
+    private final EncryptionPasswordHolder mEncPasswordHolder = new EncryptionPasswordHolder();
 
-    private static final long AUTH_REFRESH_SKIP_INTERVAL = 15 * DracoonConstants.SECOND;
-
-    private DracoonAuth mAuth;
-
-    private final Interceptor mAuthInterceptor = new Interceptor() {
-
-        private long mLastRefreshTime = 0L;
-        private InterceptedIOException mLastRefreshException = null;
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            // Get request
-            Request request = chain.request();
-
-            // If no authorization is needed: Send unchanged request
-            if (isPublicRequest(request)) {
-                return chain.proceed(request);
-            }
-            // If no authorization data was provided: Send unchanged request
-            if (mAuth == null) {
-                return chain.proceed(request);
-            }
-
-            // Try to send request
-            Response response = chain.proceed(addAuthorizationHeader(request));
-
-            // If request was successful: Return response
-            if (isSuccessfulResponse(response)) {
-                return response;
-            }
-            // If no refresh token was provided: Return response
-            if (mAuth.getRefreshToken() == null) {
-                return response;
-            }
-
-            // Close old response
-            response.close();
-
-            // Try to refresh tokens
-            refreshAuthTokens();
-
-            // Try to resend request
-            return chain.proceed(addAuthorizationHeader(request));
-        }
-
-        private boolean isPublicRequest(Request request) {
-            return request.url().encodedPath().startsWith(DracoonConstants.API_PATH + "/public/");
-        }
-
-        private boolean isSuccessfulResponse(Response response) {
-            return response.code() != HttpStatus.UNAUTHORIZED.getNumber();
-        }
-
-        private Request addAuthorizationHeader(Request request) {
-            return request.newBuilder().header(DracoonConstants.AUTHORIZATION_HEADER,
-                    DracoonConstants.AUTHORIZATION_TYPE + " " + mAuth.getAccessToken()).build();
-        }
-
-        private synchronized void refreshAuthTokens() throws InterceptedIOException {
-            // If refresh is not overdue: Abort
-            if (mLastRefreshTime + AUTH_REFRESH_SKIP_INTERVAL > System.currentTimeMillis()) {
-                if (mLastRefreshException != null) {
-                    throw mLastRefreshException;
-                }
-                return;
-            }
-
-            // Try to refresh tokens
-            try {
-                OAuthTokens tokens = mOAuthClient.refreshTokens(mAuth.getRefreshToken());
-                mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(),
-                        tokens.accessToken, tokens.refreshToken);
-                mLastRefreshTime = System.currentTimeMillis();
-                mLastRefreshException = null;
-            } catch (DracoonNetIOException e) {
-                throw new InterceptedIOException(e);
-            } catch (DracoonApiException e) {
-                mLastRefreshTime = System.currentTimeMillis();
-                mLastRefreshException = new InterceptedIOException(e);
-                throw mLastRefreshException;
-            }
-        }
-
-    };
-
-    private char[] mEncryptionPassword;
-
-    protected Log mLog = new NullLog();
-
+    private Log mLog = new NullLog();
     private DracoonHttpConfig mHttpConfig = new DracoonHttpConfig();
-    private OkHttpClient mHttpClient;
-    protected HttpHelper mHttpHelper;
 
-    protected CryptoWrapper mCryptoWrapper;
-    protected ThreadHelper mThreadHelper;
-    protected FileStreamHelper mFileStreamHelper;
+    private AuthChecker mAuthChecker;
+    private AuthTokenRetriever mAuthTokenRetriever;
+    private AuthTokenRefresher mAuthTokenRefresher;
 
-    private OAuthClient mOAuthClient;
-
-    protected DracoonService mDracoonService;
-    protected DracoonErrorParser mDracoonErrorParser;
-
-    protected DracoonServerImpl mServer;
-    protected DracoonServerSettingsImpl mServerSettings;
-    protected DracoonServerPoliciesImpl mServerPolicies;
-    protected DracoonAccountImpl mAccount;
-    protected Users mUsers;
-    protected Groups mGroups;
-    protected DracoonNodesImpl mNodes;
-    protected DracoonSharesImpl mShares;
-
-    protected FileKeyFetcher mFileKeyFetcher;
-    protected FileKeyGenerator mFileKeyGenerator;
-    protected AvatarDownloader mAvatarDownloader;
-
-    protected String mApiVersion = null;
+    private ServiceLocator mServiceLocator;
+    private DynamicServiceProxy mServiceProxy;
 
     public DracoonClientImpl(URL serverUrl) {
         super(serverUrl);
     }
 
     public DracoonAuth getAuth() {
-        return mAuth;
+        return mAuthHolder.get();
     }
 
     public void setAuth(DracoonAuth auth) {
-        mAuth = auth;
+        mAuthHolder.set(auth);
     }
 
     public char[] getEncryptionPassword() {
-        return mEncryptionPassword;
+        return mEncPasswordHolder.get();
     }
 
     public void setEncryptionPassword(char[] encryptionPassword) {
-        mEncryptionPassword = encryptionPassword;
-    }
-
-    public char[] getEncryptionPasswordOrAbort() throws DracoonCryptoException {
-        char[] encryptionPassword = getEncryptionPassword();
-        if (encryptionPassword == null) {
-            throw new DracoonCryptoException(DracoonCryptoCode.MISSING_PASSWORD_ERROR);
-        }
-        return encryptionPassword;
+        mEncPasswordHolder.set(encryptionPassword);
     }
 
     public Log getLog() {
@@ -196,309 +117,113 @@ public class DracoonClientImpl extends DracoonClient {
         mHttpConfig = httpConfig != null ? httpConfig : new DracoonHttpConfig();
     }
 
-    public OkHttpClient getHttpClient() {
-        return mHttpClient;
-    }
-
-    public DracoonService getDracoonService() {
-        return mDracoonService;
-    }
-
-    public DracoonErrorParser getDracoonErrorParser() {
-        return mDracoonErrorParser;
-    }
-
-    public HttpHelper getHttpHelper() {
-        return mHttpHelper;
-    }
-
-    public int getS3DefaultChunkSize() {
-        return DracoonConstants.S3_DEFAULT_CHUNK_SIZE;
-    }
-
-    public CryptoWrapper getCryptoWrapper() {
-        return mCryptoWrapper;
-    }
-
-    public ThreadHelper getThreadHelper() {
-        return mThreadHelper;
-    }
-
-    public FileStreamHelper getFileStreamHelper() {
-        return mFileStreamHelper;
-    }
-
     // --- Initialization methods ---
 
     public void init() {
-        initOAuthClient();
+        initAuthHelpers();
 
-        initHttpClient();
-        initHttpHelper();
-        initDracoonService();
-        initDracoonErrorParser();
-
-        mCryptoWrapper = new CryptoWrapper(mLog);
-        mThreadHelper = new ThreadHelper();
-        mFileStreamHelper = new FileStreamHelper();
-
-        mServer = new DracoonServerImpl(this);
-        mServerSettings = new DracoonServerSettingsImpl(this);
-        mServerPolicies = new DracoonServerPoliciesImpl(this);
-        mAccount = new DracoonAccountImpl(this);
-        mUsers = new DracoonUsersImpl(this);
-        mNodes = new DracoonNodesImpl(this);
-        mShares = new DracoonSharesImpl(this);
-
-        mFileKeyFetcher = new FileKeyFetcher(this);
-        mFileKeyGenerator = new FileKeyGenerator(this);
-        mAvatarDownloader = new AvatarDownloader(this);
+        initServiceLocator();
+        initServiceProxy();
     }
 
-    protected void initOAuthClient() {
-        if (mAuth == null) {
-            return;
-        }
+    private void initAuthHelpers() {
+        OAuthClient oAuthClient = new OAuthClient(mServerUrl);
+        oAuthClient.setLog(mLog);
+        oAuthClient.setHttpConfig(mHttpConfig);
+        oAuthClient.init();
 
-        mOAuthClient = new OAuthClient(mServerUrl, mAuth.getClientId(), mAuth.getClientSecret());
-        mOAuthClient.setLog(mLog);
-        mOAuthClient.setHttpConfig(mHttpConfig);
-        mOAuthClient.init();
+        mAuthChecker = new AuthChecker(() -> mServiceLocator.getAccountService().pingUser());
+
+        mAuthTokenRetriever = new AuthTokenRetrieverImpl(oAuthClient, mAuthHolder);
+        mAuthTokenRefresher = new AuthTokenRefresherImpl(oAuthClient, mAuthHolder);
     }
 
-    protected void initHttpClient() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(mHttpConfig.getConnectTimeout(), TimeUnit.SECONDS);
-        builder.readTimeout(mHttpConfig.getReadTimeout(), TimeUnit.SECONDS);
-        builder.writeTimeout(mHttpConfig.getWriteTimeout(), TimeUnit.SECONDS);
-        builder.retryOnConnectionFailure(true);
-        builder.socketFactory(new BufferedSocketFactory(HTTP_SOCKET_BUFFER_SIZE));
-        if (mHttpConfig.isProxyEnabled()) {
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
-                    mHttpConfig.getProxyAddress(), mHttpConfig.getProxyPort()));
-            builder.proxy(proxy);
-        }
-        for (Interceptor interceptor : mHttpConfig.getOkHttpApplicationInterceptors()) {
-            builder.addInterceptor(interceptor);
-        }
-        builder.addNetworkInterceptor(new UserAgentInterceptor(mHttpConfig.getUserAgent()));
-        for (Interceptor interceptor : mHttpConfig.getOkHttpNetworkInterceptors()) {
-            builder.addNetworkInterceptor(interceptor);
-        }
-        mHttpClient = builder.build();
-    }
+    private void initServiceLocator() {
+        OkHttpClient httpClient = new HttpClientBuilder().build(mHttpConfig);
 
-    protected void initHttpHelper() {
-        mHttpHelper = new HttpHelper();
-        mHttpHelper.setLog(mLog);
-        mHttpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
-        mHttpHelper.setRateLimitingEnabled(mHttpConfig.isRateLimitingEnabled());
-        mHttpHelper.init();
-    }
+        HttpHelper httpHelper = new HttpHelper();
+        httpHelper.setLog(mLog);
+        httpHelper.setRetryEnabled(mHttpConfig.isRetryEnabled());
+        httpHelper.setRateLimitingEnabled(mHttpConfig.isRateLimitingEnabled());
+        httpHelper.init();
 
-    protected void initDracoonService() {
-        OkHttpClient httpClient = mHttpClient.newBuilder()
-                .followRedirects(false)
-                .addInterceptor(mAuthInterceptor)
+        AuthInterceptor authInterceptor = new AuthInterceptorImpl(mAuthHolder, mAuthTokenRefresher);
+
+        DracoonApi dracoonApi = new DracoonApiBuilder().build(mServerUrl, httpClient, authInterceptor);
+
+        DracoonErrorParser dracoonErrorParser = new DracoonErrorParser();
+        dracoonErrorParser.setLog(mLog);
+
+        CryptoWrapper cryptoWrapper = new CryptoWrapper(mLog);
+
+        ServiceDependencies serviceDependencies = new ServiceDependenciesImpl.Builder()
+                .setLog(mLog)
+                .setHttpConfig(mHttpConfig)
+                .setHttpClient(httpClient)
+                .setHttpHelper(httpHelper)
+                .setServerUrl(mServerUrl)
+                .setDracoonApi(dracoonApi)
+                .setDracoonErrorParser(dracoonErrorParser)
+                .setEncryptionPasswordHolder(mEncPasswordHolder)
+                .setCryptoWrapper(cryptoWrapper)
                 .build();
 
-        Gson gson = new GsonBuilder()
-                .disableHtmlEscaping()
-                .registerTypeAdapter(GsonVoidTypeAdapter.TYPE, new GsonVoidTypeAdapter())
-                .registerTypeAdapter(GsonDateTypeAdapter.TYPE, new GsonDateTypeAdapter())
-                .registerTypeAdapter(GsonCharArrayTypeAdapter.TYPE, new GsonCharArrayTypeAdapter())
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(mServerUrl.toString())
-                .client(httpClient)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        mDracoonService = retrofit.create(DracoonService.class);
+        mServiceLocator = new ServiceLocatorImpl(serviceDependencies);
     }
 
-    protected void initDracoonErrorParser() {
-        mDracoonErrorParser = new DracoonErrorParser();
-        mDracoonErrorParser.setLog(mLog);
+    private void initServiceProxy() {
+        mServiceProxy = new DynamicServiceProxy(mServiceLocator);
+        mServiceProxy.prepare();
     }
 
     public void checkApiVersionSupported() throws DracoonNetIOException, DracoonApiException {
-        if (mApiVersion != null) {
-            return;
-        }
-
-        if (!isApiVersionGreaterEqual(DracoonConstants.API_MIN_VERSION)) {
-            throw new DracoonApiException(DracoonApiCode.API_VERSION_NOT_SUPPORTED);
-        }
-    }
-
-    public void checkApiVersionGreaterEqual(String apiVersion) throws DracoonNetIOException,
-            DracoonApiException {
-        if (!isApiVersionGreaterEqual(apiVersion)) {
-            throw new DracoonApiException(DracoonApiCode.API_VERSION_NOT_SUFFICIENT);
-        }
-    }
-
-    public boolean isApiVersionGreaterEqual(String minApiVersion) throws DracoonNetIOException,
-            DracoonApiException {
-        if (mApiVersion == null) {
-            mApiVersion = mServer.getVersion();
-        }
-
-        if (mApiVersion == null || mApiVersion.isEmpty()) {
-            return false;
-        }
-
-        String[] av = mApiVersion.split("\\-")[0].split("\\.");
-        String[] mav = minApiVersion.split("\\.");
-
-        for (int i = 0; i < 3; i++) {
-            int v;
-            int mv;
-
-            try {
-                v = Integer.valueOf(av[i]);
-                mv = Integer.valueOf(mav[i]);
-            } catch (Exception e) {
-                throw new RuntimeException("Can't parse server API version.", e);
-            }
-
-            if (v > mv) {
-                break;
-            } else if (v < mv) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public void checkUserKeyPairVersionSupported(UserKeyPair.Version version)
-            throws DracoonNetIOException, DracoonApiException {
-        if (version == null) {
-            throw new IllegalArgumentException("Version can't be null.");
-        }
-
-        List<UserKeyPair.Version> versions = mServerSettings.getAvailableUserKeyPairVersions();
-        boolean apiSupportsVersion = versions.stream().anyMatch(v -> v == version);
-        if (!apiSupportsVersion) {
-            throw new DracoonApiException(DracoonApiCode.SERVER_CRYPTO_VERSION_NOT_SUPPORTED);
-        }
+        mServiceLocator.getServerInfoService().checkVersionSupported();
     }
 
     public void retrieveAuthTokens() throws DracoonApiException, DracoonNetIOException {
-        if (mAuth == null || !mAuth.getMode().equals(DracoonAuth.Mode.AUTHORIZATION_CODE)) {
-            return;
-        }
-
-        // Try to retrieve auth tokens
-        OAuthTokens tokens = mOAuthClient.retrieveTokens(mAuth.getAuthorizationCode());
-
-        // Update auth data
-        mAuth = new DracoonAuth(mAuth.getClientId(), mAuth.getClientSecret(), tokens.accessToken,
-                tokens.refreshToken);
+        mAuthTokenRetriever.retrieve();
     }
 
     @Override
     public boolean isAuthValid() throws DracoonNetIOException, DracoonApiException {
-        try {
-            mAccount.pingUser();
-        } catch (DracoonApiException e) {
-            if (e.getCode().isAuthError()) {
-                return false;
-            } else {
-                throw e;
-            }
-        }
-        return true;
+        return mAuthChecker.isAuthValid();
     }
 
     @Override
     public void checkAuthValid() throws DracoonNetIOException, DracoonApiException {
-        mAccount.pingUser();
+        mAuthChecker.checkAuthValid();
     }
 
     // --- Methods to get public handlers ---
 
     @Override
     public Server server() {
-        return mServer;
+        return mServiceProxy.server();
     }
 
     @Override
     public Account account() {
-        return mAccount;
+        return mServiceProxy.account();
     }
 
     @Override
     public Users users() {
-        return mUsers;
+        return mServiceProxy.users();
     }
 
     @Override
     public Groups groups() {
-        return mGroups;
+        return mServiceProxy.groups();
     }
 
     @Override
     public Nodes nodes() {
-        return mNodes;
+        return mServiceProxy.nodes();
     }
 
     @Override
     public Shares shares() {
-        return mShares;
-    }
-
-    // --- Methods to get internal handlers ---
-
-    public DracoonServerImpl getServerImpl() {
-        return mServer;
-    }
-
-    public DracoonServerSettingsImpl getServerSettingsImpl() {
-        return mServerSettings;
-    }
-
-    public DracoonServerPoliciesImpl getServerPoliciesImpl() {
-        return mServerPolicies;
-    }
-
-    public DracoonAccountImpl getAccountImpl() {
-        return mAccount;
-    }
-
-    public DracoonNodesImpl getNodesImpl() {
-        return mNodes;
-    }
-
-    public DracoonSharesImpl getSharesImpl() {
-        return mShares;
-    }
-
-    public FileKeyFetcher getFileKeyFetcher() {
-        return mFileKeyFetcher;
-    }
-
-    public FileKeyGenerator getFileKeyGenerator() {
-        return mFileKeyGenerator;
-    }
-
-    public AvatarDownloader getAvatarDownloader() {
-        return mAvatarDownloader;
-    }
-
-    // --- Helper methods ---
-
-    public String buildApiUrl(String... pathSegments) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(mServerUrl);
-        sb.append(DracoonConstants.API_PATH);
-        for (String pathSegment : pathSegments) {
-            sb.append("/").append(pathSegment);
-        }
-        return sb.toString();
+        return mServiceProxy.shares();
     }
 
 }

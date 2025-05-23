@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.dracoon.sdk.Log;
 import com.dracoon.sdk.error.DracoonApiCode;
 import com.dracoon.sdk.error.DracoonApiException;
-import com.dracoon.sdk.internal.HttpStatus;
+import com.dracoon.sdk.internal.http.HttpStatus;
 import com.dracoon.sdk.internal.NullLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

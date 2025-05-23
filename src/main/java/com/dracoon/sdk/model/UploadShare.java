@@ -197,7 +197,7 @@ public class UploadShare {
      * @param maxUploads The maximum number of uploads.
      */
     public void setMaxUploads(Integer maxUploads) {
-        this.mMaxUploads = maxUploads;
+        mMaxUploads = maxUploads;
     }
 
     /**
@@ -215,7 +215,7 @@ public class UploadShare {
      * @param maxQuota The maximum number of bytes.
      */
     public void setMaxQuota(Long maxQuota) {
-        this.mMaxQuota = maxQuota;
+        mMaxQuota = maxQuota;
     }
 
     /**

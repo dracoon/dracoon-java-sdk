@@ -25,6 +25,4 @@ public abstract class DracoonConstants {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_TYPE = "Bearer";
 
-    public static final int S3_DEFAULT_CHUNK_SIZE = 5 * DracoonConstants.MIB;
-
 }
