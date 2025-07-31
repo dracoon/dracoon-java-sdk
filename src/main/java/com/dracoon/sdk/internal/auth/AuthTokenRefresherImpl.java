@@ -38,7 +38,7 @@ public class AuthTokenRefresherImpl implements AuthTokenRefresher {
 
         // Update auth
         if (newAuth != auth) {
-            mAuthHolder.set(auth);
+            mAuthHolder.set(newAuth);
         }
     }
 
