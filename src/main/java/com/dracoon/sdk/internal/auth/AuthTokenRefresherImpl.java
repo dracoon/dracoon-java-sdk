@@ -25,6 +25,10 @@ public class AuthTokenRefresherImpl implements AuthTokenRefresher {
         mAuthHolder = authHolder;
     }
 
+    void setLastRefreshTime(long lastRefreshTime) {
+        mLastRefreshTime = lastRefreshTime;
+    }
+
     @Override
     public synchronized void refresh() throws IOException {
         // Get current auth
